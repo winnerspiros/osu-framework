@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <SupportedOSPlatformVersion>24.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion>30.0</SupportedOSPlatformVersion>
     <RuntimeIdentifiers>android-x86;android-arm;android-arm64</RuntimeIdentifiers>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidMessageHandler</AndroidHttpClientHandlerType>

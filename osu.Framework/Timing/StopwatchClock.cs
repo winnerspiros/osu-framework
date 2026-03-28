@@ -32,23 +32,25 @@ namespace osu.Framework.Timing
         /// <summary>
         /// The current time, represented solely by the accumulated <see cref="Stopwatch"/> time.
         /// </summary>
-        private double stopwatchCurrentTime => (stopwatchMilliseconds - rateChangeUsed) * Rate + rateChangeAccumulated;
+        private double stopwatchCurrentTime => (stopwatchMilliseconds - rateChangeUsed) * rate + rateChangeAccumulated;
 
         private double stopwatchMilliseconds => (double)ElapsedTicks / Frequency * 1000;
 
+        private double rate = 1;
+
         public double Rate
         {
-            get;
+            get => rate;
             set
             {
-                if (field == value) return;
+                if (rate == value) return;
 
-                rateChangeAccumulated += (stopwatchMilliseconds - rateChangeUsed) * field;
+                rateChangeAccumulated += (stopwatchMilliseconds - rateChangeUsed) * rate;
                 rateChangeUsed = stopwatchMilliseconds;
 
-                field = value;
+                rate = value;
             }
-        } = 1;
+        }
 
         public new void Reset()
         {

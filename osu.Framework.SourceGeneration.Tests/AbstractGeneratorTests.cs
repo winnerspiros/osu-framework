@@ -37,7 +37,7 @@ namespace osu.Framework.SourceGeneration.Tests
         {
             string extension = Path.GetExtension(resourceName);
 
-            resourceName = resourceName.Replace(resourceNamespace, string.Empty)[1..]
+            resourceName = resourceName.Replace(resourceNamespace, string.Empty).Substring(1)
                                        .Replace(extension, string.Empty);
 
             // .txt files are converted to .cs.

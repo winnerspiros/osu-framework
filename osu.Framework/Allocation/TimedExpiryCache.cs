@@ -94,19 +94,20 @@ namespace osu.Framework.Allocation
         {
             public DateTimeOffset LastAccessTime;
 
+            private readonly T value;
+
             public T Value
             {
                 get
                 {
                     updateAccessTime();
-                    return field;
+                    return value;
                 }
-                private set;
             }
 
             public TimedObject(T value)
             {
-                Value = value;
+                this.value = value;
                 updateAccessTime();
             }
 

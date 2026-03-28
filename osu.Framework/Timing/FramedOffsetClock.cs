@@ -8,7 +8,9 @@ namespace osu.Framework.Timing
     /// </summary>
     public class FramedOffsetClock : FramedClock
     {
-        public override double CurrentTime => base.CurrentTime + Offset;
+        public override double CurrentTime => base.CurrentTime + offset;
+
+        private double offset;
 
         /// <summary>
         /// The offset to be applied.
@@ -18,11 +20,11 @@ namespace osu.Framework.Timing
         /// </remarks>
         public double Offset
         {
-            get;
+            get => offset;
             set
             {
-                LastFrameTime += value - field;
-                field = value;
+                LastFrameTime += value - offset;
+                offset = value;
             }
         }
 

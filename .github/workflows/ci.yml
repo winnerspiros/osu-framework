@@ -87,7 +87,6 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: 1.26.1
-          cache: false
 
       - name: Install httpbin
         run: go install github.com/mccutchen/go-httpbin/v2/cmd/go-httpbin@latest
@@ -155,8 +154,8 @@ jobs:
 
       # https://github.com/dotnet/macios/issues/19157
       # https://github.com/actions/runner-images/issues/12758
-      - name: Use Xcode 26.2
-        run: sudo xcode-select -switch /Applications/Xcode_26.2.app
+      - name: Use Xcode 16.4
+        run: sudo xcode-select -switch /Applications/Xcode_16.4.app
 
       - name: Compile
         run: dotnet build -c Debug osu-framework.iOS.slnf

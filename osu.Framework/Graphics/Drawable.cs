@@ -693,11 +693,11 @@ namespace osu.Framework.Graphics
 
         private Vector2 size
         {
-            get => new Vector2(width, height);
+            get => new Vector2(Width, Height);
             set
             {
-                width = value.X;
-                height = value.Y;
+                Width = value.X;
+                Height = value.Y;
             }
         }
 
@@ -728,22 +728,22 @@ namespace osu.Framework.Graphics
             }
         }
 
-        private float width;
-        private float height;
+
+
 
         /// <summary>
         /// X component of <see cref="Size"/>.
         /// </summary>
         public virtual float Width
         {
-            get => width;
+            get;
             set
             {
-                if (width == value) return;
+                if (field == value) return;
 
                 if (!float.IsFinite(value)) throw new ArgumentException($@"{nameof(Width)} must be finite, but is {value}.");
 
-                width = value;
+                field = value;
 
                 invalidateParentSizeDependencies(Invalidation.DrawSize, Axes.X);
             }
@@ -754,14 +754,14 @@ namespace osu.Framework.Graphics
         /// </summary>
         public virtual float Height
         {
-            get => height;
+            get;
             set
             {
-                if (height == value) return;
+                if (field == value) return;
 
                 if (!float.IsFinite(value)) throw new ArgumentException($@"{nameof(Height)} must be finite, but is {value}.");
 
-                height = value;
+                field = value;
 
                 invalidateParentSizeDependencies(Invalidation.DrawSize, Axes.Y);
             }
@@ -1093,26 +1093,24 @@ namespace osu.Framework.Graphics
 
         #region Origin / Anchor
 
-        private Anchor origin = Anchor.TopLeft;
-
         /// <summary>
         /// The origin of this <see cref="Drawable"/>.
         /// </summary>
         /// <exception cref="ArgumentException">If the provided value does not exist in the <see cref="Graphics.Anchor"/> enumeration.</exception>
         public virtual Anchor Origin
         {
-            get => origin;
+            get;
             set
             {
-                if (origin == value) return;
+                if (field == value) return;
 
                 if (value == 0)
                     throw new ArgumentException("Cannot set origin to 0.", nameof(value));
 
-                origin = value;
+                field = value;
                 Invalidate(Invalidation.MiscGeometry);
             }
-        }
+        } = Anchor.TopLeft;
 
         private Vector2 customOrigin;
 
@@ -1128,14 +1126,14 @@ namespace osu.Framework.Graphics
                     throw new InvalidOperationException(@"Can not obtain relative origin position for custom origins.");
 
                 Vector2 result = Vector2.Zero;
-                if (origin.HasFlagFast(Anchor.x1))
+                if (Origin.HasFlagFast(Anchor.x1))
                     result.X = 0.5f;
-                else if (origin.HasFlagFast(Anchor.x2))
+                else if (Origin.HasFlagFast(Anchor.x2))
                     result.X = 1;
 
-                if (origin.HasFlagFast(Anchor.y1))
+                if (Origin.HasFlagFast(Anchor.y1))
                     result.Y = 0.5f;
-                else if (origin.HasFlagFast(Anchor.y2))
+                else if (Origin.HasFlagFast(Anchor.y2))
                     result.Y = 1;
 
                 return result;
@@ -1276,8 +1274,6 @@ namespace osu.Framework.Graphics
 
         #region Colour / Alpha / Blending
 
-        private ColourInfo colour = Color4.White;
-
         /// <summary>
         /// Colour of this <see cref="Drawable"/> in sRGB space. Can contain individual colours for all four
         /// corners of this <see cref="Drawable"/>, which are then interpolated, but can also be assigned
@@ -1285,16 +1281,16 @@ namespace osu.Framework.Graphics
         /// </summary>
         public ColourInfo Colour
         {
-            get => colour;
+            get;
             set
             {
-                if (colour.Equals(value)) return;
+                if (field.Equals(value)) return;
 
-                colour = value;
+                field = value;
 
                 Invalidate(Invalidation.Colour);
             }
-        }
+        } = Color4.White;
 
         /// <summary>
         /// Multiplicative alpha factor applied on top of <see cref="ColourInfo"/> and its existing
@@ -1349,21 +1345,19 @@ namespace osu.Framework.Graphics
             }
         }
 
-        private BlendingParameters blending;
-
         /// <summary>
         /// Determines how this Drawable is blended with other already drawn Drawables.
         /// Inherits the <see cref="Parent"/>'s <see cref="Blending"/> by default.
         /// </summary>
         public BlendingParameters Blending
         {
-            get => blending;
+            get;
             set
             {
-                if (blending == value)
+                if (field == value)
                     return;
 
-                blending = value;
+                field = value;
 
                 Invalidate(Invalidation.Colour);
             }
@@ -1409,11 +1403,8 @@ namespace osu.Framework.Graphics
         /// </summary>
         public bool ProcessCustomClock = true;
 
-        private double lifetimeStart = double.MinValue;
-        private double lifetimeEnd = double.MaxValue;
-
         /// <summary>
-        /// Invoked after <see cref="lifetimeStart"/> or <see cref="LifetimeEnd"/> has changed.
+        /// Invoked after <see cref="LifetimeStart"/> or <see cref="LifetimeEnd"/> has changed.
         /// </summary>
         internal event Action<Drawable> LifetimeChanged;
 
@@ -1422,30 +1413,30 @@ namespace osu.Framework.Graphics
         /// </summary>
         public virtual double LifetimeStart
         {
-            get => lifetimeStart;
+            get;
             set
             {
-                if (lifetimeStart == value) return;
+                if (field == value) return;
 
-                lifetimeStart = value;
+                field = value;
                 LifetimeChanged?.Invoke(this);
             }
-        }
+        } = double.MinValue;
 
         /// <summary>
         /// The time at which this drawable is no longer valid (and is considered for disposal).
         /// </summary>
         public virtual double LifetimeEnd
         {
-            get => lifetimeEnd;
+            get;
             set
             {
-                if (lifetimeEnd == value) return;
+                if (field == value) return;
 
-                lifetimeEnd = value;
+                field = value;
                 LifetimeChanged?.Invoke(this);
             }
-        }
+        } = double.MaxValue;
 
         /// <summary>
         /// Whether this drawable should currently be alive.
@@ -1632,7 +1623,7 @@ namespace osu.Framework.Graphics
 
             ci.Blending = localBlending;
 
-            ColourInfo ourColour = Alpha != 1 ? colour.MultiplyAlpha(Alpha) : colour;
+            ColourInfo ourColour = Alpha != 1 ? Colour.MultiplyAlpha(Alpha) : Colour;
 
             if (ci.Colour.HasSingleColour)
                 ci.Colour.ApplyChild(ourColour);
@@ -1811,7 +1802,7 @@ namespace osu.Framework.Graphics
                 if (nextLayout.Conditions?.Invoke(this, memberInvalidation) != false)
                     anyInvalidated |= nextLayout.Invalidate();
 
-            NextLayoutIteration:
+                NextLayoutIteration:
                 nextLayout = nextLayout.Next;
             }
 

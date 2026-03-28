@@ -101,7 +101,7 @@ namespace osu.Framework.Utils
                 outputCache.Invalidate();
                 controlPoints.Invalidate();
             }
-        } = 3;
+        }
 
         /// <summary>
         /// Gets or sets the tolerance for determining when to add a new control point. Must not be negative. Default is 1.5.
@@ -121,7 +121,7 @@ namespace osu.Framework.Utils
                 outputCache.Invalidate();
                 controlPoints.Invalidate();
             }
-        } = 1.5f;
+        }
 
         /// <summary>
         /// Gets or sets the corner threshold for determining when to add a new control point. Must not be negative. Default is 0.4.
@@ -141,7 +141,7 @@ namespace osu.Framework.Utils
                 outputCache.Invalidate();
                 controlPoints.Invalidate();
             }
-        } = 0.4f;
+        }
 
         /// <summary>
         /// The piecewise linear approximation of the B-spline created from the input path.

@@ -1,0 +1,648 @@
+{
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.6.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "BadChildStatementIndent",
+          "ruleIndex": 0,
+          "level": "warning",
+          "message": {
+            "text": "Line indent is not restored to the previous level around child statement"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "osu.Framework/Graphics/Drawable.cs",
+                  "uriBaseId": "solutionDir",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 1814,
+                  "startColumn": 1,
+                  "endLine": 1814,
+                  "endColumn": 13,
+                  "charOffset": 72265,
+                  "charLength": 12
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "contextRegionHash/v1": "2ADD058637D49536D783342CEABF70ED5409F581BD4D93AC846B1B3CB28BBB7B"
+          },
+          "properties": {
+            "tags": ["C#",".NET 10.0"]
+          }
+        },
+        {
+          "ruleId": "ChangeFieldTypeToSystemThreadingLock",
+          "ruleIndex": 1,
+          "level": "note",
+          "message": {
+            "text": "Consider changing the type of 'scheduler_acquisition_lock' field to 'System.Threading.Lock' to express the field's intent"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "osu.Framework/Graphics/Drawable.cs",
+                  "uriBaseId": "solutionDir",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 435,
+                  "startColumn": 33,
+                  "endLine": 435,
+                  "endColumn": 39,
+                  "charOffset": 18088,
+                  "charLength": 6
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "contextRegionHash/v1": "818341A17182D30743CEE74A3E293A1F2DC079B27BB6EF83817362D777FFA032"
+          },
+          "properties": {
+            "tags": ["C#",".NET 10.0"]
+          }
+        },
+        {
+          "ruleId": "MemberInitializerValueIgnored",
+          "ruleIndex": 2,
+          "level": "warning",
+          "message": {
+            "text": "Property initializer value ignored during initialization"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "osu.Framework/Utils/IncrementalBSplineBuilder.cs",
+                  "uriBaseId": "solutionDir",
+                  "index": 1
+                },
+                "region": {
+                  "startLine": 104,
+                  "startColumn": 13,
+                  "endLine": 104,
+                  "endColumn": 14,
+                  "charOffset": 4188,
+                  "charLength": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "contextRegionHash/v1": "05E59BDBBF1E507FBD919899A39DE1B0718E06DA5DA9E156AEB21527A48FD383"
+          },
+          "properties": {
+            "tags": ["C#",".NET 10.0"]
+          }
+        },
+        {
+          "ruleId": "MemberInitializerValueIgnored",
+          "ruleIndex": 2,
+          "level": "warning",
+          "message": {
+            "text": "Property initializer value ignored during initialization"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "osu.Framework/Utils/IncrementalBSplineBuilder.cs",
+                  "uriBaseId": "solutionDir",
+                  "index": 1
+                },
+                "region": {
+                  "startLine": 124,
+                  "startColumn": 13,
+                  "endLine": 124,
+                  "endColumn": 17,
+                  "charOffset": 4833,
+                  "charLength": 4
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "contextRegionHash/v1": "2478588DE9F2FADFB0867247F26B30A18F9D883A7983B620BCDFE6C118FC09A4"
+          },
+          "properties": {
+            "tags": ["C#",".NET 10.0"]
+          }
+        },
+        {
+          "ruleId": "MemberInitializerValueIgnored",
+          "ruleIndex": 2,
+          "level": "warning",
+          "message": {
+            "text": "Property initializer value ignored during initialization"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "osu.Framework/Utils/IncrementalBSplineBuilder.cs",
+                  "uriBaseId": "solutionDir",
+                  "index": 1
+                },
+                "region": {
+                  "startLine": 144,
+                  "startColumn": 13,
+                  "endLine": 144,
+                  "endColumn": 17,
+                  "charOffset": 5494,
+                  "charLength": 4
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "contextRegionHash/v1": "4931E9F4725A17E8527B7BB7DC6CE1B3B95AA228A8CE673F09496EB42E55BDEF"
+          },
+          "properties": {
+            "tags": ["C#",".NET 10.0"]
+          }
+        },
+        {
+          "ruleId": "ReplaceWithFieldKeyword",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Replace with 'field' keyword"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "osu.Framework/Graphics/Drawable.cs",
+                  "uriBaseId": "solutionDir",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 770,
+                  "startColumn": 9,
+                  "endLine": 770,
+                  "endColumn": 39,
+                  "charOffset": 29184,
+                  "charLength": 30
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "contextRegionHash/v1": "B0D01A776A9B9481CBBAE33F41FF9DC35220DD1FE4F5185C53AC1B5846518194"
+          },
+          "properties": {
+            "tags": ["C#",".NET 10.0"]
+          }
+        },
+        {
+          "ruleId": "ReplaceWithFieldKeyword",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Replace with 'field' keyword"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "osu.Framework/Graphics/Drawable.cs",
+                  "uriBaseId": "solutionDir",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 982,
+                  "startColumn": 9,
+                  "endLine": 982,
+                  "endColumn": 30,
+                  "charOffset": 38234,
+                  "charLength": 21
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "contextRegionHash/v1": "A936FE9ED8A382C801D4C60DFDB30E09D374C30A71F005ED9AC1D73C5D36F994"
+          },
+          "properties": {
+            "tags": ["C#",".NET 10.0"]
+          }
+        },
+        {
+          "ruleId": "ReplaceWithFieldKeyword",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Replace with 'field' keyword"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "osu.Framework/Graphics/Drawable.cs",
+                  "uriBaseId": "solutionDir",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 1053,
+                  "startColumn": 9,
+                  "endLine": 1053,
+                  "endColumn": 30,
+                  "charOffset": 40865,
+                  "charLength": 21
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "contextRegionHash/v1": "7DC22E37A3A89485884DEBDAE361E3A48FE6962D0D7CB1C5C6C6F053DD863597"
+          },
+          "properties": {
+            "tags": ["C#",".NET 10.0"]
+          }
+        },
+        {
+          "ruleId": "ReplaceWithFieldKeyword",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Replace with 'field' keyword"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "osu.Framework/Graphics/Drawable.cs",
+                  "uriBaseId": "solutionDir",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 1117,
+                  "startColumn": 9,
+                  "endLine": 1117,
+                  "endColumn": 38,
+                  "charOffset": 42791,
+                  "charLength": 29
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "contextRegionHash/v1": "67F6897AB4994B854304C6CAEE6BAA3172C6735827D1E6CA4F87DA96D10B9281"
+          },
+          "properties": {
+            "tags": ["C#",".NET 10.0"]
+          }
+        },
+        {
+          "ruleId": "ReplaceWithFieldKeyword",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Replace with 'field' keyword"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "osu.Framework/Graphics/Drawable.cs",
+                  "uriBaseId": "solutionDir",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 1200,
+                  "startColumn": 9,
+                  "endLine": 1200,
+                  "endColumn": 54,
+                  "charOffset": 45961,
+                  "charLength": 45
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "contextRegionHash/v1": "57E04E6CFC20BA7ADDBB93709DDA537CBF58783CCDCA8E0A6B2D357F3735F5B4"
+          },
+          "properties": {
+            "tags": ["C#",".NET 10.0"]
+          }
+        },
+        {
+          "ruleId": "ReplaceWithFieldKeyword",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Replace with 'field' keyword"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "osu.Framework/Graphics/Drawable.cs",
+                  "uriBaseId": "solutionDir",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 1352,
+                  "startColumn": 9,
+                  "endLine": 1352,
+                  "endColumn": 45,
+                  "charOffset": 51419,
+                  "charLength": 36
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "contextRegionHash/v1": "FFB9C7C202FF7CBFCE882A8506E5592A2D984715843C69CE7BEB919C87895283"
+          },
+          "properties": {
+            "tags": ["C#",".NET 10.0"]
+          }
+        },
+        {
+          "ruleId": "ReplaceWithFieldKeyword",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Replace with 'field' keyword"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "osu.Framework/Graphics/Drawable.cs",
+                  "uriBaseId": "solutionDir",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 1413,
+                  "startColumn": 9,
+                  "endLine": 1413,
+                  "endColumn": 35,
+                  "charOffset": 53534,
+                  "charLength": 26
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "contextRegionHash/v1": "A81FDB960CFF8080192DDDCA20A8CD2475FB19453514FCE22A07944A56218BE4"
+          },
+          "properties": {
+            "tags": ["C#",".NET 10.0"]
+          }
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "InspectCode",
+          "organization": "JetBrains, Inc",
+          "fullName": "JetBrains Inspect Code 2025.2.3",
+          "semanticVersion": "252.0.20251001.232050",
+          "informationUri": "http://www.jetbrains.com/resharper/features/command-line.html",
+          "rules": [
+            {
+              "id": "BadChildStatementIndent",
+              "help": {
+                "text": "https://www.jetbrains.com/help/resharper/BadChildStatementIndent.html"
+              },
+              "shortDescription": {
+                "text": "Incorrect indent: Around child statement"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "helpUri": "https://www.jetbrains.com/help/resharper/BadChildStatementIndent.html",
+              "relationships": [
+                {
+                  "target": {
+                    "id": "CSHARP.FormattingIssues",
+                    "toolComponent": {
+                      "name": "InspectCode"
+                    }
+                  },
+                  "kinds": [
+                    "superset"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "ChangeFieldTypeToSystemThreadingLock",
+              "fullDescription": {
+                "text": "The type of the lock field can be changed to 'System.Threading.Lock' to express the field's intent"
+              },
+              "help": {
+                "text": "https://www.jetbrains.com/help/resharper/ChangeFieldTypeToSystemThreadingLock.html"
+              },
+              "shortDescription": {
+                "text": "Change lock field type to 'System.Threading.Lock'"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "helpUri": "https://www.jetbrains.com/help/resharper/ChangeFieldTypeToSystemThreadingLock.html",
+              "relationships": [
+                {
+                  "target": {
+                    "id": "CSHARP.BestPractice",
+                    "toolComponent": {
+                      "name": "InspectCode"
+                    }
+                  },
+                  "kinds": [
+                    "superset"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "MemberInitializerValueIgnored",
+              "fullDescription": {
+                "text": "Member initializer value is ignored because the member is always initialized in all constructors"
+              },
+              "help": {
+                "text": "https://www.jetbrains.com/help/resharper/MemberInitializerValueIgnored.html"
+              },
+              "shortDescription": {
+                "text": "Member initialized value ignored"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "helpUri": "https://www.jetbrains.com/help/resharper/MemberInitializerValueIgnored.html",
+              "relationships": [
+                {
+                  "target": {
+                    "id": "CSHARP.CodeSmell",
+                    "toolComponent": {
+                      "name": "InspectCode"
+                    }
+                  },
+                  "kinds": [
+                    "superset"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "ReplaceWithFieldKeyword",
+              "fullDescription": {
+                "text": "Replace explicit field declaration with a 'field' keyword usage in corresponding property declaration (anonymous field)"
+              },
+              "shortDescription": {
+                "text": "Replace with 'field' keyword"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "relationships": [
+                {
+                  "target": {
+                    "id": "CSHARP.LanguageUsage",
+                    "toolComponent": {
+                      "name": "InspectCode"
+                    }
+                  },
+                  "kinds": [
+                    "superset"
+                  ]
+                }
+              ]
+            }
+          ],
+          "taxa": [
+            {
+              "id": "CSHARP",
+              "name": "C#"
+            },
+            {
+              "id": "CSHARP.BestPractice",
+              "name": "Common Practices and Code Improvements",
+              "relationships": [
+                {
+                  "target": {
+                    "id": "CSHARP",
+                    "toolComponent": {
+                      "name": "InspectCode"
+                    }
+                  },
+                  "kinds": [
+                    "superset"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "CSHARP.CodeSmell",
+              "name": "Potential Code Quality Issues",
+              "relationships": [
+                {
+                  "target": {
+                    "id": "CSHARP",
+                    "toolComponent": {
+                      "name": "InspectCode"
+                    }
+                  },
+                  "kinds": [
+                    "superset"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "CSHARP.FormattingIssues",
+              "name": "Formatting",
+              "relationships": [
+                {
+                  "target": {
+                    "id": "CSHARP",
+                    "toolComponent": {
+                      "name": "InspectCode"
+                    }
+                  },
+                  "kinds": [
+                    "superset"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "CSHARP.LanguageUsage",
+              "name": "Language Usage Opportunities",
+              "relationships": [
+                {
+                  "target": {
+                    "id": "CSHARP",
+                    "toolComponent": {
+                      "name": "InspectCode"
+                    }
+                  },
+                  "kinds": [
+                    "superset"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "versionControlProvenance": [
+        {
+          "repositoryUri": "https://github.com/winnerspiros/osu-framework",
+          "revisionId": "892653b8e15b52a3d3f4d1fab7e9ded0287f9f6e",
+          "branch": "jules-18018821884781540114-a56ade78",
+          "mappedTo": {
+            "uriBaseId": "solutionDir"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "solutionDir": {
+          "uri": "file:///app/",
+          "description": {
+            "text": "Solution Directory"
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "location": {
+            "uri": "osu.Framework/Graphics/Drawable.cs",
+            "uriBaseId": "solutionDir"
+          },
+          "hashes": {
+            "md5": "133CF6D05B1FA08F0626836FA2741380",
+            "sha-1": "58AA98D288CDE3914FD3783AAD140CE6CFC40566",
+            "sha-256": "A7A2CE31CCDB73B785412F8F1104C312DB9E5630C6B38B8AD347563F710B0FB1"
+          }
+        },
+        {
+          "location": {
+            "uri": "osu.Framework/Utils/IncrementalBSplineBuilder.cs",
+            "uriBaseId": "solutionDir"
+          },
+          "hashes": {
+            "md5": "D56FB95CDB7833CE5EF80E4880DECBCA",
+            "sha-1": "1D7420F135DF472F1D1BC6B82D653C9AF11C1439",
+            "sha-256": "DF5BCD70E66BF9C528BBD766AA831975699AE1E795F4C674B3DF233194CE78D4"
+          }
+        }
+      ],
+      "columnKind": "utf16CodeUnits"
+    }
+  ]
+}

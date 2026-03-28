@@ -101,6 +101,7 @@ namespace osu.Framework.Allocation
                     updateAccessTime();
                     return field;
                 }
+                private set;
             }
 
             public TimedObject(T value)

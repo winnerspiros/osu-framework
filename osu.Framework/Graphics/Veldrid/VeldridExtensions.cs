@@ -444,6 +444,12 @@ namespace osu.Framework.Graphics.Veldrid
             else // Vulkan's convention
                 driverVersion = $"{properties.driverVersion >> 22}.{(properties.driverVersion >> 12) & 0x3FFU}.{properties.driverVersion & 0xFFFU}";
 
+            uint apiMajor = properties.apiVersion >> 22;
+            uint apiMinor = (properties.apiVersion >> 12) & 0x3FFU;
+
+            if (RuntimeInfo.OS == RuntimeInfo.Platform.Android && (apiMajor < 1 || (apiMajor == 1 && apiMinor < 3)))
+                Logger.Log($"Vulkan {apiVersion} detected on Android. Vulkan 1.3+ is recommended for optimal performance.", level: LogLevel.Important);
+
             Logger.Log($@"{vulkanName} Initialized
                                     {vulkanName} API Version:    {apiVersion}
                                     {vulkanName} Driver Version: {driverVersion}

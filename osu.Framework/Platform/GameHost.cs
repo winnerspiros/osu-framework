@@ -876,7 +876,7 @@ namespace osu.Framework.Platform
                     break;
 
                 case RuntimeInfo.Platform.Android:
-                    // Still uses osuTK so only the legacy GL renderer is supported.
+                    yield return RendererType.Vulkan;
                     yield return RendererType.OpenGL;
 
                     break;

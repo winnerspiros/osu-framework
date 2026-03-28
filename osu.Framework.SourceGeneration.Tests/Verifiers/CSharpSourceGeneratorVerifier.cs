@@ -22,17 +22,17 @@ namespace osu.Framework.SourceGeneration.Tests.Verifiers
         {
             var test = new Test(optimizationLevel);
 
-            foreach (var s in commonSources)
-                test.TestState.Sources.Add((s.filename, SourceText.From(s.content, Encoding.UTF8)));
+            foreach (var (filename, content) in commonSources)
+                test.TestState.Sources.Add( (filename, SourceText.From(content, Encoding.UTF8)));
 
-            foreach (var s in sources)
-                test.TestState.Sources.Add((s.filename, SourceText.From(s.content, Encoding.UTF8)));
+            foreach (var (filename, content) in sources)
+                test.TestState.Sources.Add( (filename, SourceText.From(content, Encoding.UTF8)));
 
-            foreach (var e in commonGenerated)
-                test.TestState.GeneratedSources.Add((typeof(TSourceGenerator), e.filename, SourceText.From(e.content, Encoding.UTF8)));
+            foreach (var (filename, content) in commonGenerated)
+                test.TestState.GeneratedSources.Add((typeof(TSourceGenerator), filename, SourceText.From(content, Encoding.UTF8)));
 
-            foreach (var e in generated)
-                test.TestState.GeneratedSources.Add((typeof(TSourceGenerator), e.filename, SourceText.From(e.content, Encoding.UTF8)));
+            foreach (var (filename, content) in generated)
+                test.TestState.GeneratedSources.Add((typeof(TSourceGenerator), filename, SourceText.From(content, Encoding.UTF8)));
 
             await test.RunAsync(CancellationToken.None).ConfigureAwait(false);
         }

@@ -74,8 +74,8 @@ namespace osu.Framework.SourceGeneration.Tests.Verifiers
             {
                 IncrementalCompilation compilation = new IncrementalCompilation();
 
-                foreach (var s in commonSources)
-                    compilation.AddOrUpdateSource(s.filename, s.content);
+                foreach (var (filename, content) in commonSources)
+                    compilation.AddOrUpdateSource(filename, content);
 
                 for (int phase = 0; phase < multiPhaseSources.Count; phase++)
                 {

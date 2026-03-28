@@ -1811,7 +1811,7 @@ namespace osu.Framework.Graphics
                 if (nextLayout.Conditions?.Invoke(this, memberInvalidation) != false)
                     anyInvalidated |= nextLayout.Invalidate();
 
-                NextLayoutIteration:
+            NextLayoutIteration:
                 nextLayout = nextLayout.Next;
             }
 

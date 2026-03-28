@@ -23,10 +23,10 @@ namespace osu.Framework.SourceGeneration.Tests.Verifiers
             var test = new Test(optimizationLevel);
 
             foreach (var (filename, content) in commonSources)
-                test.TestState.Sources.Add( (filename, SourceText.From(content, Encoding.UTF8)));
+                test.TestState.Sources.Add((filename, SourceText.From(content, Encoding.UTF8)));
 
             foreach (var (filename, content) in sources)
-                test.TestState.Sources.Add( (filename, SourceText.From(content, Encoding.UTF8)));
+                test.TestState.Sources.Add((filename, SourceText.From(content, Encoding.UTF8)));
 
             foreach (var (filename, content) in commonGenerated)
                 test.TestState.GeneratedSources.Add((typeof(TSourceGenerator), filename, SourceText.From(content, Encoding.UTF8)));

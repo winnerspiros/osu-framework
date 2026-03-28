@@ -251,7 +251,7 @@ namespace osu.Framework.Audio.Track
                 }
             }, token);
 
-            void logBassError(string reason) => Logger.Log($"BASS failure while reading waveform: {reason} ({Bass.LastError})");
+            static void logBassError(string reason) => Logger.Log($"BASS failure while reading waveform: {reason} ({Bass.LastError})");
         }
 
         private float computeIntensity(ChannelInfo info, float[] bins, float startFrequency, float endFrequency)

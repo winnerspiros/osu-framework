@@ -106,8 +106,10 @@ namespace osu.Framework.Tests.Visual.Containers
             protected override void LoadComplete()
             {
                 base.LoadComplete();
-                if (scaling) this.ScaleTo(1.2f, 1000).Then().ScaleTo(1, 1000).Loop();
-                if (fading) this.FadeTo(0.5f, 1000).Then().FadeTo(1, 1000).Loop();
+                if (scaling)
+                    this.ScaleTo(1.2f, 1000).Then().ScaleTo(1, 1000).Loop();
+                if (fading)
+                    this.FadeTo(0.5f, 1000).Then().FadeTo(1, 1000).Loop();
             }
         }
 
@@ -163,8 +165,10 @@ namespace osu.Framework.Tests.Visual.Containers
             protected override void LoadComplete()
             {
                 base.LoadComplete();
-                if (rotating) this.RotateTo(360, 1000).Loop();
-                if (moving) this.MoveTo(new Vector2(100, 0), 2000, Easing.InOutSine).Then().MoveTo(new Vector2(0, 0), 2000, Easing.InOutSine).Loop();
+                if (rotating)
+                    this.RotateTo(360, 1000).Loop();
+                if (moving)
+                    this.MoveTo(new Vector2(100, 0), 2000, Easing.InOutSine).Then().MoveTo(new Vector2(0, 0), 2000, Easing.InOutSine).Loop();
             }
         }
     }

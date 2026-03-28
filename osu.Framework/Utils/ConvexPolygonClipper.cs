@@ -69,7 +69,7 @@ namespace osu.Framework.Utils
                 return Span<Vector2>.Empty;
 
             // Add the subject vertices to the buffer and immediately normalise them
-            Span<Vector2> subjectVertices = getNormalised(origSubjectVertices, buffer.Slice(0, origSubjectVertices.Length), true);
+            Span<Vector2> subjectVertices = getNormalised(origSubjectVertices, buffer[..origSubjectVertices.Length], true);
 
             // Since the clip vertices aren't modified, we can use them as they are if they are normalised
             // However if they are not normalised, then we must add them to the buffer and normalise them there
@@ -99,7 +99,7 @@ namespace osu.Framework.Utils
             if (validClipEdges < 3)
                 return Span<Vector2>.Empty;
 
-            return buffer.Slice(0, inputCount);
+            return buffer[..inputCount];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -106,7 +106,7 @@ namespace osu.Framework.Android
                 // if we are in multi-window mode, the status bar is always visible (even if we request to hide it) and could be obstructing our view.
                 // if multi-window mode is not active, we can assume the status bar is hidden so we shouldn't consider it for safe area calculations.
                 var insetsCompat = WindowInsetsCompat.ToWindowInsetsCompat(windowInsets, this);
-                int statusBarHeight = insetsCompat?.GetInsets(WindowInsetsCompat.Type.StatusBars()).Top ?? 0;
+                int statusBarHeight = insetsCompat?.GetInsets(WindowInsetsCompat.Type.StatusBars())?.Top ?? 0;
                 usableWindowArea = usableWindowArea.Intersect(windowArea.Shrink(0, 0, statusBarHeight, 0));
             }
 

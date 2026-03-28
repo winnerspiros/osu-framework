@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Project">
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <OutputType>Library</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyTitle>osu!framework</AssemblyTitle>
@@ -52,6 +52,6 @@
     <!-- Any version ahead of this will cause runtime issues on iOS
          See https://github.com/xoofx/markdig/issues/564 -->
     <PackageReference Include="Markdig" Version="0.23.0" />
-    <PackageReference Include="System.Numerics.Tensors" Version="8.0.0" />
+    <PackageReference Include="System.Numerics.Tensors" Version="10.0.0" />
   </ItemGroup>
 </Project>

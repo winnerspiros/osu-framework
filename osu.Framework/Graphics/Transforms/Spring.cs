@@ -34,12 +34,14 @@ namespace osu.Framework.Graphics.Transforms
         /// </summary>
         public T PreviousTarget;
 
+        private SpringParameters parameters;
+
         public SpringParameters Parameters
         {
-            get => field;
+            get => parameters;
             set
             {
-                field = value;
+                parameters = value;
 
                 k1 = Damping / (MathF.PI * NaturalFrequency);
                 k2 = 1 / ((2 * MathF.PI * NaturalFrequency) * (2 * MathF.PI * NaturalFrequency));

@@ -113,7 +113,7 @@ namespace osu.Framework.Graphics.Video
         {
             if (RuntimeInfo.OS == RuntimeInfo.Platform.Linux)
             {
-                void loadVersionedLibraryGlobally(string name)
+                static void loadVersionedLibraryGlobally(string name)
                 {
                     int version = FFmpeg.AutoGen.ffmpeg.LibraryVersionMap[name];
                     Library.Load($"lib{name}.so.{version}", Library.LoadFlags.RTLD_LAZY | Library.LoadFlags.RTLD_GLOBAL);

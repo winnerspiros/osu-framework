@@ -172,45 +172,51 @@ namespace osu.Framework.Graphics.Pooling
             statistic = null;
         }
 
+        private int currentPoolSize;
+
         /// <summary>
         /// The current size of the pool.
         /// </summary>
         public int CurrentPoolSize
         {
-            get => field;
+            get => currentPoolSize;
             private set
             {
                 Debug.Assert(statistic != null);
 
-                statistic.Value.CurrentPoolSize = field = value;
+                statistic.Value.CurrentPoolSize = currentPoolSize = value;
             }
         }
+
+        private int countInUse;
 
         /// <summary>
         /// The number of drawables currently in use.
         /// </summary>
         public int CountInUse
         {
-            get => field;
+            get => countInUse;
             private set
             {
                 Debug.Assert(statistic != null);
 
-                statistic.Value.CountInUse = field = value;
+                statistic.Value.CountInUse = countInUse = value;
             }
         }
+
+        private int countExcessConstructed;
 
         /// <summary>
         /// The total number of drawables constructed that were not pooled.
         /// </summary>
         public int CountExcessConstructed
         {
-            get => field;
+            get => countExcessConstructed;
             private set
             {
                 Debug.Assert(statistic != null);
 
-                statistic.Value.CountExcessConstructed = field = value;
+                statistic.Value.CountExcessConstructed = countExcessConstructed = value;
             }
         }
 

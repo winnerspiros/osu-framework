@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -477,19 +477,20 @@ namespace osu.Framework.Graphics.UserInterface
 
         public partial class TabFillFlowContainer : FillFlowContainer<TabItem<T>>
         {
+            private bool allowMultiline;
 
             /// <summary>
             /// Whether tabs should be allowed to flow beyond a single line. If set to false, overflowing tabs will be automatically hidden.
             /// </summary>
             public bool AllowMultiline
             {
-                get => field;
+                get => allowMultiline;
                 set
                 {
-                    if (value == field)
+                    if (value == allowMultiline)
                         return;
 
-                    field = value;
+                    allowMultiline = value;
                     InvalidateLayout();
                 }
             }

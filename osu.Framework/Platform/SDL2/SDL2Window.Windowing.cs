@@ -119,18 +119,20 @@ namespace osu.Framework.Platform.SDL2
             WindowMode.TriggerChange();
         }
 
+        private bool focused;
+
         /// <summary>
         /// Whether the window currently has focus.
         /// </summary>
         public bool Focused
         {
-            get => field;
+            get => focused;
             private set
             {
-                if (value == field)
+                if (value == focused)
                     return;
 
-                isActive.Value = field = value;
+                isActive.Value = focused = value;
             }
         }
 
@@ -165,21 +167,23 @@ namespace osu.Framework.Platform.SDL2
 
         public bool PositionAccurate => true;
 
+        private bool resizable = true;
+
         /// <summary>
         /// Returns or sets whether the window is resizable or not. Only valid when in <see cref="osu.Framework.Platform.WindowState.Normal"/>.
         /// </summary>
         public bool Resizable
         {
-            get => field;
+            get => resizable;
             set
             {
-                if (field == value)
+                if (resizable == value)
                     return;
 
-                field = value;
+                resizable = value;
                 ScheduleCommand(() => SDL_SetWindowResizable(SDLWindowHandle, value ? SDL_bool.SDL_TRUE : SDL_bool.SDL_FALSE));
             }
-        } = true;
+        }
 
         private Size size = new Size(default_width, default_height);
 
@@ -225,15 +229,17 @@ namespace osu.Framework.Platform.SDL2
 
         public IBindable<bool> CursorInWindow => cursorInWindow;
 
+        private bool visible;
+
         /// <summary>
         /// Enables or disables the window visibility.
         /// </summary>
         public bool Visible
         {
-            get => field;
+            get => visible;
             set
             {
-                field = value;
+                visible = value;
                 ScheduleCommand(() =>
                 {
                     if (value)

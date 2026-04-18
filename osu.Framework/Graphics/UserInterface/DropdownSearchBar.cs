@@ -24,12 +24,14 @@ namespace osu.Framework.Graphics.UserInterface
         private TextBox textBox = null!;
         private DropdownTextInputSource? inputSource;
 
+        private bool alwaysDisplayOnFocus;
+
         public bool AlwaysDisplayOnFocus
         {
-            get => field;
+            get => alwaysDisplayOnFocus;
             set
             {
-                field = value;
+                alwaysDisplayOnFocus = value;
 
                 if (IsLoaded)
                     updateTextBoxVisibility();

@@ -19,9 +19,9 @@ namespace osu.Framework.Platform
 {
     public abstract class SDLGameHost : GameHost
     {
-        public override bool CapsLockEnabled => (Window as ISDLWindow)?.CapsLockPressed == true;
+        public override bool CapsLockEnabled => Window is ISDLWindow { CapsLockPressed: true };
 
-        public override bool OnScreenKeyboardOverlapsGameWindow => (Window as ISDLWindow)?.KeyboardAttached == false;
+        public override bool OnScreenKeyboardOverlapsGameWindow => Window is ISDLWindow { KeyboardAttached: false };
 
         protected SDLGameHost(string gameName, HostOptions? options = null)
             : base(gameName, options)

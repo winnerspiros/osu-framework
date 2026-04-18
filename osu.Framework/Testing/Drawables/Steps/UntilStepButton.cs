@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -22,6 +22,7 @@ namespace osu.Framework.Testing.Drawables.Steps
 
         public override int RequiredRepetitions => success ? 0 : int.MaxValue;
 
+        private readonly string text = string.Empty;
         private bool success;
         private int invocations;
         private Stopwatch? elapsedTime;
@@ -35,9 +36,9 @@ namespace osu.Framework.Testing.Drawables.Steps
 
         public new string Text
         {
-            get => field;
+            get => text;
             init => base.Text = text = value;
-        } = string.Empty;
+        }
 
         private void checkAssert()
         {

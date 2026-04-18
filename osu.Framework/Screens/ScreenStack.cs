@@ -190,7 +190,7 @@ namespace osu.Framework.Screens
         protected virtual void LoadScreen(CompositeDrawable loader, Drawable toLoad, Action continuation)
         {
             // If the previous screen has already been exited, do not attempt to load the new one.
-            if ((loader as IScreen)?.ValidForPush == false)
+            if (loader is IScreen { ValidForPush: false })
                 return;
 
             if (toLoad.LoadState >= LoadState.Ready)

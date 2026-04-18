@@ -39,6 +39,8 @@ namespace osu.Framework.Graphics.Sprites
 
         protected override DrawNode CreateDrawNode() => new BufferSpriteDrawNode(this);
 
+        private bool synchronisedDrawQuad;
+
         /// <summary>
         /// Whether this <see cref="BufferedContainerView{T}"/> should be drawn using the original <see cref="BufferedContainer{T}"/>'s draw quad.
         /// </summary>
@@ -47,30 +49,32 @@ namespace osu.Framework.Graphics.Sprites
         /// </remarks>
         public bool SynchronisedDrawQuad
         {
-            get => field;
+            get => synchronisedDrawQuad;
             set
             {
-                if (value == field)
+                if (value == synchronisedDrawQuad)
                     return;
 
-                field = value;
+                synchronisedDrawQuad = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
         }
+
+        private bool displayOriginalEffects;
 
         /// <summary>
         /// Whether the effects drawn by the <see cref="BufferedContainer{T}"/> should also be drawn for this view.
         /// </summary>
         public bool DisplayOriginalEffects
         {
-            get => field;
+            get => displayOriginalEffects;
             set
             {
-                if (field == value)
+                if (displayOriginalEffects == value)
                     return;
 
-                field = value;
+                displayOriginalEffects = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
@@ -102,6 +106,7 @@ namespace osu.Framework.Graphics.Sprites
 
             private Quad screenSpaceDrawQuad;
             private BufferedDrawNodeSharedData shared;
+            private bool displayOriginalEffects;
 
             private bool sourceDrawsOriginal;
             private ColourInfo sourceEffectColour;
@@ -176,7 +181,7 @@ namespace osu.Framework.Graphics.Sprites
             /// This is true if we explicitly want to draw it or if no effects were drawn by the source. In the case that no effects were drawn by the source,
             /// the current effect buffer will be the main buffer, and what will be drawn is the main buffer with the effect blending applied.
             /// </summary>
-            private bool shouldDrawEffectBuffer => field || shared.CurrentEffectBuffer == shared.MainBuffer;
+            private bool shouldDrawEffectBuffer => displayOriginalEffects || shared.CurrentEffectBuffer == shared.MainBuffer;
         }
     }
 }

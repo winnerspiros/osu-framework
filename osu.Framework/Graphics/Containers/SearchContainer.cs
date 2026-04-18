@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -38,35 +38,39 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public event Action FilterCompleted;
 
+        private bool allowNonContiguousMatching;
+
         /// <summary>
         /// Whether the matching algorithm should consider cases where other characters exist between consecutive characters in the search term.
         /// If <c>true</c>, searching for "BSI" will match "BeatmapSetInfo".
         /// </summary>
         public bool AllowNonContiguousMatching
         {
-            get => field;
+            get => allowNonContiguousMatching;
             set
             {
-                if (value == field)
+                if (value == allowNonContiguousMatching)
                     return;
 
-                field = value;
+                allowNonContiguousMatching = value;
                 filterValid.Invalidate();
             }
         }
+
+        private string searchTerm;
 
         /// <summary>
         /// A string that should match the <see cref="IFilterable"/> children
         /// </summary>
         public string SearchTerm
         {
-            get => field;
+            get => searchTerm;
             set
             {
-                if (value == field)
+                if (value == searchTerm)
                     return;
 
-                field = value;
+                searchTerm = value;
                 filterValid.Invalidate();
             }
         }

@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -44,19 +44,20 @@ namespace osu.Framework.Graphics.Containers
     public partial class BufferedContainer<T> : Container<T>, IBufferedContainer, IBufferedDrawable
         where T : Drawable
     {
+        private bool drawOriginal;
 
         /// <summary>
         /// If true the original buffered children will be drawn a second time on top of any effect (e.g. blur).
         /// </summary>
         public bool DrawOriginal
         {
-            get => field;
+            get => drawOriginal;
             set
             {
-                if (field == value)
+                if (drawOriginal == value)
                     return;
 
-                field = value;
+                drawOriginal = value;
                 ForceRedraw();
             }
         }
@@ -82,19 +83,21 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
+        private float blurRotation;
+
         /// <summary>
         /// Rotates the blur kernel clockwise. In degrees. Has no effect if
         /// <see cref="BlurSigma"/> has the same magnitude in both directions.
         /// </summary>
         public float BlurRotation
         {
-            get => field;
+            get => blurRotation;
             set
             {
-                if (field == value)
+                if (blurRotation == value)
                     return;
 
-                field = value;
+                blurRotation = value;
                 ForceRedraw();
             }
         }
@@ -138,19 +141,21 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
+        private EffectPlacement effectPlacement;
+
         /// <summary>
         /// Whether the buffered effect should be drawn behind or in front of the original.
         /// Behind by default. Does not have any effect if <see cref="DrawOriginal"/> is false.
         /// </summary>
         public EffectPlacement EffectPlacement
         {
-            get => field;
+            get => effectPlacement;
             set
             {
-                if (field == value)
+                if (effectPlacement == value)
                     return;
 
-                field = value;
+                effectPlacement = value;
                 Invalidate(Invalidation.DrawNode);
             }
         }
@@ -188,15 +193,17 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
+        private float grayscaleStrength;
+
         public float GrayscaleStrength
         {
-            get => field;
+            get => grayscaleStrength;
             set
             {
-                if (field == value)
+                if (grayscaleStrength == value)
                     return;
 
-                field = value;
+                grayscaleStrength = value;
                 ForceRedraw();
             }
         }
@@ -209,21 +216,23 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public readonly bool UsingCachedFrameBuffer;
 
+        private bool redrawOnScale = true;
+
         /// <summary>
         /// Whether to redraw this <see cref="BufferedContainer"/> when the draw scale changes.
         /// </summary>
         public bool RedrawOnScale
         {
-            get => field;
+            get => redrawOnScale;
             set
             {
-                if (field == value)
+                if (redrawOnScale == value)
                     return;
 
-                field = value;
+                redrawOnScale = value;
                 screenSpaceSizeBacking?.Invalidate();
             }
-        } = true;
+        }
 
         /// <summary>
         /// Forces a redraw of the framebuffer before it is blitted the next time.

@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -134,7 +134,9 @@ namespace osu.Framework.Bindables
             TriggerDefaultChange(previousValue, source ?? this, true, bypassChecks);
         }
 
-        private WeakReference<Bindable<T>> weakReference => field ??= new WeakReference<Bindable<T>>(this);
+        private WeakReference<Bindable<T>> weakReferenceInstance;
+
+        private WeakReference<Bindable<T>> weakReference => weakReferenceInstance ??= new WeakReference<Bindable<T>>(this);
 
         /// <summary>
         /// Creates a new bindable instance. This is used for deserialization of bindables.

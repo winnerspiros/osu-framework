@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -48,22 +48,24 @@ namespace osu.Framework.Graphics.Containers.Markdown
             }
         }
 
+        private string text = string.Empty;
+
         /// <summary>
         /// The text to visualise.
         /// </summary>
         public string Text
         {
-            get => field;
+            get => text;
             set
             {
-                if (field == value)
+                if (text == value)
                     return;
 
-                field = value;
+                text = value;
 
                 contentCache.Invalidate();
             }
-        } = string.Empty;
+        }
 
         /// <summary>
         /// The vertical spacing between lines.

@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -30,6 +30,8 @@ namespace osu.Framework.Graphics.Performance
         [Resolved]
         private FrameworkConfigManager config { get; set; } = null!;
 
+        private FrameStatisticsMode state;
+
         private TextFlowContainer? infoText;
 
         private Bindable<FrameSync> configFrameSync = null!;
@@ -44,12 +46,12 @@ namespace osu.Framework.Graphics.Performance
 
         public FrameStatisticsMode State
         {
-            get => field;
+            get => state;
             set
             {
-                if (field == value) return;
+                if (state == value) return;
 
-                field = value;
+                state = value;
 
                 if (IsLoaded)
                     updateState();

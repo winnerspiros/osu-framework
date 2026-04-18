@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -58,24 +58,26 @@ namespace osu.Framework.Graphics.Containers
             AddLayout(isIntersectingCache);
         }
 
+        private Drawable content;
+
         public Drawable Content
         {
-            get => field;
+            get => content;
             protected set
             {
-                if (field == value)
+                if (content == value)
                     return;
 
-                field = value;
+                content = value;
 
-                if (field == null)
+                if (content == null)
                     return;
 
                 AutoSizeAxes = Axes.None;
                 RelativeSizeAxes = Axes.None;
 
-                RelativeSizeAxes = field.RelativeSizeAxes;
-                AutoSizeAxes = (field as CompositeDrawable)?.AutoSizeAxes ?? AutoSizeAxes;
+                RelativeSizeAxes = content.RelativeSizeAxes;
+                AutoSizeAxes = (content as CompositeDrawable)?.AutoSizeAxes ?? AutoSizeAxes;
             }
         }
 

@@ -49,6 +49,8 @@ namespace osu.Framework.Layout
         {
         }
 
+        private T value;
+
         /// <summary>
         /// Gets or sets the current value.
         /// </summary>
@@ -60,11 +62,11 @@ namespace osu.Framework.Layout
                 if (!IsValid)
                     throw new InvalidOperationException($"May not query {nameof(Value)} of an invalid {nameof(LayoutValue<T>)}.");
 
-                return field;
+                return value;
             }
             set
             {
-                field = value;
+                this.value = value;
 
                 Validate();
             }

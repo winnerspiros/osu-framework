@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -23,6 +23,8 @@ namespace osu.Framework.Graphics.UserInterface
 
         protected override DrawNode CreateDrawNode() => new CircularBlobDrawNode(this);
 
+        private float innerRadius = 0.2f;
+
         /// <summary>
         /// The inner fill radius, relative to the <see cref="Drawable.DrawSize"/> of the <see cref="CircularBlob"/>.
         /// The value range is 0 to 1 where 0 is invisible and 1 is completely filled.
@@ -30,52 +32,58 @@ namespace osu.Framework.Graphics.UserInterface
         /// </summary>
         public float InnerRadius
         {
-            get => field;
+            get => innerRadius;
             set
             {
                 if (!float.IsFinite(value))
                     throw new ArgumentException($"{nameof(InnerRadius)} must be finite, but is {value}.");
 
-                field = Math.Clamp(value, 0, 1);
+                innerRadius = Math.Clamp(value, 0, 1);
                 Invalidate(Invalidation.DrawNode);
             }
-        } = 0.2f;
+        }
+
+        private float amplitude = 0.3f;
 
         public float Amplitude
         {
-            get => field;
+            get => amplitude;
             set
             {
                 if (!float.IsFinite(value))
                     throw new ArgumentException($"{nameof(Amplitude)} must be finite, but is {value}.");
 
-                field = Math.Clamp(value, 0, 1);
+                amplitude = Math.Clamp(value, 0, 1);
                 Invalidate(Invalidation.DrawNode);
             }
-        } = 0.3f;
+        }
+
+        private float frequency = 1.5f;
 
         public float Frequency
         {
-            get => field;
+            get => frequency;
             set
             {
                 if (!float.IsFinite(value))
                     throw new ArgumentException($"{nameof(Frequency)} must be finite, but is {value}.");
 
-                field = value;
+                frequency = value;
                 Invalidate(Invalidation.DrawNode);
             }
-        } = 1.5f;
+        }
+
+        private int seed = 1;
 
         public int Seed
         {
-            get => field;
+            get => seed;
             set
             {
-                field = value;
+                seed = value;
                 Invalidate(Invalidation.DrawNode);
             }
-        } = 1;
+        }
 
         private class CircularBlobDrawNode : SpriteDrawNode
         {

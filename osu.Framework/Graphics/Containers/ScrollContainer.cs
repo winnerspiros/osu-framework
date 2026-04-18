@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -35,33 +35,37 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
+        private bool scrollbarVisible = true;
+
         /// <summary>
         /// Whether the scrollbar is visible.
         /// </summary>
         public bool ScrollbarVisible
         {
-            get => field;
+            get => scrollbarVisible;
             set
             {
-                field = value;
+                scrollbarVisible = value;
                 scrollbarCache.Invalidate();
             }
-        } = true;
+        }
 
         protected readonly ScrollbarContainer Scrollbar;
+
+        private bool scrollbarOverlapsContent = true;
 
         /// <summary>
         /// Whether the scrollbar overlaps the content or resides in its own padded space.
         /// </summary>
         public bool ScrollbarOverlapsContent
         {
-            get => field;
+            get => scrollbarOverlapsContent;
             set
             {
-                field = value;
+                scrollbarOverlapsContent = value;
                 updatePadding();
             }
-        } = true;
+        }
 
         /// <summary>
         /// Size of available content (i.e. everything that can be scrolled to) in the scroll direction.

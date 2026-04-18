@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -26,11 +26,13 @@ namespace osu.Framework.Localisation
         /// </summary>
         private LocaleMapping? firstLocale;
 
+        private LocaleMapping? systemDefaultLocaleMapping;
+
         /// <summary>
         /// The <see cref="LocaleMapping"/> that most closely matches the <see cref="CultureInfoHelper.SystemUICulture"/>, or null iff <see cref="locales"/> is empty.
         /// </summary>
         /// <remarks>This property is cached.</remarks>
-        public LocaleMapping? SystemDefaultLocaleMapping => field ??= getSystemDefaultLocaleMapping();
+        public LocaleMapping? SystemDefaultLocaleMapping => systemDefaultLocaleMapping ??= getSystemDefaultLocaleMapping();
 
         private readonly Bindable<string> configLocale = new Bindable<string>();
         private readonly Bindable<bool> configPreferUnicode = new BindableBool();

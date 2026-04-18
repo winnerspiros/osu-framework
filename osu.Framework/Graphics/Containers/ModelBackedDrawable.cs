@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -24,22 +24,24 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         protected readonly IEqualityComparer<T> Comparer;
 
+        private T? model;
+
         /// <summary>
         /// Gets or sets the model, potentially triggering the current <see cref="Drawable"/> to update.
         /// Subclasses should expose this via a nicer property name to better represent the data being set.
         /// </summary>
         protected T? Model
         {
-            get => field;
+            get => model;
             set
             {
-                if (field == null && value == null)
+                if (model == null && value == null)
                     return;
 
-                if (Comparer.Equals(field, value))
+                if (Comparer.Equals(model, value))
                     return;
 
-                field = value;
+                model = value;
 
                 Scheduler.AddOnce(updateDrawable);
             }

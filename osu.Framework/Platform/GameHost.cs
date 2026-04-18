@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -266,6 +266,8 @@ namespace osu.Framework.Platform
         public InputThread InputThread { get; private set; }
         public AudioThread AudioThread { get; private set; }
 
+        private double maximumUpdateHz = GameThread.DEFAULT_ACTIVE_HZ;
+
         /// <summary>
         /// The target number of update frames per second when the game window is active.
         /// </summary>
@@ -274,9 +276,11 @@ namespace osu.Framework.Platform
         /// </remarks>
         public double MaximumUpdateHz
         {
-            get => field;
-            set => threadRunner.MaximumUpdateHz = UpdateThread.ActiveHz = field = value;
-        } = GameThread.DEFAULT_ACTIVE_HZ;
+            get => maximumUpdateHz;
+            set => threadRunner.MaximumUpdateHz = UpdateThread.ActiveHz = maximumUpdateHz = value;
+        }
+
+        private double maximumDrawHz = GameThread.DEFAULT_ACTIVE_HZ;
 
         /// <summary>
         /// The target number of draw frames per second when the game window is active.
@@ -286,13 +290,15 @@ namespace osu.Framework.Platform
         /// </remarks>
         public double MaximumDrawHz
         {
-            get => field;
+            get => maximumDrawHz;
             set
             {
-                field = value;
-                DrawThread?.ActiveHz = field;
+                maximumDrawHz = value;
+                DrawThread?.ActiveHz = maximumDrawHz;
             }
-        } = GameThread.DEFAULT_ACTIVE_HZ;
+        }
+
+        private double maximumInactiveHz = GameThread.DEFAULT_INACTIVE_HZ;
 
         /// <summary>
         /// The target number of updates per second when the game window is inactive.
@@ -303,13 +309,13 @@ namespace osu.Framework.Platform
         /// </remarks>
         public double MaximumInactiveHz
         {
-            get => field;
+            get => maximumInactiveHz;
             set
             {
-                threadRunner.MaximumInactiveHz = UpdateThread.InactiveHz = field = value;
-                DrawThread?.InactiveHz = field;
+                threadRunner.MaximumInactiveHz = UpdateThread.InactiveHz = maximumInactiveHz = value;
+                DrawThread?.InactiveHz = maximumInactiveHz;
             }
-        } = GameThread.DEFAULT_INACTIVE_HZ;
+        }
 
         private PerformanceMonitor inputMonitor => InputThread.Monitor;
         private PerformanceMonitor drawMonitor => DrawThread.Monitor;
@@ -617,16 +623,18 @@ namespace osu.Framework.Platform
 
         public ExecutionState ExecutionState
         {
-            get => field;
+            get => executionState;
             private set
             {
-                if (field == value)
+                if (executionState == value)
                     return;
 
-                field = value;
+                executionState = value;
                 Logger.Log($"Host execution state changed to {value}");
             }
         }
+
+        private ExecutionState executionState;
 
         /// <summary>
         /// Schedules the game to exit in the next frame.

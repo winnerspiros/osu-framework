@@ -55,15 +55,17 @@ namespace osu.Framework.Graphics.Sprites
             Invalidate(Invalidation.DrawNode);
         }
 
+        private bool shadow;
+
         public bool Shadow
         {
-            get => field;
+            get => shadow;
             set
             {
-                if (field == value)
+                if (shadow == value)
                     return;
 
-                field = value;
+                shadow = value;
                 Invalidate(Invalidation.DrawNode);
             }
         }
@@ -104,14 +106,16 @@ namespace osu.Framework.Graphics.Sprites
             }
         }
 
+        private IconUsage icon;
+
         public IconUsage Icon
         {
-            get => field;
+            get => icon;
             set
             {
-                if (field.Equals(value)) return;
+                if (icon.Equals(value)) return;
 
-                field = value;
+                icon = value;
                 if (LoadState > LoadState.NotLoaded)
                     updateTexture();
             }

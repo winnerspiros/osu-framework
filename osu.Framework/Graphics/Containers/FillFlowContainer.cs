@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -43,6 +43,7 @@ namespace osu.Framework.Graphics.Containers
     /// </summary>
     public partial class FillFlowContainer<T> : FlowContainer<T>, IFillFlowContainer where T : Drawable
     {
+        private FillDirection direction = FillDirection.Full;
 
         /// <summary>
         /// If <see cref="FillDirection.Full"/> or <see cref="FillDirection.Horizontal"/>,
@@ -56,16 +57,16 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public FillDirection Direction
         {
-            get => field;
+            get => direction;
             set
             {
-                if (field == value)
+                if (direction == value)
                     return;
 
-                field = value;
+                direction = value;
                 InvalidateLayout();
             }
-        } = FillDirection.Full;
+        }
 
         private Vector2 spacing;
 

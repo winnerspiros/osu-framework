@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -135,6 +135,7 @@ namespace osu.Framework.IO.Network
         private int responseBytesRead;
         private byte[] buffer;
         private bool? allowInsecureRequests;
+        private bool completed;
 
         private static readonly HttpClient client = new HttpClient(
             // SocketsHttpHandler causes crash in Android Debug, and seems to have compatibility issue on SSL
@@ -183,11 +184,11 @@ namespace osu.Framework.IO.Network
         /// </summary>
         public bool Completed
         {
-            get => field;
+            get => completed;
             private set
             {
-                field = value;
-                if (!field) return;
+                completed = value;
+                if (!completed) return;
 
                 // WebRequests can only be used once - no need to keep events bound
                 // This helps with disposal in PerformAsync usages
@@ -794,7 +795,9 @@ namespace osu.Framework.IO.Network
 
         #region Timeout Handling
 
-        private long timeSinceLastAction => (DateTime.Now.Ticks - field) / TimeSpan.TicksPerMillisecond;
+        private long lastAction;
+
+        private long timeSinceLastAction => (DateTime.Now.Ticks - lastAction) / TimeSpan.TicksPerMillisecond;
 
         private void reportForwardProgress()
         {

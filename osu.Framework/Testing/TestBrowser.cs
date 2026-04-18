@@ -446,9 +446,8 @@ namespace osu.Framework.Testing
 
                             foreach (var p in methodWrapper.GetParameters())
                             {
-                                var valueAttrib = p.GetCustomAttributes<ValuesAttribute>(false).SingleOrDefault();
-                                if (valueAttrib == null)
-                                    throw new ArgumentException($"Parameter is present on a {nameof(TestAttribute)} method without values specification.", p.ParameterInfo.Name);
+                                var valueAttrib = p.GetCustomAttributes<ValuesAttribute>(false).SingleOrDefault()
+                                    ?? throw new ArgumentException($"Parameter is present on a {nameof(TestAttribute)} method without values specification.", p.ParameterInfo.Name);
 
                                 List<object> choices = new List<object>();
 

@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -69,19 +69,21 @@ namespace osu.Framework.Graphics.Performance
 
         private readonly FrameTimeDisplay frameTimeDisplay;
 
+        private FrameStatisticsMode state;
+
         [CanBeNull]
         public event Action<FrameStatisticsMode> StateChanged;
 
         public FrameStatisticsMode State
         {
-            get => field;
+            get => state;
             set
             {
-                if (field == value) return;
+                if (state == value) return;
 
-                field = value;
+                state = value;
 
-                switch (field)
+                switch (state)
                 {
                     case FrameStatisticsMode.Minimal:
                         mainContainer.AutoSizeAxes = Axes.Both;
@@ -105,7 +107,7 @@ namespace osu.Framework.Graphics.Performance
                         break;
                 }
 
-                Running = field != FrameStatisticsMode.None;
+                Running = state != FrameStatisticsMode.None;
                 Expanded = false;
 
                 StateChanged?.Invoke(State);
@@ -310,38 +312,42 @@ namespace osu.Framework.Graphics.Performance
             timeBars[timeBarIndex].Add(box);
         }
 
+        private bool running = true;
+
         public bool Running
         {
-            get => field;
+            get => running;
             set
             {
-                if (field == value) return;
+                if (running == value) return;
 
-                field = value;
+                running = value;
 
-                frameTimeDisplay.Counting = field;
+                frameTimeDisplay.Counting = running;
 
                 // clear all pending frames on state change.
                 monitor.PendingFrames.Clear();
             }
-        } = true;
+        }
+
+        private bool expanded;
 
         public bool Expanded
         {
-            get => field;
+            get => expanded;
             set
             {
                 value &= state == FrameStatisticsMode.Full;
 
-                if (field == value) return;
+                if (expanded == value) return;
 
-                field = value;
+                expanded = value;
 
-                overlayContainer.FadeTo(field ? 1 : 0, 100);
-                this.FadeTo(field ? 1 : alpha_when_active, 100);
+                overlayContainer.FadeTo(expanded ? 1 : 0, 100);
+                this.FadeTo(expanded ? 1 : alpha_when_active, 100);
 
                 foreach (CounterBar bar in counterBars.Values)
-                    bar.Expanded = field;
+                    bar.Expanded = expanded;
             }
         }
 
@@ -536,16 +542,18 @@ namespace osu.Framework.Graphics.Performance
 
             public string Label;
 
+            private bool expanded;
+
             public bool Expanded
             {
-                get => field;
+                get => expanded;
                 set
                 {
-                    if (field == value) return;
+                    if (expanded == value) return;
 
-                    field = value;
+                    expanded = value;
 
-                    if (field)
+                    if (expanded)
                     {
                         this.ResizeTo(new Vector2(bar_width + text.Font.Size + 2, 1), 100);
                         text.FadeIn(100);

@@ -42,6 +42,8 @@ namespace osu.Framework.Graphics.Containers
             layoutContent();
         }
 
+        private GridContainerContent content;
+
         /// <summary>
         /// The content of this <see cref="GridContainer"/>, arranged in a 2D grid array, where each array
         /// of <see cref="Drawable"/>s represents a row and each element of that array represents a column.
@@ -51,19 +53,19 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public GridContainerContent Content
         {
-            get => field;
+            get => content;
             set
             {
-                if (field?.Equals(value) == true)
+                if (content?.Equals(value) == true)
                     return;
 
-                field?.ArrayElementChanged -= onContentChange;
+                content?.ArrayElementChanged -= onContentChange;
 
-                field = value;
+                content = value;
 
                 onContentChange();
 
-                field?.ArrayElementChanged += onContentChange;
+                content?.ArrayElementChanged += onContentChange;
             }
         }
 

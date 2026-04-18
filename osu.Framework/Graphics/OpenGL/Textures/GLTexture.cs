@@ -46,14 +46,16 @@ namespace osu.Framework.Graphics.OpenGL.Textures
         public virtual int GetByteSize() => Width * Height * 4;
         public bool Available { get; private set; } = true;
 
+        private int? mipLevel;
+
         public int? MipLevel
         {
-            get => field;
+            get => mipLevel;
             set
             {
-                field = value;
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinLod, field ?? 0);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLod, field ?? IRenderer.MAX_MIPMAP_LEVELS);
+                mipLevel = value;
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinLod, mipLevel ?? 0);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLod, mipLevel ?? IRenderer.MAX_MIPMAP_LEVELS);
             }
         }
 

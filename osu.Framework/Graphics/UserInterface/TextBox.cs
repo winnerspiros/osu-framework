@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -121,14 +121,16 @@ namespace osu.Framework.Graphics.UserInterface
             return true;
         }
 
+        private bool readOnly;
+
         public bool ReadOnly
         {
-            get => field;
+            get => readOnly;
             set
             {
-                field = value;
+                readOnly = value;
 
-                if (field)
+                if (readOnly)
                     KillFocus();
             }
         }
@@ -1634,7 +1636,7 @@ namespace osu.Framework.Graphics.UserInterface
 
             if (lengthWithoutComposition + composition.Length > LengthLimit)
             {
-                composition = composition[..((int)LengthLimit - lengthWithoutComposition)];
+                composition = composition.Substring(0, (int)LengthLimit - lengthWithoutComposition);
                 sanitized = true;
             }
 

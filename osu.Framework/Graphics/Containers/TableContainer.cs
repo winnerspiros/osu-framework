@@ -24,6 +24,8 @@ namespace osu.Framework.Graphics.Containers
             InternalChild = grid = new GridContainer { RelativeSizeAxes = Axes.Both };
         }
 
+        private Drawable[,] content;
+
         /// <summary>
         /// The content of this <see cref="TableContainer"/>, arranged in a 2D rectangular array.
         /// <para>
@@ -33,17 +35,19 @@ namespace osu.Framework.Graphics.Containers
         [CanBeNull]
         public Drawable[,] Content
         {
-            get => field;
+            get => content;
             set
             {
-                if (field == value)
+                if (content == value)
                     return;
 
-                field = value;
+                content = value;
 
                 updateContent();
             }
         }
+
+        private TableColumn[] columns = Array.Empty<TableColumn>();
 
         /// <summary>
         /// Describes the columns of this <see cref="TableContainer"/>.
@@ -52,20 +56,22 @@ namespace osu.Framework.Graphics.Containers
         public TableColumn[] Columns
         {
             [NotNull]
-            get => field;
+            get => columns;
             [CanBeNull]
             set
             {
                 value ??= Array.Empty<TableColumn>();
 
-                if (field == value)
+                if (columns == value)
                     return;
 
-                field = value;
+                columns = value;
 
                 updateContent();
             }
-        } = Array.Empty<TableColumn>();
+        }
+
+        private Dimension rowSize = new Dimension();
 
         /// <summary>
         /// Explicit dimensions for rows. The dimension is applied to every row of this <see cref="TableContainer"/>
@@ -73,37 +79,39 @@ namespace osu.Framework.Graphics.Containers
         public Dimension RowSize
         {
             [NotNull]
-            get => field;
+            get => rowSize;
             [CanBeNull]
             set
             {
                 value ??= new Dimension();
 
-                if (field == value)
+                if (rowSize == value)
                     return;
 
-                field = value;
+                rowSize = value;
 
                 updateContent();
             }
-        } = new Dimension();
+        }
+
+        private bool showHeaders = true;
 
         /// <summary>
         /// Whether to display a row with column headers at the top of the table.
         /// </summary>
         public bool ShowHeaders
         {
-            get => field;
+            get => showHeaders;
             set
             {
-                if (field == value)
+                if (showHeaders == value)
                     return;
 
-                field = value;
+                showHeaders = value;
 
                 updateContent();
             }
-        } = true;
+        }
 
         public override Axes RelativeSizeAxes
         {

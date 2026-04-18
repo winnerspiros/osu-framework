@@ -42,13 +42,15 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public Edges SafeAreaOverrideEdges
         {
-            get => field;
+            get => safeAreaOverrideEdges;
             set
             {
-                field = value;
+                safeAreaOverrideEdges = value;
                 PaddingCache.Invalidate();
             }
-        } = Edges.None;
+        }
+
+        private Edges safeAreaOverrideEdges = Edges.None;
 
         protected readonly LayoutValue PaddingCache = new LayoutValue(Invalidation.DrawInfo | Invalidation.RequiredParentSizeToFit);
 

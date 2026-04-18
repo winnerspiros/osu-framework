@@ -30,7 +30,7 @@ namespace osu.Framework.IO
 
         #endregion
 
-        private readonly int blocksToReadAhead;
+        private int BlocksToReadAhead { get; }
 
         private readonly Stream underlyingStream;
 
@@ -45,7 +45,7 @@ namespace osu.Framework.IO
         public AsyncBufferStream(Stream stream, int blocksToReadAhead, AsyncBufferStream shared = null)
         {
             underlyingStream = stream ?? throw new ArgumentNullException(nameof(stream));
-            this.blocksToReadAhead = blocksToReadAhead;
+            BlocksToReadAhead = blocksToReadAhead;
 
             if (underlyingStream.CanSeek)
                 underlyingStream.Seek(0, SeekOrigin.Begin);
@@ -119,8 +119,8 @@ namespace osu.Framework.IO
                 int start = underlyingStream.CanSeek ? position / block_size : 0;
 
                 int end = blockLoadedStatus.Length;
-                if (blocksToReadAhead > -1)
-                    end = Math.Min(end, (position + amountBytesToRead) / block_size + blocksToReadAhead + 1);
+                if (BlocksToReadAhead > -1)
+                    end = Math.Min(end, (position + amountBytesToRead) / block_size + BlocksToReadAhead + 1);
 
                 for (int i = start; i < end; i++)
                 {

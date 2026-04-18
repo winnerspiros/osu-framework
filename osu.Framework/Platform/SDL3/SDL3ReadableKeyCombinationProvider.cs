@@ -36,10 +36,8 @@ namespace osu.Framework.Platform.SDL3
             if (keycode == SDL_Keycode.SDLK_UNKNOWN)
                 return base.GetReadableKey(key);
 
-            string? name;
-
             // overrides for some keys that we want displayed differently from SDL_GetKeyName().
-            if (TryGetNameFromKeycode(keycode, out name))
+            if (TryGetNameFromKeycode(keycode, out string? name))
                 return name;
 
             name = getKeyName(keycode);

@@ -57,9 +57,7 @@ namespace osu.Framework.Graphics.Cursor
             // we know when we can abort our search.
             for (int i = selfIndex - 1; i >= 0; i--)
             {
-                var candidate = targetCandidates[i] as TTarget;
-
-                if (candidate == null)
+                if (targetCandidates[i] is not TTarget candidate)
                     continue;
 
                 if (!candidate.IsHovered)

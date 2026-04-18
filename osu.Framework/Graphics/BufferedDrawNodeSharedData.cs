@@ -46,6 +46,7 @@ namespace osu.Framework.Graphics
         private readonly TextureFilteringMode filterMode;
 
         private IRenderer renderer;
+        private IFrameBuffer mainBuffer;
 
         /// <summary>
         /// Creates a new <see cref="BufferedDrawNodeSharedData"/> with no effect buffers.
@@ -79,7 +80,7 @@ namespace osu.Framework.Graphics
         /// <summary>
         /// The <see cref="IFrameBuffer"/> which contains the original version of the rendered <see cref="Drawable"/>.
         /// </summary>
-        public IFrameBuffer MainBuffer => field ??= renderer.CreateFrameBuffer(mainBufferFormats, filterMode);
+        public IFrameBuffer MainBuffer => mainBuffer ??= renderer.CreateFrameBuffer(mainBufferFormats, filterMode);
 
         public void Initialise(IRenderer renderer)
         {

@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -77,6 +77,7 @@ namespace osu.Framework.Graphics.UserInterface
             }
         }
 
+        private readonly IBindableList<T> itemSource = new BindableList<T>();
         private IBindableList<T> boundItemSource;
 
         /// <summary>
@@ -85,17 +86,17 @@ namespace osu.Framework.Graphics.UserInterface
         /// </summary>
         public IBindableList<T> ItemSource
         {
-            get => field;
+            get => itemSource;
             set
             {
                 ArgumentNullException.ThrowIfNull(value);
 
-                if (boundItemSource != null) field.UnbindFrom(boundItemSource);
-                field.BindTo(boundItemSource = value);
+                if (boundItemSource != null) itemSource.UnbindFrom(boundItemSource);
+                itemSource.BindTo(boundItemSource = value);
 
                 setItems(value);
             }
-        } = new BindableList<T>();
+        }
 
         private readonly BindableBool enabled = new BindableBool(true);
 
@@ -587,15 +588,17 @@ namespace osu.Framework.Graphics.UserInterface
             {
                 public event Action<DropdownMenuItem<T>> PreselectionRequested;
 
+                private bool matchingFilter = true;
+
                 public bool MatchingFilter
                 {
-                    get => field;
+                    get => matchingFilter;
                     set
                     {
-                        field = value;
+                        matchingFilter = value;
                         UpdateFilteringState(value);
                     }
-                } = true;
+                }
 
                 public virtual bool FilteringActive
                 {
@@ -607,19 +610,23 @@ namespace osu.Framework.Graphics.UserInterface
                 {
                 }
 
+                private bool selected;
+
                 public bool IsSelected
                 {
-                    get => !Item.Action.Disabled && field;
+                    get => !Item.Action.Disabled && selected;
                     set
                     {
-                        if (field == value)
+                        if (selected == value)
                             return;
 
-                        field = value;
+                        selected = value;
 
                         OnSelectChange();
                     }
                 }
+
+                private bool preSelected;
 
                 /// <summary>
                 /// Denotes whether this menu item will be selected on <see cref="Key.Enter"/> press.
@@ -627,13 +634,13 @@ namespace osu.Framework.Graphics.UserInterface
                 /// </summary>
                 public bool IsPreSelected
                 {
-                    get => field;
+                    get => preSelected;
                     set
                     {
-                        if (field == value)
+                        if (preSelected == value)
                             return;
 
-                        field = value;
+                        preSelected = value;
 
                         OnSelectChange();
                     }

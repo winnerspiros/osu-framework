@@ -544,8 +544,10 @@ namespace osu.Framework.Graphics.UserInterface
 
             protected internal void PreselectItem(int index)
             {
-                PreselectItem(VisibleMenuItems.Any()
-                    ? VisibleMenuItems.ElementAt(Math.Clamp(index, 0, VisibleMenuItems.Count() - 1)).Item
+                var visibleItems = VisibleMenuItems.ToList();
+
+                PreselectItem(visibleItems.Count > 0
+                    ? visibleItems[Math.Clamp(index, 0, visibleItems.Count - 1)].Item
                     : null);
             }
 
@@ -710,19 +712,19 @@ namespace osu.Framework.Graphics.UserInterface
                             return true;
 
                         case Key.PageUp:
-                            var firstVisibleItem = VisibleMenuItems.First();
+                            var firstVisibleItem = visibleMenuItemsList[0];
 
                             if (currentPreselected == firstVisibleItem)
-                                PreselectItem(targetPreselectionIndex - VisibleMenuItems.Count());
+                                PreselectItem(targetPreselectionIndex - visibleMenuItemsList.Count);
                             else
                                 PreselectItem(visibleMenuItemsList.IndexOf(firstVisibleItem));
                             return true;
 
                         case Key.PageDown:
-                            var lastVisibleItem = VisibleMenuItems.Last();
+                            var lastVisibleItem = visibleMenuItemsList[^1];
 
                             if (currentPreselected == lastVisibleItem)
-                                PreselectItem(targetPreselectionIndex + VisibleMenuItems.Count());
+                                PreselectItem(targetPreselectionIndex + visibleMenuItemsList.Count);
                             else
                                 PreselectItem(visibleMenuItemsList.IndexOf(lastVisibleItem));
                             return true;
@@ -827,7 +829,7 @@ namespace osu.Framework.Graphics.UserInterface
                 return;
 
             int targetPreselectionIndex = visibleMenuItemsList.IndexOf(Menu.PreselectedItem);
-            var preselectedItem = Menu.VisibleMenuItems.ElementAt(targetPreselectionIndex);
+            var preselectedItem = visibleMenuItemsList[targetPreselectionIndex];
 
             SelectedItem = (DropdownMenuItem<T>)preselectedItem.Item;
         }

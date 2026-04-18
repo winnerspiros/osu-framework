@@ -180,8 +180,30 @@ namespace osu.Framework.Graphics.Containers
 
                     if (nextPos != nextDrawable)
                     {
+                        // One iterator ended before the other. Count the remaining items from the longer one
+                        // to produce an accurate error message without re-enumerating FlowingChildren.
+                        int childCount = processedCount;
+
+                        if (nextDrawable)
+                        {
+                            childCount++; // count the current item
+
+                            while (drawableEnumerator.MoveNext())
+                                childCount++;
+                        }
+
+                        int positionCount = processedCount;
+
+                        if (nextPos)
+                        {
+                            positionCount++; // count the current item
+
+                            while (positionEnumerator.MoveNext())
+                                positionCount++;
+                        }
+
                         throw new InvalidOperationException(
-                            $"{GetType().FullName}.{nameof(ComputeLayoutPositions)} returned a total of {processedCount} positions for {FlowingChildren.Count()} children. {nameof(ComputeLayoutPositions)} must return 1 position per child.");
+                            $"{GetType().FullName}.{nameof(ComputeLayoutPositions)} returned a total of {positionCount} positions for {childCount} children. {nameof(ComputeLayoutPositions)} must return 1 position per child.");
                     }
 
                     // at this point we only need to check one of the two iterators (due to the conditional directly above).

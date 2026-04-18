@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace osu.Framework.Graphics.Rendering
 {
@@ -12,6 +13,7 @@ namespace osu.Framework.Graphics.Rendering
     /// </summary>
     internal class RendererDisposalQueue
     {
+        private readonly Lock newDisposalsLock = new Lock();
         private readonly List<IPendingDisposal> newDisposals;
         private readonly List<IPendingDisposal> pendingDisposals;
 
@@ -30,7 +32,7 @@ namespace osu.Framework.Graphics.Rendering
         /// <param name="target">The target.</param>
         public void ScheduleDisposal<T>(Action<T> disposalAction, T target)
         {
-            lock (newDisposals)
+            lock (newDisposalsLock)
                 newDisposals.Add(new PendingDisposal<T>(disposalAction, target));
         }
 
@@ -40,7 +42,7 @@ namespace osu.Framework.Graphics.Rendering
         /// </summary>
         public void CheckPendingDisposals()
         {
-            lock (newDisposals)
+            lock (newDisposalsLock)
             {
                 pendingDisposals.AddRange(newDisposals);
                 newDisposals.Clear();

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using System.Threading;
 using osu.Framework.Development;
 using osu.Framework.Extensions.ImageExtensions;
 using osu.Framework.Graphics.Primitives;
@@ -24,6 +25,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
 {
     internal class VeldridTexture : IVeldridTexture
     {
+        private readonly Lock uploadQueueLock = new Lock();
         private readonly Queue<ITextureUpload> uploadQueue = new Queue<ITextureUpload>();
 
         IRenderer INativeTexture.Renderer => Renderer;
@@ -187,7 +189,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
 
         public void SetData(ITextureUpload upload)
         {
-            lock (uploadQueue)
+            lock (uploadQueueLock)
             {
                 if (uploadQueue.Count >= 100 && uploadQueue.Count % 100 == 0)
                     Logger.Log($"Texture {Identifier}'s upload queue is large ({uploadQueue.Count})");
@@ -380,7 +382,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
         {
             get
             {
-                lock (uploadQueue)
+                lock (uploadQueueLock)
                     return uploadQueue.Count == 0;
             }
         }
@@ -392,7 +394,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
 
         private bool tryGetNextUpload([NotNullWhen(true)] out ITextureUpload? upload)
         {
-            lock (uploadQueue)
+            lock (uploadQueueLock)
             {
                 if (uploadQueue.Count == 0)
                 {

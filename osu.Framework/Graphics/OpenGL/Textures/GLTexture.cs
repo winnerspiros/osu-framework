@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using osu.Framework.Development;
 using osu.Framework.Extensions.ImageExtensions;
 using osu.Framework.Graphics.Primitives;
@@ -24,6 +25,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
     internal class GLTexture : INativeTexture
     {
         protected readonly GLRenderer Renderer;
+        private readonly Lock uploadQueueLock = new Lock();
         private readonly Queue<ITextureUpload> uploadQueue = new Queue<ITextureUpload>();
 
         IRenderer INativeTexture.Renderer => Renderer;
@@ -184,7 +186,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
         public void SetData(ITextureUpload upload)
         {
-            lock (uploadQueue)
+            lock (uploadQueueLock)
             {
                 if (uploadQueue.Count >= 100 && uploadQueue.Count % 100 == 0)
                     Logger.Log($"Texture {Identifier}'s upload queue is large ({uploadQueue.Count})");
@@ -235,7 +237,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
         {
             get
             {
-                lock (uploadQueue)
+                lock (uploadQueueLock)
                     return uploadQueue.Count == 0;
             }
         }
@@ -247,7 +249,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
         private bool tryGetNextUpload(out ITextureUpload upload)
         {
-            lock (uploadQueue)
+            lock (uploadQueueLock)
             {
                 if (uploadQueue.Count == 0)
                 {

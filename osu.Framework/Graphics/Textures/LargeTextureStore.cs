@@ -21,7 +21,7 @@ namespace osu.Framework.Graphics.Textures
     /// </remarks>
     public class LargeTextureStore : TextureStore
     {
-        private readonly object referenceCountLock = new object();
+        private readonly Lock referenceCountLock = new();
         private readonly Dictionary<string, TextureWithRefCount.ReferenceCount> referenceCounts = new Dictionary<string, TextureWithRefCount.ReferenceCount>();
 
         public LargeTextureStore(IRenderer renderer, IResourceStore<TextureUpload> store = null, TextureFilteringMode filteringMode = TextureFilteringMode.Linear, bool manualMipmaps = true)
@@ -66,7 +66,7 @@ namespace osu.Framework.Graphics.Textures
 
         private void onAllReferencesLost(Texture texture)
         {
-            Debug.Assert(Monitor.IsEntered(referenceCountLock));
+            Debug.Assert(referenceCountLock.IsHeldByCurrentThread);
 
             referenceCounts.Remove(texture.LookupKey);
             Purge(texture);

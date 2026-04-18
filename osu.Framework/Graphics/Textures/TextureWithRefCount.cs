@@ -59,7 +59,7 @@ namespace osu.Framework.Graphics.Textures
 
         public class ReferenceCount
         {
-            private readonly object lockObject;
+            private readonly Lock lockObject;
             private readonly Action? onAllReferencesLost;
 
             private int referenceCount;
@@ -67,9 +67,9 @@ namespace osu.Framework.Graphics.Textures
             /// <summary>
             /// Creates a new <see cref="ReferenceCount"/>.
             /// </summary>
-            /// <param name="lockObject">The <see cref="object"/> which locks will be taken out on.</param>
+            /// <param name="lockObject">The <see cref="Lock"/> which locks will be taken out on.</param>
             /// <param name="onAllReferencesLost">A delegate to invoke after all references have been lost.</param>
-            public ReferenceCount(object lockObject, Action onAllReferencesLost)
+            public ReferenceCount(Lock lockObject, Action onAllReferencesLost)
             {
                 this.lockObject = lockObject;
                 this.onAllReferencesLost = onAllReferencesLost;

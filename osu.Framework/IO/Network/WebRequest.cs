@@ -135,7 +135,7 @@ namespace osu.Framework.IO.Network
         private int responseBytesRead;
         private byte[] buffer;
         private bool? allowInsecureRequests;
-        private static readonly HttpClient client= new HttpClient(
+        private static readonly HttpClient client = new HttpClient(
             // SocketsHttpHandler causes crash in Android Debug, and seems to have compatibility issue on SSL
             // Use platform HTTP handler which is invoked by HttpClientHandler for better compatibility and app size
             RuntimeInfo.OS == RuntimeInfo.Platform.Android
@@ -793,7 +793,7 @@ namespace osu.Framework.IO.Network
 
         #region Timeout Handling
 
-        private long lastAction;
+        private long lastAction { get; set; }
 
         private long timeSinceLastAction => (DateTime.Now.Ticks - lastAction) / TimeSpan.TicksPerMillisecond;
 

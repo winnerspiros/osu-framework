@@ -102,7 +102,7 @@ namespace osu.Framework.Graphics.Sprites
 
             private Quad screenSpaceDrawQuad;
             private BufferedDrawNodeSharedData shared;
-            private bool displayOriginalEffects;
+            private bool displayOriginalEffects { get; set; }
 
             private bool sourceDrawsOriginal;
             private ColourInfo sourceEffectColour;

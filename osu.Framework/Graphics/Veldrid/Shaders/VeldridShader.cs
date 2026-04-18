@@ -168,12 +168,23 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
                     if (layout.Elements.Length == 0)
                         continue;
 
-                    if (layout.Elements.Any(e => e.Kind == ResourceKind.TextureReadOnly || e.Kind == ResourceKind.TextureReadWrite))
-                    {
-                        ResourceLayoutElementDescription textureElement = layout.Elements.First(e => e.Kind == ResourceKind.TextureReadOnly || e.Kind == ResourceKind.TextureReadWrite);
+                    // Single-pass scan replaces three LINQ iterations (Any/First/All)
+                    ResourceLayoutElementDescription? textureElement = null;
+                    bool hasSampler = false;
 
-                        if (layout.Elements.All(e => e.Kind != ResourceKind.Sampler))
-                            throw new InvalidOperationException($"Texture {textureElement.Name} has no associated sampler.");
+                    foreach (var e in layout.Elements)
+                    {
+                        if (e.Kind is ResourceKind.TextureReadOnly or ResourceKind.TextureReadWrite)
+                            textureElement ??= e;
+
+                        if (e.Kind == ResourceKind.Sampler)
+                            hasSampler = true;
+                    }
+
+                    if (textureElement != null)
+                    {
+                        if (!hasSampler)
+                            throw new InvalidOperationException($"Texture {textureElement.Value.Name} has no associated sampler.");
 
                         textureLayouts.Add(new VeldridUniformLayout(set, renderer.Factory.CreateResourceLayout(layout)));
                     }

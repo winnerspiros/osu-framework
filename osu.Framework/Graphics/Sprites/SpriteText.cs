@@ -51,12 +51,12 @@ namespace osu.Framework.Graphics.Sprites
 
         public SpriteText()
         {
-            current.BindValueChanged(Text =>
+            current.BindValueChanged(text =>
             {
                 // importantly, to avoid a feedback loop which will overwrite a localised text object, check equality of the resulting text before propagating a basic string to Text.
                 // in the case localisedText is not yet setup, special consideration does not need to be given as it can be assumed the change to current was a user invoked change.
-                if (localisedText == null || Text.NewValue != localisedText.Value)
-                    Text = Text.NewValue;
+                if (localisedText == null || text.NewValue != localisedText.Value)
+                    Text = text.NewValue;
             });
 
             AddLayout(charactersCache);

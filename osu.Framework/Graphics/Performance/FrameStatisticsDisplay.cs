@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -106,7 +106,7 @@ namespace osu.Framework.Graphics.Performance
                 }
 
                 Running = field != FrameStatisticsMode.None;
-                field = false;
+                Expanded = false;
 
                 StateChanged?.Invoke(State);
             }
@@ -326,7 +326,7 @@ namespace osu.Framework.Graphics.Performance
             }
         } = true;
 
-        public bool State
+        public bool Expanded
         {
             get => field;
             set
@@ -536,16 +536,16 @@ namespace osu.Framework.Graphics.Performance
 
             public string Label;
 
-            public bool State
+            public bool Expanded
             {
-                get => State;
+                get => field;
                 set
                 {
-                    if (State == value) return;
+                    if (field == value) return;
 
-                    State = value;
+                    field = value;
 
-                    if (State)
+                    if (field)
                     {
                         this.ResizeTo(new Vector2(bar_width + text.Font.Size + 2, 1), 100);
                         text.FadeIn(100);
@@ -618,7 +618,7 @@ namespace osu.Framework.Graphics.Performance
                 else
                     velocity += elapsedTime * acceleration;
 
-                if (State)
+                if (Expanded)
                     text.Text = $@"{Label}: {NumberFormatter.PrintWithSiSuffix(value)}";
             }
         }

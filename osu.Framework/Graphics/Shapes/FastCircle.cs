@@ -75,7 +75,7 @@ namespace osu.Framework.Graphics.Shapes
                 screenSpaceDrawQuad = Source.ScreenSpaceDrawQuad;
                 drawRectangle = new Vector4(0, 0, Source.DrawWidth, Source.DrawHeight);
                 shader = Source.shader;
-                blend = new Vector2(Source.edgeSmoothness * Math.Min(Source.DrawWidth, Source.DrawHeight) / Math.Min(screenSpaceDrawQuad.Width, screenSpaceDrawQuad.Height));
+                blend = new Vector2(Source.EdgeSmoothness * Math.Min(Source.DrawWidth, Source.DrawHeight) / Math.Min(screenSpaceDrawQuad.Width, screenSpaceDrawQuad.Height));
             }
 
             protected override void Draw(IRenderer renderer)

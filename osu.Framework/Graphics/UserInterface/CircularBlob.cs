@@ -97,11 +97,11 @@ namespace osu.Framework.Graphics.UserInterface
             {
                 base.ApplyState();
 
-                InnerRadius = Source.innerRadius;
-                Frequency = Source.frequency;
-                Amplitude = Source.amplitude;
+                InnerRadius = Source.InnerRadius;
+                Frequency = Source.Frequency;
+                Amplitude = Source.Amplitude;
 
-                int newSeed = Source.seed;
+                int newSeed = Source.Seed;
 
                 if (Seed != newSeed)
                 {

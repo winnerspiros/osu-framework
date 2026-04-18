@@ -1470,13 +1470,13 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public bool Masking
         {
-            get => CanBeFlattened;
+            get => field;
             protected set
             {
-                if (CanBeFlattened == value)
+                if (field == value)
                     return;
 
-                CanBeFlattened = value;
+                field = value;
                 // DrawInfo invalidation will propagate masking bounds changes in the sub-tree.
                 // While this can invalidate other layouts, there are rarely any use cases of enabling/disabling masking "on the fly"
                 // so this won't hurt performance under normal circumstances.

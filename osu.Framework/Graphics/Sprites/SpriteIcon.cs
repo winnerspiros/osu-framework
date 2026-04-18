@@ -142,7 +142,7 @@ namespace osu.Framework.Graphics.Sprites
                 if (texture == null)
                     return;
 
-                Shadow = Source.shadow;
+                Shadow = Source.Shadow;
 
                 RectangleF drawRect = Source.DrawRectangle;
 
@@ -158,10 +158,10 @@ namespace osu.Framework.Graphics.Sprites
                     return;
 
                 RectangleF offsetRect = drawRect;
-                offsetRect.Location += Source.shadowOffset;
+                offsetRect.Location += Source.ShadowOffset;
                 shadowDrawQuad = Source.ToScreenSpace(offsetRect);
 
-                ColourInfo shadowCol = Source.shadowColour;
+                ColourInfo shadowCol = Source.ShadowColour;
 
                 //adjust shadow alpha based on highest component intensity to avoid muddy display of darker text.
                 //squared result for quadratic fall-off seems to give the best result.

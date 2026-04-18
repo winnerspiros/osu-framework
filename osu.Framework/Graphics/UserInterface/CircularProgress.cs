@@ -113,9 +113,9 @@ namespace osu.Framework.Graphics.UserInterface
             {
                 base.ApplyState();
 
-                InnerRadius = Source.innerRadius;
-                Progress = Math.Abs((float)Source.progress);
-                RoundedCaps = Source.roundedCaps;
+                InnerRadius = Source.InnerRadius;
+                Progress = Math.Abs((float)Source.Progress);
+                RoundedCaps = Source.RoundedCaps;
                 drawSize = Source.DrawSize;
 
                 // smoothstep looks too sharp with 1px, let's give it a bit more

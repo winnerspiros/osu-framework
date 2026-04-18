@@ -793,11 +793,13 @@ namespace osu.Framework.IO.Network
 
         #region Timeout Handling
 
-        private long timeSinceLastAction => (DateTime.Now.Ticks - field) / TimeSpan.TicksPerMillisecond;
+        private long lastAction;
+
+        private long timeSinceLastAction => (DateTime.Now.Ticks - lastAction) / TimeSpan.TicksPerMillisecond;
 
         private void reportForwardProgress()
         {
-            timeSinceLastAction = DateTime.Now.Ticks;
+            lastAction = DateTime.Now.Ticks;
             timeoutToken.CancelAfter(Timeout);
         }
 

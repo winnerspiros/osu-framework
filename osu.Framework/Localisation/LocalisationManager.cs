@@ -26,11 +26,13 @@ namespace osu.Framework.Localisation
         /// </summary>
         private LocaleMapping? firstLocale;
 
+        private LocaleMapping? systemDefaultLocaleMapping;
+
         /// <summary>
         /// The <see cref="LocaleMapping"/> that most closely matches the <see cref="CultureInfoHelper.SystemUICulture"/>, or null iff <see cref="locales"/> is empty.
         /// </summary>
         /// <remarks>This property is cached.</remarks>
-        public LocaleMapping? SystemDefaultLocaleMapping => field ??= getSystemDefaultLocaleMapping();
+        public LocaleMapping? SystemDefaultLocaleMapping => systemDefaultLocaleMapping ??= getSystemDefaultLocaleMapping();
 
         private readonly Bindable<string> configLocale = new Bindable<string>();
         private readonly Bindable<bool> configPreferUnicode = new BindableBool();
@@ -59,7 +61,7 @@ namespace osu.Framework.Localisation
                 firstLocale ??= mapping;
             }
 
-            SystemDefaultLocaleMapping = null; // invalidate stored default as there could be a better match.
+            systemDefaultLocaleMapping = null; // invalidate stored default as there could be a better match.
 
             configLocale.TriggerChange();
         }
@@ -78,7 +80,7 @@ namespace osu.Framework.Localisation
             locales.Add(language, mapping);
             firstLocale ??= mapping;
 
-            SystemDefaultLocaleMapping = null; // invalidate stored default as there could be a better match.
+            systemDefaultLocaleMapping = null; // invalidate stored default as there could be a better match.
 
             configLocale.TriggerChange();
         }

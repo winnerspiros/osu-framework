@@ -217,8 +217,6 @@ namespace osu.Framework.Graphics.UserInterface
             }
         } = float.PositiveInfinity;
 
-        private MenuState State = MenuState.Closed;
-
         /// <summary>
         /// Gets or sets the current state of this <see cref="Menu"/>.
         /// </summary>
@@ -241,7 +239,7 @@ namespace osu.Framework.Graphics.UserInterface
                 updateState();
                 StateChanged?.Invoke(State);
             }
-        }
+        } = MenuState.Closed;
 
         private void updateState()
         {

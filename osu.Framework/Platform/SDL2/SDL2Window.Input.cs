@@ -405,7 +405,7 @@ namespace osu.Framework.Platform.SDL2
 
         private void handleMouseWheelEvent(SDL_MouseWheelEvent evtWheel)
         {
-            bool isPrecise(float f) => f % 1 != 0;
+            static bool isPrecise(float f) => f % 1 != 0;
 
             if (isPrecise(evtWheel.preciseX) || isPrecise(evtWheel.preciseY))
                 lastPreciseScroll = evtWheel.timestamp;

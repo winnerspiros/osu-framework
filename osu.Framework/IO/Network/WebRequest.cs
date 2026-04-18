@@ -314,8 +314,8 @@ namespace osu.Framework.IO.Network
                     HttpRequestMessage request;
 
                     StringBuilder requestParameters = new StringBuilder();
-                    foreach (var p in queryParameters)
-                        requestParameters.Append($"{p.key}={Uri.EscapeDataString(p.value)}&");
+                    foreach (var (key, value) in queryParameters)
+                        requestParameters.Append($"{key}={Uri.EscapeDataString(value)}&");
                     string requestString = requestParameters.ToString().TrimEnd('&');
                     url = string.IsNullOrEmpty(requestString) ? url : $"{url}?{requestString}";
 
@@ -355,8 +355,8 @@ namespace osu.Framework.IO.Network
 
                             var formData = new MultipartFormDataContent(form_boundary);
 
-                            foreach (var p in formParameters)
-                                formData.Add(new StringContent(p.value), p.key);
+                            foreach (var (key, value) in formParameters)
+                                formData.Add(new StringContent(value), key);
 
                             foreach (var p in files)
                             {

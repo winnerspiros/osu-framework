@@ -227,8 +227,10 @@ namespace osu.Framework.Platform.SDL3
 
             SDLWindowHandle = SDL_CreateWindow(title, Size.Width, Size.Height, flags);
 
+#pragma warning disable IDE0270 // Null check can be simplified - pointer types don't support ??
             if (SDLWindowHandle == null)
                 throw new InvalidOperationException($"Failed to create SDL window. SDL Error: {SDL_GetError()}");
+#pragma warning restore IDE0270
 
             // we want text input to only be active when SDL3DesktopWindowTextInput is active.
             // SDL activates it by default on some platforms: https://github.com/libsdl-org/SDL/blob/release-2.0.16/src/video/SDL_video.c#L573-L582

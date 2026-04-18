@@ -455,7 +455,7 @@ namespace osu.Framework.Platform.SDL3
 
         private void handleMouseWheelEvent(SDL_MouseWheelEvent evtWheel)
         {
-            bool isPrecise(float f) => f % 1 != 0;
+            static bool isPrecise(float f) => f % 1 != 0;
 
             bool precise;
 

@@ -3,20 +3,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Rendering.Vertices;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Veldrid.Batches;
-using osu.Framework.Platform;
 using osu.Framework.Graphics.Veldrid.Buffers;
 using osu.Framework.Graphics.Veldrid.Buffers.Staging;
 using osu.Framework.Graphics.Veldrid.Pipelines;
 using osu.Framework.Graphics.Veldrid.Shaders;
 using osu.Framework.Graphics.Veldrid.Textures;
 using osu.Framework.Graphics.Veldrid.Vertices;
+using osu.Framework.Platform;
 using osuTK;
 using osuTK.Graphics;
 using SixLabors.ImageSharp;
@@ -228,11 +227,12 @@ namespace osu.Framework.Graphics.Veldrid
 
         protected internal Image<Rgba32>? ExtractTexture(VeldridTexture texture)
         {
-            var resource = texture.GetResourceList().FirstOrDefault();
-            if (resource == null)
+            var resources = texture.GetResourceList();
+
+            if (resources.Count == 0)
                 return null;
 
-            return veldridDevice.ExtractTexture<Rgba32>(resource.Texture);
+            return veldridDevice.ExtractTexture<Rgba32>(resources[0].Texture);
         }
 
         /// <summary>
@@ -296,7 +296,14 @@ namespace osu.Framework.Graphics.Veldrid
             => new VeldridShaderPart(this, rawData, partType, store);
 
         protected override IShader CreateShader(string name, IShaderPart[] parts, ShaderCompilationStore compilationStore)
-            => new VeldridShader(this, name, parts.Cast<VeldridShaderPart>().ToArray(), compilationStore);
+        {
+            var veldridParts = new VeldridShaderPart[parts.Length];
+
+            for (int i = 0; i < parts.Length; i++)
+                veldridParts[i] = (VeldridShaderPart)parts[i];
+
+            return new VeldridShader(this, name, veldridParts, compilationStore);
+        }
 
         public override IFrameBuffer CreateFrameBuffer(RenderBufferFormat[]? renderBufferFormats = null, TextureFilteringMode filteringMode = TextureFilteringMode.Linear)
             => new VeldridFrameBuffer(this, renderBufferFormats?.ToPixelFormats(), filteringMode.ToSamplerFilter());

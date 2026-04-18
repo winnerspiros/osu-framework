@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -453,20 +453,18 @@ namespace osu.Framework.Bindables
 
         #region ICanBeDisabled
 
-        private bool disabled;
-
         /// <summary>
         /// Whether this <see cref="BindableList{T}"/> has been disabled. When disabled, attempting to change the contents of this <see cref="BindableList{T}"/> will result in an <see cref="InvalidOperationException"/>.
         /// </summary>
         public bool Disabled
         {
-            get => disabled;
+            get => field;
             set
             {
-                if (value == disabled)
+                if (value == field)
                     return;
 
-                disabled = value;
+                field = value;
 
                 triggerDisabledChange();
             }
@@ -482,16 +480,16 @@ namespace osu.Framework.Bindables
         private void triggerDisabledChange(bool propagateToBindings = true)
         {
             // check a bound bindable hasn't changed the value again (it will fire its own event)
-            bool beforePropagation = disabled;
+            bool beforePropagation = Disabled;
 
             if (propagateToBindings && bindings != null)
             {
                 foreach (var b in bindings)
-                    b.Disabled = disabled;
+                    b.Disabled = Disabled;
             }
 
-            if (beforePropagation == disabled)
-                DisabledChanged?.Invoke(disabled);
+            if (beforePropagation == Disabled)
+                DisabledChanged?.Invoke(Disabled);
         }
 
         #endregion ICanBeDisabled
@@ -685,7 +683,7 @@ namespace osu.Framework.Bindables
         private void ensureMutationAllowed()
         {
             if (Disabled)
-                throw new InvalidOperationException($"Cannot mutate the {nameof(BindableList<T>)} while it is disabled.");
+                throw new InvalidOperationException($"Cannot mutate the {nameof(BindableList<T>)} while it is Disabled.");
         }
 
         public bool IsDefault => Count == 0;

@@ -1,10 +1,8 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
 
-using osu.Framework.Caching;
-using osu.Framework.Graphics.Sprites;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -12,8 +10,10 @@ using System.Linq;
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Caching;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Framework.Utils;
 using osuTK;
@@ -347,43 +347,37 @@ namespace osu.Framework.Graphics.Containers
 
         protected partial class InnerFlow : FillFlowContainer
         {
-            private float firstLineIndent;
-
             /// <summary>
             /// An indent value for the first (header) line of a paragraph.
             /// </summary>
             public float FirstLineIndent
             {
-                get => firstLineIndent;
+                get => field;
                 set
                 {
-                    if (value == firstLineIndent) return;
+                    if (value == field) return;
 
-                    firstLineIndent = value;
+                    field = value;
 
                     InvalidateLayout();
                 }
             }
-
-            private float contentIndent;
 
             /// <summary>
             /// An indent value for all lines proceeding the first line in a paragraph.
             /// </summary>
             public float ContentIndent
             {
-                get => contentIndent;
+                get => field;
                 set
                 {
-                    if (value == contentIndent) return;
+                    if (value == field) return;
 
-                    contentIndent = value;
+                    field = value;
 
                     InvalidateLayout();
                 }
             }
-
-            private float paragraphSpacing = 0.5f;
 
             /// <summary>
             /// Vertical space between paragraphs (i.e. text separated by '\n') in multiples of the text size.
@@ -391,18 +385,16 @@ namespace osu.Framework.Graphics.Containers
             /// </summary>
             public float ParagraphSpacing
             {
-                get => paragraphSpacing;
+                get => field;
                 set
                 {
-                    if (value == paragraphSpacing) return;
+                    if (value == field) return;
 
-                    paragraphSpacing = value;
+                    field = value;
 
                     InvalidateLayout();
                 }
-            }
-
-            private float lineSpacing;
+            } = 0.5f;
 
             /// <summary>
             /// Vertical space between lines both when a new paragraph begins and when line wrapping occurs.
@@ -410,38 +402,36 @@ namespace osu.Framework.Graphics.Containers
             /// </summary>
             public float LineSpacing
             {
-                get => lineSpacing;
+                get => field;
                 set
                 {
-                    if (value == lineSpacing) return;
+                    if (value == field) return;
 
-                    lineSpacing = value;
+                    field = value;
 
                     InvalidateLayout();
                 }
             }
-
-            private Anchor textAnchor = Anchor.TopLeft;
 
             /// <summary>
             /// The <see cref="Anchor"/> which text should flow from.
             /// </summary>
             public Anchor TextAnchor
             {
-                get => textAnchor;
+                get => field;
                 set
                 {
-                    if (textAnchor == value)
+                    if (field == value)
                         return;
 
-                    textAnchor = value;
+                    field = value;
 
                     Anchor = value;
                     Origin = value;
 
                     InvalidateLayout();
                 }
-            }
+            } = Anchor.TopLeft;
 
             protected override IEnumerable<Vector2> ComputeLayoutPositions()
             {

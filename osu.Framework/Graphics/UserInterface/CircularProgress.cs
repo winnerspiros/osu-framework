@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -19,20 +19,18 @@ namespace osu.Framework.Graphics.UserInterface
 {
     public partial class CircularProgress : Sprite
     {
-        private double progress;
-
         public double Progress
         {
-            get => progress;
+            get => field;
             set
             {
                 if (!double.IsFinite(value))
                     throw new ArgumentException($"{nameof(Progress)} must be finite, but is {value}.");
 
-                if (progress == value)
+                if (field == value)
                     return;
 
-                progress = value;
+                field = value;
 
                 if (IsLoaded)
                     Invalidate(Invalidation.DrawNode);
@@ -55,8 +53,6 @@ namespace osu.Framework.Graphics.UserInterface
             where TEasing : IEasingFunction
             => this.TransformTo(nameof(Progress), newValue, duration, easing);
 
-        private float innerRadius = 1;
-
         /// <summary>
         /// The inner fill radius, relative to the <see cref="Drawable.DrawSize"/> of the <see cref="CircularProgress"/>.
         /// The value range is 0 to 1 where 0 is invisible and 1 is completely filled.
@@ -64,28 +60,26 @@ namespace osu.Framework.Graphics.UserInterface
         /// </summary>
         public float InnerRadius
         {
-            get => innerRadius;
+            get => field;
             set
             {
                 if (!float.IsFinite(value))
                     throw new ArgumentException($"{nameof(InnerRadius)} must be finite, but is {value}.");
 
-                innerRadius = Math.Clamp(value, 0, 1);
+                field = Math.Clamp(value, 0, 1);
                 Invalidate(Invalidation.DrawNode);
             }
-        }
-
-        private bool roundedCaps;
+        } = 1;
 
         public bool RoundedCaps
         {
-            get => roundedCaps;
+            get => field;
             set
             {
-                if (roundedCaps == value)
+                if (field == value)
                     return;
 
-                roundedCaps = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
         }
@@ -119,9 +113,9 @@ namespace osu.Framework.Graphics.UserInterface
             {
                 base.ApplyState();
 
-                InnerRadius = Source.innerRadius;
-                Progress = Math.Abs((float)Source.progress);
-                RoundedCaps = Source.roundedCaps;
+                InnerRadius = Source.InnerRadius;
+                Progress = Math.Abs((float)Source.Progress);
+                RoundedCaps = Source.RoundedCaps;
                 drawSize = Source.DrawSize;
 
                 // smoothstep looks too sharp with 1px, let's give it a bit more

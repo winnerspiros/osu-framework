@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -43,8 +43,6 @@ namespace osu.Framework.Graphics.Containers
     /// </summary>
     public partial class FillFlowContainer<T> : FlowContainer<T>, IFillFlowContainer where T : Drawable
     {
-        private FillDirection direction = FillDirection.Full;
-
         /// <summary>
         /// If <see cref="FillDirection.Full"/> or <see cref="FillDirection.Horizontal"/>,
         /// <see cref="Container{T}.Children"/> are arranged from left-to-right if their
@@ -57,16 +55,16 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public FillDirection Direction
         {
-            get => direction;
+            get => field;
             set
             {
-                if (direction == value)
+                if (field == value)
                     return;
 
-                direction = value;
+                field = value;
                 InvalidateLayout();
             }
-        }
+        } = FillDirection.Full;
 
         private Vector2 spacing;
 
@@ -140,9 +138,9 @@ namespace osu.Framework.Graphics.Containers
                 {
                     Drawable c = children[i];
 
-                    static Axes toAxes(FillDirection direction)
+                    static Axes toAxes(FillDirection Direction)
                     {
-                        switch (direction)
+                        switch (Direction)
                         {
                             case FillDirection.Full:
                                 return Axes.Both;
@@ -154,7 +152,7 @@ namespace osu.Framework.Graphics.Containers
                                 return Axes.Y;
 
                             default:
-                                throw new ArgumentException($"{direction.ToString()} is not defined");
+                                throw new ArgumentException($"{Direction.ToString()} is not defined");
                         }
                     }
 
@@ -170,7 +168,7 @@ namespace osu.Framework.Graphics.Containers
                     {
                         throw new InvalidOperationException(
                             "Drawables inside a fill flow container may not have a relative size axis that the fill flow container is filling in and auto sizing for. " +
-                            $"The fill flow container is set to flow in the {Direction} direction and autosize in {AutoSizeAxes} axes and the child is set to relative size in {c.RelativeSizeAxes} axes.");
+                            $"The fill flow container is set to flow in the {Direction} Direction and autosize in {AutoSizeAxes} axes and the child is set to relative size in {c.RelativeSizeAxes} axes.");
                     }
 
                     // Populate running variables with sane initial values.
@@ -183,7 +181,7 @@ namespace osu.Framework.Graphics.Containers
                     float rowWidth = rowBeginOffset + current.X + (1 - spacingFactor(c).X) * size.X;
 
                     //We've exceeded our allowed width, move to a new row
-                    if (direction != FillDirection.Horizontal && (Precision.DefinitelyBigger(rowWidth, max.X) || direction == FillDirection.Vertical))
+                    if (Direction != FillDirection.Horizontal && (Precision.DefinitelyBigger(rowWidth, max.X) || Direction == FillDirection.Vertical))
                     {
                         current.X = 0;
                         current.Y += rowHeight;

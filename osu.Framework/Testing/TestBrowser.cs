@@ -418,7 +418,7 @@ namespace osu.Framework.Testing
                     continue;
 
                 if (name.StartsWith("Test", StringComparison.Ordinal))
-                    name = name.Substring(4);
+                    name = name[4..];
 
                 int runCount = 1;
 
@@ -446,9 +446,8 @@ namespace osu.Framework.Testing
 
                             foreach (var p in methodWrapper.GetParameters())
                             {
-                                var valueAttrib = p.GetCustomAttributes<ValuesAttribute>(false).SingleOrDefault();
-                                if (valueAttrib == null)
-                                    throw new ArgumentException($"Parameter is present on a {nameof(TestAttribute)} method without values specification.", p.ParameterInfo.Name);
+                                var valueAttrib = p.GetCustomAttributes<ValuesAttribute>(false).SingleOrDefault()
+                                    ?? throw new ArgumentException($"Parameter is present on a {nameof(TestAttribute)} method without values specification.", p.ParameterInfo.Name);
 
                                 List<object> choices = new List<object>();
 

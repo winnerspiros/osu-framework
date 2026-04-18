@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -16,7 +16,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using osuTK;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Configuration;
@@ -30,21 +29,22 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.OpenGL;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Rendering.Deferred;
+using osu.Framework.Graphics.Textures;
+using osu.Framework.Graphics.Veldrid;
+using osu.Framework.Graphics.Video;
 using osu.Framework.Input;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Handlers;
+using osu.Framework.IO.Serialization;
+using osu.Framework.IO.Stores;
+using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Statistics;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
+using osuTK;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using osu.Framework.Graphics.Textures;
-using osu.Framework.Graphics.Veldrid;
-using osu.Framework.Graphics.Video;
-using osu.Framework.IO.Serialization;
-using osu.Framework.IO.Stores;
-using osu.Framework.Localisation;
 using Rectangle = System.Drawing.Rectangle;
 using Size = System.Drawing.Size;
 
@@ -246,8 +246,7 @@ namespace osu.Framework.Platform
             thread.IsActive.BindTo(IsActive);
             thread.UnhandledException = unhandledExceptionHandler;
 
-            if (thread.Monitor != null)
-                thread.Monitor.EnablePerformanceProfiling = PerformanceLogging.Value;
+            thread.Monitor?.EnablePerformanceProfiling = PerformanceLogging.Value;
         }
 
         /// <summary>
@@ -267,8 +266,6 @@ namespace osu.Framework.Platform
         public InputThread InputThread { get; private set; }
         public AudioThread AudioThread { get; private set; }
 
-        private double maximumUpdateHz = GameThread.DEFAULT_ACTIVE_HZ;
-
         /// <summary>
         /// The target number of update frames per second when the game window is active.
         /// </summary>
@@ -277,11 +274,9 @@ namespace osu.Framework.Platform
         /// </remarks>
         public double MaximumUpdateHz
         {
-            get => maximumUpdateHz;
-            set => threadRunner.MaximumUpdateHz = UpdateThread.ActiveHz = maximumUpdateHz = value;
-        }
-
-        private double maximumDrawHz = GameThread.DEFAULT_ACTIVE_HZ;
+            get => field;
+            set => threadRunner.MaximumUpdateHz = UpdateThread.ActiveHz = field = value;
+        } = GameThread.DEFAULT_ACTIVE_HZ;
 
         /// <summary>
         /// The target number of draw frames per second when the game window is active.
@@ -291,16 +286,13 @@ namespace osu.Framework.Platform
         /// </remarks>
         public double MaximumDrawHz
         {
-            get => maximumDrawHz;
+            get => field;
             set
             {
-                maximumDrawHz = value;
-                if (DrawThread != null)
-                    DrawThread.ActiveHz = maximumDrawHz;
+                field = value;
+                DrawThread?.ActiveHz = field;
             }
-        }
-
-        private double maximumInactiveHz = GameThread.DEFAULT_INACTIVE_HZ;
+        } = GameThread.DEFAULT_ACTIVE_HZ;
 
         /// <summary>
         /// The target number of updates per second when the game window is inactive.
@@ -311,14 +303,13 @@ namespace osu.Framework.Platform
         /// </remarks>
         public double MaximumInactiveHz
         {
-            get => maximumInactiveHz;
+            get => field;
             set
             {
-                threadRunner.MaximumInactiveHz = UpdateThread.InactiveHz = maximumInactiveHz = value;
-                if (DrawThread != null)
-                    DrawThread.InactiveHz = maximumInactiveHz;
+                threadRunner.MaximumInactiveHz = UpdateThread.InactiveHz = field = value;
+                DrawThread?.InactiveHz = field;
             }
-        }
+        } = GameThread.DEFAULT_INACTIVE_HZ;
 
         private PerformanceMonitor inputMonitor => InputThread.Monitor;
         private PerformanceMonitor drawMonitor => DrawThread.Monitor;
@@ -365,7 +356,17 @@ namespace osu.Framework.Platform
         public void Collect()
         {
             SixLabors.ImageSharp.Configuration.Default.MemoryAllocator.ReleaseRetainedResources();
-            GC.Collect();
+
+            // On mobile, prefer a non-blocking Gen0/Gen1 collection to avoid frame hitches.
+            // Full blocking GC is only appropriate on desktop where frame budgets are more forgiving.
+            if (RuntimeInfo.IsMobile)
+            {
+                GC.Collect(1, GCCollectionMode.Optimized, false);
+            }
+            else
+            {
+                GC.Collect();
+            }
         }
 
         private void unhandledExceptionHandler(object sender, UnhandledExceptionEventArgs args)
@@ -616,18 +617,16 @@ namespace osu.Framework.Platform
 
         public ExecutionState ExecutionState
         {
-            get => executionState;
+            get => field;
             private set
             {
-                if (executionState == value)
+                if (field == value)
                     return;
 
-                executionState = value;
+                field = value;
                 Logger.Log($"Host execution state changed to {value}");
             }
         }
-
-        private ExecutionState executionState;
 
         /// <summary>
         /// Schedules the game to exit in the next frame.
@@ -663,7 +662,7 @@ namespace osu.Framework.Platform
 
         private void performExit(bool immediately)
         {
-            if (executionState == ExecutionState.Stopped || executionState == ExecutionState.Idle)
+            if (ExecutionState == ExecutionState.Stopped || ExecutionState == ExecutionState.Idle)
                 return;
 
             ExecutionState = ExecutionState.Stopping;
@@ -1285,8 +1284,7 @@ namespace osu.Framework.Platform
             {
                 Threads.ForEach(t =>
                 {
-                    if (t.Monitor != null)
-                        t.Monitor.EnablePerformanceProfiling = logging.NewValue;
+                    t.Monitor?.EnablePerformanceProfiling = logging.NewValue;
                 });
                 DebugUtils.LogPerformanceIssues = logging.NewValue;
                 TypePerformanceMonitor.Active = logging.NewValue;

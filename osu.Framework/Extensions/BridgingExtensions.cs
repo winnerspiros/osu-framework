@@ -1,10 +1,10 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using TKVector2 = osuTK.Vector2;
-using SNVector2 = System.Numerics.Vector2;
 using SDPoint = System.Drawing.Point;
 using SDSize = System.Drawing.Size;
+using SNVector2 = System.Numerics.Vector2;
+using TKVector2 = osuTK.Vector2;
 
 namespace osu.Framework.Extensions
 {

@@ -30,7 +30,7 @@ namespace osu.Framework.IO
 
         #endregion
 
-        private readonly int blocksToReadAhead;
+        private int blocksToReadAhead { get; }
 
         private readonly Stream underlyingStream;
 

@@ -5,15 +5,15 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using ManagedBass;
 using ManagedBass.Fx;
-using osu.Framework.IO;
-using System.Threading.Tasks;
 using osu.Framework.Audio.Callbacks;
 using osu.Framework.Audio.Mixing;
 using osu.Framework.Audio.Mixing.Bass;
 using osu.Framework.Extensions;
 using osu.Framework.Extensions.ObjectExtensions;
+using osu.Framework.IO;
 using osu.Framework.Utils;
 
 namespace osu.Framework.Audio.Track
@@ -320,8 +320,9 @@ namespace osu.Framework.Audio.Track
 
             long pos = Bass.ChannelSeconds2Bytes(activeStream, clamped / 1000d);
 
-            if (pos != bassMixer.ChannelGetPosition(this))
-                bassMixer.ChannelSetPosition(this, pos);
+            // Set position unconditionally — BASS handles no-op seeks internally and
+            // the extra ChannelGetPosition call adds unnecessary latency.
+            bassMixer.ChannelSetPosition(this, pos);
 
             // current time updates are safe to perform from enqueued actions,
             // but not always safe to perform from BASS callbacks, since those can sometimes use a separate thread.

@@ -10,16 +10,16 @@ using JetBrains.Annotations;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Extensions.ObjectExtensions;
-using osuTK.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osu.Framework.Layout;
 using osu.Framework.Localisation;
-using osu.Framework.Utils;
 using osu.Framework.Threading;
+using osu.Framework.Utils;
 using osuTK;
+using osuTK.Graphics;
 using osuTK.Input;
 
 namespace osu.Framework.Graphics.UserInterface
@@ -183,43 +183,39 @@ namespace osu.Framework.Graphics.UserInterface
             set => ContentContainer.ScrollbarVisible = value;
         }
 
-        private float maxWidth = float.MaxValue;
-
         /// <summary>
         /// Gets or sets the maximum allowable width by this <see cref="Menu"/>.
         /// </summary>
         public float MaxWidth
         {
-            get => maxWidth;
+            get => field;
             set
             {
-                if (Precision.AlmostEquals(maxWidth, value))
+                if (Precision.AlmostEquals(field, value))
                     return;
 
-                maxWidth = value;
+                field = value;
 
                 ((IItemsFlow)itemsFlow).SizeCache.Invalidate();
             }
-        }
-
-        private float maxHeight = float.PositiveInfinity;
+        } = float.MaxValue;
 
         /// <summary>
         /// Gets or sets the maximum allowable height by this <see cref="Menu"/>.
         /// </summary>
         public float MaxHeight
         {
-            get => maxHeight;
+            get => field;
             set
             {
-                if (Precision.AlmostEquals(maxHeight, value))
+                if (Precision.AlmostEquals(field, value))
                     return;
 
-                maxHeight = value;
+                field = value;
 
                 ((IItemsFlow)itemsFlow).SizeCache.Invalidate();
             }
-        }
+        } = float.PositiveInfinity;
 
         private MenuState state = MenuState.Closed;
 
@@ -857,19 +853,17 @@ namespace osu.Framework.Graphics.UserInterface
                 }
             }
 
-            private MenuItemState state;
-
             public MenuItemState State
             {
-                get => state;
+                get => field;
                 set
                 {
-                    state = value;
+                    field = value;
 
                     Scheduler.AddOnce(UpdateBackgroundColour);
                     Scheduler.AddOnce(UpdateForegroundColour);
 
-                    StateChanged?.Invoke(state);
+                    StateChanged?.Invoke(field);
                 }
             }
 

@@ -57,11 +57,11 @@ namespace osu.Framework.Localisation
             }
 
             // taken from https://github.com/Humanizr/Humanizer/blob/606e958cb83afc9be5b36716ac40d4daa9fa73a7/src/Humanizer/Transformer/ToSentenceCase.cs#L12-L22
-            string toSentenceCase(string input, TextInfo textInfo)
+            static string toSentenceCase(string input, TextInfo textInfo)
             {
                 if (input.Length >= 1)
                 {
-                    return textInfo.ToUpper(input[0]) + input.Substring(1);
+                    return textInfo.ToUpper(input[0]) + input[1..];
                 }
 
                 return textInfo.ToUpper(input);

@@ -3,12 +3,12 @@
 
 #nullable disable
 
-using osuTK;
 using System;
 using System.Collections.Generic;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Primitives;
+using osuTK;
 
 namespace osu.Framework.Physics
 {

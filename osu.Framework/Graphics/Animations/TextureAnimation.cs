@@ -3,9 +3,9 @@
 
 #nullable disable
 
-using osuTK;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
+using osuTK;
 
 namespace osu.Framework.Graphics.Animations
 {

@@ -3,15 +3,15 @@
 
 #nullable disable
 
-using System.Collections.Generic;
-using osu.Framework.Graphics.Primitives;
-using osu.Framework.Graphics.Shaders;
-using osuTK;
-using osu.Framework.Graphics.Colour;
 using System;
+using System.Collections.Generic;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Effects;
+using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Rendering.Vertices;
+using osu.Framework.Graphics.Shaders;
+using osuTK;
 
 namespace osu.Framework.Graphics.Containers
 {
@@ -81,7 +81,7 @@ namespace osu.Framework.Graphics.Containers
                 float blendRange = Source.MaskingSmoothness * (scale.X + scale.Y) / 2;
 
                 // Calculate a shrunk rectangle which is free from corner radius/smoothing/border effects
-                float shrinkage = Source.CornerRadius - Source.CornerRadius * cos_45 + blendRange + Source.borderThickness;
+                float shrinkage = Source.CornerRadius - Source.CornerRadius * cos_45 + blendRange + Source.BorderThickness;
 
                 // Normalise to handle negative sizes, and clamp the shrinkage to prevent size from going negative.
                 RectangleF shrunkDrawRectangle = Source.DrawRectangle.Normalize();

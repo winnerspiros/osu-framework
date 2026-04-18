@@ -74,7 +74,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
 
             GL.BindBuffer(BufferTarget.UniformBuffer, Id);
             GL.BufferSubData(BufferTarget.UniformBuffer, changeBeginIndex * elementSize, elementSize * changeCount, ref data[changeBeginIndex]);
-            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+            // Intentionally not unbinding — avoids GL state thrashing.
 
             changeBeginIndex = -1;
             changeCount = 0;

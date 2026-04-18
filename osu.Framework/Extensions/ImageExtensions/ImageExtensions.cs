@@ -54,7 +54,7 @@ namespace osu.Framework.Extensions.ImageExtensions
             var allocatedMemory = allocatedOwner.Memory;
 
             for (int r = 0; r < image.Height; r++)
-                image.DangerousGetPixelRowMemory(r).CopyTo(allocatedMemory.Slice(r * image.Width));
+                image.DangerousGetPixelRowMemory(r).CopyTo(allocatedMemory[(r * image.Width)..]);
 
             return allocatedOwner;
         }

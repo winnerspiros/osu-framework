@@ -68,7 +68,7 @@ namespace osu.Framework.IO.Stores
         public IEnumerable<string> GetAvailableResources() =>
             assembly.GetManifestResourceNames().Select(n =>
             {
-                n = n.Substring(n.StartsWith(prefix, StringComparison.Ordinal) ? prefix.Length + 1 : 0);
+                n = n[(n.StartsWith(prefix, StringComparison.Ordinal) ? prefix.Length + 1 : 0)..];
 
                 int lastDot = n.LastIndexOf('.');
 

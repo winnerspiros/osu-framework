@@ -250,22 +250,27 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
                 throw new InvalidOperationException("No index buffer bound.");
 
             pipelineDesc.PrimitiveTopology = topology;
-            Array.Resize(ref pipelineDesc.ResourceLayouts, currentShader.LayoutCount);
 
-            // Activate texture layouts.
+            // Only resize the resource layouts array when the shader's layout count actually changed.
+            if (pipelineDesc.ResourceLayouts.Length != currentShader.LayoutCount)
+                Array.Resize(ref pipelineDesc.ResourceLayouts, currentShader.LayoutCount);
+
+            // Combined pass: set up pipeline layouts and resource sets in two iterations
+            // instead of four separate dictionary walks.
             foreach (var (unit, _) in attachedTextures)
             {
                 var layout = currentShader.GetTextureLayout(unit);
+
                 if (layout == null)
                     continue;
 
                 pipelineDesc.ResourceLayouts[layout.Set] = layout.Layout;
             }
 
-            // Activate uniform buffer layouts.
             foreach (var (name, _) in attachedUniformBuffers)
             {
                 var layout = currentShader.GetUniformBufferLayout(name);
+
                 if (layout == null)
                     continue;
 
@@ -275,20 +280,21 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             // Activate the pipeline.
             Commands.SetPipeline(createPipeline());
 
-            // Activate texture resources.
+            // Activate texture and uniform buffer resources.
             foreach (var (unit, texture) in attachedTextures)
             {
                 var layout = currentShader.GetTextureLayout(unit);
+
                 if (layout == null)
                     continue;
 
                 Commands.SetGraphicsResourceSet((uint)layout.Set, texture.GetResourceSet(Factory, layout.Layout));
             }
 
-            // Activate uniform buffer resources.
             foreach (var (name, buffer) in attachedUniformBuffers)
             {
                 var layout = currentShader.GetUniformBufferLayout(name);
+
                 if (layout == null)
                     continue;
 

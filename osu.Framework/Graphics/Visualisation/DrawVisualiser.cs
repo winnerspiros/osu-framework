@@ -342,12 +342,9 @@ namespace osu.Framework.Graphics.Visualisation
 
         private void setHighlight(VisualisedDrawable newHighlight)
         {
-            if (highlightedTarget != null)
-            {
-                // Dehighlight the lastly highlighted target
-                highlightedTarget.IsHighlighted = false;
-                highlightedTarget = null;
-            }
+            // Dehighlight the lastly highlighted target
+            highlightedTarget?.IsHighlighted = false;
+            highlightedTarget = null;
 
             if (newHighlight == null)
             {

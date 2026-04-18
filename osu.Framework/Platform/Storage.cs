@@ -24,10 +24,7 @@ namespace osu.Framework.Platform
                 return entry;
             }
 
-            BasePath = path;
-
-            if (BasePath == null)
-                throw new InvalidOperationException($"{nameof(BasePath)} not correctly initialized!");
+            BasePath = path ?? throw new InvalidOperationException($"{nameof(BasePath)} not correctly initialized!");
 
             if (!string.IsNullOrEmpty(subfolder))
                 BasePath = Path.Combine(BasePath, filenameStrip(subfolder));

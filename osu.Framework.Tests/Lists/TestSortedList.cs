@@ -5,8 +5,8 @@
 
 using System;
 using System.Collections.Generic;
-using osu.Framework.Lists;
 using NUnit.Framework;
+using osu.Framework.Lists;
 
 namespace osu.Framework.Tests.Lists
 {

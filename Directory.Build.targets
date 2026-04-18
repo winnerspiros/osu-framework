@@ -1,0 +1,22 @@
+<Project>
+  <!-- Disable code style enforcement and treat-warnings-as-errors for submodule projects.
+       These projects have their own code style rules and should not be subject to osu-framework's strict CI rules.
+       NoWarn is used because -warnaserror from CLI overrides TreatWarningsAsErrors in project files.
+       Suppressed IDE rules:
+         IDE0008 = Use explicit type instead of 'var'
+         IDE0023 = Use expression body for conversion operator
+         IDE0024 = Use expression body for operator
+         IDE0025 = Use expression body for property
+         IDE0027 = Use expression body for accessor
+         IDE0031 = Null check can be simplified
+         IDE0032 = Use auto property
+         IDE0034 = 'default' expression can be simplified
+         IDE0040 = Accessibility modifiers unnecessary
+         IDE0055 = Fix formatting
+         IDE0057 = Substring can be simplified -->
+  <PropertyGroup Condition="$(MSBuildProjectFullPath.Contains('submodules'))">
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);IDE0008;IDE0023;IDE0024;IDE0025;IDE0027;IDE0031;IDE0032;IDE0034;IDE0040;IDE0055;IDE0057</NoWarn>
+  </PropertyGroup>
+</Project>

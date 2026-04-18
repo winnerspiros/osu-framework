@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using System.Threading;
 using osu.Framework.Development;
 using osu.Framework.Extensions.ImageExtensions;
 using osu.Framework.Graphics.Primitives;
@@ -24,6 +25,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
 {
     internal class VeldridTexture : IVeldridTexture
     {
+        private readonly Lock uploadQueueLock = new Lock();
         private readonly Queue<ITextureUpload> uploadQueue = new Queue<ITextureUpload>();
 
         IRenderer INativeTexture.Renderer => Renderer;
@@ -187,7 +189,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
 
         public void SetData(ITextureUpload upload)
         {
-            lock (uploadQueue)
+            lock (uploadQueueLock)
             {
                 if (uploadQueue.Count >= 100 && uploadQueue.Count % 100 == 0)
                     Logger.Log($"Texture {Identifier}'s upload queue is large ({uploadQueue.Count})");
@@ -380,7 +382,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
         {
             get
             {
-                lock (uploadQueue)
+                lock (uploadQueueLock)
                     return uploadQueue.Count == 0;
             }
         }
@@ -392,7 +394,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
 
         private bool tryGetNextUpload([NotNullWhen(true)] out ITextureUpload? upload)
         {
-            lock (uploadQueue)
+            lock (uploadQueueLock)
             {
                 if (uploadQueue.Count == 0)
                 {
@@ -405,20 +407,17 @@ namespace osu.Framework.Graphics.Veldrid.Textures
             }
         }
 
-        private int? mipLevel;
-
         public int? MipLevel
         {
-            get => mipLevel;
+            get => field;
             set
             {
-                if (mipLevel == value)
+                if (field == value)
                     return;
 
-                mipLevel = value;
+                field = value;
 
-                if (resources != null)
-                    resources.Sampler = createSampler();
+                resources?.Sampler = createSampler();
             }
         }
 
@@ -500,16 +499,29 @@ namespace osu.Framework.Graphics.Veldrid.Textures
             if (initialisationColour == null)
                 return;
 
-            var rgbaColour = new Rgba32(new Vector4(initialisationColour.Value.R, initialisationColour.Value.G, initialisationColour.Value.B, initialisationColour.Value.A));
+            var colour = initialisationColour.Value;
+            bool isTransparentBlack = colour.R == 0 && colour.G == 0 && colour.B == 0 && colour.A == 0;
 
-            // it is faster to initialise without a background specification if transparent black is all that's required.
-            using var image = initialisationColour == null
-                ? new Image<Rgba32>(width, height)
-                : new Image<Rgba32>(width, height, rgbaColour);
+            updateMemoryUsage(level, (long)width * height * sizeof(Rgba32));
+
+            if (isTransparentBlack)
+            {
+                // For transparent black, use a zeroed span to avoid allocating an Image<Rgba32>.
+                int pixelCount = width * height;
+                Span<Rgba32> zeroed = pixelCount <= 4096
+                    ? stackalloc Rgba32[pixelCount]
+                    : new Rgba32[pixelCount];
+                zeroed.Clear();
+                Renderer.UpdateTexture(texture, 0, 0, width, height, level, zeroed);
+                return;
+            }
+
+            var rgbaColour = new Rgba32(new Vector4(colour.R, colour.G, colour.B, colour.A));
+
+            using var image = new Image<Rgba32>(width, height, rgbaColour);
 
             using (var pixels = image.CreateReadOnlyPixelSpan())
             {
-                updateMemoryUsage(level, (long)width * height * sizeof(Rgba32));
                 Renderer.UpdateTexture(texture, 0, 0, width, height, level, pixels.Span);
             }
         }

@@ -361,7 +361,7 @@ namespace osu.Framework.Configuration
             });
         }
 
-        private readonly object saveLock = new object();
+        private readonly Lock saveLock = new();
 
         public bool Save()
         {

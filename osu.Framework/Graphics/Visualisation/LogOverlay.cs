@@ -4,16 +4,16 @@
 #nullable disable
 
 using System.Threading;
+using osu.Framework.Development;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Input.Events;
 using osu.Framework.Logging;
+using osu.Framework.Timing;
 using osuTK;
 using osuTK.Graphics;
-using osu.Framework.Development;
-using osu.Framework.Timing;
 using osuTK.Input;
-using osu.Framework.Graphics.Shapes;
-using osu.Framework.Input.Events;
 
 namespace osu.Framework.Graphics.Visualisation
 {
@@ -115,7 +115,7 @@ namespace osu.Framework.Graphics.Visualisation
         private void setHoldState(bool controlPressed)
         {
             box.Alpha = controlPressed ? 1 : background_alpha;
-            if (clock != null) clock.Rate = controlPressed ? 0 : 1;
+            clock?.Rate = controlPressed ? 0 : 1;
         }
 
         protected override void PopIn()

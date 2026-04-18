@@ -5,9 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
-using osu.Framework.Graphics.Sprites;
+using System.Threading;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -49,7 +50,7 @@ namespace osu.Framework.Graphics.Textures
 
         private readonly bool manualMipmaps;
         private readonly TextureFilteringMode filteringMode;
-        private readonly object textureRetrievalLock = new object();
+        private readonly Lock textureRetrievalLock = new();
 
         public TextureAtlas(IRenderer renderer, int width, int height, bool manualMipmaps = false, TextureFilteringMode filteringMode = TextureFilteringMode.Linear)
         {

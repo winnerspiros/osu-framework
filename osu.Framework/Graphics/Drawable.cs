@@ -206,7 +206,7 @@ namespace osu.Framework.Graphics
         /// </summary>
         internal Thread LoadThread { get; private set; }
 
-        internal readonly object LoadLock = new object();
+        internal readonly Lock LoadLock = new();
 
         private static readonly StopwatchClock perf_clock = new StopwatchClock(true);
 
@@ -432,7 +432,7 @@ namespace osu.Framework.Graphics
         /// <summary>
         /// A lock exclusively used for initial acquisition/construction of the <see cref="Scheduler"/>.
         /// </summary>
-        private static readonly object scheduler_acquisition_lock = new object();
+        private static readonly Lock scheduler_acquisition_lock = new();
 
         private volatile Scheduler scheduler;
 

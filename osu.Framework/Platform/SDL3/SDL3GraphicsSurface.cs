@@ -87,8 +87,10 @@ namespace osu.Framework.Platform.SDL3
 
             context = SDL_GL_CreateContext(window.SDLWindowHandle);
 
+#pragma warning disable IDE0270 // Null check can be simplified - pointer types don't support ??
             if (context == null)
                 throw new InvalidOperationException($"Failed to create an SDL3 GL context ({SDL_GetError()})");
+#pragma warning restore IDE0270
 
             SDL_GL_MakeCurrent(window.SDLWindowHandle, context).ThrowIfFailed();
 

@@ -4,18 +4,18 @@
 #nullable disable
 
 using System;
-using osu.Framework.Graphics.Primitives;
-using osu.Framework.Graphics.Textures;
-using osuTK;
-using osu.Framework.Graphics.Shaders;
-using osu.Framework.Allocation;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using osu.Framework.Allocation;
 using osu.Framework.Caching;
 using osu.Framework.Extensions.EnumExtensions;
+using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
+using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Shaders.Types;
+using osu.Framework.Graphics.Textures;
 using osu.Framework.Layout;
+using osuTK;
 using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Lines

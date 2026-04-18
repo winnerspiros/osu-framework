@@ -3,11 +3,11 @@
 
 #nullable disable
 
-using osu.Framework.Extensions.TypeExtensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using osu.Framework.Extensions.TypeExtensions;
 using osu.Framework.IO.Serialization;
 
 namespace osu.Framework.Lists

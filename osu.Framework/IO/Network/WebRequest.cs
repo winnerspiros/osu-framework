@@ -135,8 +135,6 @@ namespace osu.Framework.IO.Network
         private int responseBytesRead;
         private byte[] buffer;
         private bool? allowInsecureRequests;
-        private bool completed;
-
         private static readonly HttpClient client = new HttpClient(
             // SocketsHttpHandler causes crash in Android Debug, and seems to have compatibility issue on SSL
             // Use platform HTTP handler which is invoked by HttpClientHandler for better compatibility and app size
@@ -184,11 +182,11 @@ namespace osu.Framework.IO.Network
         /// </summary>
         public bool Completed
         {
-            get => completed;
+            get => field;
             private set
             {
-                completed = value;
-                if (!completed) return;
+                field = value;
+                if (!field) return;
 
                 // WebRequests can only be used once - no need to keep events bound
                 // This helps with disposal in PerformAsync usages
@@ -314,8 +312,8 @@ namespace osu.Framework.IO.Network
                     HttpRequestMessage request;
 
                     StringBuilder requestParameters = new StringBuilder();
-                    foreach (var p in queryParameters)
-                        requestParameters.Append($"{p.key}={Uri.EscapeDataString(p.value)}&");
+                    foreach (var (key, value) in queryParameters)
+                        requestParameters.Append($"{key}={Uri.EscapeDataString(value)}&");
                     string requestString = requestParameters.ToString().TrimEnd('&');
                     url = string.IsNullOrEmpty(requestString) ? url : $"{url}?{requestString}";
 
@@ -355,8 +353,8 @@ namespace osu.Framework.IO.Network
 
                             var formData = new MultipartFormDataContent(form_boundary);
 
-                            foreach (var p in formParameters)
-                                formData.Add(new StringContent(p.value), p.key);
+                            foreach (var (key, value) in formParameters)
+                                formData.Add(new StringContent(value), key);
 
                             foreach (var p in files)
                             {
@@ -795,7 +793,7 @@ namespace osu.Framework.IO.Network
 
         #region Timeout Handling
 
-        private long lastAction;
+        private long lastAction { get; set; }
 
         private long timeSinceLastAction => (DateTime.Now.Ticks - lastAction) / TimeSpan.TicksPerMillisecond;
 

@@ -3,11 +3,11 @@
 
 using System;
 using System.Buffers;
-using osuTK.Graphics.ES30;
-using osu.Framework.Statistics;
 using osu.Framework.Development;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Rendering.Vertices;
+using osu.Framework.Statistics;
+using osuTK.Graphics.ES30;
 using SixLabors.ImageSharp.Memory;
 
 namespace osu.Framework.Graphics.OpenGL.Buffers

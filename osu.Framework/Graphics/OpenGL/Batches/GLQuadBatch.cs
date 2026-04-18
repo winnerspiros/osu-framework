@@ -16,6 +16,9 @@ namespace osu.Framework.Graphics.OpenGL.Batches
         {
         }
 
-        protected override GLVertexBuffer<T> CreateVertexBuffer(GLRenderer renderer) => new GLQuadBuffer<T>(renderer, Size, BufferUsageHint.DynamicDraw);
+        // On mobile tile-based GPUs, StreamDraw hints to the driver that buffer data is transient
+        // and only used for one draw call, enabling more efficient memory handling.
+        protected override GLVertexBuffer<T> CreateVertexBuffer(GLRenderer renderer)
+            => new GLQuadBuffer<T>(renderer, Size, RuntimeInfo.IsMobile ? BufferUsageHint.StreamDraw : BufferUsageHint.DynamicDraw);
     }
 }

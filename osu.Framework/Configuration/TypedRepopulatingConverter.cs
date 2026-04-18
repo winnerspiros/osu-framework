@@ -28,10 +28,7 @@ namespace osu.Framework.Configuration
 
             foreach (var tok in obj)
             {
-                string typeName = tok["$type"]?.ToString();
-
-                if (typeName == null)
-                    throw new JsonException("Expected $type token.");
+                string typeName = tok["$type"]?.ToString() ?? throw new JsonException("Expected $type token.");
 
                 var existing = existingList.FirstOrDefault(h => h.GetType() == Type.GetType(typeName));
 

@@ -39,8 +39,6 @@ namespace osu.Framework.Graphics.Sprites
 
         protected override DrawNode CreateDrawNode() => new BufferSpriteDrawNode(this);
 
-        private bool synchronisedDrawQuad;
-
         /// <summary>
         /// Whether this <see cref="BufferedContainerView{T}"/> should be drawn using the original <see cref="BufferedContainer{T}"/>'s draw quad.
         /// </summary>
@@ -49,32 +47,30 @@ namespace osu.Framework.Graphics.Sprites
         /// </remarks>
         public bool SynchronisedDrawQuad
         {
-            get => synchronisedDrawQuad;
+            get => field;
             set
             {
-                if (value == synchronisedDrawQuad)
+                if (value == field)
                     return;
 
-                synchronisedDrawQuad = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
         }
-
-        private bool displayOriginalEffects;
 
         /// <summary>
         /// Whether the effects drawn by the <see cref="BufferedContainer{T}"/> should also be drawn for this view.
         /// </summary>
         public bool DisplayOriginalEffects
         {
-            get => displayOriginalEffects;
+            get => field;
             set
             {
-                if (displayOriginalEffects == value)
+                if (field == value)
                     return;
 
-                displayOriginalEffects = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
@@ -106,7 +102,7 @@ namespace osu.Framework.Graphics.Sprites
 
             private Quad screenSpaceDrawQuad;
             private BufferedDrawNodeSharedData shared;
-            private bool displayOriginalEffects;
+            private bool displayOriginalEffects { get; set; }
 
             private bool sourceDrawsOriginal;
             private ColourInfo sourceEffectColour;
@@ -122,10 +118,10 @@ namespace osu.Framework.Graphics.Sprites
             {
                 base.ApplyState();
 
-                screenSpaceDrawQuad = Source.synchronisedDrawQuad ? Source.container.ScreenSpaceDrawQuad : Source.ScreenSpaceDrawQuad;
+                screenSpaceDrawQuad = Source.SynchronisedDrawQuad ? Source.container.ScreenSpaceDrawQuad : Source.ScreenSpaceDrawQuad;
                 shared = Source.sharedData;
 
-                displayOriginalEffects = Source.displayOriginalEffects;
+                displayOriginalEffects = Source.DisplayOriginalEffects;
                 sourceDrawsOriginal = Source.container.DrawOriginal;
                 sourceEffectColour = Source.container.EffectColour;
                 sourceEffectBlending = Source.container.DrawEffectBlending;

@@ -61,7 +61,7 @@ namespace osu.Framework.Extensions.PolygonExtensions
                 buffer[i] = normal;
             }
 
-            return buffer.Slice(0, vertices.Length);
+            return buffer[..vertices.Length];
         }
     }
 }

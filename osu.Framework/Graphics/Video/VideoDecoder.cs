@@ -3,9 +3,6 @@
 
 #nullable disable
 
-using FFmpeg.AutoGen;
-using osuTK;
-using osu.Framework.Graphics.Textures;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,14 +12,17 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using FFmpeg.AutoGen;
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Graphics.Rendering;
+using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Platform.Linux.Native;
+using osuTK;
 
 namespace osu.Framework.Graphics.Video
 {
@@ -113,7 +113,7 @@ namespace osu.Framework.Graphics.Video
         {
             if (RuntimeInfo.OS == RuntimeInfo.Platform.Linux)
             {
-                void loadVersionedLibraryGlobally(string name)
+                static void loadVersionedLibraryGlobally(string name)
                 {
                     int version = FFmpeg.AutoGen.ffmpeg.LibraryVersionMap[name];
                     Library.Load($"lib{name}.so.{version}", Library.LoadFlags.RTLD_LAZY | Library.LoadFlags.RTLD_GLOBAL);

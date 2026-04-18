@@ -109,7 +109,7 @@ namespace osu.Framework.Graphics.Containers
 
             return words.ToArray();
 
-            bool isCjkCharacter(char c) => c >= '\x2E80' && c <= '\x9FFF';
+            static bool isCjkCharacter(char c) => c >= '\x2E80' && c <= '\x9FFF';
         }
 
         protected virtual TSpriteText CreateSpriteText(TextFlowContainer textFlowContainer)

@@ -736,14 +736,9 @@ namespace osu.Framework.Tests.IO
         [Test]
         public void TestSynchronousFlowTplReliance()
         {
-            int workerMin;
-            int completionMin;
-            int workerMax;
-            int completionMax;
-
             // set limited threadpool capacity
-            ThreadPool.GetMinThreads(out workerMin, out completionMin);
-            ThreadPool.GetMaxThreads(out workerMax, out completionMax);
+            ThreadPool.GetMinThreads(out int workerMin, out int completionMin);
+            ThreadPool.GetMaxThreads(out int workerMax, out int completionMax);
 
             try
             {
@@ -954,15 +949,13 @@ namespace osu.Framework.Tests.IO
         {
             public Action CompleteInvoked;
 
-            private int delay;
-
             public int Delay
             {
-                get => delay;
+                get;
                 set
                 {
-                    delay = value;
-                    Url = $"{default_protocol}://{host}/delay/{delay}";
+                    field = value;
+                    Url = $"{default_protocol}://{host}/delay/{field}";
                 }
             }
 

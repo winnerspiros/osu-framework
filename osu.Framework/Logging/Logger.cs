@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -21,14 +21,14 @@ namespace osu.Framework.Logging
     /// </summary>
     public class Logger
     {
-        private static readonly object static_sync_lock = new object();
+        private static readonly Lock static_sync_lock = new();
 
         /// <summary>
         /// Separate locking object for flushing so that we don't lock too long on the staticSyncLock object, since we have to
         /// hold this lock for the entire duration of the flush (waiting for I/O etc) before we can resume scheduling logs
         /// but other operations like GetLogger(), ApplyFilters() etc. can still be executed while a flush is happening.
         /// </summary>
-        private static readonly object flush_sync_lock = new object();
+        private static readonly Lock flush_sync_lock = new();
 
         /// <summary>
         /// Logs are stored with a consistent unix timestamp prefix per session (across all loggers) for logical grouping of
@@ -56,17 +56,15 @@ namespace osu.Framework.Logging
         /// </summary>
         public static string VersionIdentifier = @"unknown";
 
-        private static Storage storage;
-
         /// <summary>
         /// The storage to place logs inside.
         /// </summary>
         public static Storage Storage
         {
-            get => storage;
+            get => field;
             set
             {
-                storage = value ?? throw new ArgumentNullException(nameof(value));
+                field = value ?? throw new ArgumentNullException(nameof(value));
 
                 cycleLogs();
             }
@@ -424,11 +422,11 @@ namespace osu.Framework.Logging
         {
             try
             {
-                if (!storage.ExistsDirectory(string.Empty))
+                if (!Storage.ExistsDirectory(string.Empty))
                     return;
 
                 DateTime logCycleCutoff = DateTime.UtcNow.AddDays(-7);
-                var logFiles = new DirectoryInfo(storage.GetFullPath(string.Empty)).GetFiles("*.log");
+                var logFiles = new DirectoryInfo(Storage.GetFullPath(string.Empty)).GetFiles("*.log");
 
                 foreach (var fileInfo in logFiles)
                 {

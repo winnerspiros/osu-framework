@@ -22,7 +22,7 @@ namespace osu.Framework.Extensions.TypeExtensions
             // Trim away amount of type arguments
             int amountTypeArgumentsPos = result.IndexOf('`');
             if (amountTypeArgumentsPos >= 0)
-                result = result.Substring(0, amountTypeArgumentsPos);
+                result = result[..amountTypeArgumentsPos];
 
             // We were declared inside another class. Preprend the name of that class.
             if (t.DeclaringType != null && !usedTypes.Contains(t.DeclaringType))
@@ -116,8 +116,7 @@ namespace osu.Framework.Extensions.TypeExtensions
             if (!type.IsGenericType)
                 return null;
 
-            // ReSharper disable once ConvertClosureToMethodGroup (see: https://github.com/dotnet/runtime/issues/33747)
-            return underlying_type_cache.GetOrAdd(type, t => Nullable.GetUnderlyingType(t));
+            return underlying_type_cache.GetOrAdd(type, Nullable.GetUnderlyingType);
         }
 
         /// <summary>

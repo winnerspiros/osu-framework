@@ -31,7 +31,12 @@ namespace osu.Framework.Audio.Mixing.Bass
 
         private readonly Dictionary<IEffectParameter, int> activeEffects = new Dictionary<IEffectParameter, int>();
 
-        private const int frequency = 44100;
+        /// <summary>
+        /// The mixer sample rate. 48000 Hz provides better quality on modern audio hardware
+        /// and is the native rate for most Android AAudio and iOS CoreAudio endpoints,
+        /// avoiding an extra resampling step in the audio pipeline.
+        /// </summary>
+        private const int frequency = 48000;
 
         /// <summary>
         /// Creates a new <see cref="BassAudioMixer"/>.
@@ -268,13 +273,15 @@ namespace osu.Framework.Audio.Mixing.Bass
 
         protected override void UpdateState()
         {
-            for (int i = 0; i < activeChannels.Count; i++)
+            // Iterate backwards so RemoveAt operations don't shift unvisited elements.
+            for (int i = activeChannels.Count - 1; i >= 0; i--)
             {
                 var channel = activeChannels[i];
+
                 if (channel.IsActive)
                     continue;
 
-                activeChannels.RemoveAt(i--);
+                activeChannels.RemoveAt(i);
                 removeChannelFromBassMix(channel);
             }
 
@@ -304,9 +311,11 @@ namespace osu.Framework.Audio.Mixing.Bass
             ManagedBass.Bass.ChannelSetAttribute(Handle, ChannelAttribute.Buffer, 0);
 
             // Register all channels that were previously played prior to the mixer being loaded.
-            var toAdd = activeChannels.ToArray();
+            // Use a temporary list to avoid issues with AddChannelToBassMix mutating activeChannels.
+            IBassAudioChannel[] channelsToReAdd = [.. activeChannels];
             activeChannels.Clear();
-            foreach (var channel in toAdd)
+
+            foreach (var channel in channelsToReAdd)
                 AddChannelToBassMix(channel);
 
             if (manager?.GlobalMixerHandle.Value != null)
@@ -325,7 +334,15 @@ namespace osu.Framework.Audio.Mixing.Bass
             // Debug.Assert(Handle != 0);
             // Debug.Assert(channel.Handle != 0);
 
-            BassFlags flags = BassFlags.MixerChanBuffer | BassFlags.MixerChanNoRampin;
+            BassFlags flags = BassFlags.MixerChanNoRampin;
+
+            // On mobile platforms, skip per-channel buffering to reduce latency.
+            // The mixer itself already provides buffering; adding another layer of
+            // channel-level buffers just increases the pipeline depth for no benefit
+            // when running single-threaded (as on Android/iOS).
+            if (!RuntimeInfo.IsMobile)
+                flags |= BassFlags.MixerChanBuffer;
+
             if (channel.MixerChannelPaused)
                 flags |= BassFlags.MixerChanPause;
 

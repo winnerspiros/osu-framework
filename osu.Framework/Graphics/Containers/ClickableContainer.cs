@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -11,15 +11,13 @@ namespace osu.Framework.Graphics.Containers
 {
     public partial class ClickableContainer : Container
     {
-        private Action action;
-
         public Action Action
         {
-            get => action;
+            get => field;
             set
             {
-                action = value;
-                Enabled.Value = action != null;
+                field = value;
+                Enabled.Value = field != null;
             }
         }
 

@@ -69,9 +69,8 @@ namespace osu.Framework.Graphics.Containers
                             if (placeholderIndex < 0)
                                 throw new ArgumentException($"Negative placeholder indices are invalid. Index {placeholderIndex} was used.");
 
-                            placeholderDrawable = customizableContainer.Placeholders.ElementAtOrDefault(placeholderIndex);
-                            if (placeholderDrawable == null)
-                                throw new ArgumentException($"Placeholder with index {placeholderIndex} is null, or {placeholderIndex} is outside the bounds of allowable placeholder indices.");
+                            placeholderDrawable = customizableContainer.Placeholders.ElementAtOrDefault(placeholderIndex)
+                                ?? throw new ArgumentException($"Placeholder with index {placeholderIndex} is null, or {placeholderIndex} is outside the bounds of allowable placeholder indices.");
                         }
                         else
                         {
@@ -107,7 +106,7 @@ namespace osu.Framework.Graphics.Containers
 
                 if (strPiece == null)
                 {
-                    strPiece = str.Substring(index);
+                    strPiece = str[index..];
                     index = str.Length;
                 }
 

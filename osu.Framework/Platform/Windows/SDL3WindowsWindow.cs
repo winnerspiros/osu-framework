@@ -11,8 +11,8 @@ using osu.Framework.Platform.SDL3;
 using osu.Framework.Platform.Windows.Native;
 using osuTK;
 using SDL;
-using Icon = osu.Framework.Platform.Windows.Native.Icon;
 using static SDL.SDL3;
+using Icon = osu.Framework.Platform.Windows.Native.Icon;
 
 namespace osu.Framework.Platform.Windows
 {

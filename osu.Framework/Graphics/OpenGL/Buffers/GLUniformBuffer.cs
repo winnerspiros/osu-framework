@@ -52,7 +52,8 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
 
             GL.BindBuffer(BufferTarget.UniformBuffer, uboId);
             GL.BufferData(BufferTarget.UniformBuffer, size, ref data, BufferUsageHint.DynamicDraw);
-            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+            // Intentionally not unbinding — avoids GL state thrashing.
+            // The next BindBuffer call will rebind whatever is needed.
 
             FrameStatistics.Increment(StatisticsCounterType.UniformUpl);
         }

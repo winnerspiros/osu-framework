@@ -1,9 +1,9 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using osuTK.Graphics;
 using System;
 using System.Globalization;
+using osuTK.Graphics;
 
 namespace osu.Framework.Extensions.Color4Extensions
 {
@@ -147,7 +147,7 @@ namespace osu.Framework.Extensions.Color4Extensions
         /// <exception cref="ArgumentException">If <paramref name="hex"/> is not a supported colour code.</exception>
         public static Color4 FromHex(string hex)
         {
-            var hexSpan = hex[0] == '#' ? hex.AsSpan().Slice(1) : hex.AsSpan();
+            var hexSpan = hex[0] == '#' ? hex.AsSpan()[1..] : hex.AsSpan();
 
             switch (hexSpan.Length)
             {
@@ -156,31 +156,31 @@ namespace osu.Framework.Extensions.Color4Extensions
 
                 case 3:
                     return new Color4(
-                        (byte)(byte.Parse(hexSpan.Slice(0, 1), NumberStyles.HexNumber) * 17),
-                        (byte)(byte.Parse(hexSpan.Slice(1, 1), NumberStyles.HexNumber) * 17),
-                        (byte)(byte.Parse(hexSpan.Slice(2, 1), NumberStyles.HexNumber) * 17),
+                        (byte)(byte.Parse(hexSpan[..1], NumberStyles.HexNumber) * 17),
+                        (byte)(byte.Parse(hexSpan[1..2], NumberStyles.HexNumber) * 17),
+                        (byte)(byte.Parse(hexSpan[2..3], NumberStyles.HexNumber) * 17),
                         255);
 
                 case 6:
                     return new Color4(
-                        byte.Parse(hexSpan.Slice(0, 2), NumberStyles.HexNumber),
-                        byte.Parse(hexSpan.Slice(2, 2), NumberStyles.HexNumber),
-                        byte.Parse(hexSpan.Slice(4, 2), NumberStyles.HexNumber),
+                        byte.Parse(hexSpan[..2], NumberStyles.HexNumber),
+                        byte.Parse(hexSpan[2..4], NumberStyles.HexNumber),
+                        byte.Parse(hexSpan[4..6], NumberStyles.HexNumber),
                         255);
 
                 case 4:
                     return new Color4(
-                        (byte)(byte.Parse(hexSpan.Slice(0, 1), NumberStyles.HexNumber) * 17),
-                        (byte)(byte.Parse(hexSpan.Slice(1, 1), NumberStyles.HexNumber) * 17),
-                        (byte)(byte.Parse(hexSpan.Slice(2, 1), NumberStyles.HexNumber) * 17),
-                        (byte)(byte.Parse(hexSpan.Slice(3, 1), NumberStyles.HexNumber) * 17));
+                        (byte)(byte.Parse(hexSpan[..1], NumberStyles.HexNumber) * 17),
+                        (byte)(byte.Parse(hexSpan[1..2], NumberStyles.HexNumber) * 17),
+                        (byte)(byte.Parse(hexSpan[2..3], NumberStyles.HexNumber) * 17),
+                        (byte)(byte.Parse(hexSpan[3..4], NumberStyles.HexNumber) * 17));
 
                 case 8:
                     return new Color4(
-                        byte.Parse(hexSpan.Slice(0, 2), NumberStyles.HexNumber),
-                        byte.Parse(hexSpan.Slice(2, 2), NumberStyles.HexNumber),
-                        byte.Parse(hexSpan.Slice(4, 2), NumberStyles.HexNumber),
-                        byte.Parse(hexSpan.Slice(6, 2), NumberStyles.HexNumber));
+                        byte.Parse(hexSpan[..2], NumberStyles.HexNumber),
+                        byte.Parse(hexSpan[2..4], NumberStyles.HexNumber),
+                        byte.Parse(hexSpan[4..6], NumberStyles.HexNumber),
+                        byte.Parse(hexSpan[6..8], NumberStyles.HexNumber));
             }
         }
 

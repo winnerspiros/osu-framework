@@ -14,8 +14,8 @@ using osu.Framework.Input.States;
 using osu.Framework.Logging;
 using osuTK;
 using osuTK.Input;
-using RectangleF = osu.Framework.Graphics.Primitives.RectangleF;
 using static SDL2.SDL;
+using RectangleF = osu.Framework.Graphics.Primitives.RectangleF;
 
 namespace osu.Framework.Platform.SDL2
 {
@@ -29,8 +29,6 @@ namespace osu.Framework.Platform.SDL2
             ConfineMouseMode.BindValueChanged(_ => updateConfineMode());
         }
 
-        private bool relativeMouseMode;
-
         /// <summary>
         /// Set the state of SDL2's RelativeMouseMode (https://wiki.libsdl.org/SDL_SetRelativeMouseMode).
         /// On all platforms, this will lock the mouse to the window (although escaping by setting <see cref="ConfineMouseMode"/> is still possible via a local implementation).
@@ -38,16 +36,16 @@ namespace osu.Framework.Platform.SDL2
         /// </summary>
         public bool RelativeMouseMode
         {
-            get => relativeMouseMode;
+            get => field;
             set
             {
-                if (relativeMouseMode == value)
+                if (field == value)
                     return;
 
                 if (value && !CursorState.HasFlagFast(CursorState.Hidden))
                     throw new InvalidOperationException($"Cannot set {nameof(RelativeMouseMode)} to true when the cursor is not hidden via {nameof(CursorState)}.");
 
-                relativeMouseMode = value;
+                field = value;
                 ScheduleCommand(() => SDL_SetRelativeMouseMode(value ? SDL_bool.SDL_TRUE : SDL_bool.SDL_FALSE));
                 updateCursorConfinement();
             }
@@ -405,7 +403,7 @@ namespace osu.Framework.Platform.SDL2
 
         private void handleMouseWheelEvent(SDL_MouseWheelEvent evtWheel)
         {
-            bool isPrecise(float f) => f % 1 != 0;
+            static bool isPrecise(float f) => f % 1 != 0;
 
             if (isPrecise(evtWheel.preciseX) || isPrecise(evtWheel.preciseY))
                 lastPreciseScroll = evtWheel.timestamp;

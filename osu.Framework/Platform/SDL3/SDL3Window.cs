@@ -17,9 +17,9 @@ using osu.Framework.Threading;
 using SDL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using static SDL.SDL3;
 using Image = SixLabors.ImageSharp.Image;
 using Point = System.Drawing.Point;
-using static SDL.SDL3;
 
 namespace osu.Framework.Platform.SDL3
 {
@@ -64,20 +64,18 @@ namespace osu.Framework.Platform.SDL3
         /// </summary>
         protected readonly Scheduler EventScheduler = new Scheduler();
 
-        private string title = string.Empty;
-
         /// <summary>
         /// Gets and sets the window title.
         /// </summary>
         public string Title
         {
-            get => title;
+            get => field;
             set
             {
-                title = value;
-                ScheduleCommand(() => SDL_SetWindowTitle(SDLWindowHandle, title).LogErrorIfFailed());
+                field = value;
+                ScheduleCommand(() => SDL_SetWindowTitle(SDLWindowHandle, field).LogErrorIfFailed());
             }
-        }
+        } = string.Empty;
 
         /// <summary>
         /// Whether the current display server is Wayland.
@@ -225,10 +223,12 @@ namespace osu.Framework.Platform.SDL3
             SDL_SetHint(SDL_HINT_PEN_MOUSE_EVENTS, "0"u8).LogErrorIfFailed();
             SDL_SetHint(SDL_HINT_IME_IMPLEMENTED_UI, "composition"u8).LogErrorIfFailed();
 
-            SDLWindowHandle = SDL_CreateWindow(title, Size.Width, Size.Height, flags);
+            SDLWindowHandle = SDL_CreateWindow(Title, Size.Width, Size.Height, flags);
 
+#pragma warning disable IDE0270 // Null check can be simplified - pointer types don't support ??
             if (SDLWindowHandle == null)
                 throw new InvalidOperationException($"Failed to create SDL window. SDL Error: {SDL_GetError()}");
+#pragma warning restore IDE0270
 
             // we want text input to only be active when SDL3DesktopWindowTextInput is active.
             // SDL activates it by default on some platforms: https://github.com/libsdl-org/SDL/blob/release-2.0.16/src/video/SDL_video.c#L573-L582

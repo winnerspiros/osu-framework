@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Timing;
 
@@ -10,6 +11,7 @@ namespace osu.Framework.Audio.Track
     public sealed class TrackVirtual : Track
     {
         private readonly StopwatchClock clock = new StopwatchClock();
+        private readonly Lock clockLock = new();
 
         private double seekOffset;
 
@@ -25,7 +27,7 @@ namespace osu.Framework.Audio.Track
 
             bool success = seekOffset == seek;
 
-            lock (clock)
+            lock (clockLock)
             {
                 if (success && IsRunning)
                     clock.Restart();
@@ -58,12 +60,12 @@ namespace osu.Framework.Audio.Track
             if (Length == 0 || CurrentTime >= Length)
                 return;
 
-            lock (clock) clock.Start();
+            lock (clockLock) clock.Start();
         }
 
         public override void Reset()
         {
-            lock (clock) clock.Reset();
+            lock (clockLock) clock.Reset();
             seekOffset = 0;
 
             base.Reset();
@@ -71,14 +73,14 @@ namespace osu.Framework.Audio.Track
 
         public override void Stop()
         {
-            lock (clock) clock.Stop();
+            lock (clockLock) clock.Stop();
         }
 
         public override bool IsRunning
         {
             get
             {
-                lock (clock) return clock.IsRunning;
+                lock (clockLock) return clock.IsRunning;
             }
         }
 
@@ -86,7 +88,7 @@ namespace osu.Framework.Audio.Track
         {
             get
             {
-                lock (clock) return Math.Min(Length, seekOffset + clock.CurrentTime);
+                lock (clockLock) return Math.Min(Length, seekOffset + clock.CurrentTime);
             }
         }
 
@@ -94,7 +96,7 @@ namespace osu.Framework.Audio.Track
         {
             base.UpdateState();
 
-            lock (clock)
+            lock (clockLock)
             {
                 if (clock.IsRunning && CurrentTime >= Length)
                 {
@@ -113,7 +115,7 @@ namespace osu.Framework.Audio.Track
         {
             base.OnStateChanged();
 
-            lock (clock)
+            lock (clockLock)
                 clock.Rate = Rate;
         }
 

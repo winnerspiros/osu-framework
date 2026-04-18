@@ -5,8 +5,8 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using osu.Framework.Bindables;
-using osuTK;
 using osu.Framework.Graphics;
+using osuTK;
 
 namespace osu.Framework.Utils
 {

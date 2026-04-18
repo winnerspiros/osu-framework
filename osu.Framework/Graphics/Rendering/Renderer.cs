@@ -37,8 +37,9 @@ namespace osu.Framework.Graphics.Rendering
     {
         /// <summary>
         /// The length of no usage (in frames) before freeing unused resources.
+        /// On mobile, free resources sooner due to tighter memory constraints.
         /// </summary>
-        internal const int RESOURCE_FREE_NO_USAGE_LENGTH = 300;
+        internal static readonly ulong RESOURCE_FREE_NO_USAGE_LENGTH = RuntimeInfo.IsMobile ? 120UL : 300UL;
 
         protected internal abstract bool VerticalSync { get; set; }
         protected internal abstract bool AllowTearing { get; set; }
@@ -50,8 +51,15 @@ namespace osu.Framework.Graphics.Rendering
 
         public int MaxTextureSize { get; protected set; } = 4096; // default value is to allow roughly normal flow in cases we don't have graphics context, like headless CI.
 
-        public int MaxTexturesUploadedPerFrame { get; set; } = 32;
-        public int MaxPixelsUploadedPerFrame { get; set; } = 1024 * 1024 * 2;
+        /// <summary>
+        /// The maximum number of textures to upload per frame. Reduced on mobile to avoid GPU stalls.
+        /// </summary>
+        public int MaxTexturesUploadedPerFrame { get; set; } = RuntimeInfo.IsMobile ? 16 : 32;
+
+        /// <summary>
+        /// The maximum number of pixels to upload per frame. Reduced on mobile to keep draw-thread latency low.
+        /// </summary>
+        public int MaxPixelsUploadedPerFrame { get; set; } = RuntimeInfo.IsMobile ? 1024 * 512 : 1024 * 1024 * 2;
 
         public abstract bool IsDepthRangeZeroToOne { get; }
         public abstract bool IsUvOriginTopLeft { get; }
@@ -178,7 +186,12 @@ namespace osu.Framework.Graphics.Rendering
 
             Initialise(graphicsSurface);
 
-            defaultQuadBatch = CreateQuadBatch<TexturedVertex2D>(100, 1000);
+            // On mobile tile-based GPUs (Mali, Adreno, PowerVR), smaller batch sizes improve
+            // spatial locality within tiles and reduce vertex buffer overflow flushes.
+            // Desktop GPUs handle larger batches more efficiently due to wider pipelines.
+            int quadBatchSize = RuntimeInfo.IsMobile ? 50 : 100;
+            int maxBufferCount = RuntimeInfo.IsMobile ? 500 : 1000;
+            defaultQuadBatch = CreateQuadBatch<TexturedVertex2D>(quadBatchSize, maxBufferCount);
             resetScheduler.AddDelayed(disposalQueue.CheckPendingDisposals, 0, true);
 
             IsInitialised = true;
@@ -205,12 +218,17 @@ namespace osu.Framework.Graphics.Rendering
 
             statExpensiveOperationsQueued.Value = expensiveOperationQueue.Count;
 
+            // On mobile, process all pending expensive operations (primarily shader compilations)
+            // upfront to avoid per-frame stalls when shaders are first used.
+            // On desktop, only process one per frame to spread CPU cost and avoid frame drops.
             while (expensiveOperationQueue.TryDequeue(out ScheduledDelegate? operation))
             {
                 if (operation.State == ScheduledDelegate.RunState.Waiting)
                 {
                     operation.RunTask();
-                    break;
+
+                    if (!RuntimeInfo.IsMobile)
+                        break;
                 }
             }
 
@@ -776,16 +794,20 @@ namespace osu.Framework.Graphics.Rendering
 
         private void freeUnusedVertexBuffers()
         {
-            foreach (var buf in vertexBuffersInUse)
+            // Process in reverse order so RemoveAt doesn't shift unvisited elements (O(n) total instead of O(n²)).
+            for (int i = vertexBuffersInUse.Count - 1; i >= 0; i--)
             {
+                var buf = vertexBuffersInUse[i];
+
                 if (buf.InUse && FrameIndex - buf.LastUseFrameIndex > RESOURCE_FREE_NO_USAGE_LENGTH)
                 {
-                    // Calling Free will mark InUse as false internally, which allows the cleanup below to work.
+                    // Calling Free will mark InUse as false internally.
                     buf.Free();
                 }
-            }
 
-            vertexBuffersInUse.RemoveAll(b => !b.InUse);
+                if (!buf.InUse)
+                    vertexBuffersInUse.RemoveAt(i);
+            }
         }
 
         #endregion

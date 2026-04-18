@@ -21,6 +21,7 @@ namespace osu.Framework.Audio.Sample
         private readonly ResourceStore<byte[]> store;
         private readonly AudioMixer mixer;
 
+        private readonly Lock factoriesLock = new Lock();
         private readonly Dictionary<string, SampleBassFactory> factories = new Dictionary<string, SampleBassFactory>();
 
         public int PlaybackConcurrency { get; set; } = Sample.DEFAULT_CONCURRENCY;
@@ -42,7 +43,7 @@ namespace osu.Framework.Audio.Sample
 
             if (string.IsNullOrEmpty(name)) return null;
 
-            lock (factories)
+            lock (factoriesLock)
             {
                 if (!factories.TryGetValue(name, out SampleBassFactory factory))
                 {
@@ -64,7 +65,7 @@ namespace osu.Framework.Audio.Sample
 
         public void Invalidate(string name)
         {
-            lock (factories)
+            lock (factoriesLock)
             {
                 if (factories.Remove(name, out var factory))
                     RemoveItem(factory);

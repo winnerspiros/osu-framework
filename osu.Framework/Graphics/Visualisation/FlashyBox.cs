@@ -3,9 +3,9 @@
 
 #nullable disable
 
+using System;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shapes;
-using System;
 
 namespace osu.Framework.Graphics.Visualisation
 {

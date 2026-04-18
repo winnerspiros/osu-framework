@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -77,7 +77,6 @@ namespace osu.Framework.Graphics.UserInterface
             }
         }
 
-        private readonly IBindableList<T> itemSource = new BindableList<T>();
         private IBindableList<T> boundItemSource;
 
         /// <summary>
@@ -86,17 +85,17 @@ namespace osu.Framework.Graphics.UserInterface
         /// </summary>
         public IBindableList<T> ItemSource
         {
-            get => itemSource;
+            get => field;
             set
             {
                 ArgumentNullException.ThrowIfNull(value);
 
-                if (boundItemSource != null) itemSource.UnbindFrom(boundItemSource);
-                itemSource.BindTo(boundItemSource = value);
+                if (boundItemSource != null) field.UnbindFrom(boundItemSource);
+                field.BindTo(boundItemSource = value);
 
                 setItems(value);
             }
-        }
+        } = new BindableList<T>();
 
         private readonly BindableBool enabled = new BindableBool(true);
 
@@ -545,8 +544,10 @@ namespace osu.Framework.Graphics.UserInterface
 
             protected internal void PreselectItem(int index)
             {
-                PreselectItem(VisibleMenuItems.Any()
-                    ? VisibleMenuItems.ElementAt(Math.Clamp(index, 0, VisibleMenuItems.Count() - 1)).Item
+                var visibleItems = VisibleMenuItems.ToList();
+
+                PreselectItem(visibleItems.Count > 0
+                    ? visibleItems[Math.Clamp(index, 0, visibleItems.Count - 1)].Item
                     : null);
             }
 
@@ -588,17 +589,15 @@ namespace osu.Framework.Graphics.UserInterface
             {
                 public event Action<DropdownMenuItem<T>> PreselectionRequested;
 
-                private bool matchingFilter = true;
-
                 public bool MatchingFilter
                 {
-                    get => matchingFilter;
+                    get => field;
                     set
                     {
-                        matchingFilter = value;
+                        field = value;
                         UpdateFilteringState(value);
                     }
-                }
+                } = true;
 
                 public virtual bool FilteringActive
                 {
@@ -610,23 +609,19 @@ namespace osu.Framework.Graphics.UserInterface
                 {
                 }
 
-                private bool selected;
-
                 public bool IsSelected
                 {
-                    get => !Item.Action.Disabled && selected;
+                    get => !Item.Action.Disabled && field;
                     set
                     {
-                        if (selected == value)
+                        if (field == value)
                             return;
 
-                        selected = value;
+                        field = value;
 
                         OnSelectChange();
                     }
                 }
-
-                private bool preSelected;
 
                 /// <summary>
                 /// Denotes whether this menu item will be selected on <see cref="Key.Enter"/> press.
@@ -634,13 +629,13 @@ namespace osu.Framework.Graphics.UserInterface
                 /// </summary>
                 public bool IsPreSelected
                 {
-                    get => preSelected;
+                    get => field;
                     set
                     {
-                        if (preSelected == value)
+                        if (field == value)
                             return;
 
-                        preSelected = value;
+                        field = value;
 
                         OnSelectChange();
                     }
@@ -717,19 +712,19 @@ namespace osu.Framework.Graphics.UserInterface
                             return true;
 
                         case Key.PageUp:
-                            var firstVisibleItem = VisibleMenuItems.First();
+                            var firstVisibleItem = visibleMenuItemsList[0];
 
                             if (currentPreselected == firstVisibleItem)
-                                PreselectItem(targetPreselectionIndex - VisibleMenuItems.Count());
+                                PreselectItem(targetPreselectionIndex - visibleMenuItemsList.Count);
                             else
                                 PreselectItem(visibleMenuItemsList.IndexOf(firstVisibleItem));
                             return true;
 
                         case Key.PageDown:
-                            var lastVisibleItem = VisibleMenuItems.Last();
+                            var lastVisibleItem = visibleMenuItemsList[^1];
 
                             if (currentPreselected == lastVisibleItem)
-                                PreselectItem(targetPreselectionIndex + VisibleMenuItems.Count());
+                                PreselectItem(targetPreselectionIndex + visibleMenuItemsList.Count);
                             else
                                 PreselectItem(visibleMenuItemsList.IndexOf(lastVisibleItem));
                             return true;
@@ -834,7 +829,7 @@ namespace osu.Framework.Graphics.UserInterface
                 return;
 
             int targetPreselectionIndex = visibleMenuItemsList.IndexOf(Menu.PreselectedItem);
-            var preselectedItem = Menu.VisibleMenuItems.ElementAt(targetPreselectionIndex);
+            var preselectedItem = visibleMenuItemsList[targetPreselectionIndex];
 
             SelectedItem = (DropdownMenuItem<T>)preselectedItem.Item;
         }

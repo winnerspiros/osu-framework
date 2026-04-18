@@ -10,9 +10,9 @@ using System.Threading;
 using Microsoft.Extensions.ObjectPool;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Utils;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
+using osu.Framework.Utils;
 
 namespace osu.Framework.Statistics
 {
@@ -211,8 +211,7 @@ namespace osu.Framework.Statistics
 
         private void updateEnabledState()
         {
-            if (traceCollector != null)
-                traceCollector.Enabled = enablePerformanceProfiling && isActive.Value;
+            traceCollector?.Enabled = enablePerformanceProfiling && isActive.Value;
         }
 
         private double averageFrameTime;
@@ -222,8 +221,7 @@ namespace osu.Framework.Statistics
             double lastConsumptionTime = consumptionTime;
             consumptionTime = ourClock.CurrentTime;
 
-            if (traceCollector != null)
-                traceCollector.LastConsumptionTime = consumptionTime;
+            traceCollector?.LastConsumptionTime = consumptionTime;
 
             double lastGCTotalPauseDuration = consumptionGCTotalPauseDuration;
             consumptionGCTotalPauseDuration = GC.GetTotalPauseDuration().TotalMilliseconds;

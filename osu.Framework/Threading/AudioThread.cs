@@ -1,7 +1,6 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using osu.Framework.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +13,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Development;
 using osu.Framework.Logging;
 using osu.Framework.Platform.Linux.Native;
+using osu.Framework.Statistics;
 
 namespace osu.Framework.Threading
 {

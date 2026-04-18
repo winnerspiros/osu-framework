@@ -62,20 +62,18 @@ namespace osu.Framework.Platform.SDL2
         /// </summary>
         protected readonly Scheduler EventScheduler = new Scheduler();
 
-        private string title = string.Empty;
-
         /// <summary>
         /// Gets and sets the window title.
         /// </summary>
         public string Title
         {
-            get => title;
+            get => field;
             set
             {
-                title = value;
-                ScheduleCommand(() => SDL_SetWindowTitle(SDLWindowHandle, title));
+                field = value;
+                ScheduleCommand(() => SDL_SetWindowTitle(SDLWindowHandle, field));
             }
-        }
+        } = string.Empty;
 
         /// <summary>
         /// Whether the current display server is Wayland.

@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -89,16 +89,14 @@ namespace osu.Framework.Threading
         /// </summary>
         public CultureInfo? CurrentCulture
         {
-            get => culture;
+            get => field;
             set
             {
-                culture = value;
+                field = value;
 
                 updateCulture();
             }
         }
-
-        private CultureInfo? culture;
 
         /// <summary>
         /// The target number of updates per second when the game window is active.
@@ -108,15 +106,13 @@ namespace osu.Framework.Threading
         /// </remarks>
         public double ActiveHz
         {
-            get => activeHz;
+            get => field;
             set
             {
-                activeHz = value;
+                field = value;
                 updateMaximumHz();
             }
-        }
-
-        private double activeHz = DEFAULT_ACTIVE_HZ;
+        } = DEFAULT_ACTIVE_HZ;
 
         /// <summary>
         /// The target number of updates per second when the game window is inactive.
@@ -126,15 +122,13 @@ namespace osu.Framework.Threading
         /// </remarks>
         public double InactiveHz
         {
-            get => inactiveHz;
+            get => field;
             set
             {
-                inactiveHz = value;
+                field = value;
                 updateMaximumHz();
             }
-        }
-
-        private double inactiveHz = DEFAULT_INACTIVE_HZ;
+        } = DEFAULT_INACTIVE_HZ;
 
         private readonly GameThreadSynchronizationContext synchronizationContext;
 

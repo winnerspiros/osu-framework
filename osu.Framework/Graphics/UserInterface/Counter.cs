@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Graphics.Containers;
@@ -11,22 +11,21 @@ namespace osu.Framework.Graphics.UserInterface
     /// </summary>
     public partial class Counter : CompositeDrawable
     {
-        private double count;
 
         /// <summary>
         /// The current count.
         /// </summary>
         protected double Count
         {
-            get => count;
+            get => field;
             private set
             {
-                if (count == value)
+                if (field == value)
                     return;
 
-                count = value;
+                field = value;
 
-                OnCountChanged(count);
+                OnCountChanged(field);
             }
         }
 

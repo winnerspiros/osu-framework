@@ -329,21 +329,19 @@ namespace osu.Framework.Bindables
 
         #region ICanBeDisabled
 
-        private bool disabled;
-
         /// <summary>
         /// Whether this <see cref="BindableDictionary{TKey, TValue}"/> has been disabled.
         /// When disabled, attempting to change the contents of this <see cref="BindableDictionary{TKey, TValue}"/> will result in an <see cref="InvalidOperationException"/>.
         /// </summary>
         public bool Disabled
         {
-            get => disabled;
+            get => field;
             set
             {
-                if (value == disabled)
+                if (value == field)
                     return;
 
-                disabled = value;
+                field = value;
 
                 triggerDisabledChange();
             }

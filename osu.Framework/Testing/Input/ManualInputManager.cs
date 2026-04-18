@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -21,24 +21,22 @@ namespace osu.Framework.Testing.Input
 
         protected override Container<Drawable> Content => content;
 
-        private bool showVisualCursorGuide = true;
-
         /// <summary>
         /// Whether to show a visible cursor tracking position and clicks.
         /// Generally should be enabled unless it blocks the test's content.
         /// </summary>
         public bool ShowVisualCursorGuide
         {
-            get => showVisualCursorGuide;
+            get => field;
             set
             {
-                if (value == showVisualCursorGuide)
+                if (value == field)
                     return;
 
-                showVisualCursorGuide = value;
+                field = value;
                 testCursor.State.Value = value ? Visibility.Visible : Visibility.Hidden;
             }
-        }
+        } = true;
 
         private readonly Container content;
 

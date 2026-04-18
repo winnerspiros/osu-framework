@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -36,41 +36,37 @@ namespace osu.Framework.Graphics.Audio
             texture = renderer.WhitePixel;
         }
 
-        private float resolution = 1;
-
         /// <summary>
         /// Gets or sets the amount of <see cref="Framework.Audio.Track.Waveform.Point"/>'s displayed relative to <see cref="Drawable.DrawWidth">DrawWidth</see>.
         /// </summary>
         public float Resolution
         {
-            get => resolution;
+            get => field;
             set
             {
                 ArgumentOutOfRangeException.ThrowIfNegative(value);
 
-                if (resolution == value)
+                if (field == value)
                     return;
 
-                resolution = value;
+                field = value;
                 resampledPointCount = null;
                 queueRegeneration();
             }
-        }
-
-        private Waveform? waveform;
+        } = 1;
 
         /// <summary>
         /// The <see cref="Framework.Audio.Track.Waveform"/> to display.
         /// </summary>
         public Waveform? Waveform
         {
-            get => waveform;
+            get => field;
             set
             {
-                if (waveform == value)
+                if (field == value)
                     return;
 
-                waveform = value;
+                field = value;
                 resampledPointCount = null;
                 queueRegeneration();
             }

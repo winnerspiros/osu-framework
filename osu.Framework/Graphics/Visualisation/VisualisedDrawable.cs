@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -30,14 +30,12 @@ namespace osu.Framework.Graphics.Visualisation
 
         public Drawable Target { get; }
 
-        private bool isHighlighted;
-
         public bool IsHighlighted
         {
-            get => isHighlighted;
+            get => field;
             set
             {
-                isHighlighted = value;
+                field = value;
 
                 updateColours();
                 if (value)
@@ -52,21 +50,19 @@ namespace osu.Framework.Graphics.Visualisation
 
         public bool FilteringActive { get; set; }
 
-        private bool matchingFilter = true;
-
         public bool MatchingFilter
         {
-            get => matchingFilter;
+            get => field;
             set
             {
                 bool wasPresent = IsPresent;
 
-                matchingFilter = value;
+                field = value;
 
                 if (IsPresent != wasPresent)
                     Invalidate(Invalidation.Presence);
             }
-        }
+        } = true;
 
         public override bool IsPresent => base.IsPresent && MatchingFilter;
 

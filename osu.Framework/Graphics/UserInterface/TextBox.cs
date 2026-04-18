@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -121,16 +121,14 @@ namespace osu.Framework.Graphics.UserInterface
             return true;
         }
 
-        private bool readOnly;
-
         public bool ReadOnly
         {
-            get => readOnly;
+            get => field;
             set
             {
-                readOnly = value;
+                field = value;
 
-                if (readOnly)
+                if (field)
                     KillFocus();
             }
         }

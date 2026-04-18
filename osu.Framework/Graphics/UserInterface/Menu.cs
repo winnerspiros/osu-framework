@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -183,43 +183,39 @@ namespace osu.Framework.Graphics.UserInterface
             set => ContentContainer.ScrollbarVisible = value;
         }
 
-        private float maxWidth = float.MaxValue;
-
         /// <summary>
         /// Gets or sets the maximum allowable width by this <see cref="Menu"/>.
         /// </summary>
         public float MaxWidth
         {
-            get => maxWidth;
+            get => field;
             set
             {
-                if (Precision.AlmostEquals(maxWidth, value))
+                if (Precision.AlmostEquals(field, value))
                     return;
 
-                maxWidth = value;
+                field = value;
 
                 ((IItemsFlow)itemsFlow).SizeCache.Invalidate();
             }
-        }
-
-        private float maxHeight = float.PositiveInfinity;
+        } = float.MaxValue;
 
         /// <summary>
         /// Gets or sets the maximum allowable height by this <see cref="Menu"/>.
         /// </summary>
         public float MaxHeight
         {
-            get => maxHeight;
+            get => field;
             set
             {
-                if (Precision.AlmostEquals(maxHeight, value))
+                if (Precision.AlmostEquals(field, value))
                     return;
 
-                maxHeight = value;
+                field = value;
 
                 ((IItemsFlow)itemsFlow).SizeCache.Invalidate();
             }
-        }
+        } = float.PositiveInfinity;
 
         private MenuState state = MenuState.Closed;
 
@@ -228,7 +224,7 @@ namespace osu.Framework.Graphics.UserInterface
         /// </summary>
         public virtual MenuState State
         {
-            get => state;
+            get => field;
             set
             {
                 if (TopLevelMenu)
@@ -237,10 +233,10 @@ namespace osu.Framework.Graphics.UserInterface
                     return;
                 }
 
-                if (state == value)
+                if (field == value)
                     return;
 
-                state = value;
+                field = value;
 
                 updateState();
                 StateChanged?.Invoke(State);
@@ -856,8 +852,6 @@ namespace osu.Framework.Graphics.UserInterface
                     Scheduler.AddOnce(UpdateForegroundColour);
                 }
             }
-
-            private MenuItemState state;
 
             public MenuItemState State
             {

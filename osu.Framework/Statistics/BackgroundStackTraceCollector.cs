@@ -32,8 +32,6 @@ namespace osu.Framework.Statistics
 
         private double spikeRecordThreshold;
 
-        private bool enabled;
-
         /// <summary>
         /// Create a collector for the target thread. Starts in a disabled state (see <see cref="Enabled"/>.
         /// </summary>
@@ -62,13 +60,13 @@ namespace osu.Framework.Statistics
         /// </summary>
         public bool Enabled
         {
-            get => enabled;
+            get => field;
             set
             {
-                if (value == enabled || targetThread == null) return;
+                if (value == field || targetThread == null) return;
 
-                enabled = value;
-                if (enabled)
+                field = value;
+                if (field)
                     startThread();
                 else
                     stopThread();

@@ -18,22 +18,21 @@ namespace osu.Framework.Graphics.Shapes
     /// </summary>
     public partial class FastCircle : Drawable
     {
-        private float edgeSmoothness = 1f;
 
         public float EdgeSmoothness
         {
-            get => edgeSmoothness;
+            get => field;
             set
             {
-                if (edgeSmoothness == value)
+                if (field == value)
                     return;
 
-                edgeSmoothness = value;
+                field = value;
 
                 if (IsLoaded)
                     Invalidate(Invalidation.DrawNode);
             }
-        }
+        } = 1f;
 
         private IShader shader = null!;
 

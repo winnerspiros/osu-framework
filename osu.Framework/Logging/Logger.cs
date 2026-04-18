@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -56,17 +56,15 @@ namespace osu.Framework.Logging
         /// </summary>
         public static string VersionIdentifier = @"unknown";
 
-        private static Storage storage;
-
         /// <summary>
         /// The storage to place logs inside.
         /// </summary>
         public static Storage Storage
         {
-            get => storage;
+            get => field;
             set
             {
-                storage = value ?? throw new ArgumentNullException(nameof(value));
+                field = value ?? throw new ArgumentNullException(nameof(value));
 
                 cycleLogs();
             }

@@ -20,17 +20,15 @@ namespace osu.Framework.Testing.Drawables
     {
         public IEnumerable<LocalisableString> FilterTerms => text.Children.OfType<IHasFilterTerms>().SelectMany(c => c.FilterTerms);
 
-        private bool matchingFilter = true;
-
         public bool MatchingFilter
         {
-            get => matchingFilter;
+            get => field;
             set
             {
-                matchingFilter = value;
+                field = value;
                 updateVisibility();
             }
-        }
+        } = true;
 
         public bool FilteringActive { get; set; }
 

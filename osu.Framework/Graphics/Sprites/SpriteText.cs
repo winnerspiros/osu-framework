@@ -51,12 +51,12 @@ namespace osu.Framework.Graphics.Sprites
 
         public SpriteText()
         {
-            current.BindValueChanged(text =>
+            current.BindValueChanged(field =>
             {
                 // importantly, to avoid a feedback loop which will overwrite a localised text object, check equality of the resulting text before propagating a basic string to Text.
                 // in the case localisedText is not yet setup, special consideration does not need to be given as it can be assumed the change to current was a user invoked change.
-                if (localisedText == null || text.NewValue != localisedText.Value)
-                    Text = text.NewValue;
+                if (localisedText == null || field.NewValue != localisedText.Value)
+                    Text = field.NewValue;
             });
 
             AddLayout(charactersCache);
@@ -99,8 +99,6 @@ namespace osu.Framework.Graphics.Sprites
             }, true);
         }
 
-        private LocalisableString text = string.Empty;
-
         /// <summary>
         /// Gets or sets the text to be displayed.
         /// </summary>
@@ -128,24 +126,20 @@ namespace osu.Framework.Graphics.Sprites
 
         private string displayedText => localisedText?.Value ?? text.ToString();
 
-        private FontUsage font = FontUsage.Default;
-
         /// <summary>
         /// Contains information on the font used to display the text.
         /// </summary>
         public FontUsage Font
         {
-            get => font;
+            get => field;
             set
             {
-                font = value;
+                field = value;
 
                 invalidate(true, true);
                 shadowOffsetCache.Invalidate();
             }
-        }
-
-        private bool allowMultiline = true;
+        } = FontUsage.Default;
 
         /// <summary>
         /// True if the text should be wrapped if it gets too wide. Note that \n does NOT cause a line break. If you need explicit line breaks, use <see cref="TextFlowContainer"/> instead.
@@ -155,34 +149,32 @@ namespace osu.Framework.Graphics.Sprites
         /// </remarks>
         public bool AllowMultiline
         {
-            get => allowMultiline;
+            get => field;
             set
             {
-                if (allowMultiline == value)
+                if (field == value)
                     return;
 
                 if (value)
                     Truncate = false;
 
-                allowMultiline = value;
+                field = value;
                 invalidate(true, true);
             }
-        }
-
-        private bool shadow;
+        } = true;
 
         /// <summary>
         /// True if a shadow should be displayed around the text.
         /// </summary>
         public bool Shadow
         {
-            get => shadow;
+            get => field;
             set
             {
-                if (shadow == value)
+                if (field == value)
                     return;
 
-                shadow = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
@@ -227,27 +219,23 @@ namespace osu.Framework.Graphics.Sprites
             }
         }
 
-        private bool useFullGlyphHeight = true;
-
         /// <summary>
         /// True if the <see cref="SpriteText"/>'s vertical size should be equal to <see cref="FontUsage.Size"/>  (the full height) or precisely the size of used characters.
         /// Set to false to allow better centering of individual characters/numerals/etc.
         /// </summary>
         public bool UseFullGlyphHeight
         {
-            get => useFullGlyphHeight;
+            get => field;
             set
             {
-                if (useFullGlyphHeight == value)
+                if (field == value)
                     return;
 
-                useFullGlyphHeight = value;
+                field = value;
 
                 invalidate(true, true);
             }
-        }
-
-        private bool truncate;
+        } = true;
 
         /// <summary>
         /// If true, text should be truncated when it exceeds the <see cref="Drawable.DrawWidth"/> of this <see cref="SpriteText"/>.
@@ -258,20 +246,18 @@ namespace osu.Framework.Graphics.Sprites
         /// </remarks>
         public bool Truncate
         {
-            get => truncate;
+            get => field;
             set
             {
-                if (truncate == value) return;
+                if (field == value) return;
 
                 if (value)
                     AllowMultiline = false;
 
-                truncate = value;
+                field = value;
                 invalidate(true, true);
             }
         }
-
-        private string ellipsisString = "…";
 
         /// <summary>
         /// When <see cref="Truncate"/> is enabled, this decides what string is used to signify that truncation has occured.
@@ -279,15 +265,15 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public string EllipsisString
         {
-            get => ellipsisString;
+            get => field;
             set
             {
-                if (ellipsisString == value) return;
+                if (field == value) return;
 
-                ellipsisString = value;
+                field = value;
                 invalidate(true, true);
             }
-        }
+        } = "…";
 
         /// <summary>
         /// When <see cref="Truncate"/> is enabled, this indicates whether <see cref="Text"/> has been visually truncated.
@@ -323,8 +309,6 @@ namespace osu.Framework.Graphics.Sprites
             }
         }
 
-        private float maxWidth = float.PositiveInfinity;
-
         /// <summary>
         /// The maximum width of this <see cref="SpriteText"/>. Affects both auto and fixed sizing modes.
         /// </summary>
@@ -333,16 +317,16 @@ namespace osu.Framework.Graphics.Sprites
         /// </remarks>
         public float MaxWidth
         {
-            get => maxWidth;
+            get => field;
             set
             {
-                if (maxWidth == value)
+                if (field == value)
                     return;
 
-                maxWidth = value;
+                field = value;
                 invalidate(true, true);
             }
-        }
+        } = float.PositiveInfinity;
 
         private float? explicitHeight;
 

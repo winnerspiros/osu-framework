@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -31,10 +31,10 @@ namespace osu.Framework.Graphics.Containers
         /// <remarks>If <see cref="timeBeforeLoad"/> is set to 0, the loading process will begin on the next Update call.</remarks>
         /// <param name="content">The <see cref="Drawable"/> to be loaded.</param>
         /// <param name="timeBeforeLoad">The delay in milliseconds before loading can begin.</param>
-        public DelayedLoadWrapper(Drawable Content, double timeBeforeLoad = 500)
+        public DelayedLoadWrapper(Drawable content, double timeBeforeLoad = 500)
             : this(timeBeforeLoad)
         {
-            Content = Content ?? throw new ArgumentNullException(nameof(Content), $@"{nameof(DelayedLoadWrapper)} required non-null {nameof(Content)}.");
+            Content = content ?? throw new ArgumentNullException(nameof(content), $@"{nameof(DelayedLoadWrapper)} required non-null {nameof(content)}.");
         }
 
         /// <summary>
@@ -123,17 +123,17 @@ namespace osu.Framework.Graphics.Containers
             LoadComponentAsync(Content, EndDelayedLoad, scheduler: Game.Scheduler, cancellation: cancellationTokenSource.Token);
         }
 
-        protected virtual void EndDelayedLoad(Drawable Content)
+        protected virtual void EndDelayedLoad(Drawable content)
         {
             timeVisible = 0;
 
             // This code is running on the game's scheduler, while this wrapper may have been async disposed, so the addition is scheduled locally to prevent adding to disposed wrappers.
             scheduledAddition = Schedule(() =>
             {
-                AddInternal(Content);
+                AddInternal(content);
 
                 DelayedLoadCompleted = true;
-                DelayedLoadComplete?.Invoke(Content);
+                DelayedLoadComplete?.Invoke(content);
             });
         }
 

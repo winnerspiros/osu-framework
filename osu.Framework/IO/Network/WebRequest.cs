@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -135,7 +135,7 @@ namespace osu.Framework.IO.Network
         private int responseBytesRead;
         private byte[] buffer;
         private bool? allowInsecureRequests;
-        private static readonly HttpClient client = new HttpClient(
+        private static readonly HttpClient client= new HttpClient(
             // SocketsHttpHandler causes crash in Android Debug, and seems to have compatibility issue on SSL
             // Use platform HTTP handler which is invoked by HttpClientHandler for better compatibility and app size
             RuntimeInfo.OS == RuntimeInfo.Platform.Android
@@ -603,7 +603,7 @@ namespace osu.Framework.IO.Network
                 }
             }
             else
-                logger.Add($@"Request to {Url} successfully Completed!");
+                logger.Add($@"Request to {Url} successfully completed!");
 
             // if a failure happened on performing the request, there are still situations where we want to process the response.
             // consider the case of a server returned error code which triggers a WebException, but the server is also returning details on the error in the response.

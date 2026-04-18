@@ -1,0 +1,8 @@
+<Project>
+  <!-- Disable code style enforcement and treat-warnings-as-errors for submodule projects.
+       These projects have their own code style rules and should not be subject to osu-framework's strict CI rules. -->
+  <PropertyGroup Condition="$(MSBuildProjectFullPath.Contains('submodules'))">
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

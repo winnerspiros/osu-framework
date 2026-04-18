@@ -128,7 +128,7 @@ namespace osu.Framework.Graphics.Sprites
             {
             }
 
-            private bool Shadow;
+            private bool shadow;
             private ColourInfo shadowDrawColour;
             private Quad shadowDrawQuad;
             private Quad screenSpaceDrawQuad;
@@ -142,7 +142,7 @@ namespace osu.Framework.Graphics.Sprites
                 if (texture == null)
                     return;
 
-                Shadow = Source.Shadow;
+                shadow = Source.Shadow;
 
                 RectangleF drawRect = Source.DrawRectangle;
 
@@ -154,14 +154,14 @@ namespace osu.Framework.Graphics.Sprites
                 drawRect.Location += (Source.DrawRectangle.Size - drawRect.Size) * 0.5f;
                 screenSpaceDrawQuad = Source.ToScreenSpace(drawRect);
 
-                if (!Shadow)
+                if (!shadow)
                     return;
 
                 RectangleF offsetRect = drawRect;
-                offsetRect.Location += Source.ShadowOffset;
+                offsetRect.Location += Source.shadowOffset;
                 shadowDrawQuad = Source.ToScreenSpace(offsetRect);
 
-                ColourInfo shadowCol = Source.ShadowColour;
+                ColourInfo shadowCol = Source.shadowColour;
 
                 //adjust shadow alpha based on highest component intensity to avoid muddy display of darker text.
                 //squared result for quadratic fall-off seems to give the best result.
@@ -183,7 +183,7 @@ namespace osu.Framework.Graphics.Sprites
 
                 BindTextureShader(renderer);
 
-                if (Shadow)
+                if (shadow)
                     renderer.DrawQuad(texture, shadowDrawQuad, shadowDrawColour);
 
                 renderer.DrawQuad(texture, screenSpaceDrawQuad, DrawColourInfo.Colour);

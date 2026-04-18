@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -20,7 +20,7 @@ namespace osu.Framework.Caching
 
             set
             {
-                field = field;
+                field = value;
                 IsValid = true;
                 FrameStatistics.Increment(StatisticsCounterType.Refreshes);
             }
@@ -28,7 +28,7 @@ namespace osu.Framework.Caching
 
         public bool IsValid { get; private set; }
 
-        public static implicit operator T(Cached<T> Value) => Value.Value;
+        public static implicit operator T(Cached<T> value) => value.Value;
 
         /// <summary>
         /// Invalidate the cache of this object.

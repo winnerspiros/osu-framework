@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -98,7 +98,7 @@ namespace osu.Framework.Graphics.UserInterface
             TopLevelMenu = topLevelMenu;
 
             if (topLevelMenu)
-                State = MenuState.Open;
+                state = MenuState.Open;
 
             InternalChildren = new Drawable[]
             {
@@ -217,12 +217,14 @@ namespace osu.Framework.Graphics.UserInterface
             }
         } = float.PositiveInfinity;
 
+        private MenuState state = MenuState.Closed;
+
         /// <summary>
         /// Gets or sets the current state of this <see cref="Menu"/>.
         /// </summary>
         public virtual MenuState State
         {
-            get => field;
+            get => state;
             set
             {
                 if (TopLevelMenu)
@@ -231,15 +233,15 @@ namespace osu.Framework.Graphics.UserInterface
                     return;
                 }
 
-                if (field == value)
+                if (state == value)
                     return;
 
-                field = value;
+                state = value;
 
                 updateState();
                 StateChanged?.Invoke(State);
             }
-        } = MenuState.Closed;
+        }
 
         private void updateState()
         {
@@ -313,9 +315,9 @@ namespace osu.Framework.Graphics.UserInterface
             ((IItemsFlow)itemsFlow).SizeCache.Invalidate();
         }
 
-        private void itemStateChanged(DrawableMenuItem item, MenuItemState State)
+        private void itemStateChanged(DrawableMenuItem item, MenuItemState state)
         {
-            if (State != MenuItemState.Selected) return;
+            if (state != MenuItemState.Selected) return;
 
             if (item != selectedItem && selectedItem != null)
                 selectedItem.State = MenuItemState.NotSelected;
@@ -589,9 +591,9 @@ namespace osu.Framework.Graphics.UserInterface
                 submenu.Close();
         }
 
-        private void submenuStateChanged(MenuState State)
+        private void submenuStateChanged(MenuState state)
         {
-            switch (State)
+            switch (state)
             {
                 case MenuState.Closed:
                     selectedItem.State = MenuItemState.NotSelected;
@@ -853,15 +855,15 @@ namespace osu.Framework.Graphics.UserInterface
 
             public MenuItemState State
             {
-                get => State;
+                get => field;
                 set
                 {
-                    State = value;
+                    field = value;
 
                     Scheduler.AddOnce(UpdateBackgroundColour);
                     Scheduler.AddOnce(UpdateForegroundColour);
 
-                    StateChanged?.Invoke(State);
+                    StateChanged?.Invoke(field);
                 }
             }
 

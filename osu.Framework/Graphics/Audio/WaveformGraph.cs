@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -236,7 +236,7 @@ namespace osu.Framework.Graphics.Audio
         /// Invoked when the waveform has been regenerated.
         /// </summary>
         /// <param name="waveform">The new <see cref="Waveform"/> to be displayed.</param>
-        protected virtual void OnWaveformRegenerated(Waveform Waveform)
+        protected virtual void OnWaveformRegenerated(Waveform waveform)
         {
         }
 

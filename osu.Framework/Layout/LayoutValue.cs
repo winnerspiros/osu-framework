@@ -64,7 +64,7 @@ namespace osu.Framework.Layout
             }
             set
             {
-                field = field;
+                field = value;
 
                 Validate();
             }

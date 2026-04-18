@@ -166,7 +166,7 @@ namespace osu.Framework.Graphics.Containers
         }
 
         /// <summary>
-        /// Adds headers, if required, and returns the resulting content. <see cref="content"/> is not modified in the process.
+        /// Adds headers, if required, and returns the resulting content. <see cref="Content"/> is not modified in the process.
         /// </summary>
         /// <returns>The content, with headers added if required.</returns>
         private Drawable[,] getContentWithHeaders()

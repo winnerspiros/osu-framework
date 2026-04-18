@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -233,7 +233,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         /// <param name="model">The model that the <see cref="Drawable"/> should represent.</param>
         /// <returns>A <see cref="Drawable"/> that represents <paramref name="model"/>, or null if no <see cref="Drawable"/> should be displayed.</returns>
-        protected abstract Drawable? CreateDrawable(T? Model);
+        protected abstract Drawable? CreateDrawable(T? model);
 
         /// <summary>
         /// Hides a drawable.

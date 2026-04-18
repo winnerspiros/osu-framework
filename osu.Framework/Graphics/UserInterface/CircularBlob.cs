@@ -1,4 +1,4 @@
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -86,28 +86,28 @@ namespace osu.Framework.Graphics.UserInterface
             {
             }
 
-            private float InnerRadius;
+            private float innerRadius;
             private float texelSize;
-            private float Frequency;
-            private float Amplitude;
+            private float frequency;
+            private float amplitude;
             private Vector2 noisePosition;
-            private int Seed = -1;
+            private int seed = -1;
 
             public override void ApplyState()
             {
                 base.ApplyState();
 
-                InnerRadius = Source.InnerRadius;
-                Frequency = Source.Frequency;
-                Amplitude = Source.Amplitude;
+                innerRadius = Source.InnerRadius;
+                frequency = Source.Frequency;
+                amplitude = Source.Amplitude;
 
                 int newSeed = Source.Seed;
 
-                if (Seed != newSeed)
+                if (seed != newSeed)
                 {
                     Random rand = new Random(newSeed);
                     noisePosition = new Vector2((float)(rand.NextDouble() * 1000), (float)(rand.NextDouble() * 1000));
-                    Seed = newSeed;
+                    seed = newSeed;
                 }
 
                 // smoothstep looks too sharp with 1px, let's give it a bit more
@@ -118,7 +118,7 @@ namespace osu.Framework.Graphics.UserInterface
 
             protected override void Blit(IRenderer renderer)
             {
-                if (InnerRadius == 0)
+                if (innerRadius == 0)
                     return;
 
                 base.Blit(renderer);
@@ -131,10 +131,10 @@ namespace osu.Framework.Graphics.UserInterface
                 parametersBuffer ??= renderer.CreateUniformBuffer<CircularBlobParameters>();
                 parametersBuffer.Data = new CircularBlobParameters
                 {
-                    InnerRadius = InnerRadius,
+                    InnerRadius = innerRadius,
                     TexelSize = texelSize,
-                    Frequency = Frequency,
-                    Amplitude = Amplitude,
+                    Frequency = frequency,
+                    Amplitude = amplitude,
                     NoisePosition = noisePosition,
                 };
 

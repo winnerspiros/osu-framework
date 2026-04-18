@@ -384,7 +384,7 @@ namespace osu.Framework.Audio
 
             // reduce latency to a known sane minimum.
             Bass.DeviceBufferLength = 10;
-            Bass.PlaybackBufferLength = 100;
+            Bass.PlaybackBufferLength = 40;
 
             if (RuntimeInfo.OS == RuntimeInfo.Platform.Android)
             {
@@ -400,8 +400,10 @@ namespace osu.Framework.Audio
             }
             else if (RuntimeInfo.OS == RuntimeInfo.Platform.iOS)
             {
-                // iOS also benefits from tighter buffer settings due to CoreAudio's low-latency pipeline.
-                Bass.PlaybackBufferLength = 50;
+                // iOS CoreAudio natively supports low-latency output; tighten buffers accordingly.
+                Bass.DeviceBufferLength = 5;
+                Bass.PlaybackBufferLength = 30;
+                Bass.UpdatePeriod = 3;
             }
 
             // ensure there are no brief delays on audio operations (causing stream stalls etc.) after periods of silence.

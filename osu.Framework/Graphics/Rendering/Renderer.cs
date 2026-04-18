@@ -794,16 +794,20 @@ namespace osu.Framework.Graphics.Rendering
 
         private void freeUnusedVertexBuffers()
         {
-            foreach (var buf in vertexBuffersInUse)
+            // Process in reverse order so RemoveAt doesn't shift unvisited elements (O(n) total instead of O(n²)).
+            for (int i = vertexBuffersInUse.Count - 1; i >= 0; i--)
             {
+                var buf = vertexBuffersInUse[i];
+
                 if (buf.InUse && FrameIndex - buf.LastUseFrameIndex > RESOURCE_FREE_NO_USAGE_LENGTH)
                 {
-                    // Calling Free will mark InUse as false internally, which allows the cleanup below to work.
+                    // Calling Free will mark InUse as false internally.
                     buf.Free();
                 }
-            }
 
-            vertexBuffersInUse.RemoveAll(b => !b.InUse);
+                if (!buf.InUse)
+                    vertexBuffersInUse.RemoveAt(i);
+            }
         }
 
         #endregion

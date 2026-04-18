@@ -44,8 +44,19 @@ namespace osu.Framework.Graphics.OpenGL.Shaders
             this.name = name;
             this.parts = parts;
 
-            vertexPart = parts.Single(p => p.Type == ShaderType.VertexShader);
-            fragmentPart = parts.Single(p => p.Type == ShaderType.FragmentShader);
+            GLShaderPart? foundVertex = null;
+            GLShaderPart? foundFragment = null;
+
+            foreach (var part in parts)
+            {
+                if (part.Type == ShaderType.VertexShader)
+                    foundVertex = part;
+                else if (part.Type == ShaderType.FragmentShader)
+                    foundFragment = part;
+            }
+
+            vertexPart = foundVertex ?? throw new InvalidOperationException($"Shader '{name}' is missing a vertex shader part.");
+            fragmentPart = foundFragment ?? throw new InvalidOperationException($"Shader '{name}' is missing a fragment shader part.");
 
             // This part of the compilation is quite CPU expensive.
             // Running it in the constructor will ensure that BDL usages can correctly offload this as an async operation.
@@ -154,14 +165,27 @@ namespace osu.Framework.Graphics.OpenGL.Shaders
                 if (layout.Elements.Length == 0)
                     continue;
 
-                if (layout.Elements.Any(e => e.Kind == ResourceKind.TextureReadOnly || e.Kind == ResourceKind.TextureReadWrite))
+                // Single-pass scan: find texture element and check for sampler in one loop.
+                ResourceLayoutElementDescription? textureElement = null;
+                bool hasSampler = false;
+
+                for (int i = 0; i < layout.Elements.Length; i++)
                 {
-                    ResourceLayoutElementDescription textureElement = layout.Elements.First(e => e.Kind == ResourceKind.TextureReadOnly || e.Kind == ResourceKind.TextureReadWrite);
+                    var kind = layout.Elements[i].Kind;
 
-                    if (layout.Elements.All(e => e.Kind != ResourceKind.Sampler))
-                        throw new ProgramLinkingFailedException(name, $"Texture {textureElement.Name} has no associated sampler.");
+                    if (kind is ResourceKind.TextureReadOnly or ResourceKind.TextureReadWrite)
+                        textureElement ??= layout.Elements[i];
 
-                    textureUniforms.Add(new Uniform<int>(renderer, this, textureElement.Name, GL.GetUniformLocation(this, textureElement.Name))
+                    if (kind == ResourceKind.Sampler)
+                        hasSampler = true;
+                }
+
+                if (textureElement != null)
+                {
+                    if (!hasSampler)
+                        throw new ProgramLinkingFailedException(name, $"Texture {textureElement.Value.Name} has no associated sampler.");
+
+                    textureUniforms.Add(new Uniform<int>(renderer, this, textureElement.Value.Name, GL.GetUniformLocation(this, textureElement.Value.Name))
                     {
                         Value = textureIndex++
                     });

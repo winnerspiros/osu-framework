@@ -500,16 +500,29 @@ namespace osu.Framework.Graphics.Veldrid.Textures
             if (initialisationColour == null)
                 return;
 
-            var rgbaColour = new Rgba32(new Vector4(initialisationColour.Value.R, initialisationColour.Value.G, initialisationColour.Value.B, initialisationColour.Value.A));
+            var colour = initialisationColour.Value;
+            bool isTransparentBlack = colour.R == 0 && colour.G == 0 && colour.B == 0 && colour.A == 0;
 
-            // it is faster to initialise without a background specification if transparent black is all that's required.
-            using var image = initialisationColour == null
-                ? new Image<Rgba32>(width, height)
-                : new Image<Rgba32>(width, height, rgbaColour);
+            updateMemoryUsage(level, (long)width * height * sizeof(Rgba32));
+
+            if (isTransparentBlack)
+            {
+                // For transparent black, use a zeroed span to avoid allocating an Image<Rgba32>.
+                int pixelCount = width * height;
+                Span<Rgba32> zeroed = pixelCount <= 4096
+                    ? stackalloc Rgba32[pixelCount]
+                    : new Rgba32[pixelCount];
+                zeroed.Clear();
+                Renderer.UpdateTexture(texture, 0, 0, width, height, level, (ReadOnlySpan<Rgba32>)zeroed);
+                return;
+            }
+
+            var rgbaColour = new Rgba32(new Vector4(colour.R, colour.G, colour.B, colour.A));
+
+            using var image = new Image<Rgba32>(width, height, rgbaColour);
 
             using (var pixels = image.CreateReadOnlyPixelSpan())
             {
-                updateMemoryUsage(level, (long)width * height * sizeof(Rgba32));
                 Renderer.UpdateTexture(texture, 0, 0, width, height, level, pixels.Span);
             }
         }

@@ -85,7 +85,7 @@ namespace osu.Framework.Graphics.Veldrid
                 if (framesSinceUsage >= Rendering.Renderer.RESOURCE_FREE_NO_USAGE_LENGTH)
                 {
                     item.Resource.Dispose();
-                    available.Remove(item);
+                    available.RemoveAt(0);
                 }
             }
 

@@ -320,8 +320,9 @@ namespace osu.Framework.Audio.Track
 
             long pos = Bass.ChannelSeconds2Bytes(activeStream, clamped / 1000d);
 
-            if (pos != bassMixer.ChannelGetPosition(this))
-                bassMixer.ChannelSetPosition(this, pos);
+            // Set position unconditionally — BASS handles no-op seeks internally and
+            // the extra ChannelGetPosition call adds unnecessary latency.
+            bassMixer.ChannelSetPosition(this, pos);
 
             // current time updates are safe to perform from enqueued actions,
             // but not always safe to perform from BASS callbacks, since those can sometimes use a separate thread.

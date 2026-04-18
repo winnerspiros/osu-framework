@@ -273,13 +273,15 @@ namespace osu.Framework.Audio.Mixing.Bass
 
         protected override void UpdateState()
         {
-            for (int i = 0; i < activeChannels.Count; i++)
+            // Iterate backwards so RemoveAt operations don't shift unvisited elements.
+            for (int i = activeChannels.Count - 1; i >= 0; i--)
             {
                 var channel = activeChannels[i];
+
                 if (channel.IsActive)
                     continue;
 
-                activeChannels.RemoveAt(i--);
+                activeChannels.RemoveAt(i);
                 removeChannelFromBassMix(channel);
             }
 
@@ -309,9 +311,11 @@ namespace osu.Framework.Audio.Mixing.Bass
             ManagedBass.Bass.ChannelSetAttribute(Handle, ChannelAttribute.Buffer, 0);
 
             // Register all channels that were previously played prior to the mixer being loaded.
-            var toAdd = activeChannels.ToArray();
+            // Use a temporary list to avoid issues with AddChannelToBassMix mutating activeChannels.
+            IBassAudioChannel[] channelsToReAdd = [.. activeChannels];
             activeChannels.Clear();
-            foreach (var channel in toAdd)
+
+            foreach (var channel in channelsToReAdd)
                 AddChannelToBassMix(channel);
 
             if (manager?.GlobalMixerHandle.Value != null)

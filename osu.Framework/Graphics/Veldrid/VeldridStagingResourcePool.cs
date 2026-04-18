@@ -48,7 +48,7 @@ namespace osu.Framework.Graphics.Veldrid
                 {
                     existing.FrameUsageIndex = currentExecutionIndex;
 
-                    available.Remove(existing);
+                    available.RemoveAt(i);
                     used.Add(existing);
 
                     resource = existing.Resource;

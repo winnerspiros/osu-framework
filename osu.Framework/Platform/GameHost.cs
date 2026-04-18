@@ -365,7 +365,17 @@ namespace osu.Framework.Platform
         public void Collect()
         {
             SixLabors.ImageSharp.Configuration.Default.MemoryAllocator.ReleaseRetainedResources();
-            GC.Collect();
+
+            // On mobile, prefer a non-blocking Gen0/Gen1 collection to avoid frame hitches.
+            // Full blocking GC is only appropriate on desktop where frame budgets are more forgiving.
+            if (RuntimeInfo.IsMobile)
+            {
+                GC.Collect(1, GCCollectionMode.Optimized, false);
+            }
+            else
+            {
+                GC.Collect();
+            }
         }
 
         private void unhandledExceptionHandler(object sender, UnhandledExceptionEventArgs args)

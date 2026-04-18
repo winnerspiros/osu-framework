@@ -1,0 +1,3 @@
+[submodule "submodules/veldrid"]
+	path = submodules/veldrid
+	url = https://github.com/winnerspiros/veldrid.git

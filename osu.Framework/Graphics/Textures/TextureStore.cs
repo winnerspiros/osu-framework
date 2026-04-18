@@ -4,7 +4,6 @@
 #nullable disable
 
 using System;
-using osu.Framework.IO.Stores;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -14,6 +13,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using osu.Framework.Extensions;
 using osu.Framework.Graphics.Rendering;
+using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 
 namespace osu.Framework.Graphics.Textures
@@ -246,8 +246,7 @@ namespace osu.Framework.Graphics.Textures
             try
             {
                 tex = loadRaw(uploadStore.Get(name), wrapModeS, wrapModeT);
-                if (tex != null)
-                    tex.LookupKey = key;
+                tex?.LookupKey = key;
 
                 return CacheAndReturnTexture(key, tex);
             }

@@ -59,15 +59,13 @@ namespace osu.Framework.Graphics.Containers
                 if (content?.Equals(value) == true)
                     return;
 
-                if (content != null)
-                    content.ArrayElementChanged -= onContentChange;
+                content?.ArrayElementChanged -= onContentChange;
 
                 content = value;
 
                 onContentChange();
 
-                if (content != null)
-                    content.ArrayElementChanged += onContentChange;
+                content?.ArrayElementChanged += onContentChange;
             }
         }
 

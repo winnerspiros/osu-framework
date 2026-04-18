@@ -417,8 +417,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
 
                 mipLevel = value;
 
-                if (resources != null)
-                    resources.Sampler = createSampler();
+                resources?.Sampler = createSampler();
             }
         }
 
@@ -513,7 +512,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
                     ? stackalloc Rgba32[pixelCount]
                     : new Rgba32[pixelCount];
                 zeroed.Clear();
-                Renderer.UpdateTexture(texture, 0, 0, width, height, level, (ReadOnlySpan<Rgba32>)zeroed);
+                Renderer.UpdateTexture(texture, 0, 0, width, height, level, zeroed);
                 return;
             }
 

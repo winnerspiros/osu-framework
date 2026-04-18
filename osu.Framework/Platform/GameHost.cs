@@ -16,7 +16,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using osuTK;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Configuration;
@@ -30,21 +29,22 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.OpenGL;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Rendering.Deferred;
+using osu.Framework.Graphics.Textures;
+using osu.Framework.Graphics.Veldrid;
+using osu.Framework.Graphics.Video;
 using osu.Framework.Input;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Handlers;
+using osu.Framework.IO.Serialization;
+using osu.Framework.IO.Stores;
+using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Statistics;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
+using osuTK;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using osu.Framework.Graphics.Textures;
-using osu.Framework.Graphics.Veldrid;
-using osu.Framework.Graphics.Video;
-using osu.Framework.IO.Serialization;
-using osu.Framework.IO.Stores;
-using osu.Framework.Localisation;
 using Rectangle = System.Drawing.Rectangle;
 using Size = System.Drawing.Size;
 
@@ -246,8 +246,7 @@ namespace osu.Framework.Platform
             thread.IsActive.BindTo(IsActive);
             thread.UnhandledException = unhandledExceptionHandler;
 
-            if (thread.Monitor != null)
-                thread.Monitor.EnablePerformanceProfiling = PerformanceLogging.Value;
+            thread.Monitor?.EnablePerformanceProfiling = PerformanceLogging.Value;
         }
 
         /// <summary>
@@ -295,8 +294,7 @@ namespace osu.Framework.Platform
             set
             {
                 maximumDrawHz = value;
-                if (DrawThread != null)
-                    DrawThread.ActiveHz = maximumDrawHz;
+                DrawThread?.ActiveHz = maximumDrawHz;
             }
         }
 
@@ -315,8 +313,7 @@ namespace osu.Framework.Platform
             set
             {
                 threadRunner.MaximumInactiveHz = UpdateThread.InactiveHz = maximumInactiveHz = value;
-                if (DrawThread != null)
-                    DrawThread.InactiveHz = maximumInactiveHz;
+                DrawThread?.InactiveHz = maximumInactiveHz;
             }
         }
 
@@ -1295,8 +1292,7 @@ namespace osu.Framework.Platform
             {
                 Threads.ForEach(t =>
                 {
-                    if (t.Monitor != null)
-                        t.Monitor.EnablePerformanceProfiling = logging.NewValue;
+                    t.Monitor?.EnablePerformanceProfiling = logging.NewValue;
                 });
                 DebugUtils.LogPerformanceIssues = logging.NewValue;
                 TypePerformanceMonitor.Active = logging.NewValue;

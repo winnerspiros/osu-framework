@@ -15,8 +15,8 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.IO.Stores;
 using osu.Framework.Layout;
 using osu.Framework.Localisation;
-using osu.Framework.Utils;
 using osu.Framework.Text;
+using osu.Framework.Utils;
 using osuTK;
 using osuTK.Graphics;
 
@@ -114,10 +114,7 @@ namespace osu.Framework.Graphics.Sprites
 
                 text = value;
 
-                if (localisedText != null)
-                {
-                    localisedText.Text = value;
-                }
+                localisedText?.Text = value;
             }
         }
 

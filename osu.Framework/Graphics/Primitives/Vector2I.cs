@@ -3,10 +3,10 @@
 
 #nullable disable
 
-using osuTK;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using osuTK;
 
 namespace osu.Framework.Graphics.Primitives
 {

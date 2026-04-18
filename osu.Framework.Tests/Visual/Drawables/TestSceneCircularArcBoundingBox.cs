@@ -106,7 +106,7 @@ namespace osu.Framework.Tests.Visual.Drawables
         {
             float midpoint = (startAngle + endAngle) / 2;
 
-            Vector2 polarToCartesian(float r, float theta) =>
+            static Vector2 polarToCartesian(float r, float theta) =>
                 new Vector2(
                     r * MathF.Cos(MathHelper.DegreesToRadians(theta)),
                     r * MathF.Sin(MathHelper.DegreesToRadians(theta)));

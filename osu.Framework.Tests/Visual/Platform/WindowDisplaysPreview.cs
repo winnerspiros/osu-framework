@@ -257,8 +257,7 @@ namespace osu.Framework.Tests.Visual.Platform
 
         protected override void Dispose(bool isDisposing)
         {
-            if (window != null)
-                window.DisplaysChanged -= onDisplaysChanged;
+            window?.DisplaysChanged -= onDisplaysChanged;
 
             base.Dispose(isDisposing);
         }

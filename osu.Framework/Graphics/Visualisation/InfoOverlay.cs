@@ -3,10 +3,10 @@
 
 #nullable disable
 
-using osuTK;
-using osuTK.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Primitives;
+using osuTK;
+using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Visualisation
 {

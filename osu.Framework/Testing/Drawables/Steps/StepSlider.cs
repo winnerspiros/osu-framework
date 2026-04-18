@@ -3,17 +3,17 @@
 
 #nullable disable
 
-using osuTK.Graphics;
+using System;
+using System.Numerics;
+using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
-using System;
-using osu.Framework.Bindables;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Input.Events;
+using osuTK.Graphics;
 using osuTK.Input;
-using System.Numerics;
 
 namespace osu.Framework.Testing.Drawables.Steps
 {

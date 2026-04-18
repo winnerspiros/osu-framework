@@ -4,9 +4,9 @@
 #nullable disable
 
 using System;
-using osu.Framework.Statistics;
 using System.Diagnostics;
 using osu.Framework.Layout;
+using osu.Framework.Statistics;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 

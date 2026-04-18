@@ -257,7 +257,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
 
             // Combined pass: set up pipeline layouts and resource sets in two iterations
             // instead of four separate dictionary walks.
-            foreach (var (unit, texture) in attachedTextures)
+            foreach (var (unit, _) in attachedTextures)
             {
                 var layout = currentShader.GetTextureLayout(unit);
 
@@ -267,7 +267,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
                 pipelineDesc.ResourceLayouts[layout.Set] = layout.Layout;
             }
 
-            foreach (var (name, buffer) in attachedUniformBuffers)
+            foreach (var (name, _) in attachedUniformBuffers)
             {
                 var layout = currentShader.GetUniformBufferLayout(name);
 

@@ -3,20 +3,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Rendering.Vertices;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Veldrid.Batches;
-using osu.Framework.Platform;
 using osu.Framework.Graphics.Veldrid.Buffers;
 using osu.Framework.Graphics.Veldrid.Buffers.Staging;
 using osu.Framework.Graphics.Veldrid.Pipelines;
 using osu.Framework.Graphics.Veldrid.Shaders;
 using osu.Framework.Graphics.Veldrid.Textures;
 using osu.Framework.Graphics.Veldrid.Vertices;
+using osu.Framework.Platform;
 using osuTK;
 using osuTK.Graphics;
 using SixLabors.ImageSharp;

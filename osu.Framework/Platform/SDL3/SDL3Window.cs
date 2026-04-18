@@ -17,9 +17,9 @@ using osu.Framework.Threading;
 using SDL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using static SDL.SDL3;
 using Image = SixLabors.ImageSharp.Image;
 using Point = System.Drawing.Point;
-using static SDL.SDL3;
 
 namespace osu.Framework.Platform.SDL3
 {

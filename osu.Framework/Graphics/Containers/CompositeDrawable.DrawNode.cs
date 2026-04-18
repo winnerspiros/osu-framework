@@ -3,15 +3,15 @@
 
 #nullable disable
 
-using System.Collections.Generic;
-using osu.Framework.Graphics.Primitives;
-using osu.Framework.Graphics.Shaders;
-using osuTK;
-using osu.Framework.Graphics.Colour;
 using System;
+using System.Collections.Generic;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Effects;
+using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Rendering.Vertices;
+using osu.Framework.Graphics.Shaders;
+using osuTK;
 
 namespace osu.Framework.Graphics.Containers
 {

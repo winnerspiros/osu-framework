@@ -14,8 +14,8 @@ using osu.Framework.Input.States;
 using osu.Framework.Logging;
 using osuTK;
 using osuTK.Input;
-using RectangleF = osu.Framework.Graphics.Primitives.RectangleF;
 using static SDL2.SDL;
+using RectangleF = osu.Framework.Graphics.Primitives.RectangleF;
 
 namespace osu.Framework.Platform.SDL2
 {

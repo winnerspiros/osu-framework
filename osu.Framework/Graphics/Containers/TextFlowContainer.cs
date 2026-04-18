@@ -3,8 +3,6 @@
 
 #nullable disable
 
-using osu.Framework.Caching;
-using osu.Framework.Graphics.Sprites;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -12,8 +10,10 @@ using System.Linq;
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Caching;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Framework.Utils;
 using osuTK;

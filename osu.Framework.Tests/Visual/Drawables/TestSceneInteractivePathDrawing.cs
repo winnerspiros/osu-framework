@@ -3,14 +3,14 @@
 
 using System.Linq;
 using osu.Framework.Graphics;
-using osuTK.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Lines;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
-using osuTK.Input;
 using osu.Framework.Utils;
 using osuTK;
+using osuTK.Graphics;
+using osuTK.Input;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {

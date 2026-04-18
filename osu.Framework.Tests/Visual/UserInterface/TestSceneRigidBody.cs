@@ -5,8 +5,8 @@ using System;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.UserInterface;
-using osu.Framework.Utils;
 using osu.Framework.Physics;
+using osu.Framework.Utils;
 using osuTK;
 using osuTK.Graphics;
 
@@ -16,14 +16,12 @@ namespace osu.Framework.Tests.Visual.UserInterface
     {
         private readonly TestRigidBodySimulation sim;
 
-        private float restitutionBacking;
-
         private float restitution
         {
-            get => restitutionBacking;
+            get;
             set
             {
-                restitutionBacking = value;
+                field = value;
 
                 foreach (var d in sim.Children)
                     d.Restitution = value;
@@ -31,14 +29,12 @@ namespace osu.Framework.Tests.Visual.UserInterface
             }
         }
 
-        private float frictionBacking;
-
         private float friction
         {
-            get => frictionBacking;
+            get;
             set
             {
-                frictionBacking = value;
+                field = value;
 
                 foreach (var d in sim.Children)
                     d.FrictionCoefficient = value;

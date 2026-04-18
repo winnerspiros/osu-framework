@@ -2,10 +2,10 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Allocation;
-using osuTK;
 using osu.Framework.Graphics.Primitives;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Rendering;
+using osu.Framework.Graphics.Sprites;
+using osuTK;
 
 namespace osu.Framework.Graphics.Shapes
 {

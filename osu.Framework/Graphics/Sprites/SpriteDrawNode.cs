@@ -3,10 +3,10 @@
 
 #nullable disable
 
-using osuTK;
 using osu.Framework.Graphics.Primitives;
-using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Rendering;
+using osu.Framework.Graphics.Textures;
+using osuTK;
 
 namespace osu.Framework.Graphics.Sprites
 {

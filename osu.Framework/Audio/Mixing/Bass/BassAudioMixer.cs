@@ -31,7 +31,12 @@ namespace osu.Framework.Audio.Mixing.Bass
 
         private readonly Dictionary<IEffectParameter, int> activeEffects = new Dictionary<IEffectParameter, int>();
 
-        private const int frequency = 44100;
+        /// <summary>
+        /// The mixer sample rate. 48000 Hz provides better quality on modern audio hardware
+        /// and is the native rate for most Android AAudio and iOS CoreAudio endpoints,
+        /// avoiding an extra resampling step in the audio pipeline.
+        /// </summary>
+        private const int frequency = 48000;
 
         /// <summary>
         /// Creates a new <see cref="BassAudioMixer"/>.
@@ -325,7 +330,15 @@ namespace osu.Framework.Audio.Mixing.Bass
             // Debug.Assert(Handle != 0);
             // Debug.Assert(channel.Handle != 0);
 
-            BassFlags flags = BassFlags.MixerChanBuffer | BassFlags.MixerChanNoRampin;
+            BassFlags flags = BassFlags.MixerChanNoRampin;
+
+            // On mobile platforms, skip per-channel buffering to reduce latency.
+            // The mixer itself already provides buffering; adding another layer of
+            // channel-level buffers just increases the pipeline depth for no benefit
+            // when running single-threaded (as on Android/iOS).
+            if (!RuntimeInfo.IsMobile)
+                flags |= BassFlags.MixerChanBuffer;
+
             if (channel.MixerChannelPaused)
                 flags |= BassFlags.MixerChanPause;
 

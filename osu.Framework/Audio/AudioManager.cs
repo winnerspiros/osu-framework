@@ -388,11 +388,20 @@ namespace osu.Framework.Audio
 
             if (RuntimeInfo.OS == RuntimeInfo.Platform.Android)
             {
-                // Use tighter buffer settings on Android for lower audio latency.
-                Bass.PlaybackBufferLength = 50;
+                // Use minimal buffer settings on Android for lowest possible audio latency.
+                // On Android with AAudio/Oboe, smaller buffers reduce the BASS-side latency
+                // that sits on top of the native audio stack.
+                Bass.DeviceBufferLength = 5;
+                Bass.PlaybackBufferLength = 25;
+                Bass.UpdatePeriod = 2;
 
                 // Enable BASS_CONFIG_ANDROID_AAUDIO to prefer AAudio over OpenSL ES for lower latency on Android 8.1+.
                 Bass.Configure((ManagedBass.Configuration)67, 1);
+            }
+            else if (RuntimeInfo.OS == RuntimeInfo.Platform.iOS)
+            {
+                // iOS also benefits from tighter buffer settings due to CoreAudio's low-latency pipeline.
+                Bass.PlaybackBufferLength = 50;
             }
 
             // ensure there are no brief delays on audio operations (causing stream stalls etc.) after periods of silence.

@@ -14,5 +14,12 @@
     <RunAOTCompilation>true</RunAOTCompilation>
     <AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
     <EnableLLVM>true</EnableLLVM>
+    <!-- Enable trimming to reduce APK size and improve startup time. -->
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+    <!-- Strip debug symbols from native libraries in release builds. -->
+    <AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>
+    <!-- Disable globalization invariant mode only if needed; helps reduce binary size. -->
+    <InvariantGlobalization>false</InvariantGlobalization>
   </PropertyGroup>
 </Project>

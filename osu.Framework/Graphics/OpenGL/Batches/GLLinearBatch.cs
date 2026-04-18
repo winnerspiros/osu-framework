@@ -20,6 +20,9 @@ namespace osu.Framework.Graphics.OpenGL.Batches
             this.topology = topology;
         }
 
-        protected override GLVertexBuffer<T> CreateVertexBuffer(GLRenderer renderer) => new GLLinearBuffer<T>(renderer, Size, topology, BufferUsageHint.DynamicDraw);
+        // On mobile tile-based GPUs, StreamDraw hints to the driver that buffer data is transient
+        // and only used for one draw call, enabling more efficient memory handling.
+        protected override GLVertexBuffer<T> CreateVertexBuffer(GLRenderer renderer)
+            => new GLLinearBuffer<T>(renderer, Size, topology, RuntimeInfo.IsMobile ? BufferUsageHint.StreamDraw : BufferUsageHint.DynamicDraw);
     }
 }

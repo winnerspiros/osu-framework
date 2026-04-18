@@ -476,12 +476,21 @@ namespace osu.Framework.Graphics.OpenGL.Textures
             if (initialisationColour == null)
                 return;
 
-            var rgbaColour = new Rgba32(new Vector4(initialisationColour.Value.R, initialisationColour.Value.G, initialisationColour.Value.B, initialisationColour.Value.A));
+            var colour = initialisationColour.Value;
+            bool isTransparentBlack = colour.R == 0 && colour.G == 0 && colour.B == 0 && colour.A == 0;
 
-            // it is faster to initialise without a background specification if transparent black is all that's required.
-            using var image = initialisationColour == null
-                ? new Image<Rgba32>(width, height)
-                : new Image<Rgba32>(width, height, rgbaColour);
+            if (isTransparentBlack)
+            {
+                // For transparent black, pass a null data pointer to let the driver zero the memory.
+                // This avoids a CPU-side image allocation and memcpy, which is significant on mobile.
+                updateMemoryUsage(level, (long)width * height * 4);
+                GL.TexImage2D(TextureTarget2d.Texture2D, level, TextureComponentCount.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+                return;
+            }
+
+            var rgbaColour = new Rgba32(new Vector4(colour.R, colour.G, colour.B, colour.A));
+
+            using var image = new Image<Rgba32>(width, height, rgbaColour);
 
             using (var pixels = image.CreateReadOnlyPixelSpan())
             {

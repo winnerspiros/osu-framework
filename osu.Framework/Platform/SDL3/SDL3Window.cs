@@ -64,20 +64,18 @@ namespace osu.Framework.Platform.SDL3
         /// </summary>
         protected readonly Scheduler EventScheduler = new Scheduler();
 
-        private string title = string.Empty;
-
         /// <summary>
         /// Gets and sets the window title.
         /// </summary>
         public string Title
         {
-            get => title;
+            get => field;
             set
             {
-                title = value;
-                ScheduleCommand(() => SDL_SetWindowTitle(SDLWindowHandle, title).LogErrorIfFailed());
+                field = value;
+                ScheduleCommand(() => SDL_SetWindowTitle(SDLWindowHandle, field).LogErrorIfFailed());
             }
-        }
+        } = string.Empty;
 
         /// <summary>
         /// Whether the current display server is Wayland.
@@ -225,7 +223,7 @@ namespace osu.Framework.Platform.SDL3
             SDL_SetHint(SDL_HINT_PEN_MOUSE_EVENTS, "0"u8).LogErrorIfFailed();
             SDL_SetHint(SDL_HINT_IME_IMPLEMENTED_UI, "composition"u8).LogErrorIfFailed();
 
-            SDLWindowHandle = SDL_CreateWindow(title, Size.Width, Size.Height, flags);
+            SDLWindowHandle = SDL_CreateWindow(Title, Size.Width, Size.Height, flags);
 
 #pragma warning disable IDE0270 // Null check can be simplified - pointer types don't support ??
             if (SDLWindowHandle == null)

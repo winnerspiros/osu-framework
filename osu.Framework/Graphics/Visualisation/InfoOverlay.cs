@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -12,21 +12,19 @@ namespace osu.Framework.Graphics.Visualisation
 {
     internal partial class InfoOverlay : Container<FlashyBox>
     {
-        private Drawable target;
-
         public Drawable Target
         {
-            get => target;
+            get => field;
             set
             {
-                if (target == value) return;
+                if (field == value) return;
 
-                target = value;
+                field = value;
 
                 foreach (FlashyBox c in Children)
-                    c.Target = target;
+                    c.Target = field;
 
-                Alpha = target != null ? 1.0f : 0.0f;
+                Alpha = field != null ? 1.0f : 0.0f;
 
                 Pulse();
             }

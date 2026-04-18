@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -31,10 +31,10 @@ namespace osu.Framework.Graphics.Containers
         /// <remarks>If <see cref="timeBeforeLoad"/> is set to 0, the loading process will begin on the next Update call.</remarks>
         /// <param name="content">The <see cref="Drawable"/> to be loaded.</param>
         /// <param name="timeBeforeLoad">The delay in milliseconds before loading can begin.</param>
-        public DelayedLoadWrapper(Drawable content, double timeBeforeLoad = 500)
+        public DelayedLoadWrapper(Drawable Content, double timeBeforeLoad = 500)
             : this(timeBeforeLoad)
         {
-            Content = content ?? throw new ArgumentNullException(nameof(content), $@"{nameof(DelayedLoadWrapper)} required non-null {nameof(content)}.");
+            Content = Content ?? throw new ArgumentNullException(nameof(Content), $@"{nameof(DelayedLoadWrapper)} required non-null {nameof(Content)}.");
         }
 
         /// <summary>
@@ -58,26 +58,24 @@ namespace osu.Framework.Graphics.Containers
             AddLayout(isIntersectingCache);
         }
 
-        private Drawable content;
-
         public Drawable Content
         {
-            get => content;
+            get => field;
             protected set
             {
-                if (content == value)
+                if (field == value)
                     return;
 
-                content = value;
+                field = value;
 
-                if (content == null)
+                if (field == null)
                     return;
 
                 AutoSizeAxes = Axes.None;
                 RelativeSizeAxes = Axes.None;
 
-                RelativeSizeAxes = content.RelativeSizeAxes;
-                AutoSizeAxes = (content as CompositeDrawable)?.AutoSizeAxes ?? AutoSizeAxes;
+                RelativeSizeAxes = field.RelativeSizeAxes;
+                AutoSizeAxes = (field as CompositeDrawable)?.AutoSizeAxes ?? AutoSizeAxes;
             }
         }
 
@@ -125,17 +123,17 @@ namespace osu.Framework.Graphics.Containers
             LoadComponentAsync(Content, EndDelayedLoad, scheduler: Game.Scheduler, cancellation: cancellationTokenSource.Token);
         }
 
-        protected virtual void EndDelayedLoad(Drawable content)
+        protected virtual void EndDelayedLoad(Drawable Content)
         {
             timeVisible = 0;
 
             // This code is running on the game's scheduler, while this wrapper may have been async disposed, so the addition is scheduled locally to prevent adding to disposed wrappers.
             scheduledAddition = Schedule(() =>
             {
-                AddInternal(content);
+                AddInternal(Content);
 
                 DelayedLoadCompleted = true;
-                DelayedLoadComplete?.Invoke(content);
+                DelayedLoadComplete?.Invoke(Content);
             });
         }
 

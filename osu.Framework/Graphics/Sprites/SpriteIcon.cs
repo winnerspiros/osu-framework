@@ -37,7 +37,7 @@ namespace osu.Framework.Graphics.Sprites
 
         private void updateTexture()
         {
-            var loadableIcon = icon;
+            var loadableIcon = Icon;
 
             if (loadableIcon.Equals(loadedIcon)) return;
 
@@ -55,17 +55,15 @@ namespace osu.Framework.Graphics.Sprites
             Invalidate(Invalidation.DrawNode);
         }
 
-        private bool shadow;
-
         public bool Shadow
         {
-            get => shadow;
+            get => field;
             set
             {
-                if (shadow == value)
+                if (field == value)
                     return;
 
-                shadow = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
         }
@@ -106,16 +104,14 @@ namespace osu.Framework.Graphics.Sprites
             }
         }
 
-        private IconUsage icon;
-
         public IconUsage Icon
         {
-            get => icon;
+            get => field;
             set
             {
-                if (icon.Equals(value)) return;
+                if (field.Equals(value)) return;
 
-                icon = value;
+                field = value;
                 if (LoadState > LoadState.NotLoaded)
                     updateTexture();
             }
@@ -132,7 +128,7 @@ namespace osu.Framework.Graphics.Sprites
             {
             }
 
-            private bool shadow;
+            private bool Shadow;
             private ColourInfo shadowDrawColour;
             private Quad shadowDrawQuad;
             private Quad screenSpaceDrawQuad;
@@ -146,7 +142,7 @@ namespace osu.Framework.Graphics.Sprites
                 if (texture == null)
                     return;
 
-                shadow = Source.shadow;
+                Shadow = Source.shadow;
 
                 RectangleF drawRect = Source.DrawRectangle;
 
@@ -158,7 +154,7 @@ namespace osu.Framework.Graphics.Sprites
                 drawRect.Location += (Source.DrawRectangle.Size - drawRect.Size) * 0.5f;
                 screenSpaceDrawQuad = Source.ToScreenSpace(drawRect);
 
-                if (!shadow)
+                if (!Shadow)
                     return;
 
                 RectangleF offsetRect = drawRect;
@@ -187,7 +183,7 @@ namespace osu.Framework.Graphics.Sprites
 
                 BindTextureShader(renderer);
 
-                if (shadow)
+                if (Shadow)
                     renderer.DrawQuad(texture, shadowDrawQuad, shadowDrawColour);
 
                 renderer.DrawQuad(texture, screenSpaceDrawQuad, DrawColourInfo.Colour);

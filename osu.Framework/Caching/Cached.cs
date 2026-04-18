@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -8,8 +8,6 @@ namespace osu.Framework.Caching
 {
     public class Cached<T>
     {
-        private T value = default!;
-
         public T Value
         {
             get
@@ -17,20 +15,20 @@ namespace osu.Framework.Caching
                 if (!IsValid)
                     throw new InvalidOperationException($"May not query {nameof(Value)} of an invalid {nameof(Cached<T>)}.");
 
-                return value;
+                return field;
             }
 
             set
             {
-                this.value = value;
+                field = field;
                 IsValid = true;
                 FrameStatistics.Increment(StatisticsCounterType.Refreshes);
             }
-        }
+        } = default!;
 
         public bool IsValid { get; private set; }
 
-        public static implicit operator T(Cached<T> value) => value.Value;
+        public static implicit operator T(Cached<T> Value) => Value.Value;
 
         /// <summary>
         /// Invalidate the cache of this object.

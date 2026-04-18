@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -55,9 +55,9 @@ namespace osu.Framework.Graphics.Containers
                 internalChildrenAsT = new LazyList<Drawable, T>(InternalChildren, c => (T)c);
 
             if (typeof(T) == typeof(Drawable))
-                aliveInternalChildrenAsT = (IReadOnlyList<T>)AliveInternalChildren;
+                AliveChildren = (IReadOnlyList<T>)AliveInternalChildren;
             else
-                aliveInternalChildrenAsT = new LazyList<Drawable, T>(AliveInternalChildren, c => (T)c);
+                AliveChildren = new LazyList<Drawable, T>(AliveInternalChildren, c => (T)c);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace osu.Framework.Graphics.Containers
                 if (Content != this)
                     return Content.AliveChildren;
 
-                return aliveInternalChildrenAsT;
+                return field;
             }
         }
 
@@ -184,8 +184,6 @@ namespace osu.Framework.Graphics.Containers
         }
 
         private readonly IReadOnlyList<T> internalChildrenAsT;
-        private readonly IReadOnlyList<T> aliveInternalChildrenAsT;
-
         /// <summary>
         /// The index of a given child within <see cref="Children"/>.
         /// </summary>

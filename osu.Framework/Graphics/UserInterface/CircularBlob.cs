@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -23,8 +23,6 @@ namespace osu.Framework.Graphics.UserInterface
 
         protected override DrawNode CreateDrawNode() => new CircularBlobDrawNode(this);
 
-        private float innerRadius = 0.2f;
-
         /// <summary>
         /// The inner fill radius, relative to the <see cref="Drawable.DrawSize"/> of the <see cref="CircularBlob"/>.
         /// The value range is 0 to 1 where 0 is invisible and 1 is completely filled.
@@ -32,58 +30,52 @@ namespace osu.Framework.Graphics.UserInterface
         /// </summary>
         public float InnerRadius
         {
-            get => innerRadius;
+            get => field;
             set
             {
                 if (!float.IsFinite(value))
                     throw new ArgumentException($"{nameof(InnerRadius)} must be finite, but is {value}.");
 
-                innerRadius = Math.Clamp(value, 0, 1);
+                field = Math.Clamp(value, 0, 1);
                 Invalidate(Invalidation.DrawNode);
             }
-        }
-
-        private float amplitude = 0.3f;
+        } = 0.2f;
 
         public float Amplitude
         {
-            get => amplitude;
+            get => field;
             set
             {
                 if (!float.IsFinite(value))
                     throw new ArgumentException($"{nameof(Amplitude)} must be finite, but is {value}.");
 
-                amplitude = Math.Clamp(value, 0, 1);
+                field = Math.Clamp(value, 0, 1);
                 Invalidate(Invalidation.DrawNode);
             }
-        }
-
-        private float frequency = 1.5f;
+        } = 0.3f;
 
         public float Frequency
         {
-            get => frequency;
+            get => field;
             set
             {
                 if (!float.IsFinite(value))
                     throw new ArgumentException($"{nameof(Frequency)} must be finite, but is {value}.");
 
-                frequency = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
-        }
-
-        private int seed = 1;
+        } = 1.5f;
 
         public int Seed
         {
-            get => seed;
+            get => field;
             set
             {
-                seed = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
-        }
+        } = 1;
 
         private class CircularBlobDrawNode : SpriteDrawNode
         {
@@ -94,28 +86,28 @@ namespace osu.Framework.Graphics.UserInterface
             {
             }
 
-            private float innerRadius;
+            private float InnerRadius;
             private float texelSize;
-            private float frequency;
-            private float amplitude;
+            private float Frequency;
+            private float Amplitude;
             private Vector2 noisePosition;
-            private int seed = -1;
+            private int Seed = -1;
 
             public override void ApplyState()
             {
                 base.ApplyState();
 
-                innerRadius = Source.innerRadius;
-                frequency = Source.frequency;
-                amplitude = Source.amplitude;
+                InnerRadius = Source.innerRadius;
+                Frequency = Source.frequency;
+                Amplitude = Source.amplitude;
 
                 int newSeed = Source.seed;
 
-                if (seed != newSeed)
+                if (Seed != newSeed)
                 {
                     Random rand = new Random(newSeed);
                     noisePosition = new Vector2((float)(rand.NextDouble() * 1000), (float)(rand.NextDouble() * 1000));
-                    seed = newSeed;
+                    Seed = newSeed;
                 }
 
                 // smoothstep looks too sharp with 1px, let's give it a bit more
@@ -126,7 +118,7 @@ namespace osu.Framework.Graphics.UserInterface
 
             protected override void Blit(IRenderer renderer)
             {
-                if (innerRadius == 0)
+                if (InnerRadius == 0)
                     return;
 
                 base.Blit(renderer);
@@ -139,10 +131,10 @@ namespace osu.Framework.Graphics.UserInterface
                 parametersBuffer ??= renderer.CreateUniformBuffer<CircularBlobParameters>();
                 parametersBuffer.Data = new CircularBlobParameters
                 {
-                    InnerRadius = innerRadius,
+                    InnerRadius = InnerRadius,
                     TexelSize = texelSize,
-                    Frequency = frequency,
-                    Amplitude = amplitude,
+                    Frequency = Frequency,
+                    Amplitude = Amplitude,
                     NoisePosition = noisePosition,
                 };
 

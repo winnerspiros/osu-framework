@@ -405,17 +405,15 @@ namespace osu.Framework.Graphics.Veldrid.Textures
             }
         }
 
-        private int? mipLevel;
-
         public int? MipLevel
         {
-            get => mipLevel;
+            get => field;
             set
             {
-                if (mipLevel == value)
+                if (field == value)
                     return;
 
-                mipLevel = value;
+                field = value;
 
                 resources?.Sampler = createSampler();
             }

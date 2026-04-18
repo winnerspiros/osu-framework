@@ -98,7 +98,7 @@ namespace osu.Framework.Graphics.Sprites
 
             FontName = FontName.TrimEnd('-');
 
-            FontNameNoFamily = string.IsNullOrEmpty(Family) ? FontName : FontName.Substring(Family.Length);
+            FontNameNoFamily = string.IsNullOrEmpty(Family) ? FontName : FontName[Family.Length..];
         }
 
         /// <summary>

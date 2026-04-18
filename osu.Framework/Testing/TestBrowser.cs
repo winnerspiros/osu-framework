@@ -418,7 +418,7 @@ namespace osu.Framework.Testing
                     continue;
 
                 if (name.StartsWith("Test", StringComparison.Ordinal))
-                    name = name.Substring(4);
+                    name = name[4..];
 
                 int runCount = 1;
 

@@ -107,7 +107,7 @@ namespace osu.Framework.Graphics.Containers
 
                 if (strPiece == null)
                 {
-                    strPiece = str.Substring(index);
+                    strPiece = str[index..];
                     index = str.Length;
                 }
 

@@ -61,7 +61,7 @@ namespace osu.Framework.Localisation
             {
                 if (input.Length >= 1)
                 {
-                    return textInfo.ToUpper(input[0]) + input.Substring(1);
+                    return textInfo.ToUpper(input[0]) + input[1..];
                 }
 
                 return textInfo.ToUpper(input);

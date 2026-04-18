@@ -22,7 +22,7 @@ namespace osu.Framework.Extensions.TypeExtensions
             // Trim away amount of type arguments
             int amountTypeArgumentsPos = result.IndexOf('`');
             if (amountTypeArgumentsPos >= 0)
-                result = result.Substring(0, amountTypeArgumentsPos);
+                result = result[..amountTypeArgumentsPos];
 
             // We were declared inside another class. Preprend the name of that class.
             if (t.DeclaringType != null && !usedTypes.Contains(t.DeclaringType))

@@ -1634,7 +1634,7 @@ namespace osu.Framework.Graphics.UserInterface
 
             if (lengthWithoutComposition + composition.Length > LengthLimit)
             {
-                composition = composition.Substring(0, (int)LengthLimit - lengthWithoutComposition);
+                composition = composition[..((int)LengthLimit - lengthWithoutComposition)];
                 sanitized = true;
             }
 

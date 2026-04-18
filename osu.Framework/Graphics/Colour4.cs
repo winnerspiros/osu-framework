@@ -319,9 +319,9 @@ namespace osu.Framework.Graphics
                     break;
 
                 case 3:
-                    parsed &= byte.TryParse(hexSpan.Slice(0, 1), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out r);
-                    parsed &= byte.TryParse(hexSpan.Slice(1, 1), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out g);
-                    parsed &= byte.TryParse(hexSpan.Slice(2, 1), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out b);
+                    parsed &= byte.TryParse(hexSpan[..1], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out r);
+                    parsed &= byte.TryParse(hexSpan[1..2], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out g);
+                    parsed &= byte.TryParse(hexSpan[2..3], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out b);
 
                     r *= 17;
                     g *= 17;
@@ -329,16 +329,16 @@ namespace osu.Framework.Graphics
                     break;
 
                 case 6:
-                    parsed &= byte.TryParse(hexSpan.Slice(0, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out r);
-                    parsed &= byte.TryParse(hexSpan.Slice(2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out g);
-                    parsed &= byte.TryParse(hexSpan.Slice(4, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out b);
+                    parsed &= byte.TryParse(hexSpan[..2], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out r);
+                    parsed &= byte.TryParse(hexSpan[2..4], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out g);
+                    parsed &= byte.TryParse(hexSpan[4..6], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out b);
                     break;
 
                 case 4:
-                    parsed &= byte.TryParse(hexSpan.Slice(0, 1), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out r);
-                    parsed &= byte.TryParse(hexSpan.Slice(1, 1), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out g);
-                    parsed &= byte.TryParse(hexSpan.Slice(2, 1), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out b);
-                    parsed &= byte.TryParse(hexSpan.Slice(3, 1), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out a);
+                    parsed &= byte.TryParse(hexSpan[..1], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out r);
+                    parsed &= byte.TryParse(hexSpan[1..2], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out g);
+                    parsed &= byte.TryParse(hexSpan[2..3], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out b);
+                    parsed &= byte.TryParse(hexSpan[3..4], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out a);
 
                     r *= 17;
                     g *= 17;
@@ -347,10 +347,10 @@ namespace osu.Framework.Graphics
                     break;
 
                 case 8:
-                    parsed &= byte.TryParse(hexSpan.Slice(0, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out r);
-                    parsed &= byte.TryParse(hexSpan.Slice(2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out g);
-                    parsed &= byte.TryParse(hexSpan.Slice(4, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out b);
-                    parsed &= byte.TryParse(hexSpan.Slice(6, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out a);
+                    parsed &= byte.TryParse(hexSpan[..2], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out r);
+                    parsed &= byte.TryParse(hexSpan[2..4], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out g);
+                    parsed &= byte.TryParse(hexSpan[4..6], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out b);
+                    parsed &= byte.TryParse(hexSpan[6..8], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out a);
                     break;
             }
 

@@ -345,6 +345,7 @@ namespace osu.Framework.Graphics.Veldrid
             return pipeline;
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public static void LogD3D11(this GraphicsDevice device, out int maxTextureSize)
         {
             Debug.Assert(device.BackendType == GraphicsBackend.Direct3D11);

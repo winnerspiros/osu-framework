@@ -201,10 +201,8 @@ namespace osu.Framework.Graphics.Veldrid
                     break;
 
                 case GraphicsSurfaceType.Direct3D11:
-#pragma warning disable CA1416 // D3D11 is only reachable on Windows via the GraphicsSurfaceType switch
                     Device = GraphicsDevice.CreateD3D11(options, swapchain);
                     Device.LogD3D11(out maxTextureSize);
-#pragma warning restore CA1416
                     break;
 
                 case GraphicsSurfaceType.Metal:

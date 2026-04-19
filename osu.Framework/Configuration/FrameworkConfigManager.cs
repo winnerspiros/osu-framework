@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using osu.Framework.Configuration.Tracking;
 using osu.Framework.Extensions;
+using osu.Framework.Graphics.Rendering.LowLatency;
 using osu.Framework.Graphics.Video;
 using osu.Framework.Input;
 using osu.Framework.Platform;
@@ -40,8 +41,10 @@ namespace osu.Framework.Configuration
             SetDefault(FrameworkSetting.SizeFullscreen, new Size(9999, 9999), new Size(320, 240));
             SetDefault(FrameworkSetting.MinimiseOnFocusLossInFullscreen, RuntimeInfo.IsDesktop);
             SetDefault(FrameworkSetting.FrameSync, FrameSync.Limit2x);
+            SetDefault(FrameworkSetting.CustomDrawLimit, 0, 0, 1000);
             SetDefault(FrameworkSetting.WindowMode, WindowMode.Windowed);
             SetDefault(FrameworkSetting.Renderer, RendererType.Automatic);
+            SetDefault(FrameworkSetting.LatencyMode, LatencyMode.Off);
             SetDefault(FrameworkSetting.ShowUnicode, false);
             SetDefault(FrameworkSetting.Locale, string.Empty);
 
@@ -101,8 +104,10 @@ namespace osu.Framework.Configuration
 
         Renderer,
         WindowMode,
+        LatencyMode,
         ConfineMouseMode,
         FrameSync,
+        CustomDrawLimit,
         ExecutionMode,
 
         ShowUnicode,

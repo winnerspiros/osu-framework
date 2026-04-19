@@ -29,6 +29,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.OpenGL;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Rendering.Deferred;
+using osu.Framework.Graphics.Rendering.LowLatency;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Veldrid;
 using osu.Framework.Graphics.Video;
@@ -459,14 +460,21 @@ namespace osu.Framework.Platform
             Exited?.Invoke();
         }
 
-        private readonly TripleBuffer<DrawNode> drawRoots = new TripleBuffer<DrawNode>();
+        private readonly TripleBuffer<DrawBufferData> drawRoots = new TripleBuffer<DrawBufferData>();
 
         internal Container Root { get; private set; }
 
         private ulong frameCount;
 
+        private class DrawBufferData
+        {
+            public DrawNode Node;
+            public ulong FrameCount;
+        }
+
         protected virtual void UpdateFrame()
         {
+            FrameSleep();
             if (Root == null) return;
 
             frameCount++;
@@ -484,11 +492,19 @@ namespace osu.Framework.Platform
 
             TypePerformanceMonitor.NewFrame();
 
+            LatencyMark(LatencyMarker.SimulationStart, frameCount);
+
             Root.UpdateSubTree();
             Root.UpdateSubTreeMasking();
 
             using (var buffer = drawRoots.GetForWrite())
-                buffer.Object = Root.GenerateDrawNodeSubtree(frameCount, buffer.Index, false);
+            {
+                buffer.Object ??= new DrawBufferData();
+                buffer.Object.Node = Root.GenerateDrawNodeSubtree(frameCount, buffer.Index, false);
+                buffer.Object.FrameCount = frameCount;
+            }
+
+            LatencyMark(LatencyMarker.SimulationEnd, frameCount);
         }
 
         private bool didRenderFrame;
@@ -508,7 +524,7 @@ namespace osu.Framework.Platform
 
             Renderer.AllowTearing = windowMode.Value == WindowMode.Fullscreen;
 
-            TripleBuffer<DrawNode>.Buffer buffer;
+            TripleBuffer<DrawBufferData>.Buffer buffer;
 
             using (drawMonitor.BeginCollecting(PerformanceCollectionType.Sleep))
             {
@@ -519,16 +535,22 @@ namespace osu.Framework.Platform
                     Renderer.WaitUntilNextFrameReady();
 
                 didRenderFrame = false;
-                buffer = drawRoots.GetForRead(IsActive.Value ? TripleBuffer<DrawNode>.DEFAULT_READ_TIMEOUT : 0);
+                buffer = drawRoots.GetForRead(IsActive.Value ? TripleBuffer<DrawBufferData>.DEFAULT_READ_TIMEOUT : 0);
             }
 
             if (buffer == null)
                 return;
 
-            Debug.Assert(buffer.Object != null);
-
             try
             {
+                if (buffer.Object is not DrawBufferData data)
+                    return;
+
+                DrawNode rootNode = data.Node;
+                ulong bufferFrameCount = data.FrameCount;
+
+                LatencyMark(LatencyMarker.RenderSubmitStart, bufferFrameCount);
+
                 using (drawMonitor.BeginCollecting(PerformanceCollectionType.DrawReset))
                     Renderer.BeginFrame(new Vector2(Window.ClientSize.Width, Window.ClientSize.Height));
 
@@ -540,7 +562,7 @@ namespace osu.Framework.Platform
                     Renderer.PushDepthInfo(DepthInfo.Default);
 
                     // Front pass
-                    DrawNode.DrawOtherOpaqueInterior(buffer.Object, Renderer);
+                    DrawNode.DrawOtherOpaqueInterior(rootNode, Renderer);
 
                     Renderer.PopDepthInfo();
                     Renderer.SetBlendMask(BlendingMask.All);
@@ -555,14 +577,20 @@ namespace osu.Framework.Platform
                 }
 
                 // Back pass
-                DrawNode.DrawOther(buffer.Object, Renderer);
+                DrawNode.DrawOther(rootNode, Renderer);
 
                 Renderer.PopDepthInfo();
 
                 Renderer.FinishFrame();
 
+                LatencyMark(LatencyMarker.RenderSubmitEnd, bufferFrameCount);
+
                 using (drawMonitor.BeginCollecting(PerformanceCollectionType.SwapBuffer))
+                {
+                    LatencyMark(LatencyMarker.PresentStart, bufferFrameCount);
                     Swap();
+                    LatencyMark(LatencyMarker.PresentEnd, bufferFrameCount);
+                }
 
                 Window.OnDraw();
                 didRenderFrame = true;
@@ -1213,6 +1241,8 @@ namespace osu.Framework.Platform
 
         private Bindable<FrameSync> frameSyncMode;
 
+        private Bindable<LatencyMode> latencyMode;
+
         private IBindable<DisplayMode> currentDisplayMode;
 
         private Bindable<string> ignoredInputHandlers;
@@ -1250,6 +1280,9 @@ namespace osu.Framework.Platform
 
             frameSyncMode = Config.GetBindable<FrameSync>(FrameworkSetting.FrameSync);
             frameSyncMode.ValueChanged += _ => updateFrameSyncMode();
+
+            latencyMode = Config.GetBindable<LatencyMode>(FrameworkSetting.LatencyMode);
+            latencyMode.BindValueChanged(mode => setLowLatencyMode(mode.NewValue), true);
 
 #pragma warning disable 618
             // pragma region can be removed 20210911
@@ -1350,6 +1383,11 @@ namespace osu.Framework.Platform
                     updateLimiter *= 2;
                     break;
 
+                case FrameSync.UVSync:
+                    drawLimiter = refreshRate;
+                    updateLimiter = refreshRate;
+                    break;
+
                 case FrameSync.Limit2x:
                     drawLimiter *= 2;
                     updateLimiter *= 2;
@@ -1369,6 +1407,19 @@ namespace osu.Framework.Platform
                     drawLimiter = int.MaxValue;
                     updateLimiter = int.MaxValue;
                     break;
+
+                case FrameSync.Custom:
+                    drawLimiter = Config.GetBindable<int>(FrameworkSetting.CustomDrawLimit).Value;
+                    updateLimiter = int.MaxValue;
+                    break;
+            }
+
+            // If low latency is enabled, we want to limit the draw thread to refresh rate as anything above is unnecessary.
+            // Keep Update thread at 1000hz for input & audio responsiveness.
+            if (lowLatencyInitialized && latencyMode.Value != LatencyMode.Off)
+            {
+                drawLimiter = refreshRate;
+                updateLimiter = int.MaxValue;
             }
 
             if (!AllowBenchmarkUnlimitedFrames)

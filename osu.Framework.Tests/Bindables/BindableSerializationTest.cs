@@ -3,6 +3,7 @@
 
 #nullable disable
 
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using osu.Framework.Bindables;
@@ -10,6 +11,7 @@ using osu.Framework.Bindables;
 namespace osu.Framework.Tests.Bindables
 {
     [TestFixture]
+    [UnconditionalSuppressMessage("Trimming", "IL2026:RequiresUnreferencedCode", Justification = "Serialization tests intentionally use reflection-based JSON APIs.")]
     public class BindableSerializationTest
     {
         [Test]

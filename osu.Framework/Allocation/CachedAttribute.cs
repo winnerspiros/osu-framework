@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -122,6 +123,7 @@ namespace osu.Framework.Allocation
             Name = name;
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Types used with DI are preserved by the framework's dependency container.")]
         internal static CacheDependencyDelegate CreateActivator(Type type)
         {
             count_reflection_attributes.Value++;

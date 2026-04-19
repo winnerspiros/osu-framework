@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Tracing;
 using System.Reflection;
 using osu.Framework.Extensions.TypeExtensions;
@@ -43,6 +44,7 @@ namespace osu.Framework.Statistics
         private readonly GlobalStatistic<int> statRented = GlobalStatistics.Get<int>(arraypool_statistics_grouping, "Rented");
         private readonly GlobalStatistic<int> statReturned = GlobalStatistics.Get<int>(arraypool_statistics_grouping, "Returned");
 
+        [UnconditionalSuppressMessage("Trimming", "IL2057", Justification = "Debug/runtime inspection code; types are available at runtime.")]
         protected override void OnEventWritten(EventWrittenEventArgs data)
         {
             switch (data.EventSource.Name)

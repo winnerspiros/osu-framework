@@ -7,8 +7,10 @@
          so there's nothing to be worried about. -->
     <!-- IL2104: Suppress assembly-level trim warnings from third-party libraries we cannot annotate
          (HidSharpCore, Microsoft.Diagnostics.Runtime, Newtonsoft.Json, nunit.framework,
-          OpenTabletDriver, osuTK, ppy.Veldrid.SPIRV, SharpGen.Runtime, System.Private.Xml, Commons.Music.Midi). -->
-    <NoWarn>$(NoWarn);MT7091;IL2104</NoWarn>
+          OpenTabletDriver, osuTK, ppy.Veldrid.SPIRV, SharpGen.Runtime, System.Private.Xml, Commons.Music.Midi).
+         IL2026: Suppress ILLink warnings from System.Data.DataSet/DataTable XML serialization internals.
+         IL2045: Suppress ILLink warnings from compiler-generated delegate caches for platform attribute checks. -->
+    <NoWarn>$(NoWarn);MT7091;IL2104;IL2026;IL2045</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <!-- On debug configurations, we use Mono interpreter for faster compilation. -->

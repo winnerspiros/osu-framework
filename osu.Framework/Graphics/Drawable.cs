@@ -128,6 +128,7 @@ namespace osu.Framework.Graphics
         /// </summary>
         internal virtual void UnbindAllBindablesSubTree() => UnbindAllBindables();
 
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Drawable types are preserved by the framework's scene graph.")]
         private Action<object> getUnbindAction()
         {
             Type ourType = GetType();

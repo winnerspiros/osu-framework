@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -44,6 +45,7 @@ namespace osu.Framework.Allocation
             this.permitNulls = permitNulls;
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Types used with DI are preserved by the framework's dependency container.")]
         internal static InjectDependencyDelegate CreateActivator(Type type)
         {
             count_reflection_attributes.Value++;

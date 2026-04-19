@@ -5,11 +5,13 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
 using NUnit.Framework.Interfaces;
@@ -442,6 +444,7 @@ namespace osu.Framework.Testing
             });
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Test types are always preserved.")]
         internal void RunSetUpSteps()
         {
             addStepsAsSetupSteps = true;
@@ -450,6 +453,7 @@ namespace osu.Framework.Testing
             addStepsAsSetupSteps = false;
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Test types are always preserved.")]
         internal void RunTearDownSteps()
         {
             foreach (var method in ReflectionUtils.GetMethodsWithAttribute(GetType(), typeof(TearDownStepsAttribute), true))

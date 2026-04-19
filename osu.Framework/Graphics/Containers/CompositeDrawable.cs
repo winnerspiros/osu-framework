@@ -6,11 +6,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
+using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 using osu.Framework.Allocation;
 using osu.Framework.Development;
 using osu.Framework.Extensions.EnumExtensions;
@@ -247,6 +248,7 @@ namespace osu.Framework.Graphics.Containers
         }
 
         [BackgroundDependencyLoader(true)]
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Drawable types are preserved by the framework's scene graph.")]
         private void load(ShaderManager shaders, CancellationToken? cancellation)
         {
             hasCustomDrawNode = GetType().GetMethod(nameof(CreateDrawNode))?.DeclaringType != typeof(CompositeDrawable);

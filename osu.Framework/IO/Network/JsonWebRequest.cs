@@ -3,6 +3,7 @@
 
 #nullable disable
 
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace osu.Framework.IO.Network
@@ -20,6 +21,7 @@ namespace osu.Framework.IO.Network
         {
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Serialization types are preserved by the framework.")]
         protected override void ProcessResponse()
         {
             string response = GetResponseString();

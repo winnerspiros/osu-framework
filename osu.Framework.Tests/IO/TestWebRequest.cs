@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
@@ -509,6 +510,7 @@ namespace osu.Framework.Tests.IO
         /// Tests being able to abort + restart a request.
         /// </summary>
         [Test, Retry(5)]
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Test types are always preserved.")]
         public void TestEventUnbindOnCompletion([Values(true, false)] bool async)
         {
             var request = new JsonWebRequest<HttpBinGetResponse>($"{default_protocol}://{host}/get")
@@ -536,6 +538,7 @@ namespace osu.Framework.Tests.IO
         /// Tests being able to abort + restart a request.
         /// </summary>
         [Test, Retry(5)]
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Test types are always preserved.")]
         public void TestUnbindOnDispose([Values(true, false)] bool async)
         {
             var request = new JsonWebRequest<HttpBinGetResponse>($"{default_protocol}://{host}/get")
@@ -631,6 +634,7 @@ namespace osu.Framework.Tests.IO
         }
 
         [Test, Retry(5)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Test types are always preserved.")]
         public void TestPostWithJsonRequest([Values(true, false)] bool async)
         {
             var request = new JsonWebRequest<HttpBinPostResponse>($"{default_protocol}://{host}/post")
@@ -658,6 +662,7 @@ namespace osu.Framework.Tests.IO
         }
 
         [Test, Retry(5)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Test types are always preserved.")]
         public void TestNoContentPost([Values(true, false)] bool async)
         {
             var request = new WebRequest($"{default_protocol}://{host}/post")

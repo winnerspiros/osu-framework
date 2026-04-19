@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using osu.Framework.Allocation;
@@ -241,6 +242,7 @@ namespace osu.Framework.Graphics.Visualisation
 
         private static readonly Dictionary<Type, bool> is_type_valid_target_cache = new Dictionary<Type, bool>();
 
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Drawable types are preserved by the framework's scene graph.")]
         private void updateCursorTarget()
         {
             Drawable drawableTarget = null;

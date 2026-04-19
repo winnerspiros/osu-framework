@@ -390,6 +390,7 @@ namespace osu.Framework.Testing
         }
 
         [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Test types are preserved by the test framework.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Test types are preserved by the test framework.")]
         private void finishLoad(TestScene newTest, Action onCompletion)
         {
             if (CurrentTest != newTest)

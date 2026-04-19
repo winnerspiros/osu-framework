@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -44,6 +45,7 @@ namespace osu.Framework.Configuration
             bindToHandlersBindables();
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Serialization types are preserved by the framework.")]
         protected override bool PerformSave()
         {
             try
@@ -63,6 +65,7 @@ namespace osu.Framework.Configuration
             return false;
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Serialization types are preserved by the framework.")]
         protected override void PerformLoad()
         {
             if (storage.Exists(FILENAME))
@@ -90,6 +93,7 @@ namespace osu.Framework.Configuration
         /// Binds to all <see cref="Bindable{T}"/>s that the <see cref="InputHandlers"/> expose,
         /// and calls <see cref="ConfigManager.QueueBackgroundSave"/> when their values change.
         /// </summary>
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Reflection is used on types that are always preserved at runtime.")]
         private void bindToHandlersBindables()
         {
             foreach (var handler in InputHandlers)

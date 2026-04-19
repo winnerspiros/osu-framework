@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -147,6 +148,7 @@ namespace osu.Framework.Extensions
 
         public static string ToResolutionString(this Size size) => $"{size.Width}x{size.Height}";
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Reflection is used on types that are always preserved at runtime.")]
         public static Type[] GetLoadableTypes(this Assembly assembly)
         {
             ArgumentNullException.ThrowIfNull(assembly);
@@ -179,6 +181,8 @@ namespace osu.Framework.Extensions
         /// When the <see cref="LocalisableDescriptionAttribute.Name"/> specified in the <see cref="LocalisableDescriptionAttribute"/>
         /// does not match any of the existing members in <see cref="LocalisableDescriptionAttribute.DeclaringType"/>.
         /// </exception>
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Reflection is used on types that are always preserved at runtime.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2080", Justification = "Reflection is used on types that are always preserved at runtime.")]
         public static LocalisableString GetLocalisableDescription<T>(this T value)
         {
             if (value is LocalisableString localisable)
@@ -236,6 +240,7 @@ namespace osu.Framework.Extensions
         /// <remarks>
         /// If the passed value is already of type <see cref="string"/>, it will be returned.
         /// </remarks>
+        [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Reflection is used on types that are always preserved at runtime.")]
         public static string GetDescription(this object value)
         {
             if (value is string description)

@@ -5,9 +5,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using JetBrains.Annotations;
+using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Utils;
 
@@ -109,6 +110,7 @@ namespace osu.Framework.Platform
             }
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Reflection is used on types that are always preserved at runtime.")]
         public override Storage GetStorageForDirectory([NotNull] string path)
         {
             ArgumentNullException.ThrowIfNull(path);

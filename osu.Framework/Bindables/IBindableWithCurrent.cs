@@ -4,6 +4,7 @@
 #nullable disable
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Utils;
 
@@ -16,6 +17,7 @@ namespace osu.Framework.Bindables
         /// If the value type is one supported by the <see cref="BindableNumber{T}"/>, an instance of <see cref="BindableNumberWithCurrent{T}"/> will be returned.
         /// Otherwise an instance of <see cref="BindableWithCurrent{T}"/> will be returned instead.
         /// </summary>
+        [UnconditionalSuppressMessage("Trimming", "IL2091", Justification = "Types used with DI are preserved by the framework's dependency container.")]
         static IBindableWithCurrent<T> Create()
         {
             if (Validation.IsSupportedBindableNumberType<T>())

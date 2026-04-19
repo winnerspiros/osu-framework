@@ -7,10 +7,7 @@
     <!-- NullabilityInfoContextSupport is disabled by default for Android -->
     <NullabilityInfoContextSupport>true</NullabilityInfoContextSupport>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
-    <NoWarn>$(NoWarn);XA4218</NoWarn>
-    <!-- Suppress benign JAVAC warnings about Kotlin annotation enum constants
-         (AnnotationTarget.*, AnnotationRetention.BINARY) that Java doesn't recognise. -->
-    <AndroidJavacAdditionalArguments>-Xlint:-classfile</AndroidJavacAdditionalArguments>
+    <NoWarn>$(NoWarn);XA4218;JAVAC</NoWarn>
   </PropertyGroup>
   <!-- Android release performance optimizations -->
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

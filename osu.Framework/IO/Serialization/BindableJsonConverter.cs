@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using osu.Framework.Bindables;
 
@@ -18,6 +19,7 @@ namespace osu.Framework.IO.Serialization
         public override void WriteJson(JsonWriter writer, ISerializableBindable value, JsonSerializer serializer)
             => value.SerializeTo(writer, serializer);
 
+        [UnconditionalSuppressMessage("Trimming", "IL2067", Justification = "Serialization types are preserved by the framework.")]
         public override ISerializableBindable ReadJson(JsonReader reader, Type objectType, ISerializableBindable existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var bindable = existingValue ?? (ISerializableBindable)Activator.CreateInstance(objectType, true);

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using osu.Framework.Graphics.Cursor;
 using osu.Framework.Input;
@@ -115,6 +116,7 @@ namespace osu.Framework.Graphics
                 return value;
             }
 
+            [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Drawable types are preserved by the framework's scene graph.")]
             private static bool computeViaReflection(Type type, bool positional)
             {
                 string[] inputMethods = positional ? positional_input_methods : non_positional_input_methods;

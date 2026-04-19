@@ -374,13 +374,12 @@ namespace osu.Framework.Graphics.Veldrid
             // D3D12 uses the same DXGI factory; query the adapter via the factory pointer.
             var dxgiFactory = MarshallingHelpers.FromPointer<IDXGIFactory4>(info.DxgiFactory).AsNonNull();
 
-            IDXGIAdapter? adapter = null;
             string adapterDescription = "Unknown";
             long dedicatedVideoMemory = 0;
             long dedicatedSystemMemory = 0;
             long sharedSystemMemory = 0;
 
-            if (dxgiFactory.EnumAdapters(0, out adapter).Success && adapter != null)
+            if (dxgiFactory.EnumAdapters(0, out IDXGIAdapter? adapter).Success && adapter != null)
             {
                 var desc = adapter.Description;
                 adapterDescription = desc.Description;

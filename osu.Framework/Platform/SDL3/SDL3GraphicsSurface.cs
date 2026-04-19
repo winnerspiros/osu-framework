@@ -110,9 +110,9 @@ namespace osu.Framework.Platform.SDL3
         [SupportedOSPlatform("android")]
         private void tryEnableEglFrontBufferAutoRefresh()
         {
-            const int EGL_EXTENSIONS = 3;
-            const int EGL_TRUE = 1;
-            const int EGL_FRONT_BUFFER_AUTO_REFRESH_ANDROID = 0x314C;
+            const int egl_extensions = 3;
+            const int egl_true = 1;
+            const int egl_front_buffer_auto_refresh_android = 0x314C;
 
             try
             {
@@ -126,7 +126,7 @@ namespace osu.Framework.Platform.SDL3
                 }
 
                 // Check extension availability before calling eglSurfaceAttrib.
-                IntPtr extensionsPtr = eglQueryString(eglDisplay, EGL_EXTENSIONS);
+                IntPtr extensionsPtr = eglQueryString(eglDisplay, egl_extensions);
 
                 if (extensionsPtr == IntPtr.Zero)
                     return;
@@ -139,7 +139,7 @@ namespace osu.Framework.Platform.SDL3
                     return;
                 }
 
-                int result = eglSurfaceAttrib(eglDisplay, eglSurface, EGL_FRONT_BUFFER_AUTO_REFRESH_ANDROID, EGL_TRUE);
+                int result = eglSurfaceAttrib(eglDisplay, eglSurface, egl_front_buffer_auto_refresh_android, egl_true);
 
                 Logger.Log($"EGL front buffer auto-refresh: {(result != 0 ? "enabled" : "failed to enable")}.", LoggingTarget.Runtime, LogLevel.Important);
             }

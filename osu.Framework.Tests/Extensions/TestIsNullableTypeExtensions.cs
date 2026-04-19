@@ -16,6 +16,7 @@ namespace osu.Framework.Tests.Extensions
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     [SuppressMessage("ReSharper", "ValueParameterNotUsed")]
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Test types are always preserved.")]
     public class TestIsNullableTypeExtensions
     {
         private const BindingFlags binding_flags = BindingFlags.Instance | BindingFlags.NonPublic;

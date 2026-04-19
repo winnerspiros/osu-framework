@@ -81,7 +81,7 @@ This fork ([winnerspiros/osu-framework](https://github.com/winnerspiros/osu-fram
 ### iOS build configuration
 
 - `SupportedOSPlatformVersion` remains at **13.4**.
-- Trim analysis warnings in test code fixed with `[DynamicallyAccessedMembers]` and `[UnconditionalSuppressMessage]` annotations.
+- Trim analysis warnings (`IL2026`/`IL2045`/`IL2060`/`IL2070`/`IL2072`/`IL2075`/`IL2091`/`IL2104`) in framework and test code suppressed with `[DynamicallyAccessedMembers]`, `[UnconditionalSuppressMessage]` annotations, and `<NoWarn>` in `osu.Framework.iOS.props`.
 
 ### Performance optimisations
 

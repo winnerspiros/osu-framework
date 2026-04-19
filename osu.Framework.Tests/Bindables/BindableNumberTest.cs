@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using NUnit.Framework;
 using osu.Framework.Bindables;
@@ -41,6 +42,8 @@ namespace osu.Framework.Tests.Bindables
         /// Tests that value can be set on all supported <see cref="BindableNumber{T}"/> types.
         /// </summary>
         [TestCaseSource(nameof(typeSource))]
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Test types are always preserved.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2060", Justification = "Test types are always preserved.")]
         public void TestSetValue(Type type)
         {
             object expectedValue = Convert.ChangeType(1, type);
@@ -87,6 +90,8 @@ namespace osu.Framework.Tests.Bindables
         /// Tests that value can be added to on all supported <see cref="BindableNumber{T}"/> types.
         /// </summary>
         [TestCaseSource(nameof(typeSource))]
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Test types are always preserved.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2060", Justification = "Test types are always preserved.")]
         public void TestAddValue(Type type)
         {
             object expectedValue = Convert.ChangeType(1, type);
@@ -139,6 +144,8 @@ namespace osu.Framework.Tests.Bindables
             Assert.That(bindable1ValueChange, Is.EqualTo(4));
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2091", Justification = "Test types are always preserved.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Test types are always preserved.")]
         private object createBindable(Type type) => Activator.CreateInstance(typeof(BindableNumber<>).MakeGenericType(type), Convert.ChangeType(0, type));
     }
 }

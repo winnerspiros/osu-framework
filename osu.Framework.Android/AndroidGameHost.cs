@@ -50,11 +50,11 @@ namespace osu.Framework.Android
             try
             {
                 Android.OS.Process.SetThreadPriority(Android.OS.ThreadPriority.Display);
-                Logging.Logger.Log("Android thread priority set to THREAD_PRIORITY_DISPLAY.", Logging.LoggingTarget.Runtime, Logging.LogLevel.Important);
+                Logger.Log("Android thread priority set to THREAD_PRIORITY_DISPLAY.", LoggingTarget.Runtime, LogLevel.Important);
             }
             catch (Exception ex)
             {
-                Logging.Logger.Log($"Failed to set Android thread priority: {ex.Message}", Logging.LoggingTarget.Runtime, Logging.LogLevel.Debug);
+                Logger.Log($"Failed to set Android thread priority: {ex.Message}", LoggingTarget.Runtime, LogLevel.Debug);
             }
         }
 

@@ -49,7 +49,7 @@ namespace osu.Framework.Android
             // including rendering. This gives the rendering work higher scheduler priority.
             try
             {
-                Android.OS.Process.SetThreadPriority(Android.OS.ThreadPriority.Display);
+                global::Android.OS.Process.SetThreadPriority(global::Android.OS.ThreadPriority.Display);
                 Logger.Log("Android thread priority set to THREAD_PRIORITY_DISPLAY.", LoggingTarget.Runtime, LogLevel.Important);
             }
             catch (Exception ex)

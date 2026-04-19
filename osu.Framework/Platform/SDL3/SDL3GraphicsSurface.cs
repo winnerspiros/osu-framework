@@ -136,9 +136,9 @@ namespace osu.Framework.Platform.SDL3
                     return;
                 }
 
-                bool success = eglSurfaceAttrib(eglDisplay, eglSurface, egl_front_buffer_auto_refresh_android, 1 /* EGL_TRUE */);
+                int result = eglSurfaceAttrib(eglDisplay, eglSurface, egl_front_buffer_auto_refresh_android, 1 /* EGL_TRUE */);
 
-                Logger.Log($"EGL front buffer auto-refresh: {(success ? "enabled" : "failed to enable")}.", LoggingTarget.Runtime, LogLevel.Important);
+                Logger.Log($"EGL front buffer auto-refresh: {(result != 0 ? "enabled" : "failed to enable")}.", LoggingTarget.Runtime, LogLevel.Important);
             }
             catch (Exception ex)
             {
@@ -147,8 +147,7 @@ namespace osu.Framework.Platform.SDL3
         }
 
         [DllImport("libEGL", EntryPoint = "eglSurfaceAttrib")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool eglSurfaceAttrib(IntPtr display, IntPtr surface, int attribute, int value);
+        private static extern int eglSurfaceAttrib(IntPtr display, IntPtr surface, int attribute, int value);
 
         [DllImport("libEGL", EntryPoint = "eglQueryString")]
         private static extern IntPtr eglQueryString(IntPtr display, int name);

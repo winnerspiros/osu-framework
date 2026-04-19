@@ -7,7 +7,7 @@
     <!-- NullabilityInfoContextSupport is disabled by default for Android -->
     <NullabilityInfoContextSupport>true</NullabilityInfoContextSupport>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
-    <NoWarn>$(NoWarn);XA4218</NoWarn>
+    <NoWarn>$(NoWarn);XA4218;JAVAC</NoWarn>
   </PropertyGroup>
   <!-- Android release performance optimizations -->
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

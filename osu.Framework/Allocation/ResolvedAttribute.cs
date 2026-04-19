@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -74,6 +75,7 @@ namespace osu.Framework.Allocation
             CanBeNull = canBeNull;
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Types used with DI are preserved by the framework's dependency container.")]
         internal static InjectDependencyDelegate CreateActivator(Type type)
         {
             count_reflection_attributes.Value++;

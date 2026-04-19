@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Pipes;
 using System.Text;
@@ -159,6 +160,7 @@ namespace osu.Framework.Platform
             }
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "IPC serialization uses known types at runtime.")]
         private static async Task send(Stream stream, IpcMessage message)
         {
             string str = JsonConvert.SerializeObject(message, Formatting.None);
@@ -170,6 +172,8 @@ namespace osu.Framework.Platform
             await stream.FlushAsync().ConfigureAwait(false);
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "IPC serialization uses known types at runtime.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2057", Justification = "IPC serialization uses known types at runtime.")]
         private static async Task<IpcMessage?> receive(Stream stream, CancellationToken cancellationToken = default)
         {
             const int header_length = sizeof(int);

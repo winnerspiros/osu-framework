@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -102,6 +103,7 @@ namespace osu.Framework.Platform.SDL2
             loadEntryPoints(new GL());
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "OpenGL binding entry points are always available at runtime.")]
         private unsafe void loadEntryPoints(GraphicsBindingsBase bindings)
         {
             var type = bindings.GetType();

@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
@@ -19,6 +20,7 @@ namespace osu.Framework.Extensions
         /// <remarks>
         /// This is only a naive check of attributes defined directly on this member, and doesn't account for the (un)supported platforms of the containing class or assembly.
         /// </remarks>
+        [UnconditionalSuppressMessage("Trimming", "IL2045", Justification = "Platform attributes are always preserved by the runtime.")]
         public static bool IsSupportedOnCurrentOSPlatform(this MemberInfo member)
         {
             var supported = member.GetCustomAttributes<SupportedOSPlatformAttribute>().ToArray();

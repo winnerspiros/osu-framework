@@ -3,11 +3,13 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using osu.Framework.Logging;
 using osuTK.Graphics;
 using osuTK.Graphics.ES30;
 using SDL;
@@ -44,6 +46,7 @@ namespace osu.Framework.Platform.SDL3
                 case GraphicsSurfaceType.Vulkan:
                 case GraphicsSurfaceType.Metal:
                 case GraphicsSurfaceType.Direct3D11:
+                case GraphicsSurfaceType.Direct3D12:
                     break;
 
                 default:
@@ -94,8 +97,64 @@ namespace osu.Framework.Platform.SDL3
 
             SDL_GL_MakeCurrent(window.SDLWindowHandle, context).ThrowIfFailed();
 
+            if (OperatingSystem.IsAndroid())
+                tryEnableEglFrontBufferAutoRefresh();
+
             loadBindings();
         }
+
+        /// <summary>
+        /// Attempts to enable <c>EGL_ANDROID_front_buffer_auto_refresh</c> on the current EGL surface.
+        /// When enabled, the display auto-refreshes from the front buffer, reducing latency
+        /// in unlocked frame rate (non-VSync) scenarios on Android.
+        /// </summary>
+        [SupportedOSPlatform("android")]
+        private void tryEnableEglFrontBufferAutoRefresh()
+        {
+            const int egl_extensions = 3;
+            const int egl_true = 1;
+            const int egl_front_buffer_auto_refresh_android = 0x314C;
+
+            try
+            {
+                IntPtr eglDisplay = SDL_EGL_GetCurrentDisplay();
+                IntPtr eglSurface = SDL_EGL_GetWindowSurface(window.SDLWindowHandle);
+
+                if (eglDisplay == IntPtr.Zero || eglSurface == IntPtr.Zero)
+                {
+                    Logger.Log("EGL front buffer auto-refresh: could not obtain EGL display/surface.", LoggingTarget.Runtime, LogLevel.Debug);
+                    return;
+                }
+
+                // Check extension availability before calling eglSurfaceAttrib.
+                IntPtr extensionsPtr = eglQueryString(eglDisplay, egl_extensions);
+
+                if (extensionsPtr == IntPtr.Zero)
+                    return;
+
+                string? extensions = Marshal.PtrToStringAnsi(extensionsPtr);
+
+                if (extensions == null || !extensions.Contains("EGL_ANDROID_front_buffer_auto_refresh"))
+                {
+                    Logger.Log("EGL_ANDROID_front_buffer_auto_refresh extension not available.", LoggingTarget.Runtime, LogLevel.Debug);
+                    return;
+                }
+
+                int result = eglSurfaceAttrib(eglDisplay, eglSurface, egl_front_buffer_auto_refresh_android, egl_true);
+
+                Logger.Log($"EGL front buffer auto-refresh: {(result != 0 ? "enabled" : "failed to enable")}.", LoggingTarget.Runtime, LogLevel.Important);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"EGL front buffer auto-refresh: exception during setup: {ex.Message}", LoggingTarget.Runtime, LogLevel.Debug);
+            }
+        }
+
+        [DllImport("libEGL", EntryPoint = "eglSurfaceAttrib")]
+        private static extern int eglSurfaceAttrib(IntPtr display, IntPtr surface, int attribute, int value);
+
+        [DllImport("libEGL", EntryPoint = "eglQueryString")]
+        private static extern IntPtr eglQueryString(IntPtr display, int name);
 
         private void loadBindings()
         {
@@ -106,6 +165,7 @@ namespace osu.Framework.Platform.SDL3
             loadEntryPoints(new GL());
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "OpenGL binding entry points are always available at runtime.")]
         private void loadEntryPoints(GraphicsBindingsBase bindings)
         {
             var type = bindings.GetType();

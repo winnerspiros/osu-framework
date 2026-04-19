@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,6 +21,7 @@ namespace osu.Framework.IO.Stores
         private readonly Assembly assembly;
         private readonly string prefix;
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Reflection is used on types that are always preserved at runtime.")]
         public DllResourceStore(string dllName)
         {
             string filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location).AsNonNull(), dllName);

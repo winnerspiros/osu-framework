@@ -81,13 +81,42 @@ This fork ([winnerspiros/osu-framework](https://github.com/winnerspiros/osu-fram
 ### iOS build configuration
 
 - `SupportedOSPlatformVersion` remains at **13.4**.
-- Trim analysis warnings in test code fixed with `[DynamicallyAccessedMembers]` and `[UnconditionalSuppressMessage]` annotations.
+- Trim analysis warnings (`IL2026`/`IL2045`/`IL2060`/`IL2070`/`IL2072`/`IL2075`/`IL2091`/`IL2104`) in framework and test code suppressed with `[DynamicallyAccessedMembers]`, `[UnconditionalSuppressMessage]` annotations, and `<NoWarn>` in `osu.Framework.iOS.props`.
 
 ### Performance optimisations
 
 - Hot-path LINQ allocations eliminated across the framework (replaced with `for` loops, span-based code, and cached collections).
 - `object`-based locks migrated to `System.Threading.Lock` for lower overhead on modern runtimes.
 - BASS audio, GL state-change, shader warm-up, texture upload, and mobile vertex-batching improvements.
+- **GridContainer cell sizing** uses `RequiredParentSizeToFit` instead of `BoundingBox`, avoiding redundant matrix-to-parent-space transforms on every layout pass ([upstream Issue #3215](https://github.com/ppy/osu-framework/issues/3215)).
+
+### Direct3D 12 renderer support
+
+- Added `RendererType.Direct3D12` / `RendererType.Deferred_Direct3D12` and `GraphicsSurfaceType.Direct3D12`.
+- Full pipeline: `VeldridDevice.CreateD3D12` swapchain creation, `LogD3D12` diagnostics (adapter info, Enhanced Barriers, Mesh Shaders, VRS, Raytracing support), and `PersistentStagingBuffer` staging.
+- D3D12 is included in the Windows renderer fallback order (after D3D11, before OpenGL).
+- Leverages the [winnerspiros/veldrid](https://github.com/winnerspiros/veldrid) submodule which contains a full D3D12 backend.
+
+### Low-latency rendering infrastructure
+
+- Generic `ILowLatencyProvider` interface for GPU-side latency reduction (NVIDIA Reflex, LatencyFlex, or any future API).
+  - `IDirect3D11LowLatencyProvider` (D3D11-specific) extends `ILowLatencyProvider`.
+  - `NoOpLowLatencyProvider` (default no-op) and `NoOpDirect3D11LowLatencyProvider` included.
+- Latency markers (`SimulationStart/End`, `RenderSubmitStart/End`, `PresentStart/End`, `InputSample`, `TriggerFlash`) inserted into `GameHost.UpdateFrame()` and `GameHost.DrawFrame()`.
+- `FrameSleep()` called at the start of each update frame for provider-controlled sleep (Reflex Boost mode).
+- Provider auto-initialises on the draw thread using the native D3D11 or D3D12 device handle from Veldrid's `BackendInfoD3D11` / `BackendInfoD3D12`.
+- `LatencyMode` setting (`Off` / `On` / `Boost`) added to `FrameworkConfigManager`.
+- Inspired by [upstream PR #6666](https://github.com/ppy/osu-framework/pull/6666).
+
+### Frame rate limiter enhancements
+
+- **Unbuffered VSync (`UVSync`)**: Limits both draw *and* update threads to the exact display refresh rate. Useful for VRR/G-Sync/FreeSync displays where regular VSync introduces unwanted buffering ([upstream PR #6696](https://github.com/ppy/osu-framework/pull/6696)).
+- **Custom FPS limiter**: `FrameSync.Custom` mode with a `CustomDrawLimit` setting (0–1000 Hz). When set to 0, the draw thread is unlimited. Update thread runs at max Hz. Useful for benchmarking or VRR-specific tuning ([upstream PR #6725](https://github.com/ppy/osu-framework/pull/6725)).
+
+### Input latency improvements
+
+- **Raw keyboard input on Windows**: `SDL_HINT_WINDOWS_RAW_KEYBOARD` enabled by default, bypassing the Windows message translation layer for lower-latency key events ([upstream PR #6507](https://github.com/ppy/osu-framework/pull/6507)).
+- **Async keyboard event handling**: When text input (IME) is not active, keyboard events (`KEY_DOWN`/`KEY_UP`) are handled directly in SDL's event filter (`HandleEventFromFilter`), bypassing the SDL event queue for reduced input-to-render latency ([upstream PR #6506](https://github.com/ppy/osu-framework/pull/6506)).
 
 ### Code quality
 

@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using NUnit.Framework;
@@ -96,6 +97,9 @@ namespace osu.Framework.Tests.Bindables
         }
 
         [TestCaseSource(nameof(getParsingConversionTests))]
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Test types are always preserved.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Test types are always preserved.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Test types are always preserved.")]
         public void TestParse(Type type, object input, object output)
         {
             object bindable = Activator.CreateInstance(typeof(Bindable<>).MakeGenericType(type), type == typeof(string) ? "" : Activator.CreateInstance(type));

@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -59,14 +60,16 @@ namespace osu.Framework.Development
 
         internal static Assembly NUnitTestAssembly => nunit_test_assembly.Value;
 
-        private static readonly Lazy<Assembly> nunit_test_assembly = new Lazy<Assembly>(() =>
-            {
-                Debug.Assert(IsNUnitRunning);
+        private static readonly Lazy<Assembly> nunit_test_assembly = new Lazy<Assembly>(findNUnitTestAssembly);
 
-                string testName = TestContext.CurrentContext.Test.ClassName.AsNonNull();
-                return AppDomain.CurrentDomain.GetAssemblies().First(asm => asm.GetType(testName) != null);
-            }
-        );
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Debug/runtime inspection code; types are available at runtime.")]
+        private static Assembly findNUnitTestAssembly()
+        {
+            Debug.Assert(IsNUnitRunning);
+
+            string testName = TestContext.CurrentContext.Test.ClassName.AsNonNull();
+            return AppDomain.CurrentDomain.GetAssemblies().First(asm => asm.GetType(testName) != null);
+        }
 
         public static bool IsDebugBuild => is_debug_build.Value;
 

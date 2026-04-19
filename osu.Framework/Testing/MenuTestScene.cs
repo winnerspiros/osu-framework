@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -64,6 +65,7 @@ namespace osu.Framework.Testing
             /// Finds the <see cref="Menu.DrawableMenuItem"/> index in the <see cref="Menu"/> represented by this <see cref="MenuStructure"/> that
             /// has <see cref="Menu.DrawableMenuItem.State"/> set to <see cref="MenuItemState.Selected"/>.
             /// </summary>
+            [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Test types are always preserved.")]
             public int GetSelectedIndex()
             {
                 var items = GetMenuItems();
@@ -83,6 +85,7 @@ namespace osu.Framework.Testing
             /// </summary>
             /// <param name="index">The index of the <see cref="Menu.DrawableMenuItem"/> to set the state of.</param>
             /// <param name="state">The state to be set.</param>
+            [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Test types are always preserved.")]
             public void SetSelectedState(int index, MenuItemState state)
             {
                 var item = GetMenuItems()[index];

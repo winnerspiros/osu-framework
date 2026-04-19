@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using osu.Framework.Extensions.TypeExtensions;
@@ -46,7 +47,7 @@ namespace osu.Framework.Development
         /// <param name="fixtureType">The type to examine.</param>
         /// <param name="attributeType">Only methods to which this attribute is applied will be returned.</param>
         /// <param name="inherit">Specifies whether to search the fixture type inheritance chain.</param>
-        internal static MethodInfo[] GetMethodsWithAttribute(Type fixtureType, Type attributeType, bool inherit)
+        internal static MethodInfo[] GetMethodsWithAttribute([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.NonPublicMethods)] Type fixtureType, Type attributeType, bool inherit)
         {
             if (!inherit)
             {

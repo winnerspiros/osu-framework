@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.TypeExtensions;
@@ -84,6 +85,7 @@ namespace osu.Framework.Allocation
         /// <param name="targetShadowModel">The shadow model to update.</param>
         /// <param name="lastModel">The model to unbind from.</param>
         /// <param name="newModel">The model to bind to.</param>
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Types used with DI are preserved by the framework's dependency container.")]
         private void updateShadowModel(TModel targetShadowModel, TModel? lastModel, TModel newModel)
         {
             if (lastModel != null)

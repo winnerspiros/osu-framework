@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -39,6 +40,7 @@ namespace osu.Framework.Configuration
             return existingList;
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Configuration types are preserved by the framework.")]
         public override void WriteJson(JsonWriter writer, IReadOnlyList<T> value, JsonSerializer serializer)
         {
             var objects = new List<JObject>();

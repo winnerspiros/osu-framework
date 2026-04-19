@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.IO;
 using osu.Framework.Extensions.ObjectExtensions;
@@ -85,6 +86,7 @@ namespace osu.Framework.Platform
         /// </summary>
         /// <param name="path">The subdirectory to use as a root.</param>
         /// <returns>A more specific storage.</returns>
+        [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Storage subclass types are preserved by the framework.")]
         public virtual Storage GetStorageForDirectory(string path)
         {
             if (string.IsNullOrEmpty(path))

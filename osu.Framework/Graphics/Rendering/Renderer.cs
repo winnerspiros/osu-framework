@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -1292,6 +1293,7 @@ namespace osu.Framework.Graphics.Rendering
             return CreateShaderStorageBufferObject<TData>(uboSize, ssboSize);
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2090", Justification = "Uniform layout types are compile-time constants and always preserved.")]
         private void validateUniformLayout<TData>()
         {
             if (validUboTypes.Contains(typeof(TData)))

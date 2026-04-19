@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -347,6 +348,7 @@ namespace osu.Framework.Testing
         {
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2067", Justification = "Test types are preserved by the test framework.")]
         public void LoadTest(Type testType = null, Action onCompletion = null, bool isHotReload = false)
         {
             if (CurrentTest?.Parent != null)
@@ -387,6 +389,7 @@ namespace osu.Framework.Testing
                 RecordState.Value = Testing.RecordState.Normal;
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Test types are preserved by the test framework.")]
         private void finishLoad(TestScene newTest, Action onCompletion)
         {
             if (CurrentTest != newTest)
@@ -528,6 +531,8 @@ namespace osu.Framework.Testing
             }
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2072:Target parameter of method", Justification = "Test source types are preserved by the test framework.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Test source types are preserved by the test framework.")]
         private static IEnumerable getTestCaseSourceValue(MethodInfo testMethod, TestCaseSourceAttribute tcs)
         {
             var sourceDeclaringType = tcs.SourceType ?? testMethod.DeclaringType;

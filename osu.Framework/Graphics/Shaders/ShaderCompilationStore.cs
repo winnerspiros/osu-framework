@@ -80,6 +80,7 @@ namespace osu.Framework.Graphics.Shaders
             return compilation;
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Shader compilation types are known and preserved.")]
         private bool tryGetCached<T>(string filename, [NotNullWhen(true)] out T? compilation)
             where T : class
         {
@@ -126,6 +127,7 @@ namespace osu.Framework.Graphics.Shaders
 
         private static readonly Lock save_lock = new();
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Shader compilation types are known and preserved.")]
         private void saveToCache(string filename, object compilation)
         {
             // Multiple save operations could happen in parallel due to the asynchronous

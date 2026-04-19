@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using osu.Framework.Graphics.Rendering.Vertices;
@@ -35,6 +36,7 @@ namespace osu.Framework.Graphics.Veldrid.Vertices
             Layout = new VertexLayoutDescription(elements.ToArray());
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Vertex types are compile-time constants and always preserved.")]
         private static void addAttributesRecursive(Type type, int currentOffset)
         {
             foreach (FieldInfo field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))

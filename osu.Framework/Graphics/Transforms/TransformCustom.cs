@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -81,6 +82,7 @@ namespace osu.Framework.Graphics.Transforms
             return setter.CreateDelegate<WriteFunc>();
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Transform target types are preserved by the framework.")]
         private static Accessor findAccessor(Type type, string propertyOrFieldName)
         {
             PropertyInfo property = type.GetProperty(propertyOrFieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);

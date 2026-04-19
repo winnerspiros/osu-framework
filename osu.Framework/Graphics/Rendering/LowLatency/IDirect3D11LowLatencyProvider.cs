@@ -5,16 +5,10 @@ using System;
 
 namespace osu.Framework.Graphics.Rendering.LowLatency
 {
-    public interface IDirect3D11LowLatencyProvider
+    /// <summary>
+    /// Low-latency provider specifically for Direct3D 11 backends (e.g. NVIDIA Reflex via D3D11).
+    /// </summary>
+    public interface IDirect3D11LowLatencyProvider : ILowLatencyProvider
     {
-        bool IsAvailable { get; }
-
-        void Initialize(IntPtr nativeDeviceHandle);
-
-        void SetMode(LatencyMode mode);
-
-        void SetMarker(LatencyMarker marker, ulong frameId);
-
-        void FrameSleep();
     }
 }

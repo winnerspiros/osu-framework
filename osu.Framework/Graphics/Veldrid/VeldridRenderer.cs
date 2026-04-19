@@ -347,6 +347,7 @@ namespace osu.Framework.Graphics.Veldrid
                     switch (Device.BackendType)
                     {
                         case GraphicsBackend.Direct3D11:
+                        case GraphicsBackend.Direct3D12:
                         case GraphicsBackend.Vulkan:
                             return new PersistentStagingBuffer<T>(this, count);
 

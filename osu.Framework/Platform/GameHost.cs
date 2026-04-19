@@ -875,7 +875,9 @@ namespace osu.Framework.Platform
             {
                 case RuntimeInfo.Platform.Windows:
                     yield return RendererType.Direct3D11;
+                    yield return RendererType.Direct3D12;
                     yield return RendererType.Deferred_Direct3D11;
+                    yield return RendererType.Deferred_Direct3D12;
                     yield return RendererType.OpenGL;
                     yield return RendererType.Deferred_Vulkan;
 
@@ -954,6 +956,7 @@ namespace osu.Framework.Platform
                         case RendererType.Deferred_Metal:
                         case RendererType.Deferred_Vulkan:
                         case RendererType.Deferred_Direct3D11:
+                        case RendererType.Deferred_Direct3D12:
                         case RendererType.Deferred_OpenGL:
                             SetupRendererAndWindow(new DeferredRenderer(), rendererToGraphicsSurfaceType(type));
                             break;
@@ -1000,6 +1003,11 @@ namespace osu.Framework.Platform
                 case RendererType.Deferred_Direct3D11:
                 case RendererType.Direct3D11:
                     surface = GraphicsSurfaceType.Direct3D11;
+                    break;
+
+                case RendererType.Deferred_Direct3D12:
+                case RendererType.Direct3D12:
+                    surface = GraphicsSurfaceType.Direct3D12;
                     break;
 
                 case RendererType.Deferred_OpenGL:
@@ -1437,6 +1445,103 @@ namespace osu.Framework.Platform
             if (Window == null) return;
 
             DrawThread.Scheduler.Add(() => Renderer.VerticalSync = frameSyncMode.Value == FrameSync.VSync);
+        }
+
+        private ILowLatencyProvider lowLatencyProvider = NoOpLowLatencyProvider.INSTANCE;
+        private bool lowLatencyInitialized;
+
+        /// <summary>
+        /// Set the low latency provider to be used by this host.
+        /// Accepts any <see cref="ILowLatencyProvider"/>, including D3D11-specific and D3D12-specific implementations.
+        /// </summary>
+        /// <param name="provider">The <see cref="ILowLatencyProvider"/> to use.</param>
+        public void SetLowLatencyProvider(ILowLatencyProvider provider)
+        {
+            lowLatencyProvider = provider ?? NoOpLowLatencyProvider.INSTANCE;
+            Logger.Log("Low latency provider set to: " + lowLatencyProvider.GetType().ReadableName());
+            TryInitializeLowLatencyProvider();
+        }
+
+        /// <summary>
+        /// Attempts to initialize the low latency provider if it has not already been initialized.
+        /// Supports both D3D11 and D3D12 backends — obtains the native device handle from whichever is active.
+        /// </summary>
+        internal void TryInitializeLowLatencyProvider()
+        {
+            if (lowLatencyInitialized || lowLatencyProvider is NoOpLowLatencyProvider) return;
+            if (Renderer is not IVeldridRenderer veldridRenderer || !Renderer.IsInitialised) return;
+
+            try
+            {
+                Logger.Log("Attempting to initialize low latency provider...");
+
+                IntPtr deviceHandle = IntPtr.Zero;
+
+                switch (veldridRenderer.Device.BackendType)
+                {
+                    case Veldrid.GraphicsBackend.Direct3D11:
+#pragma warning disable CA1416 // BackendInfoD3D11 is only reachable on Windows via Direct3D11 backend
+                        deviceHandle = veldridRenderer.Device.GetD3D11Info().Device;
+#pragma warning restore CA1416
+                        break;
+
+                    case Veldrid.GraphicsBackend.Direct3D12:
+#pragma warning disable CA1416 // BackendInfoD3D12 is only reachable on Windows via Direct3D12 backend
+                        deviceHandle = veldridRenderer.Device.GetD3D12Info().Device;
+#pragma warning restore CA1416
+                        break;
+                }
+
+                if (deviceHandle == IntPtr.Zero) return;
+
+                lowLatencyProvider.Initialize(deviceHandle);
+                setLowLatencyMode(latencyMode.Value);
+                lowLatencyInitialized = true;
+
+                Logger.Log($"Low latency provider initialized for {veldridRenderer.Device.BackendType}.");
+            }
+            catch (Exception e)
+            {
+                // Intentionally not logged as an error, as failure is expected (this method can be run before renderer initialization).
+                Logger.Log("Failed to initialize low latency provider: " + e, level: LogLevel.Important);
+            }
+        }
+
+        private void setLowLatencyMode(LatencyMode mode)
+        {
+            try
+            {
+                lowLatencyProvider.SetMode(mode);
+            }
+            catch (Exception e)
+            {
+                logException(e, "unobserved");
+            }
+        }
+
+        internal void LatencyMark(LatencyMarker marker, ulong frameId)
+        {
+            try
+            {
+                lowLatencyProvider.SetMarker(marker, frameId);
+            }
+            catch (Exception)
+            {
+                // WARNING: Do not log anything here or otherwise catch the error.
+                // This method is called extremely frequently (multiple times per frame) and doing so could cause massive performance degradation.
+            }
+        }
+
+        internal void FrameSleep()
+        {
+            try
+            {
+                lowLatencyProvider.FrameSleep();
+            }
+            catch (Exception e)
+            {
+                logException(e, "unobserved");
+            }
         }
 
         /// <summary>

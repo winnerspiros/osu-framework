@@ -364,6 +364,50 @@ namespace osu.Framework.Graphics.Veldrid
                         Direct3D 11 Shared System Memory:    {dxgiAdapter.Description.SharedSystemMemory / 1024 / 1024} MB");
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        public static void LogD3D12(this GraphicsDevice device, out int maxTextureSize)
+        {
+            Debug.Assert(device.BackendType == GraphicsBackend.Direct3D12);
+
+            var info = device.GetD3D12Info();
+
+            // D3D12 uses the same DXGI factory; query the adapter via the factory pointer.
+            var dxgiFactory = MarshallingHelpers.FromPointer<IDXGIFactory4>(info.DxgiFactory).AsNonNull();
+
+            IDXGIAdapter? adapter = null;
+            string adapterDescription = "Unknown";
+            long dedicatedVideoMemory = 0;
+            long dedicatedSystemMemory = 0;
+            long sharedSystemMemory = 0;
+
+            if (dxgiFactory.EnumAdapters(0, out adapter).Success && adapter != null)
+            {
+                var desc = adapter.Description;
+                adapterDescription = desc.Description;
+                dedicatedVideoMemory = desc.DedicatedVideoMemory / 1024 / 1024;
+                dedicatedSystemMemory = desc.DedicatedSystemMemory / 1024 / 1024;
+                sharedSystemMemory = desc.SharedSystemMemory / 1024 / 1024;
+            }
+
+            // D3D12 max texture size is 16384 (D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION)
+            maxTextureSize = 16384;
+
+            bool supportsEnhancedBarriers = info.SupportsEnhancedBarriers;
+            bool supportsMeshShaders = info.SupportsMeshShaders;
+            bool supportsVRS = info.SupportsVariableRateShading;
+            bool supportsRaytracing = info.SupportsRaytracing;
+
+            Logger.Log($@"Direct3D 12 Initialized
+                        Direct3D 12 Adapter:                 {adapterDescription}
+                        Direct3D 12 Dedicated Video Memory:  {dedicatedVideoMemory} MB
+                        Direct3D 12 Dedicated System Memory: {dedicatedSystemMemory} MB
+                        Direct3D 12 Shared System Memory:    {sharedSystemMemory} MB
+                        Direct3D 12 Enhanced Barriers:       {supportsEnhancedBarriers}
+                        Direct3D 12 Mesh Shaders:            {supportsMeshShaders}
+                        Direct3D 12 Variable Rate Shading:   {supportsVRS}
+                        Direct3D 12 Raytracing:              {supportsRaytracing}");
+        }
+
         public static unsafe void LogOpenGL(this GraphicsDevice device, out int maxTextureSize)
         {
             var info = device.GetOpenGLInfo();

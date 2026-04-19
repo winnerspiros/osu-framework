@@ -222,6 +222,7 @@ namespace osu.Framework.Platform.SDL3
             SDL_SetHint(SDL_HINT_PEN_TOUCH_EVENTS, "0"u8).LogErrorIfFailed();
             SDL_SetHint(SDL_HINT_PEN_MOUSE_EVENTS, "0"u8).LogErrorIfFailed();
             SDL_SetHint(SDL_HINT_IME_IMPLEMENTED_UI, "composition"u8).LogErrorIfFailed();
+            SDL_SetHint(SDL_HINT_WINDOWS_RAW_KEYBOARD, "1"u8).LogErrorIfFailed();
 
             SDLWindowHandle = SDL_CreateWindow(Title, Size.Width, Size.Height, flags);
 
@@ -319,6 +320,18 @@ namespace osu.Framework.Platform.SDL3
 
                 case SDL_EventType.SDL_EVENT_LOW_MEMORY:
                     LowOnMemory?.Invoke();
+                    break;
+
+                // When text input is disabled, handle keyboard events asynchronously in the event filter
+                // to bypass the SDL event queue for lower latency (matches raw keyboard input path).
+                case SDL_EventType.SDL_EVENT_KEY_DOWN:
+                case SDL_EventType.SDL_EVENT_KEY_UP:
+                    if (!SDL_TextInputActive(SDLWindowHandle))
+                    {
+                        handleKeyboardEvent(e.key);
+                        return false;
+                    }
+
                     break;
 
                 case SDL_EventType.SDL_EVENT_MOUSE_MOTION:

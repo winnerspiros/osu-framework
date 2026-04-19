@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using osu.Framework.Logging;
 using osuTK.Graphics;
 using osuTK.Graphics.ES30;
 using SDL;
@@ -94,8 +95,63 @@ namespace osu.Framework.Platform.SDL3
 
             SDL_GL_MakeCurrent(window.SDLWindowHandle, context).ThrowIfFailed();
 
+            if (OperatingSystem.IsAndroid())
+                tryEnableEglFrontBufferAutoRefresh();
+
             loadBindings();
         }
+
+        /// <summary>
+        /// Attempts to enable <c>EGL_ANDROID_front_buffer_auto_refresh</c> on the current EGL surface.
+        /// When enabled, the display auto-refreshes from the front buffer, reducing latency
+        /// in unlocked frame rate (non-VSync) scenarios on Android.
+        /// </summary>
+        [SupportedOSPlatform("android")]
+        private void tryEnableEglFrontBufferAutoRefresh()
+        {
+            const int egl_front_buffer_auto_refresh_android = 0x314C;
+
+            try
+            {
+                IntPtr eglDisplay = SDL_EGL_GetCurrentDisplay();
+                IntPtr eglSurface = SDL_EGL_GetWindowSurface(window.SDLWindowHandle);
+
+                if (eglDisplay == IntPtr.Zero || eglSurface == IntPtr.Zero)
+                {
+                    Logger.Log("EGL front buffer auto-refresh: could not obtain EGL display/surface.", LoggingTarget.Runtime, LogLevel.Debug);
+                    return;
+                }
+
+                // Check extension availability before calling eglSurfaceAttrib.
+                IntPtr extensionsPtr = eglQueryString(eglDisplay, 3 /* EGL_EXTENSIONS */);
+
+                if (extensionsPtr == IntPtr.Zero)
+                    return;
+
+                string? extensions = Marshal.PtrToStringAnsi(extensionsPtr);
+
+                if (extensions == null || !extensions.Contains("EGL_ANDROID_front_buffer_auto_refresh"))
+                {
+                    Logger.Log("EGL_ANDROID_front_buffer_auto_refresh extension not available.", LoggingTarget.Runtime, LogLevel.Debug);
+                    return;
+                }
+
+                bool success = eglSurfaceAttrib(eglDisplay, eglSurface, egl_front_buffer_auto_refresh_android, 1 /* EGL_TRUE */);
+
+                Logger.Log($"EGL front buffer auto-refresh: {(success ? "enabled" : "failed to enable")}.", LoggingTarget.Runtime, LogLevel.Important);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"EGL front buffer auto-refresh: exception during setup: {ex.Message}", LoggingTarget.Runtime, LogLevel.Debug);
+            }
+        }
+
+        [DllImport("libEGL", EntryPoint = "eglSurfaceAttrib")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool eglSurfaceAttrib(IntPtr display, IntPtr surface, int attribute, int value);
+
+        [DllImport("libEGL", EntryPoint = "eglQueryString")]
+        private static extern IntPtr eglQueryString(IntPtr display, int name);
 
         private void loadBindings()
         {

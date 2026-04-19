@@ -40,6 +40,24 @@ namespace osu.Framework.Android
             base.SetupConfig(defaultOverrides);
         }
 
+        protected override void SetupForRun()
+        {
+            base.SetupForRun();
+
+            // Set the main thread to THREAD_PRIORITY_DISPLAY (-4) for scheduler prioritisation.
+            // In SingleThread mode (the default on Android), the main thread handles all game threads
+            // including rendering. This gives the rendering work higher scheduler priority.
+            try
+            {
+                Android.OS.Process.SetThreadPriority(Android.OS.ThreadPriority.Display);
+                Logging.Logger.Log("Android thread priority set to THREAD_PRIORITY_DISPLAY.", Logging.LoggingTarget.Runtime, Logging.LogLevel.Important);
+            }
+            catch (Exception ex)
+            {
+                Logging.Logger.Log($"Failed to set Android thread priority: {ex.Message}", Logging.LoggingTarget.Runtime, Logging.LogLevel.Debug);
+            }
+        }
+
         protected override IWindow CreateWindow(GraphicsSurfaceType preferredSurface) => new AndroidGameWindow(preferredSurface, Options.FriendlyGameName);
 
         protected override void DrawFrame()

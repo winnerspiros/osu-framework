@@ -54,6 +54,46 @@ Note that while we already have certain standards in place, nothing is set in st
 
 We love to reward quality contributions. If you have made a large contribution, or are a regular contributor, you are welcome to [submit an expense via opencollective](https://opencollective.com/ppy/expenses/new). If you have any questions, feel free to [reach out to peppy](mailto:pe@ppy.sh) before doing so.
 
+## Changes from upstream [ppy/osu-framework](https://github.com/ppy/osu-framework)
+
+This fork ([winnerspiros/osu-framework](https://github.com/winnerspiros/osu-framework)) includes the following changes on top of upstream:
+
+### Veldrid fork integration
+
+- Replaced the `ppy.Veldrid` NuGet package with a **`ProjectReference`** to [winnerspiros/veldrid](https://github.com/winnerspiros/veldrid) as a git submodule (`submodules/veldrid`).
+- The winnerspiros veldrid fork targets **net10.0 / C# 14**, uses `System.Threading.Lock`, and includes hot-path optimisations.
+- The transitive `ppy.Veldrid` NuGet pulled in by `ppy.Veldrid.SPIRV` is suppressed via `ExcludeAssets="all" PrivateAssets="all"`.
+- A `Directory.Build.targets` file suppresses code-style warnings from the veldrid submodule so CI passes cleanly.
+
+### .NET 10 upgrade
+
+- All projects target **net10.0** (with `net10.0-android` and `net10.0-ios` for mobile).
+- C# 14 language features are used throughout, including the `field` keyword for auto-properties (`IDE0032`).
+- CI workflows updated for .NET 10 SDK, Xcode 26.3, and Go 1.26.1.
+
+### Android build configuration
+
+- `SupportedOSPlatformVersion` bumped from **21.0 → 33.0** (Android 13 minimum).
+- `AndroidManifest.xml` files updated to `minSdkVersion="33"` / `targetSdkVersion="36"`.
+- Obsolete `READ_EXTERNAL_STORAGE` permission removed (only applied to API ≤ 32).
+- Release config: profiled AOT (`AndroidEnableProfiledAot`), partial trimming, `AndroidStripILAfterAOT=false` (avoids `plt_entry` crashes), `EnableLLVM` removed (incompatible with profiled AOT).
+
+### iOS build configuration
+
+- `SupportedOSPlatformVersion` remains at **13.4**.
+- Trim analysis warnings in test code fixed with `[DynamicallyAccessedMembers]` and `[UnconditionalSuppressMessage]` annotations.
+
+### Performance optimisations
+
+- Hot-path LINQ allocations eliminated across the framework (replaced with `for` loops, span-based code, and cached collections).
+- `object`-based locks migrated to `System.Threading.Lock` for lower overhead on modern runtimes.
+- BASS audio, GL state-change, shader warm-up, texture upload, and mobile vertex-batching improvements.
+
+### Code quality
+
+- All `IDE0032`, `IDE0055`, `IDE0057`, `IDE0042`, `IDE0062`, `IDE0270`, `IDE1006` code-style warnings resolved.
+- CI `CodeFileSanity` step updated to exclude the veldrid submodule directory.
+
 ## Licence
 
 This framework is licensed under the [MIT licence](https://opensource.org/licenses/MIT). Please see [the licence file](LICENCE) for more information. [tl;dr](https://tldrlegal.com/license/mit-license) you can do whatever you want as long as you include the original copyright and license notice in any copy of the software/source.

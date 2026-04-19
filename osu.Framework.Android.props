@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <SupportedOSPlatformVersion>30.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion>33.0</SupportedOSPlatformVersion>
     <RuntimeIdentifiers>android-x86;android-arm;android-arm64</RuntimeIdentifiers>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidMessageHandler</AndroidHttpClientHandlerType>
@@ -13,12 +13,12 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <RunAOTCompilation>true</RunAOTCompilation>
     <AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
-    <EnableLLVM>true</EnableLLVM>
     <!-- Enable trimming to reduce APK size and improve startup time. -->
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>partial</TrimMode>
-    <!-- Strip debug symbols from native libraries in release builds. -->
-    <AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>
+    <!-- Do not strip IL after AOT: with profiled AOT only startup-critical methods are compiled,
+         stripping removes the JIT fallback for everything else, causing plt_entry crashes. -->
+    <AndroidStripILAfterAOT>false</AndroidStripILAfterAOT>
     <!-- Disable globalization invariant mode only if needed; helps reduce binary size. -->
     <InvariantGlobalization>false</InvariantGlobalization>
   </PropertyGroup>

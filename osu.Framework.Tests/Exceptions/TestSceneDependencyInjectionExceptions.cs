@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using NUnit.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -80,9 +81,10 @@ namespace osu.Framework.Tests.Exceptions
         {
             public Exception ThrownException { get; private set; }
 
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
             private readonly Type exceptionType;
 
-            public AsyncThrower(Type exceptionType)
+            public AsyncThrower([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type exceptionType)
             {
                 this.exceptionType = exceptionType;
             }
@@ -110,10 +112,12 @@ namespace osu.Framework.Tests.Exceptions
 
         private partial class Thrower : Drawable
         {
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
             private readonly Type exceptionType;
+
             private readonly bool aggregate;
 
-            public Thrower(Type exceptionType, bool aggregate = false)
+            public Thrower([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type exceptionType, bool aggregate = false)
             {
                 this.exceptionType = exceptionType;
                 this.aggregate = aggregate;

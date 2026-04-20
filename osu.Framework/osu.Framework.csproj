@@ -26,15 +26,15 @@
     <PackageReference Include="ppy.ManagedBass.Fx" Version="2022.1216.0" />
     <PackageReference Include="ppy.ManagedBass.Mix" Version="2022.1216.0" />
     <PackageReference Include="ppy.ManagedBass.Wasapi" Version="2022.1216.0" />
-    <PackageReference Include="ppy.Veldrid.SPIRV" Version="1.0.15-gb268bf39ea" />
   </ItemGroup>
 
   <ItemGroup Label="Veldrid Submodule">
     <!-- Use winnerspiros/veldrid fork (net10.0, C# 14, System.Threading.Lock, optimized) instead of ppy NuGet package -->
     <ProjectReference Include="..\submodules\veldrid\src\Veldrid\Veldrid.csproj" />
-    <!-- Suppress the transitive ppy.Veldrid NuGet that ppy.Veldrid.SPIRV pulls in;
-         we supply the assembly via ProjectReference above. -->
-    <PackageReference Include="ppy.Veldrid" Version="4.9.69-ga405fe8484" ExcludeAssets="all" PrivateAssets="all" />
+    <!-- Use winnerspiros/veldrid-spirv fork built from source; only pull the pre-built native
+         libveldrid-spirvcross binaries from the NuGet package (managed DLL comes from the ProjectReference). -->
+    <ProjectReference Include="..\submodules\veldrid-spirv\src\Veldrid.SPIRV\Veldrid.SPIRV.csproj" />
+    <PackageReference Include="ppy.Veldrid.SPIRV" Version="1.0.15-gb268bf39ea" IncludeAssets="native" PrivateAssets="all" />
     <PackageReference Include="SharpFNT" Version="2.0.0" />
     <!-- Preview version of ImageSharp causes NU5104. -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />

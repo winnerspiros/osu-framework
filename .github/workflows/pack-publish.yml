@@ -18,6 +18,10 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   pack-framework:
     name: Pack (Framework)

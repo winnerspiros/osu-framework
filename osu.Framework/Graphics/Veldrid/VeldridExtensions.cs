@@ -339,7 +339,8 @@ namespace osu.Framework.Graphics.Veldrid
                 pipeline.ShaderSet.VertexLayouts[i].Elements = (VertexElementDescription[])pipeline.ShaderSet.VertexLayouts[i].Elements.Clone();
 
             pipeline.ShaderSet.Specializations = (SpecializationConstant[]?)pipeline.ShaderSet.Specializations?.Clone();
-            pipeline.ResourceLayouts = (ResourceLayout[])pipeline.ResourceLayouts.Clone();
+            if (pipeline.ResourceLayouts != null)
+                pipeline.ResourceLayouts = (ResourceLayout[])pipeline.ResourceLayouts.Clone();
             pipeline.Outputs.ColorAttachments = (OutputAttachmentDescription[])pipeline.Outputs.ColorAttachments.Clone();
 
             return pipeline;

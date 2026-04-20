@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading;
 using osu.Framework.Extensions;
 using osu.Framework.Logging;
@@ -295,8 +294,8 @@ namespace osu.Framework.Threading
                 if (timedTasks.Count % LOG_EXCESSSIVE_QUEUE_LENGTH_INTERVAL == 0)
                 {
                     Logger.Log($"{this} has {timedTasks.Count} timed tasks pending", LoggingTarget.Performance);
-                    Logger.Log($"- First task: {timedTasks.First()}", LoggingTarget.Performance);
-                    Logger.Log($"- Last task: {timedTasks.Last()}", LoggingTarget.Performance);
+                    Logger.Log($"- First task: {timedTasks[0]}", LoggingTarget.Performance);
+                    Logger.Log($"- Last task: {timedTasks[^1]}", LoggingTarget.Performance);
                 }
             }
         }
@@ -349,13 +348,14 @@ namespace osu.Framework.Threading
         {
             lock (queueLock)
             {
-                var existing = runQueue.OfType<ScheduledDelegateWithData<T>>().SingleOrDefault(sd => sd.Task == task);
-
-                if (existing != null)
+                foreach (var sd in runQueue)
                 {
-                    // ensure the single queued instance always has the most recent data.
-                    existing.Data = data;
-                    return false;
+                    if (sd is ScheduledDelegateWithData<T> existing && existing.Task == task)
+                    {
+                        // ensure the single queued instance always has the most recent data.
+                        existing.Data = data;
+                        return false;
+                    }
                 }
 
                 enqueue(new ScheduledDelegateWithData<T>(task, data));
@@ -374,8 +374,11 @@ namespace osu.Framework.Threading
         {
             lock (queueLock)
             {
-                if (runQueue.Any(sd => sd.Task == task))
-                    return false;
+                foreach (var sd in runQueue)
+                {
+                    if (sd.Task == task)
+                        return false;
+                }
 
                 enqueue(new ScheduledDelegate(task));
             }
@@ -385,12 +388,16 @@ namespace osu.Framework.Threading
 
         private void enqueue(ScheduledDelegate task)
         {
+            int count;
+
             lock (queueLock)
             {
                 runQueue.Enqueue(task);
-                if (runQueue.Count % LOG_EXCESSSIVE_QUEUE_LENGTH_INTERVAL == 0)
-                    Logger.Log($"{this} has {runQueue.Count} tasks pending", LoggingTarget.Performance);
+                count = runQueue.Count;
             }
+
+            if (count % LOG_EXCESSSIVE_QUEUE_LENGTH_INTERVAL == 0)
+                Logger.Log($"{this} has {count} tasks pending", LoggingTarget.Performance);
         }
     }
 }

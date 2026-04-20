@@ -113,11 +113,8 @@ namespace osu.Framework.Statistics
             {
                 PerformanceCollectionType t = currentCollectionTypeStack.Peek();
 
-                currentFrame.CollectedTimes.TryAdd(t, 0);
-                currentFrame.CollectedTimes[t] += workMs;
-
-                currentFrame.CollectedTimes.TryAdd(PerformanceCollectionType.GC, 0);
-                currentFrame.CollectedTimes[PerformanceCollectionType.GC] += pauseMs;
+                currentFrame.CollectedTimes[(int)t] += workMs;
+                currentFrame.CollectedTimes[(int)PerformanceCollectionType.GC] += pauseMs;
             }
 
             currentCollectionTypeStack.Push(type);
@@ -135,11 +132,8 @@ namespace osu.Framework.Statistics
 
             (double workMs, double pauseMs) = consumeStopwatchElapsedTime();
 
-            currentFrame.CollectedTimes.TryAdd(type, 0);
-            currentFrame.CollectedTimes[type] += workMs;
-
-            currentFrame.CollectedTimes.TryAdd(PerformanceCollectionType.GC, 0);
-            currentFrame.CollectedTimes[PerformanceCollectionType.GC] += pauseMs;
+            currentFrame.CollectedTimes[(int)type] += workMs;
+            currentFrame.CollectedTimes[(int)PerformanceCollectionType.GC] += pauseMs;
         }
 
         private readonly int[] lastAmountGarbageCollects = new int[3];
@@ -165,7 +159,7 @@ namespace osu.Framework.Statistics
                         globalStatistics[type] = global = GlobalStatistics.Get<long>(threadName, type.ToString());
 
                     global.Value = count;
-                    currentFrame.Counts[type] = count;
+                    currentFrame.Counts[i] = count;
                     currentFrame.FramesPerSecond = Clock.FramesPerSecond;
                     currentFrame.Jitter = Clock.Jitter;
 

@@ -42,7 +42,26 @@ namespace osu.Framework.Graphics.Transforms
         /// <summary>
         /// A lazily-initialized list of <see cref="Transform"/>s applied to this object.
         /// </summary>
-        public IEnumerable<Transform> Transforms => targetGroupingTrackers?.SelectMany(t => t.Transforms) ?? Array.Empty<Transform>();
+        public IEnumerable<Transform> Transforms
+        {
+            get
+            {
+                if (targetGroupingTrackers == null)
+                    return Array.Empty<Transform>();
+
+                return enumerateAllTransforms();
+            }
+        }
+
+        private IEnumerable<Transform> enumerateAllTransforms()
+        {
+            // ReSharper disable once PossibleNullReferenceException — guarded by caller
+            foreach (var tracker in targetGroupingTrackers)
+            {
+                for (int i = 0; i < tracker.Transforms.Count; i++)
+                    yield return tracker.Transforms[i];
+            }
+        }
 
         /// <summary>
         /// Retrieves the <see cref="Transform"/>s for a given target member.
@@ -50,7 +69,7 @@ namespace osu.Framework.Graphics.Transforms
         /// <param name="targetMember">The target member to find the <see cref="Transform"/>s for.</param>
         /// <returns>An enumeration over the transforms for the target member.</returns>
         public IEnumerable<Transform> TransformsForTargetMember(string targetMember) =>
-            getTrackerFor(targetMember)?.Transforms ?? Enumerable.Empty<Transform>();
+            getTrackerFor(targetMember)?.Transforms ?? Array.Empty<Transform>();
 
         /// <summary>
         /// The end time in milliseconds of the latest transform enqueued for this <see cref="Transformable"/>.

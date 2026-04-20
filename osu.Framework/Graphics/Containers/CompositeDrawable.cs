@@ -1053,19 +1053,25 @@ namespace osu.Framework.Graphics.Containers
             if ((invalidation & ~Invalidation.Layout) > 0)
                 targetChildren = internalChildren;
 
+            // Pre-compute flags that don't depend on per-child properties.
+            Invalidation baseChildInvalidation = invalidation;
+
+            if ((invalidation & Invalidation.RequiredParentSizeToFit) > 0)
+                baseChildInvalidation |= Invalidation.DrawInfo;
+
+            // Other geometry things like rotation, shearing, etc don't affect child properties.
+            baseChildInvalidation &= ~Invalidation.MiscGeometry;
+
+            bool hasDrawSizeInvalidation = (invalidation & Invalidation.DrawSize) > 0;
+
             for (int i = 0; i < targetChildren.Count; ++i)
             {
                 Drawable c = targetChildren[i];
 
-                Invalidation childInvalidation = invalidation;
-                if ((invalidation & Invalidation.RequiredParentSizeToFit) > 0)
-                    childInvalidation |= Invalidation.DrawInfo;
-
-                // Other geometry things like rotation, shearing, etc don't affect child properties.
-                childInvalidation &= ~Invalidation.MiscGeometry;
+                Invalidation childInvalidation = baseChildInvalidation;
 
                 // Relative positioning can however affect child geometry.
-                if (c.RelativePositionAxes != Axes.None && (invalidation & Invalidation.DrawSize) > 0)
+                if (c.RelativePositionAxes != Axes.None && hasDrawSizeInvalidation)
                     childInvalidation |= Invalidation.MiscGeometry;
 
                 // No draw size changes if relative size axes does not propagate it downward.

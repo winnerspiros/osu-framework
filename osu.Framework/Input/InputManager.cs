@@ -660,9 +660,7 @@ namespace osu.Framework.Input
             hoverHandledDrawable = null;
 
             lastHoveredDrawables.Clear();
-
-            foreach (var d in hoveredDrawables)
-                lastHoveredDrawables.Add(d);
+            lastHoveredDrawables.UnionWith(hoveredDrawables);
 
             hoveredDrawables.Clear();
 

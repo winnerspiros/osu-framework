@@ -30,11 +30,17 @@
   </ItemGroup>
 
   <ItemGroup Label="Veldrid Submodule">
-    <!-- Use winnerspiros/veldrid fork (net10.0, C# 14, System.Threading.Lock, optimized) instead of ppy NuGet package -->
-    <ProjectReference Include="..\submodules\veldrid\src\Veldrid\Veldrid.csproj" />
-    <!-- Suppress the transitive ppy.Veldrid NuGet that ppy.Veldrid.SPIRV pulls in;
-         we supply the assembly via ProjectReference above. -->
-    <PackageReference Include="ppy.Veldrid" Version="4.9.69-ga405fe8484" ExcludeAssets="all" PrivateAssets="all" />
+    <!-- Use winnerspiros/veldrid fork (net10.0, C# 14, System.Threading.Lock, optimized, full D3D12) instead of the ppy NuGet package.
+         PrivateAssets="all" prevents the ProjectReference from being recorded as a NuGet dependency in the produced nuspec
+         (which would otherwise reference a non-existent ppy.Veldrid version produced by Nerdbank.GitVersioning, e.g. 4.9.111).
+         The compiled assemblies are instead bundled directly into the package via the IncludeVeldridForkAssemblies target below. -->
+    <ProjectReference Include="..\submodules\veldrid\src\Veldrid\Veldrid.csproj" PrivateAssets="all" />
+    <!-- Re-declare the Veldrid fork's runtime PackageReferences here so they are recorded in the produced nuspec
+         and restored by consumers. PrivateAssets="all" on the ProjectReference above suppresses these transitively. -->
+    <PackageReference Include="ppy.Vk" Version="1.0.26" />
+    <PackageReference Include="Vortice.D3DCompiler" Version="3.8.3" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.8.3" />
+    <PackageReference Include="Vortice.Direct3D12" Version="3.8.3" />
     <PackageReference Include="SharpFNT" Version="2.0.0" />
     <!-- Preview version of ImageSharp causes NU5104. -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
@@ -61,4 +67,21 @@
     <PackageReference Include="Markdig" Version="0.23.0" />
     <PackageReference Include="System.Numerics.Tensors" Version="10.0.5" />
   </ItemGroup>
+
+  <!-- Bundle the winnerspiros/veldrid fork DLLs (ppy.Veldrid + Veldrid.MetalBindings + Veldrid.OpenGLBindings) directly into
+       lib/<tfm>/ of the produced ppy.osu.Framework nupkg. This is required because the Veldrid ProjectReference above uses
+       PrivateAssets="all" to suppress emitting a NuGet dependency entry that would otherwise point at a non-existent fork
+       version (NerdBank.GitVersioning produces e.g. 4.9.111-g... which is not published on nuget.org or any feed). -->
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeVeldridForkAssemblies</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+  <Target Name="IncludeVeldridForkAssemblies" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)"
+                            Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference'
+                                       AND '%(ReferenceCopyLocalPaths.Extension)' == '.dll'
+                                       AND ($([System.String]::Copy('%(ReferenceCopyLocalPaths.Filename)').StartsWith('ppy.Veldrid'))
+                                            OR $([System.String]::Copy('%(ReferenceCopyLocalPaths.Filename)').StartsWith('Veldrid.')))" />
+    </ItemGroup>
+  </Target>
 </Project>

@@ -450,19 +450,10 @@ namespace osu.Framework.Graphics.Veldrid
             var info = device.GetVulkanInfo();
             IntPtr physicalDevice = info.PhysicalDevice;
 
-            uint instanceExtensionsCount = 0;
-            var result = VulkanNative.vkEnumerateInstanceExtensionProperties((byte*)null, ref instanceExtensionsCount, IntPtr.Zero);
-
-            var instanceExtensions = new VkExtensionProperties[(int)instanceExtensionsCount];
-            if (result == VkResult.Success && instanceExtensionsCount > 0)
-                VulkanNative.vkEnumerateInstanceExtensionProperties((byte*)null, ref instanceExtensionsCount, ref instanceExtensions[0]);
-
-            uint deviceExetnsionsCount = 0;
-            result = VulkanNative.vkEnumerateDeviceExtensionProperties(physicalDevice, (byte*)null, ref deviceExetnsionsCount, IntPtr.Zero);
-
-            var deviceExtensions = new VkExtensionProperties[(int)deviceExetnsionsCount];
-            if (result == VkResult.Success && deviceExetnsionsCount > 0)
-                VulkanNative.vkEnumerateDeviceExtensionProperties(physicalDevice, (byte*)null, ref deviceExetnsionsCount, ref deviceExtensions[0]);
+            // Use BackendInfoVulkan (winnerspiros/veldrid fork) for cached extension lists and capability flags
+            // instead of re-issuing native vkEnumerate*ExtensionProperties calls and unsafe marshalling.
+            var instanceExtensionNames = info.AvailableInstanceExtensions;
+            var deviceExtensionNames = info.AvailableDeviceExtensions;
 
             VkPhysicalDeviceProperties properties;
             VulkanNative.vkGetPhysicalDeviceProperties(physicalDevice, &properties);
@@ -471,12 +462,10 @@ namespace osu.Framework.Graphics.Veldrid
 
             string vulkanName = RuntimeInfo.IsApple ? "MoltenVK" : "Vulkan";
 
-            List<string?> extensionNames = new List<string?>();
-
-            foreach (var ext in instanceExtensions)
-                extensionNames.Add(Marshal.PtrToStringUTF8((IntPtr)ext.extensionName));
-            foreach (var ext in deviceExtensions)
-                extensionNames.Add(Marshal.PtrToStringUTF8((IntPtr)ext.extensionName));
+            var extensionNames = new List<string>(instanceExtensionNames.Count + deviceExtensionNames.Count);
+            extensionNames.AddRange(instanceExtensionNames);
+            for (int i = 0; i < deviceExtensionNames.Count; i++)
+                extensionNames.Add(deviceExtensionNames[i].Name);
 
             string apiVersion = $"{properties.apiVersion >> 22}.{(properties.apiVersion >> 12) & 0x3FFU}.{properties.apiVersion & 0xFFFU}";
             string driverVersion;
@@ -495,11 +484,19 @@ namespace osu.Framework.Graphics.Veldrid
             if (RuntimeInfo.OS == RuntimeInfo.Platform.Android && (apiMajor < 1 || (apiMajor == 1 && apiMinor < 3)))
                 Logger.Log($"Vulkan {apiVersion} detected on Android. Vulkan 1.3+ is recommended for optimal performance.", level: LogLevel.Important);
 
+            // Surface fork-only capability flags & driver identifiers for diagnostics / bug reports.
+            string driverName = info.DriverName ?? "(unknown)";
+            string driverInfo = info.DriverInfo ?? "(unknown)";
+
             Logger.Log($@"{vulkanName} Initialized
-                                    {vulkanName} API Version:    {apiVersion}
-                                    {vulkanName} Driver Version: {driverVersion}
-                                    {vulkanName} Device:         {Marshal.PtrToStringUTF8((IntPtr)properties.deviceName)}
-                                    {vulkanName} Extensions:     {string.Join(',', extensionNames)}");
+                                    {vulkanName} API Version:           {apiVersion}
+                                    {vulkanName} Driver Version:        {driverVersion}
+                                    {vulkanName} Driver Name:           {driverName}
+                                    {vulkanName} Driver Info:           {driverInfo}
+                                    {vulkanName} Device:                {Marshal.PtrToStringUTF8((IntPtr)properties.deviceName)}
+                                    {vulkanName} Fragment Shading Rate: {info.HasFragmentShadingRate}
+                                    {vulkanName} Mesh Shader:           {info.HasMeshShader}
+                                    {vulkanName} Extensions:            {string.Join(',', extensionNames)}");
         }
 
         public static void LogMetal(this GraphicsDevice device, out int maxTextureSize)

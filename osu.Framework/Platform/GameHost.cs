@@ -554,34 +554,42 @@ namespace osu.Framework.Platform
                 using (drawMonitor.BeginCollecting(PerformanceCollectionType.DrawReset))
                     Renderer.BeginFrame(new Vector2(Window.ClientSize.Width, Window.ClientSize.Height));
 
-                if (!bypassFrontToBackPass.Value)
+                try
                 {
-                    Renderer.SetBlend(BlendingParameters.None);
+                    if (!bypassFrontToBackPass.Value)
+                    {
+                        Renderer.SetBlend(BlendingParameters.None);
 
-                    Renderer.SetBlendMask(BlendingMask.None);
-                    Renderer.PushDepthInfo(DepthInfo.Default);
+                        Renderer.SetBlendMask(BlendingMask.None);
+                        Renderer.PushDepthInfo(DepthInfo.Default);
 
-                    // Front pass
-                    DrawNode.DrawOtherOpaqueInterior(rootNode, Renderer);
+                        // Front pass
+                        DrawNode.DrawOtherOpaqueInterior(rootNode, Renderer);
+
+                        Renderer.PopDepthInfo();
+                        Renderer.SetBlendMask(BlendingMask.All);
+
+                        // The back pass doesn't write depth, but needs to depth test properly
+                        Renderer.PushDepthInfo(new DepthInfo(true, false));
+                    }
+                    else
+                    {
+                        // Disable depth testing
+                        Renderer.PushDepthInfo(new DepthInfo(false, false));
+                    }
+
+                    // Back pass
+                    DrawNode.DrawOther(rootNode, Renderer);
 
                     Renderer.PopDepthInfo();
-                    Renderer.SetBlendMask(BlendingMask.All);
-
-                    // The back pass doesn't write depth, but needs to depth test properly
-                    Renderer.PushDepthInfo(new DepthInfo(true, false));
                 }
-                else
+                finally
                 {
-                    // Disable depth testing
-                    Renderer.PushDepthInfo(new DepthInfo(false, false));
+                    // Ensure the renderer is always returned to a clean state, even if a draw operation throws.
+                    // Otherwise, the underlying command list can remain in a "begun" state and crash the next BeginFrame() call
+                    // (e.g. Veldrid's VkCommandList throws "CommandList must be in its initial state" on the following frame).
+                    Renderer.FinishFrame();
                 }
-
-                // Back pass
-                DrawNode.DrawOther(rootNode, Renderer);
-
-                Renderer.PopDepthInfo();
-
-                Renderer.FinishFrame();
 
                 LatencyMark(LatencyMarker.RenderSubmitEnd, bufferFrameCount);
 

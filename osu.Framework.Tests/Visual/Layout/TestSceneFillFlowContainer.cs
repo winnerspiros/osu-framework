@@ -4,6 +4,7 @@
 #nullable disable
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using osu.Framework.Graphics;
@@ -129,6 +130,7 @@ namespace osu.Framework.Tests.Visual.Layout
             }
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Test types are always preserved.")]
         private void changeTest(FlowTestType testType)
         {
             var method =

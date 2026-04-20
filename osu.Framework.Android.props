@@ -8,6 +8,8 @@
     <NullabilityInfoContextSupport>true</NullabilityInfoContextSupport>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <NoWarn>$(NoWarn);XA4218;JAVAC</NoWarn>
+    <!-- Suppress benign javac warnings about unknown Kotlin enum constants (AnnotationRetention, AnnotationTarget). -->
+    <AndroidJavacAdditionalOptions>-Xlint:none</AndroidJavacAdditionalOptions>
   </PropertyGroup>
   <!-- Android release performance optimizations -->
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

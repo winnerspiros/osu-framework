@@ -144,6 +144,8 @@ namespace osu.Framework.Tests.Bindables
             Assert.That(bindable1ValueChange, Is.EqualTo(4));
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2067", Justification = "Test types are always preserved.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2071", Justification = "Test types are always preserved.")]
         [UnconditionalSuppressMessage("Trimming", "IL2091", Justification = "Test types are always preserved.")]
         [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Test types are always preserved.")]
         private object createBindable(Type type) => Activator.CreateInstance(typeof(BindableNumber<>).MakeGenericType(type), Convert.ChangeType(0, type));

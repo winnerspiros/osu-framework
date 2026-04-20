@@ -17,6 +17,6 @@
   <PropertyGroup Condition="$(MSBuildProjectFullPath.Contains('submodules'))">
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <NoWarn>$(NoWarn);IDE0008;IDE0023;IDE0024;IDE0025;IDE0027;IDE0031;IDE0032;IDE0034;IDE0040;IDE0055;IDE0057</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;IDE0008;IDE0023;IDE0024;IDE0025;IDE0027;IDE0031;IDE0032;IDE0034;IDE0040;IDE0055;IDE0057</NoWarn>
   </PropertyGroup>
 </Project>

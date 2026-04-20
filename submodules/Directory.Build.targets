@@ -1,0 +1,26 @@
+<Project>
+
+  <!--
+    This file applies to all projects under submodules/ (winnerspiros/veldrid and winnerspiros/veldrid-spirv).
+
+    Reason 1: Replace the stale `ppy.Veldrid` PackageReference in winnerspiros/veldrid-spirv's Veldrid.SPIRV.csproj
+    (currently pinned to 4.9.69-ga405fe8484, which lacks the Direct3D12 backend) with a ProjectReference to the
+    sibling winnerspiros/veldrid submodule. This ensures both forks compile against each other's source, the
+    Direct3D12 / GetD3D12Info / CreateD3D12 APIs from the winnerspiros/veldrid fork are available everywhere,
+    and no upstream NuGet sneaks onto the compile path.
+
+    Reason 2: Disable IDE0160/IDE0161 enforcement for fork code. The osu-framework root .editorconfig prefers
+    block-scoped namespaces; the winnerspiros/veldrid-spirv fork uses file-scoped namespaces. We do not enforce
+    osu-framework style on fork code.
+  -->
+
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Veldrid.SPIRV'">
+    <PackageReference Remove="ppy.Veldrid" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)veldrid\src\Veldrid\Veldrid.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);IDE0160;IDE0161</NoWarn>
+  </PropertyGroup>
+
+</Project>

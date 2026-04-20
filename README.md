@@ -62,9 +62,19 @@ This fork ([winnerspiros/osu-framework](https://github.com/winnerspiros/osu-fram
 
 - Replaced the `ppy.Veldrid` NuGet package with a **`ProjectReference`** to [winnerspiros/veldrid](https://github.com/winnerspiros/veldrid) as a git submodule (`submodules/veldrid`).
 - The winnerspiros veldrid fork targets **net10.0 / C# 14**, uses `System.Threading.Lock`, and includes hot-path optimisations.
-- The transitive `ppy.Veldrid` NuGet pulled in by `ppy.Veldrid.SPIRV` is suppressed via `ExcludeAssets="all" PrivateAssets="all"`.
-- Replaced the upstream `ppy.Veldrid.SPIRV` NuGet with the [winnerspiros/veldrid-spirv](https://github.com/winnerspiros/veldrid-spirv) build (`1.0.15-gb268bf39ea`), which targets .NET 10, C++ 17, and includes Android 16KB page alignment. The `.nupkg` is in `local-packages/` and served via `NuGet.config`.
+- The Veldrid `ProjectReference` uses `PrivateAssets="all"` so `dotnet pack` does not record a phantom `ppy.Veldrid` dependency in the produced `ppy.osu.Framework` nuspec (NerdBank.GitVersioning produces fork-only versions like `4.9.111-g…` that aren't published on any feed). The fork's compiled DLLs (`ppy.Veldrid.dll`, `ppy.Veldrid.MetalBindings.dll`, `ppy.Veldrid.OpenGLBindings.dll`) are bundled directly into `lib/net10.0/` of the framework nupkg via a `TargetsForTfmSpecificBuildOutput` MSBuild target. The runtime `PackageReference`s the fork uses (`ppy.Vk`, `Vortice.D3DCompiler`, `Vortice.Direct3D11`, `Vortice.Direct3D12`) are re-declared on `osu.Framework` so consumers still restore them.
+- Replaced the upstream `ppy.Veldrid.SPIRV` NuGet with the [winnerspiros/veldrid-spirv](https://github.com/winnerspiros/veldrid-spirv) build (`1.0.15-gb268bf39ea`), which targets .NET 10, C++ 17, and includes Android 16KB page alignment. The `.nupkg` is in `local-packages/` and served via `NuGet.config`. Its `<dependency id="ppy.Veldrid">` entry is stripped from the nuspec so consumers don't restore upstream `ppy.Veldrid` alongside the bundled fork DLL (which would otherwise conflict at copy-to-output time).
 - A `Directory.Build.targets` file suppresses code-style warnings from the veldrid submodule so CI passes cleanly.
+
+#### Fork capabilities the framework already takes advantage of
+
+The fork's backend-level optimisations (Vulkan pipeline cache / push descriptors / dynamic rendering / `VK_EXT_host_image_copy`, D3D12 redundant state caching, D3D12/D3D11 staging-pool swap-remove, OpenGL pipeline state caching, Metal merged layout-offset loops, all-backend `System.Threading.Lock`, `Vortice.Windows 3.8.3`) are transparent and require no framework code changes — the framework benefits automatically.
+
+The framework explicitly wires the fork's new public API surface:
+
+- **D3D12 backend** end-to-end: `RendererType.Direct3D12`, `GraphicsSurfaceType.Direct3D12`, `GraphicsDevice.CreateD3D12` in `VeldridDevice`, the D3D12 case in `VeldridRenderer.CreateStagingBuffer`, and `LogD3D12` reads `BackendInfoD3D12.SupportsEnhancedBarriers / SupportsMeshShaders / SupportsVariableRateShading / SupportsRaytracing`.
+- **`ILowLatencyProvider`** uses `BackendInfoD3D12.Device` to obtain the native D3D12 device handle (in addition to D3D11) for NVIDIA Reflex / LatencyFlex.
+- **Vulkan diagnostics** (`LogVulkan`) consumes `BackendInfoVulkan` (cached extension lists, `DriverName`, `DriverInfo`, `HasFragmentShadingRate`, `HasMeshShader`) instead of re-issuing native `vkEnumerate*ExtensionProperties` calls — fewer allocations and surfaces the fork-only capability flags for bug reports.
 
 ### .NET 10 upgrade
 

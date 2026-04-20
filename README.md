@@ -56,83 +56,100 @@ We love to reward quality contributions. If you have made a large contribution, 
 
 ## Changes from upstream [ppy/osu-framework](https://github.com/ppy/osu-framework)
 
-This fork ([winnerspiros/osu-framework](https://github.com/winnerspiros/osu-framework)) includes the following changes on top of upstream:
+This fork ([winnerspiros/osu-framework](https://github.com/winnerspiros/osu-framework)) layers the following on top of upstream. Items are grouped by area; each section lists the **what** and the **why**.
 
-### Veldrid fork integration
+### 🔧 Build / packaging — winnerspiros forks built from source
 
-- Replaced the `ppy.Veldrid` NuGet package with a **`ProjectReference`** to [winnerspiros/veldrid](https://github.com/winnerspiros/veldrid) as a git submodule (`submodules/veldrid`).
-- The winnerspiros veldrid fork targets **net10.0 / C# 14**, uses `System.Threading.Lock`, and includes hot-path optimisations.
-- The Veldrid `ProjectReference` uses `PrivateAssets="all"` so `dotnet pack` does not record a phantom `ppy.Veldrid` dependency in the produced `ppy.osu.Framework` nuspec (NerdBank.GitVersioning produces fork-only versions like `4.9.111-g…` that aren't published on any feed). The fork's compiled DLLs (`ppy.Veldrid.dll`, `ppy.Veldrid.MetalBindings.dll`, `ppy.Veldrid.OpenGLBindings.dll`) are bundled directly into `lib/net10.0/` of the framework nupkg via a `TargetsForTfmSpecificBuildOutput` MSBuild target. The runtime `PackageReference`s the fork uses (`ppy.Vk`, `Vortice.D3DCompiler`, `Vortice.Direct3D11`, `Vortice.Direct3D12`) are re-declared on `osu.Framework` so consumers still restore them.
-- Replaced the upstream `ppy.Veldrid.SPIRV` NuGet with the [winnerspiros/veldrid-spirv](https://github.com/winnerspiros/veldrid-spirv) build (`1.0.15-gb268bf39ea`), which targets .NET 10, C++ 17, and includes Android 16KB page alignment. The `.nupkg` is in `local-packages/` and served via `NuGet.config`. Its `<dependency id="ppy.Veldrid">` entry is stripped from the nuspec so consumers don't restore upstream `ppy.Veldrid` alongside the bundled fork DLL (which would otherwise conflict at copy-to-output time).
-- A `Directory.Build.targets` file suppresses code-style warnings from the veldrid submodule so CI passes cleanly.
+Both Veldrid components are consumed as **`ProjectReference`s to git submodules**, not NuGet packages. The framework is always compiled against the very latest fork code.
 
-#### Fork capabilities the framework already takes advantage of
+| Submodule | URL | Notes |
+|---|---|---|
+| `submodules/veldrid` | [winnerspiros/veldrid](https://github.com/winnerspiros/veldrid) | net10.0 / C# 14, `System.Threading.Lock`, full **D3D12 backend**, hot-path optimisations |
+| `submodules/veldrid-spirv` | [winnerspiros/veldrid-spirv](https://github.com/winnerspiros/veldrid-spirv) | net10.0, C++17 native side, **Android 16 KB page alignment** |
 
-The fork's backend-level optimisations (Vulkan pipeline cache / push descriptors / dynamic rendering / `VK_EXT_host_image_copy`, D3D12 redundant state caching, D3D12/D3D11 staging-pool swap-remove, OpenGL pipeline state caching, Metal merged layout-offset loops, all-backend `System.Threading.Lock`, `Vortice.Windows 3.8.3`) are transparent and require no framework code changes — the framework benefits automatically.
+**Packaging mechanics** (so the produced `ppy.osu.Framework` nupkg is fully self-contained and consumable on `nuget.org`):
 
-The framework explicitly wires the fork's new public API surface:
+- Both `ProjectReference`s use `PrivateAssets="all"`, otherwise `dotnet pack` would record phantom `ppy.Veldrid` / `ppy.Veldrid.SPIRV` dependencies pinned to NerdBank.GitVersioning-generated versions (e.g. `4.9.111-g…`) that don't exist on any feed.
+- The fork-built managed DLLs (`ppy.Veldrid.dll`, `ppy.Veldrid.MetalBindings.dll`, `ppy.Veldrid.OpenGLBindings.dll`, `ppy.Veldrid.SPIRV.dll`) are bundled directly into `lib/net10.0/` of the framework nupkg via a `TargetsForTfmSpecificBuildOutput` target.
+- The runtime `PackageReference`s the Veldrid fork uses (`ppy.Vk`, `Vortice.D3DCompiler`, `Vortice.Direct3D11`, `Vortice.Direct3D12`) are re-declared on `osu.Framework.csproj` so consumers still restore them.
+- The pre-built C++ native binary `libveldrid-spirvcross.*` (from `ppy.Veldrid.SPIRV` NuGet, `IncludeAssets="native"`) is the **only** thing pulled from NuGet — building the C++ side from source would require CMake/clang in CI. That NuGet was itself published from `winnerspiros/veldrid-spirv@b268bf39ea`.
+- `submodules/Directory.Build.targets` rewires the SPIRV submodule's stale `ppy.Veldrid 4.9.69` `PackageReference` to a sibling `ProjectReference` to the local `winnerspiros/veldrid` fork. Without this, the old upstream `ppy.Veldrid` (which lacks the `Direct3D12` enum value, `GetD3D12Info`, `CreateD3D12`) would win on the compile path and break the Windows build.
+- `submodules/.editorconfig` (`root = true`) prevents osu-framework's strict style rules from being enforced on third-party fork source files.
 
-- **D3D12 backend** end-to-end: `RendererType.Direct3D12`, `GraphicsSurfaceType.Direct3D12`, `GraphicsDevice.CreateD3D12` in `VeldridDevice`, the D3D12 case in `VeldridRenderer.CreateStagingBuffer`, and `LogD3D12` reads `BackendInfoD3D12.SupportsEnhancedBarriers / SupportsMeshShaders / SupportsVariableRateShading / SupportsRaytracing`.
-- **`ILowLatencyProvider`** uses `BackendInfoD3D12.Device` to obtain the native D3D12 device handle (in addition to D3D11) for NVIDIA Reflex / LatencyFlex.
-- **Vulkan diagnostics** (`LogVulkan`) consumes `BackendInfoVulkan` (cached extension lists, `DriverName`, `DriverInfo`, `HasFragmentShadingRate`, `HasMeshShader`) instead of re-issuing native `vkEnumerate*ExtensionProperties` calls — fewer allocations and surfaces the fork-only capability flags for bug reports.
+### 🎯 Fork capabilities consumed by the framework
 
-### .NET 10 upgrade
+The fork's *backend-internal* optimisations (Vulkan pipeline cache / push descriptors / dynamic rendering / `VK_EXT_host_image_copy`, D3D12 redundant state caching, D3D12/D3D11 staging-pool swap-remove, OpenGL pipeline state caching, Metal merged layout-offset loops, all-backend `System.Threading.Lock`, `Vortice.Windows 3.8.3`) are transparent — the framework benefits automatically with no code changes.
 
-- All projects target **net10.0** (with `net10.0-android` and `net10.0-ios` for mobile).
-- C# 14 language features are used throughout, including the `field` keyword for auto-properties (`IDE0032`).
-- CI workflows updated for .NET 10 SDK, Xcode 26.3, and Go 1.26.1.
+The framework explicitly wires the fork's new **public API surface** (`BackendInfoD3D11/D3D12/Metal/OpenGL/Vulkan`) in `VeldridExtensions.cs`:
 
-### Android build configuration
+| Backend | Fork API used | Benefit |
+|---|---|---|
+| **D3D11** (`LogD3D11`) | `BackendInfoD3D11.FeatureLevel`, `DeviceId` | Avoids materializing a second `ID3D11Device` COM RCW from the IntPtr just to read one property; surfaces PCI ID for bug reports |
+| **D3D12** (`LogD3D12`) | `BackendInfoD3D12.SupportsEnhancedBarriers`, `SupportsMeshShaders`, `SupportsVariableRateShading`, `SupportsRaytracing` | Logs full D3D12 capability tier without re-issuing `CheckFeatureSupport` calls |
+| **D3D11 + D3D12** (`ILowLatencyProvider`) | `BackendInfoD3D11.Device`, `BackendInfoD3D12.Device` | Native device handle for NVIDIA Reflex / LatencyFlex on both renderers |
+| **Vulkan** (`LogVulkan`) | `BackendInfoVulkan.AvailableInstanceExtensions`, `AvailableDeviceExtensions`, `DriverName`, `DriverInfo`, `HasFragmentShadingRate`, `HasMeshShader` | No more re-issuing native `vkEnumerate*ExtensionProperties` + unsafe marshalling; surfaces fork-only capability flags |
+| **OpenGL** (`LogOpenGL`) | `BackendInfoOpenGL.Version`, `ShadingLanguageVersion` (cached) | Read off-thread — saves two unsafe `glGetString` + `Marshal.PtrToStringUTF8` round-trips inside the GL execution scope; only `Renderer` / `Vendor` / `MaxTextureSize` still require the GL thread |
+| **Metal** (`LogMetal`) | `BackendInfoMetal.MaxFeatureSet`, `FeatureSet` | Surfaces full supported feature-set count for diagnostics (in addition to the maximum) |
 
-- `SupportedOSPlatformVersion` bumped from **21.0 → 33.0** (Android 13 minimum).
-- `AndroidManifest.xml` files updated to `minSdkVersion="33"` / `targetSdkVersion="36"`.
-- Obsolete `READ_EXTERNAL_STORAGE` permission removed (only applied to API ≤ 32).
-- Release config: profiled AOT (`AndroidEnableProfiledAot`), partial trimming, `AndroidStripILAfterAOT=false` (avoids `plt_entry` crashes), `EnableLLVM` removed (incompatible with profiled AOT).
-
-### iOS build configuration
-
-- `SupportedOSPlatformVersion` remains at **13.4**.
-- Trim analysis warnings (`IL2026`/`IL2045`/`IL2060`/`IL2070`/`IL2072`/`IL2075`/`IL2091`/`IL2104`) in framework and test code suppressed with `[DynamicallyAccessedMembers]`, `[UnconditionalSuppressMessage]` annotations, and `<NoWarn>` in `osu.Framework.iOS.props`.
-
-### Performance optimisations
-
-- Hot-path LINQ allocations eliminated across the framework (replaced with `for` loops, span-based code, and cached collections).
-- `object`-based locks migrated to `System.Threading.Lock` for lower overhead on modern runtimes.
-- BASS audio, GL state-change, shader warm-up, texture upload, and mobile vertex-batching improvements.
-- **GridContainer cell sizing** uses `RequiredParentSizeToFit` instead of `BoundingBox`, avoiding redundant matrix-to-parent-space transforms on every layout pass ([upstream Issue #3215](https://github.com/ppy/osu-framework/issues/3215)).
-
-### Direct3D 12 renderer support
+### 🟦 Direct3D 12 renderer support
 
 - Added `RendererType.Direct3D12` / `RendererType.Deferred_Direct3D12` and `GraphicsSurfaceType.Direct3D12`.
-- Full pipeline: `VeldridDevice.CreateD3D12` swapchain creation, `LogD3D12` diagnostics (adapter info, Enhanced Barriers, Mesh Shaders, VRS, Raytracing support), and `PersistentStagingBuffer` staging.
-- D3D12 is included in the Windows renderer fallback order (after D3D11, before OpenGL).
-- Leverages the [winnerspiros/veldrid](https://github.com/winnerspiros/veldrid) submodule which contains a full D3D12 backend.
+- Full pipeline: `VeldridDevice.CreateD3D12` swapchain creation, `LogD3D12` diagnostics (adapter info, Enhanced Barriers, Mesh Shaders, VRS, Raytracing), `PersistentStagingBuffer` staging.
+- D3D12 included in the Windows renderer fallback order (after D3D11, before OpenGL).
+- Powered by the [winnerspiros/veldrid](https://github.com/winnerspiros/veldrid) submodule's full D3D12 backend.
 
-### Low-latency rendering infrastructure
+### ⚡ Low-latency rendering infrastructure
 
 - Generic `ILowLatencyProvider` interface for GPU-side latency reduction (NVIDIA Reflex, LatencyFlex, or any future API).
   - `IDirect3D11LowLatencyProvider` (D3D11-specific) extends `ILowLatencyProvider`.
-  - `NoOpLowLatencyProvider` (default no-op) and `NoOpDirect3D11LowLatencyProvider` included.
+  - `NoOpLowLatencyProvider` and `NoOpDirect3D11LowLatencyProvider` (default no-ops).
 - Latency markers (`SimulationStart/End`, `RenderSubmitStart/End`, `PresentStart/End`, `InputSample`, `TriggerFlash`) inserted into `GameHost.UpdateFrame()` and `GameHost.DrawFrame()`.
 - `FrameSleep()` called at the start of each update frame for provider-controlled sleep (Reflex Boost mode).
 - Provider auto-initialises on the draw thread using the native D3D11 or D3D12 device handle from Veldrid's `BackendInfoD3D11` / `BackendInfoD3D12`.
 - `LatencyMode` setting (`Off` / `On` / `Boost`) added to `FrameworkConfigManager`.
 - Inspired by [upstream PR #6666](https://github.com/ppy/osu-framework/pull/6666).
 
-### Frame rate limiter enhancements
+### 🎚 Frame rate limiter enhancements
 
-- **Unbuffered VSync (`UVSync`)**: Limits both draw *and* update threads to the exact display refresh rate. Useful for VRR/G-Sync/FreeSync displays where regular VSync introduces unwanted buffering ([upstream PR #6696](https://github.com/ppy/osu-framework/pull/6696)).
-- **Custom FPS limiter**: `FrameSync.Custom` mode with a `CustomDrawLimit` setting (0–1000 Hz). When set to 0, the draw thread is unlimited. Update thread runs at max Hz. Useful for benchmarking or VRR-specific tuning ([upstream PR #6725](https://github.com/ppy/osu-framework/pull/6725)).
+- **Unbuffered VSync (`UVSync`)**: limits both draw *and* update threads to the exact display refresh rate. Useful for VRR / G-Sync / FreeSync displays where regular VSync introduces unwanted buffering ([upstream PR #6696](https://github.com/ppy/osu-framework/pull/6696)).
+- **Custom FPS limiter** (`FrameSync.Custom`): `CustomDrawLimit` 0–1000 Hz; `0` = unlimited draw thread, update thread runs at max Hz. Useful for benchmarking or VRR-specific tuning ([upstream PR #6725](https://github.com/ppy/osu-framework/pull/6725)).
 
-### Input latency improvements
+### ⌨️ Input latency improvements
 
-- **Raw keyboard input on Windows**: `SDL_HINT_WINDOWS_RAW_KEYBOARD` enabled by default, bypassing the Windows message translation layer for lower-latency key events ([upstream PR #6507](https://github.com/ppy/osu-framework/pull/6507)).
-- **Async keyboard event handling**: When text input (IME) is not active, keyboard events (`KEY_DOWN`/`KEY_UP`) are handled directly in SDL's event filter (`HandleEventFromFilter`), bypassing the SDL event queue for reduced input-to-render latency ([upstream PR #6506](https://github.com/ppy/osu-framework/pull/6506)).
+- **Raw keyboard input on Windows**: `SDL_HINT_WINDOWS_RAW_KEYBOARD` enabled by default — bypasses the Windows message translation layer for lower-latency key events ([upstream PR #6507](https://github.com/ppy/osu-framework/pull/6507)).
+- **Async keyboard event handling**: when text input (IME) is not active, `KEY_DOWN` / `KEY_UP` are handled directly in SDL's event filter (`HandleEventFromFilter`), bypassing the SDL event queue for reduced input-to-render latency ([upstream PR #6506](https://github.com/ppy/osu-framework/pull/6506)).
 
-### Code quality
+### 🚀 Performance optimisations
 
-- All `IDE0032`, `IDE0055`, `IDE0057`, `IDE0042`, `IDE0062`, `IDE0270`, `IDE1006` code-style warnings resolved.
-- CI `CodeFileSanity` step updated to exclude the veldrid submodule directory.
+- Hot-path LINQ allocations eliminated across the framework (replaced with `for` loops, span-based code, cached collections).
+- `object`-based locks migrated to `System.Threading.Lock` for lower overhead on modern runtimes.
+- BASS audio, GL state-change, shader warm-up, texture upload, and mobile vertex-batching improvements.
+- **`GridContainer`** cell sizing uses `RequiredParentSizeToFit` instead of `BoundingBox`, avoiding redundant matrix-to-parent-space transforms on every layout pass ([upstream Issue #3215](https://github.com/ppy/osu-framework/issues/3215)).
+- **`VeldridExtensions.LogD3D11`**: removed an unused `ID3D11Device` COM RCW that was being materialized on every device init just to read `FeatureLevel`.
+- **`VeldridExtensions.LogOpenGL`**: hoisted cached `Version` / `ShadingLanguageVersion` reads out of the GL-thread execution scope (2 fewer unsafe `glGetString` + `Marshal.PtrToStringUTF8` calls per init).
+
+### ⚙️ .NET 10 upgrade
+
+- All projects target **net10.0** (with `net10.0-android` and `net10.0-ios` for mobile).
+- C# 14 language features used throughout, including the `field` keyword for auto-properties (`IDE0032`).
+- CI workflows updated for .NET 10 SDK, Xcode 26.3, and Go 1.26.1.
+
+### 📱 Android build configuration
+
+- `SupportedOSPlatformVersion` bumped from **21.0 → 33.0** (Android 13 minimum).
+- `AndroidManifest.xml` updated to `minSdkVersion="33"` / `targetSdkVersion="36"`.
+- Obsolete `READ_EXTERNAL_STORAGE` permission removed (only applied to API ≤ 32).
+- Release config: profiled AOT (`AndroidEnableProfiledAot`), partial trimming, `AndroidStripILAfterAOT=false` (avoids `plt_entry` crashes), `EnableLLVM` removed (incompatible with profiled AOT).
+
+### 🍎 iOS build configuration
+
+- `SupportedOSPlatformVersion` remains **13.4**.
+- Trim analysis warnings (`IL2026` / `IL2045` / `IL2060` / `IL2070` / `IL2072` / `IL2075` / `IL2091` / `IL2104`) in framework and test code suppressed with `[DynamicallyAccessedMembers]`, `[UnconditionalSuppressMessage]`, and `<NoWarn>` in `osu.Framework.iOS.props`.
+
+### ✅ Code quality
+
+- All `IDE0032`, `IDE0055`, `IDE0057`, `IDE0042`, `IDE0062`, `IDE0270`, `IDE1006` style warnings resolved.
+- CI `CodeFileSanity` step excludes the veldrid / veldrid-spirv submodule directories.
 
 ## Licence
 

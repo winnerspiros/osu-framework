@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace osu.Framework.Lists
 {
@@ -41,7 +40,36 @@ namespace osu.Framework.Lists
             this.map = map;
         }
 
-        IEnumerator<TTarget> IEnumerable<TTarget>.GetEnumerator() => source.Select(s => map(s)).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TTarget>)this).GetEnumerator();
+        /// <summary>
+        /// Returns a struct enumerator that avoids heap allocation.
+        /// </summary>
+        public Enumerator GetEnumerator() => new Enumerator(this);
+
+        IEnumerator<TTarget> IEnumerable<TTarget>.GetEnumerator() => new Enumerator(this);
+        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
+
+        public struct Enumerator : IEnumerator<TTarget>
+        {
+            private readonly LazyList<TSource, TTarget> list;
+            private int index;
+
+            internal Enumerator(LazyList<TSource, TTarget> list)
+            {
+                this.list = list;
+                index = -1;
+            }
+
+            public TTarget Current => list.map(list.source[index]);
+
+            object IEnumerator.Current => Current!;
+
+            public bool MoveNext() => ++index < list.source.Count;
+
+            public void Reset() => index = -1;
+
+            public void Dispose()
+            {
+            }
+        }
     }
 }

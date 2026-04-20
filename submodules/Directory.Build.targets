@@ -4,15 +4,27 @@
     This file applies to all projects under submodules/ (winnerspiros/veldrid and winnerspiros/veldrid-spirv).
 
     Reason 1: Replace the stale `ppy.Veldrid` PackageReference in winnerspiros/veldrid-spirv's Veldrid.SPIRV.csproj
-    (currently pinned to 4.9.69-ga405fe8484, which lacks the Direct3D12 backend) with a ProjectReference to the
-    sibling winnerspiros/veldrid submodule. This ensures both forks compile against each other's source, the
+    (currently pinned to 4.9.69-ga405fe8484, which lacks the Direct3D12 backend and would also produce a
+    Veldrid.SPIRV.dll linked against an assembly version that doesn't match our source-built ppy.Veldrid
+    4.9.111, causing a runtime FileNotFoundException) with a ProjectReference to the sibling
+    winnerspiros/veldrid submodule. This ensures both forks compile against each other's source, the
     Direct3D12 / GetD3D12Info / CreateD3D12 APIs from the winnerspiros/veldrid fork are available everywhere,
     and no upstream NuGet sneaks onto the compile path.
 
-    Reason 2: Disable IDE0160/IDE0161 enforcement for fork code. The osu-framework root .editorconfig prefers
-    block-scoped namespaces; the winnerspiros/veldrid-spirv fork uses file-scoped namespaces. We do not enforce
-    osu-framework style on fork code.
+    Reason 2: Disable code-style enforcement for fork code. The osu-framework root .editorconfig (and the
+    Code Quality CI job's `EnforceCodeStyleInBuild=true`) enforce strict osu-framework style — the third-party
+    fork projects predate / diverge from these rules and emit IDE0023 / IDE0031 / IDE0032 / IDE0160 / IDE0161
+    errors. We do not enforce osu-framework style on third-party fork code.
   -->
+
+  <!-- The Veldrid.SPIRV submodule csproj declares <PackageId>ppy.Veldrid.SPIRV</PackageId>, which makes NuGet
+       treat it as a substitute for the same-named package and *shadow* the package entirely (so the package's
+       native binaries never get restored into bin/runtimes/<RID>/native/). Override the PackageId on the
+       SPIRV submodule project so NuGet keeps both the source-built managed assembly (linked against our
+       source-built ppy.Veldrid 4.9.111) AND the package's native binaries side-by-side. -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Veldrid.SPIRV'">
+    <PackageId>ppy.Veldrid.SPIRV.Source</PackageId>
+  </PropertyGroup>
 
   <ItemGroup Condition="'$(MSBuildProjectName)' == 'Veldrid.SPIRV'">
     <PackageReference Remove="ppy.Veldrid" />
@@ -20,7 +32,8 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);IDE0160;IDE0161</NoWarn>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <NoWarn>$(NoWarn);IDE0023;IDE0031;IDE0032;IDE0160;IDE0161</NoWarn>
   </PropertyGroup>
 
 </Project>

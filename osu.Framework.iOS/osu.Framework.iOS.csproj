@@ -13,6 +13,9 @@
     <Title>osu!framework iOS</Title>
     <PackageId>ppy.osu.Framework.iOS</PackageId>
     <PackageTags>osu game framework</PackageTags>
+    <!-- NU5100: Stub assemblies in 'stubs/' are intentionally outside 'lib/' —
+         they are only used during AOT compilation via the .targets file, not as package references. -->
+    <NoWarn>$(NoWarn);NU5100</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\osu.Framework\osu.Framework.csproj" />
@@ -20,6 +23,6 @@
   <ItemGroup>
     <None Include="runtimes\**\*" Pack="true" PackagePath="runtimes" />
     <None Include="stubs\**\*" Pack="true" PackagePath="stubs" />
-    <Content Include="osu.Framework.iOS.Workarounds.targets" Pack="true" PackagePath="build\$(PackageId).targets" />
+    <None Include="osu.Framework.iOS.Workarounds.targets" Pack="true" PackagePath="build\$(PackageId).targets" />
   </ItemGroup>
 </Project>

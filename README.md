@@ -63,6 +63,7 @@ This fork ([winnerspiros/osu-framework](https://github.com/winnerspiros/osu-fram
 - Replaced the `ppy.Veldrid` NuGet package with a **`ProjectReference`** to [winnerspiros/veldrid](https://github.com/winnerspiros/veldrid) as a git submodule (`submodules/veldrid`).
 - The winnerspiros veldrid fork targets **net10.0 / C# 14**, uses `System.Threading.Lock`, and includes hot-path optimisations.
 - The transitive `ppy.Veldrid` NuGet pulled in by `ppy.Veldrid.SPIRV` is suppressed via `ExcludeAssets="all" PrivateAssets="all"`.
+- Replaced the upstream `ppy.Veldrid.SPIRV` NuGet with the [winnerspiros/veldrid-spirv](https://github.com/winnerspiros/veldrid-spirv) build (`1.0.15-gb268bf39ea`), which targets .NET 10, C++ 17, and includes Android 16KB page alignment. The `.nupkg` is in `local-packages/` and served via `NuGet.config`.
 - A `Directory.Build.targets` file suppresses code-style warnings from the veldrid submodule so CI passes cleanly.
 
 ### .NET 10 upgrade

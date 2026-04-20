@@ -8,7 +8,7 @@ jobs:
     name: Set Package Version
     runs-on: ubuntu-latest
     outputs:
-      version: ${{steps.deployment.outputs.version}}
+      version: ${{steps.deployment.outputs.VERSION}}
     steps:
       - name: Checkout
         run: |
@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           if [ $(git describe --exact-match --tags HEAD &> /dev/null; echo $?) == 0 ]; then
-            echo "::set-output name=VERSION::$(git describe --exact-match --tags HEAD)"
+            echo "VERSION=$(git describe --exact-match --tags HEAD)" >> "$GITHUB_OUTPUT"
           else
             echo "fatal: no tag detected for HEAD. Workflow will now stop."
             exit 128;
@@ -44,7 +44,7 @@ jobs:
 
       - name: Set Artifacts Directory
         id: artifactsPath
-        run: echo "::set-output name=NUGET_ARTIFACTS::${{github.workspace}}/artifacts"
+        run: echo "NUGET_ARTIFACTS=${{github.workspace}}/artifacts" >> "$GITHUB_OUTPUT"
 
       - name: Setup .NET 10.0.x
         uses: actions/setup-dotnet@v5
@@ -52,13 +52,13 @@ jobs:
           dotnet-version: "10.0.x"
 
       - name: Build NativeLibs
-        run: dotnet pack -c Release osu.Framework.NativeLibs /p:Configuration=Release /p:Version=${{needs.check-if-tag.outputs.version}} /p:GenerateDocumentationFile=true -o ${{steps.artifactsPath.outputs.nuget_artifacts}}
+        run: dotnet pack -c Release osu.Framework.NativeLibs /p:Configuration=Release /p:Version=${{needs.check-if-tag.outputs.version}} /p:GenerateDocumentationFile=true -o ${{steps.artifactsPath.outputs.NUGET_ARTIFACTS}}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v7
         with:
           name: osu-framework-nativelibs
-          path: ${{steps.artifactsPath.outputs.nuget_artifacts}}/*.nupkg
+          path: ${{steps.artifactsPath.outputs.NUGET_ARTIFACTS}}/*.nupkg
 
       - name: Publish packages to nuget.org
-        run: dotnet nuget push ${{steps.artifactsPath.outputs.nuget_artifacts}}/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ${{steps.artifactsPath.outputs.NUGET_ARTIFACTS}}/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json

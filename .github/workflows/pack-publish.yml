@@ -1,0 +1,186 @@
+name: One-Click Pack & Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package version (e.g. 2026.420.1)'
+        required: true
+        type: string
+      publish_github:
+        description: 'Publish to GitHub Packages'
+        required: false
+        default: true
+        type: boolean
+      publish_nuget:
+        description: 'Publish to nuget.org'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  pack-framework:
+    name: Pack (Framework)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Set artifacts directory
+        id: dirs
+        run: echo "ARTIFACTS=${{ github.workspace }}\artifacts" >> $env:GITHUB_OUTPUT
+
+      - name: Pack (Framework)
+        run: >
+          dotnet pack -c Release osu.Framework
+          /p:Version=${{ inputs.version }}
+          /p:GenerateDocumentationFile=true
+          /p:IncludeSymbols=true
+          /p:SymbolPackageFormat=snupkg
+          -o "${{ steps.dirs.outputs.ARTIFACTS }}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: osu-framework
+          path: |
+            ${{ steps.dirs.outputs.ARTIFACTS }}\*.nupkg
+            ${{ steps.dirs.outputs.ARTIFACTS }}\*.snupkg
+
+      - name: Publish to GitHub Packages
+        if: ${{ inputs.publish_github }}
+        run: >
+          dotnet nuget push "${{ steps.dirs.outputs.ARTIFACTS }}\*.nupkg"
+          --api-key ${{ secrets.GITHUB_TOKEN }}
+          --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+          --skip-duplicate
+
+      - name: Publish to nuget.org
+        if: ${{ inputs.publish_nuget }}
+        run: >
+          dotnet nuget push "${{ steps.dirs.outputs.ARTIFACTS }}\*.nupkg"
+          --api-key ${{ secrets.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+  pack-android:
+    name: Pack (Android)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: 17
+
+      - name: Restore .NET workloads
+        run: dotnet workload install android
+
+      - name: Set artifacts directory
+        id: dirs
+        run: echo "ARTIFACTS=${{ github.workspace }}\artifacts" >> $env:GITHUB_OUTPUT
+
+      - name: Pack (Android Framework)
+        run: >
+          dotnet pack -c Release osu.Framework.Android
+          /p:Version=${{ inputs.version }}
+          /p:GenerateDocumentationFile=true
+          -o "${{ steps.dirs.outputs.ARTIFACTS }}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: osu-framework-android
+          path: ${{ steps.dirs.outputs.ARTIFACTS }}\*.nupkg
+
+      - name: Publish to GitHub Packages
+        if: ${{ inputs.publish_github }}
+        run: >
+          dotnet nuget push "${{ steps.dirs.outputs.ARTIFACTS }}\*.nupkg"
+          --api-key ${{ secrets.GITHUB_TOKEN }}
+          --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+          --skip-duplicate
+
+      - name: Publish to nuget.org
+        if: ${{ inputs.publish_nuget }}
+        run: >
+          dotnet nuget push "${{ steps.dirs.outputs.ARTIFACTS }}\*.nupkg"
+          --api-key ${{ secrets.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+  pack-ios:
+    name: Pack (iOS)
+    runs-on: macos-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore .NET Workloads
+        run: dotnet workload install ios
+
+      - name: Set artifacts directory
+        id: dirs
+        run: echo "ARTIFACTS=${{ github.workspace }}/artifacts" >> "$GITHUB_OUTPUT"
+
+      - name: Pack (iOS Framework)
+        run: >
+          dotnet pack -c Release osu.Framework.iOS
+          /p:Version=${{ inputs.version }}
+          /p:GenerateDocumentationFile=true
+          -o "${{ steps.dirs.outputs.ARTIFACTS }}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: osu-framework-ios
+          path: ${{ steps.dirs.outputs.ARTIFACTS }}/*.nupkg
+
+      - name: Publish to GitHub Packages
+        if: ${{ inputs.publish_github }}
+        run: >
+          dotnet nuget push "${{ steps.dirs.outputs.ARTIFACTS }}"/*.nupkg
+          --api-key ${{ secrets.GITHUB_TOKEN }}
+          --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+          --skip-duplicate
+
+      - name: Publish to nuget.org
+        if: ${{ inputs.publish_nuget }}
+        run: >
+          dotnet nuget push "${{ steps.dirs.outputs.ARTIFACTS }}"/*.nupkg
+          --api-key ${{ secrets.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate

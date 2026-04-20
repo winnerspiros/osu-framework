@@ -252,7 +252,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             pipelineDesc.PrimitiveTopology = topology;
 
             // Only resize the resource layouts array when the shader's layout count actually changed.
-            if (pipelineDesc.ResourceLayouts.Length != currentShader.LayoutCount)
+            if (pipelineDesc.ResourceLayouts?.Length != currentShader.LayoutCount)
                 Array.Resize(ref pipelineDesc.ResourceLayouts, currentShader.LayoutCount);
 
             // Combined pass: set up pipeline layouts and resource sets in two iterations

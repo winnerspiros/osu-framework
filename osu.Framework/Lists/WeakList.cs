@@ -168,12 +168,20 @@ namespace osu.Framework.Lists
 
         private void trim()
         {
-            // Trim from the sides - items that have been removed.
-            list.RemoveRange(listEnd, list.Count - listEnd);
-            list.RemoveRange(0, listStart);
+            // Single-pass compaction: copy only live items within the valid range [listStart, listEnd).
+            int writePos = 0;
 
-            // Trim all items whose references are no longer alive.
-            list.RemoveAll(item => item.Reference == null || !item.Reference.TryGetTarget(out _));
+            for (int i = listStart; i < listEnd; i++)
+            {
+                var item = list[i];
+
+                if (item.Reference != null && item.Reference.TryGetTarget(out _))
+                    list[writePos++] = item;
+            }
+
+            // Remove excess items at the end in one operation.
+            if (writePos < list.Count)
+                list.RemoveRange(writePos, list.Count - writePos);
 
             // After the trim, the valid range represents the full list.
             listStart = 0;

@@ -8,8 +8,8 @@ namespace osu.Framework.Statistics
 {
     internal class FrameStatistics
     {
-        internal readonly Dictionary<PerformanceCollectionType, double> CollectedTimes = new Dictionary<PerformanceCollectionType, double>(NUM_STATISTICS_COUNTER_TYPES);
-        internal readonly Dictionary<StatisticsCounterType, long> Counts = new Dictionary<StatisticsCounterType, long>(NUM_STATISTICS_COUNTER_TYPES);
+        internal readonly double[] CollectedTimes = new double[NUM_PERFORMANCE_COLLECTION_TYPES];
+        internal readonly long[] Counts = new long[NUM_STATISTICS_COUNTER_TYPES];
         internal readonly List<int> GarbageCollections = new List<int>();
 
         public double FramesPerSecond { get; set; }
@@ -23,9 +23,9 @@ namespace osu.Framework.Statistics
 
         internal void Clear()
         {
-            CollectedTimes.Clear();
+            Array.Clear(CollectedTimes);
+            Array.Clear(Counts);
             GarbageCollections.Clear();
-            Counts.Clear();
             FramesPerSecond = 0;
             Jitter = 0;
         }

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -164,6 +165,7 @@ namespace osu.Framework.Tests.Visual.Sprites
             }
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Test types are always preserved.")]
         private static IEnumerable<Icon> getAllIconsForWeight(Type weight)
         {
             foreach (var p in weight.GetProperties(BindingFlags.Public | BindingFlags.Static))

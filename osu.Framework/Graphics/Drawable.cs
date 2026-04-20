@@ -917,10 +917,10 @@ namespace osu.Framework.Graphics
                 if (relativeAxes == Axes.Both && fillMode != FillMode.Stretch)
                 {
                     if (fillMode == FillMode.Fill)
-                        v = new Vector2(Math.Max(v.X, v.Y * FillAspectRatio));
+                        v.X = Math.Max(v.X, v.Y * FillAspectRatio);
                     else if (fillMode == FillMode.Fit)
-                        v = new Vector2(Math.Min(v.X, v.Y * FillAspectRatio));
-                    v.Y /= FillAspectRatio;
+                        v.X = Math.Min(v.X, v.Y * FillAspectRatio);
+                    v.Y = v.X / FillAspectRatio;
                 }
             }
 

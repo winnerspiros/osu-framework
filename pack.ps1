@@ -77,7 +77,10 @@ if ($Publish) {
         throw "NUGET_API_KEY environment variable is not set. Set it to your GitHub PAT or NuGet API key."
     }
 
-    $source = if ($env:NUGET_SOURCE) { $env:NUGET_SOURCE } else { "https://nuget.pkg.github.com/winnerspiros/index.json" }
+    $source = $env:NUGET_SOURCE
+    if (-not $source) {
+        throw "NUGET_SOURCE environment variable is not set. Example: https://nuget.pkg.github.com/<owner>/index.json"
+    }
 
     Get-ChildItem "$ArtifactsDir\*.nupkg" | ForEach-Object {
         Write-Host "    Publishing $($_.Name)..."

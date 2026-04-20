@@ -408,8 +408,13 @@ namespace osu.Framework.Graphics.Performance
                 applyFrameTime(frame);
             }
 
-            foreach (var pair in frame.Counts)
-                counterBars[pair.Key].Value = pair.Value;
+            for (int i = 0; i < frame.Counts.Length; i++)
+            {
+                long count = frame.Counts[i];
+
+                if (count != 0 && counterBars.TryGetValue((StatisticsCounterType)i, out var bar))
+                    bar.Value = count;
+            }
         }
 
         private Color4 getColour(PerformanceCollectionType type)
@@ -477,13 +482,16 @@ namespace osu.Framework.Graphics.Performance
 
             if (!frameTimeType.HasValue)
                 drawHeight = currentHeight;
-            else if (frame.CollectedTimes.TryGetValue(frameTimeType.Value, out double elapsedMilliseconds))
+            else
             {
+                double elapsedMilliseconds = frame.CollectedTimes[(int)frameTimeType.Value];
+
+                if (elapsedMilliseconds == 0)
+                    return currentHeight;
+
                 legendMapping[(int)frameTimeType].Alpha = 1;
                 drawHeight = (int)(elapsedMilliseconds * scale);
             }
-            else
-                return currentHeight;
 
             Color4 col = frameTimeType.HasValue ? getColour(frameTimeType.Value) : new Color4(0.1f, 0.1f, 0.1f, 1);
 

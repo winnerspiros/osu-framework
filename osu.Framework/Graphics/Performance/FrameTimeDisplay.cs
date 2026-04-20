@@ -107,10 +107,10 @@ namespace osu.Framework.Graphics.Performance
         {
             if (!Counting) return;
 
-            foreach (var pair in frame.CollectedTimes)
+            for (int i = 0; i < frame.CollectedTimes.Length; i++)
             {
-                if (pair.Key != PerformanceCollectionType.Sleep)
-                    elapsedSinceLastUpdate += pair.Value;
+                if ((PerformanceCollectionType)i != PerformanceCollectionType.Sleep && frame.CollectedTimes[i] > 0)
+                    elapsedSinceLastUpdate += frame.CollectedTimes[i];
             }
 
             framesSinceLastUpdate++;

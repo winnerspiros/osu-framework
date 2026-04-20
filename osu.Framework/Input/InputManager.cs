@@ -94,7 +94,7 @@ namespace osu.Framework.Input
         /// Contains the previously hovered <see cref="Drawable"/>s prior to when
         /// <see cref="hoveredDrawables"/> got updated.
         /// </summary>
-        private readonly List<Drawable> lastHoveredDrawables = new List<Drawable>();
+        private readonly HashSet<Drawable> lastHoveredDrawables = new HashSet<Drawable>();
 
         /// <summary>
         /// Contains all hovered <see cref="Drawable"/>s in top-down order up to the first
@@ -660,7 +660,7 @@ namespace osu.Framework.Input
             hoverHandledDrawable = null;
 
             lastHoveredDrawables.Clear();
-            lastHoveredDrawables.AddRange(hoveredDrawables);
+            lastHoveredDrawables.UnionWith(hoveredDrawables);
 
             hoveredDrawables.Clear();
 

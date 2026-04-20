@@ -72,7 +72,11 @@ if [ "${PUBLISH}" = true ]; then
         exit 1
     fi
 
-    NUGET_SOURCE="${NUGET_SOURCE:-https://nuget.pkg.github.com/winnerspiros/index.json}"
+    if [ -z "${NUGET_SOURCE:-}" ]; then
+        echo "Error: NUGET_SOURCE must be set for publishing."
+        echo "Example: NUGET_SOURCE=https://nuget.pkg.github.com/<owner>/index.json"
+        exit 1
+    fi
 
     for pkg in "${ARTIFACTS_DIR}"/*.nupkg; do
         echo "    Publishing $(basename "$pkg")..."

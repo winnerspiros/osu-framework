@@ -151,6 +151,8 @@ PublishScripts/
 
 # NuGet Packages
 *.nupkg
+# Keep local-packages/ vendored .nupkg files (winnerspiros fork builds)
+!local-packages/*.nupkg
 # The packages folder can be ignored because of Package Restore
 **/packages/*
 # except build/, which is used as an MSBuild target.

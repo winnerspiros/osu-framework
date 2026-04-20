@@ -45,7 +45,7 @@ namespace osu.Framework.Graphics.Shaders
                 FragmentBytes = fragmentBytes,
                 VertexText = crossResult.VertexShader,
                 FragmentText = crossResult.FragmentShader,
-                Reflection = crossResult.Reflection
+                Reflection = crossResult.Reflection!
             };
 
             saveToCache(filename, compilation);

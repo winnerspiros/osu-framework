@@ -161,9 +161,9 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
                     fragmentShaderDescription.ShaderBytes = Encoding.UTF8.GetBytes(platformCompilation.FragmentText);
                 }
 
-                for (int set = 0; set < (compilation.Reflection?.ResourceLayouts?.Length ?? 0); set++)
+                for (int set = 0; set < compilation.Reflection.ResourceLayouts.Length; set++)
                 {
-                    ResourceLayoutDescription layout = compilation.Reflection!.ResourceLayouts[set];
+                    ResourceLayoutDescription layout = compilation.Reflection.ResourceLayouts[set];
 
                     if (layout.Elements.Length == 0)
                         continue;

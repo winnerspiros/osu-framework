@@ -72,7 +72,7 @@ namespace osu.Framework.Graphics.Shaders
             {
                 ProgramBytes = programBytes,
                 ProgramText = crossResult.ComputeShader,
-                Reflection = crossResult.Reflection!
+                Reflection = crossResult.Reflection
             };
 
             saveToCache(filename, compilation);

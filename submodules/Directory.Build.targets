@@ -1,27 +1,27 @@
 <Project>
 
   <!--
-    This file applies to all projects under submodules/ (winnerspiros/veldrid and winnerspiros/veldrid-spirv).
+    Build customizations for projects under submodules/ (winnerspiros/veldrid + winnerspiros/veldrid-spirv).
 
-    Reason 1: Replace the stale `ppy.Veldrid` PackageReference in winnerspiros/veldrid-spirv's Veldrid.SPIRV.csproj
-    (currently pinned to 4.9.69-ga405fe8484, which lacks the Direct3D12 backend and would also produce a
-    Veldrid.SPIRV.dll linked against an assembly version that doesn't match our source-built ppy.Veldrid
-    4.9.111, causing a runtime FileNotFoundException) with a ProjectReference to the sibling
-    winnerspiros/veldrid submodule. This ensures both forks compile against each other's source, the
-    Direct3D12 / GetD3D12Info / CreateD3D12 APIs from the winnerspiros/veldrid fork are available everywhere,
-    and no upstream NuGet sneaks onto the compile path.
+    1. Replace the stale `ppy.Veldrid` PackageReference in winnerspiros/veldrid-spirv's Veldrid.SPIRV.csproj
+       (pinned to 4.9.69-ga405fe8484, which lacks Direct3D12 and would also produce a Veldrid.SPIRV.dll
+       linked against an assembly version that doesn't match our source-built ppy.Veldrid 4.9.111 — causing
+       a runtime FileNotFoundException) with a sibling ProjectReference to the winnerspiros/veldrid submodule.
 
-    Reason 2: Disable code-style enforcement for fork code. The osu-framework root .editorconfig (and the
-    Code Quality CI job's `EnforceCodeStyleInBuild=true`) enforce strict osu-framework style — the third-party
-    fork projects predate / diverge from these rules and emit IDE0023 / IDE0031 / IDE0032 / IDE0160 / IDE0161
-    errors. We do not enforce osu-framework style on third-party fork code.
+    2. Rename the Veldrid.SPIRV submodule's PackageId so it does not shadow the same-name `ppy.Veldrid.SPIRV`
+       NuGet package (otherwise NuGet treats the ProjectReference as a substitute and skips restoring the
+       package's runtimes/<RID>/native/libveldrid-spirv.* binaries entirely).
+
+    3. Strip osu-framework's global analyzer config + BannedSymbols additional file from third-party fork
+       projects. The root Directory.Build.props auto-injects:
+         <GlobalAnalyzerConfigFiles Include="...\CodeAnalysis\osu-framework.globalconfig" />
+         <AdditionalFiles Include="...\CodeAnalysis\BannedSymbols.txt" />
+       and the Code Quality CI job runs `dotnet build -warnaserror -p:EnforceCodeStyleInBuild=true`. The
+       globalconfig promotes IDExxxx style rules to `warning`, which `-warnaserror` then converts to errors
+       inside the third-party fork sources we don't own. Remove these items for submodule projects so the
+       forks build cleanly under their own (upstream) style configuration.
   -->
 
-  <!-- The Veldrid.SPIRV submodule csproj declares <PackageId>ppy.Veldrid.SPIRV</PackageId>, which makes NuGet
-       treat it as a substitute for the same-named package and *shadow* the package entirely (so the package's
-       native binaries never get restored into bin/runtimes/<RID>/native/). Override the PackageId on the
-       SPIRV submodule project so NuGet keeps both the source-built managed assembly (linked against our
-       source-built ppy.Veldrid 4.9.111) AND the package's native binaries side-by-side. -->
   <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Veldrid.SPIRV'">
     <PackageId>ppy.Veldrid.SPIRV.Source</PackageId>
   </PropertyGroup>
@@ -31,9 +31,22 @@
     <ProjectReference Include="$(MSBuildThisFileDirectory)veldrid\src\Veldrid\Veldrid.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <GlobalAnalyzerConfigFiles Remove="@(GlobalAnalyzerConfigFiles)" />
+    <AdditionalFiles Remove="@(AdditionalFiles)" Condition="$([System.String]::Copy('%(AdditionalFiles.Filename)').Equals('BannedSymbols'))" />
+  </ItemGroup>
+
+  <!--
+    Belt-and-braces NoWarn for every IDE style rule that the CI Code Quality job
+    (`dotnet build -warnaserror -p:EnforceCodeStyleInBuild=true`) currently surfaces inside the
+    third-party fork sources. Removing GlobalAnalyzerConfigFiles above strips osu-framework's
+    severity assignments, but `EnforceCodeStyleInBuild=true` (a command-line global MSBuild
+    property that cannot be reset from a project file) still enables every IDE analyzer with its
+    Roslyn default severity, and `-warnaserror` then converts those warnings to errors.
+    NoWarn reliably suppresses both the warning and its `-warnaserror` upgrade.
+  -->
   <PropertyGroup>
-    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
-    <NoWarn>$(NoWarn);IDE0023;IDE0031;IDE0032;IDE0160;IDE0161</NoWarn>
+    <NoWarn>$(NoWarn);IDE0008;IDE0023;IDE0024;IDE0025;IDE0027;IDE0031;IDE0032;IDE0034;IDE0040;IDE0057;IDE0160;IDE0161</NoWarn>
   </PropertyGroup>
 
 </Project>

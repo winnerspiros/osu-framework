@@ -1,11 +1,14 @@
 # EditorConfig override for third-party fork code under submodules/.
-# Prevents osu-framework's strict style rules (which prefer block-scoped namespaces, etc.)
-# from being applied as build-time errors to winnerspiros/veldrid and winnerspiros/veldrid-spirv source files.
-# The forks have their own coding style; we don't enforce ours on them.
+# `root = true` stops .NET / EditorConfig inheritance of the osu-framework root .editorconfig for files
+# under submodules/. Without this, the root .editorconfig's strict osu-framework style preferences
+# would apply to third-party fork sources we don't own.
+#
+# Note: code-analysis rule severities for these projects are also controlled in
+# submodules/Directory.Build.targets, which strips the osu-framework global analyzer config from
+# submodule projects so that `-p:EnforceCodeStyleInBuild=true -warnaserror` (used by the Code Quality
+# CI job) doesn't promote upstream-fork style decisions to errors.
 root = true
 
 [*.cs]
 # Allow file-scoped namespaces (used by winnerspiros/veldrid-spirv) without IDE0160 errors.
 csharp_style_namespace_declarations = file_scoped:silent
-dotnet_diagnostic.IDE0160.severity = none
-dotnet_diagnostic.IDE0161.severity = none

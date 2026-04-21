@@ -170,7 +170,30 @@ namespace osu.Framework.Graphics.Veldrid
                 case RuntimeInfo.Platform.Android:
                 {
                     var androidGraphics = (IAndroidGraphicsSurface)this.graphicsSurface;
-                    swapchain.Source = SwapchainSource.CreateAndroidSurface(androidGraphics.SurfaceHandle, androidGraphics.JniEnvHandle);
+
+                    // Android SurfaceView's native surface is not always ready when the SDL thread reaches
+                    // VeldridDevice initialisation. SurfaceHandle returns IntPtr.Zero in that window;
+                    // forwarding a null handle to vkCreateAndroidSurfaceKHR causes a SIGSEGV (pc=0) inside
+                    // the Vulkan driver. Poll briefly for the surface to become available.
+                    IntPtr surfaceHandle = androidGraphics.SurfaceHandle;
+
+                    const int max_wait_ms = 5000;
+                    const int poll_interval_ms = 50;
+                    int waited = 0;
+
+                    while (surfaceHandle == IntPtr.Zero && waited < max_wait_ms)
+                    {
+                        Thread.Sleep(poll_interval_ms);
+                        waited += poll_interval_ms;
+                        surfaceHandle = androidGraphics.SurfaceHandle;
+                    }
+
+                    if (surfaceHandle == IntPtr.Zero)
+                        throw new InvalidOperationException(
+                            $"Android surface handle was not available within {max_wait_ms} ms. " +
+                            "SurfaceView.surfaceCreated has not fired — cannot create the Vulkan swapchain.");
+
+                    swapchain.Source = SwapchainSource.CreateAndroidSurface(surfaceHandle, androidGraphics.JniEnvHandle);
                     break;
                 }
             }

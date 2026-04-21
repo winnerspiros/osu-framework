@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using osu.Framework.Development;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Statistics;
 using osuTK;
@@ -28,8 +29,15 @@ namespace osu.Framework.Threading
 
             if (window != null)
             {
-                host.Renderer.BeginFrame(new Vector2(window.ClientSize.Width, window.ClientSize.Height));
-                host.Renderer.FinishFrame();
+                try
+                {
+                    host.Renderer.BeginFrame(new Vector2(window.ClientSize.Width, window.ClientSize.Height));
+                    host.Renderer.FinishFrame();
+                }
+                catch (Exception e)
+                {
+                    Logger.Log($"Initial draw frame deferred: {e.Message}", LoggingTarget.Runtime, LogLevel.Important);
+                }
 
                 host.TryInitializeLowLatencyProvider();
             }

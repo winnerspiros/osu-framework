@@ -37,16 +37,27 @@
   </ItemGroup>
 
   <!--
-    Belt-and-braces NoWarn for every IDE style rule that the CI Code Quality job
-    (`dotnet build -warnaserror -p:EnforceCodeStyleInBuild=true`) currently surfaces inside the
-    third-party fork sources. Removing GlobalAnalyzerConfigFiles above strips osu-framework's
-    severity assignments, but `EnforceCodeStyleInBuild=true` (a command-line global MSBuild
-    property that cannot be reset from a project file) still enables every IDE analyzer with its
-    Roslyn default severity, and `-warnaserror` then converts those warnings to errors.
+    Belt-and-braces NoWarn for warnings that the CI jobs currently surface inside the
+    third-party fork sources:
+
+      * CS1591 (missing XML doc comment) — fires during `dotnet pack` because the root
+        osu-framework Directory.Build.props sets GenerateDocumentationFile=true. That
+        props file's own `<NoWarn>$(NoWarn);CS1591</NoWarn>` does NOT flow into submodule
+        projects because the veldrid submodule ships its own Directory.Build.props, which
+        stops MSBuild's upward walk for `.props` files (but not for `.targets`, hence this
+        file still applies).
+
+      * IDE0xxx style rules — the Code Quality CI job runs
+        `dotnet build -warnaserror -p:EnforceCodeStyleInBuild=true`. Removing
+        GlobalAnalyzerConfigFiles above strips osu-framework's severity assignments, but
+        `EnforceCodeStyleInBuild=true` (a command-line global MSBuild property that cannot
+        be reset from a project file) still enables every IDE analyzer with its Roslyn
+        default severity, and `-warnaserror` then converts those warnings to errors.
+
     NoWarn reliably suppresses both the warning and its `-warnaserror` upgrade.
   -->
   <PropertyGroup>
-    <NoWarn>$(NoWarn);IDE0008;IDE0023;IDE0024;IDE0025;IDE0027;IDE0031;IDE0032;IDE0034;IDE0040;IDE0057;IDE0160;IDE0161</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;IDE0008;IDE0023;IDE0024;IDE0025;IDE0027;IDE0031;IDE0032;IDE0034;IDE0040;IDE0057;IDE0160;IDE0161</NoWarn>
   </PropertyGroup>
 
 </Project>

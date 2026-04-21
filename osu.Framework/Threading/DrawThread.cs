@@ -36,7 +36,7 @@ namespace osu.Framework.Threading
                 }
                 catch (Exception e)
                 {
-                    Logger.Log($"Initial draw frame deferred: {e.Message}", LoggingTarget.Runtime, LogLevel.Important);
+                    Logger.Log($"Initial draw frame failed, will retry on next loop iteration: {e.Message}", LoggingTarget.Runtime, LogLevel.Important);
                 }
 
                 host.TryInitializeLowLatencyProvider();

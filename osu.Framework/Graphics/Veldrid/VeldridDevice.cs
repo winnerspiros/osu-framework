@@ -175,6 +175,9 @@ namespace osu.Framework.Graphics.Veldrid
                     // VeldridDevice initialisation. SurfaceHandle returns IntPtr.Zero in that window;
                     // forwarding a null handle to vkCreateAndroidSurfaceKHR causes a SIGSEGV (pc=0) inside
                     // the Vulkan driver. Poll briefly for the surface to become available.
+                    // Note: this is a one-time startup-only blocking wait on the SDL/input thread; the
+                    // surface is empirically ready within a few hundred ms, and 5s is just an upper
+                    // bound to fail fast with a managed exception rather than hang indefinitely.
                     IntPtr surfaceHandle = androidGraphics.SurfaceHandle;
 
                     const int max_wait_ms = 5000;

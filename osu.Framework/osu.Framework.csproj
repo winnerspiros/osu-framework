@@ -26,7 +26,6 @@
     <PackageReference Include="ppy.ManagedBass.Fx" Version="2022.1216.0" />
     <PackageReference Include="ppy.ManagedBass.Mix" Version="2022.1216.0" />
     <PackageReference Include="ppy.ManagedBass.Wasapi" Version="2022.1216.0" />
-    <PackageReference Include="ppy.Veldrid.SPIRV" Version="1.0.15-gb268bf39ea" />
   </ItemGroup>
 
   <ItemGroup Label="Veldrid Submodule">
@@ -35,12 +34,27 @@
          (which would otherwise reference a non-existent ppy.Veldrid version produced by Nerdbank.GitVersioning, e.g. 4.9.111).
          The compiled assemblies are instead bundled directly into the package via the IncludeVeldridForkAssemblies target below. -->
     <ProjectReference Include="..\submodules\veldrid\src\Veldrid\Veldrid.csproj" PrivateAssets="all" />
+    <!-- Build winnerspiros/veldrid-spirv (commit b268bf39ea — the same commit ppy.Veldrid.SPIRV NuGet 1.0.15-gb268bf39ea was built from)
+         from source so the resulting Veldrid.SPIRV.dll is linked against our source-built ppy.Veldrid 4.9.111 (not the NuGet's
+         4.9.0.0, which would cause a runtime FileNotFoundException at first shader compile). The submodule's csproj ships a stale
+         PackageReference to ppy.Veldrid 4.9.69-ga405fe8484 which is overridden in submodules/Directory.Build.targets to a sibling
+         ProjectReference to the local Veldrid fork. PrivateAssets="all" + bundling pattern matches Veldrid above. -->
+    <ProjectReference Include="..\submodules\veldrid-spirv\src\Veldrid.SPIRV\Veldrid.SPIRV.csproj" PrivateAssets="all" />
     <!-- Re-declare the Veldrid fork's runtime PackageReferences here so they are recorded in the produced nuspec
          and restored by consumers. PrivateAssets="all" on the ProjectReference above suppresses these transitively. -->
     <PackageReference Include="ppy.Vk" Version="1.0.26" />
     <PackageReference Include="Vortice.D3DCompiler" Version="3.8.3" />
     <PackageReference Include="Vortice.Direct3D11" Version="3.8.3" />
     <PackageReference Include="Vortice.Direct3D12" Version="3.8.3" />
+    <!-- Pull only the pre-built native libveldrid-spirv.* / libveldrid-spirvcross.* binaries from the
+         ppy.Veldrid.SPIRV NuGet (the managed Veldrid.SPIRV.dll comes from the ProjectReference above so it
+         is linked against our source-built ppy.Veldrid 4.9.111, not the NuGet's 4.9.0.0 — without
+         IncludeAssets="native" the package's managed dll wins ResolveAssemblyReferences over the
+         ProjectReference and triggers a runtime FileNotFoundException for ppy.Veldrid 4.9.0.0).
+         No PrivateAssets here — natives must flow transitively to downstream test/game projects.
+         The PackageId of the SPIRV submodule is renamed in submodules/Directory.Build.targets so this
+         package isn't shadowed during NuGet restore. -->
+    <PackageReference Include="ppy.Veldrid.SPIRV" Version="1.0.15-gb268bf39ea" IncludeAssets="native" />
     <PackageReference Include="SharpFNT" Version="2.0.0" />
     <!-- Preview version of ImageSharp causes NU5104. -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />

@@ -352,17 +352,23 @@ namespace osu.Framework.Graphics.Veldrid
             Debug.Assert(device.BackendType == GraphicsBackend.Direct3D11);
 
             var info = device.GetD3D11Info();
+
+            // Read FeatureLevel directly from the winnerspiros/veldrid fork's BackendInfoD3D11 (cached on the device wrapper)
+            // instead of materializing an extra ID3D11Device COM RCW from the IntPtr just to read one property.
+            string featureLevel = info.FeatureLevel.ToString().Replace("Level_", string.Empty).Replace("_", ".");
+
             var dxgiAdapter = MarshallingHelpers.FromPointer<IDXGIAdapter>(info.Adapter).AsNonNull();
-            var d3D11Device = MarshallingHelpers.FromPointer<ID3D11Device>(info.Device).AsNonNull();
+            var adapterDesc = dxgiAdapter.Description;
 
             maxTextureSize = ID3D11Resource.MaximumTexture2DSize;
 
             Logger.Log($@"Direct3D 11 Initialized
-                        Direct3D 11 Feature Level:           {d3D11Device.FeatureLevel.ToString().Replace("Level_", string.Empty).Replace("_", ".")}
-                        Direct3D 11 Adapter:                 {dxgiAdapter.Description.Description}
-                        Direct3D 11 Dedicated Video Memory:  {dxgiAdapter.Description.DedicatedVideoMemory / 1024 / 1024} MB
-                        Direct3D 11 Dedicated System Memory: {dxgiAdapter.Description.DedicatedSystemMemory / 1024 / 1024} MB
-                        Direct3D 11 Shared System Memory:    {dxgiAdapter.Description.SharedSystemMemory / 1024 / 1024} MB");
+                        Direct3D 11 Feature Level:           {featureLevel}
+                        Direct3D 11 Adapter:                 {adapterDesc.Description}
+                        Direct3D 11 Adapter PCI ID:          0x{info.DeviceId:X8}
+                        Direct3D 11 Dedicated Video Memory:  {adapterDesc.DedicatedVideoMemory / 1024 / 1024} MB
+                        Direct3D 11 Dedicated System Memory: {adapterDesc.DedicatedSystemMemory / 1024 / 1024} MB
+                        Direct3D 11 Shared System Memory:    {adapterDesc.SharedSystemMemory / 1024 / 1024} MB");
         }
 
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -412,21 +418,22 @@ namespace osu.Framework.Graphics.Veldrid
         {
             var info = device.GetOpenGLInfo();
 
-            string version = string.Empty;
-            string renderer = string.Empty;
-            string glslVersion = string.Empty;
-            string vendor = string.Empty;
-            string extensions = string.Empty;
+            // Version and ShadingLanguageVersion are cached on BackendInfoOpenGL by the winnerspiros/veldrid fork
+            // (snapshot taken at device construction). Read them off-thread to avoid two extra unsafe glGetString +
+            // Marshal.PtrToStringUTF8 round-trips inside the GL execution scope below — the GL thread only needs to
+            // service Renderer/Vendor (not exposed by the fork API) and the MaxTextureSize integer query.
+            string version = info.Version;
+            string glslVersion = info.ShadingLanguageVersion;
+            string extensions = string.Join(' ', info.Extensions);
 
+            string renderer = string.Empty;
+            string vendor = string.Empty;
             int glMaxTextureSize = 0;
 
             info.ExecuteOnGLThread(() =>
             {
-                version = Marshal.PtrToStringUTF8((IntPtr)OpenGLNative.glGetString(StringName.Version)) ?? string.Empty;
                 renderer = Marshal.PtrToStringUTF8((IntPtr)OpenGLNative.glGetString(StringName.Renderer)) ?? string.Empty;
                 vendor = Marshal.PtrToStringUTF8((IntPtr)OpenGLNative.glGetString(StringName.Vendor)) ?? string.Empty;
-                glslVersion = Marshal.PtrToStringUTF8((IntPtr)OpenGLNative.glGetString(StringName.ShadingLanguageVersion)) ?? string.Empty;
-                extensions = string.Join(' ', info.Extensions);
 
                 int size;
                 OpenGLNative.glGetIntegerv(GetPName.MaxTextureSize, &size);
@@ -504,22 +511,26 @@ namespace osu.Framework.Graphics.Veldrid
             Debug.Assert(device.BackendType == GraphicsBackend.Metal);
 
             var info = device.GetMetalInfo();
+            var maxFeatureSet = info.MaxFeatureSet;
 
-            string[] featureSetParts = info.MaxFeatureSet.ToString().Split('_');
+            string[] featureSetParts = maxFeatureSet.ToString().Split('_');
             string featureDevice = featureSetParts[0];
             string featureFamily = featureSetParts[1].Replace("GPUFamily", string.Empty);
             string featureVersion = featureSetParts[2];
 
             // https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf
-            if (info.MaxFeatureSet <= MTLFeatureSet.iOS_GPUFamily4_v1)
-                maxTextureSize = info.MaxFeatureSet <= MTLFeatureSet.iOS_GPUFamily1_v4 ? 8192 : 16384;
-            else if (info.MaxFeatureSet <= MTLFeatureSet.tvOS_GPUFamily2_v1)
-                maxTextureSize = info.MaxFeatureSet <= MTLFeatureSet.tvOS_GPUFamily1_v3 ? 8192 : 16384;
+            if (maxFeatureSet <= MTLFeatureSet.iOS_GPUFamily4_v1)
+                maxTextureSize = maxFeatureSet <= MTLFeatureSet.iOS_GPUFamily1_v4 ? 8192 : 16384;
+            else if (maxFeatureSet <= MTLFeatureSet.tvOS_GPUFamily2_v1)
+                maxTextureSize = maxFeatureSet <= MTLFeatureSet.tvOS_GPUFamily1_v3 ? 8192 : 16384;
             else
                 maxTextureSize = 16384;
 
+            // Fork's BackendInfoMetal exposes the full set of supported MTLFeatureSets (not just the max),
+            // surfaced here for diagnostics / bug reports.
             Logger.Log($@"Metal Initialized
-                        Metal Feature Set: {featureDevice} GPU family {featureFamily} ({featureVersion})");
+                        Metal Feature Set:          {featureDevice} GPU family {featureFamily} ({featureVersion})
+                        Metal Supported Feature Sets: {info.FeatureSet.Count}");
         }
     }
 }

@@ -20,7 +20,8 @@
       "SampleGame\\SampleGame.csproj",
       "submodules\\veldrid\\src\\Veldrid\\Veldrid.csproj",
       "submodules\\veldrid\\src\\Veldrid.MetalBindings\\Veldrid.MetalBindings.csproj",
-      "submodules\\veldrid\\src\\Veldrid.OpenGLBindings\\Veldrid.OpenGLBindings.csproj"
+      "submodules\\veldrid\\src\\Veldrid.OpenGLBindings\\Veldrid.OpenGLBindings.csproj",
+      "submodules\\veldrid-spirv\\src\\Veldrid.SPIRV\\Veldrid.SPIRV.csproj"
     ]
   }
 }

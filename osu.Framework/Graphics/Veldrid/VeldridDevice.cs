@@ -206,7 +206,25 @@ namespace osu.Framework.Graphics.Veldrid
                             $"Android surface handle was not available within {max_wait_ms} ms. " +
                             "SurfaceView.surfaceCreated has not fired — cannot create the Vulkan swapchain.");
 
-                    swapchain.Source = SwapchainSource.CreateAndroidSurface(surfaceHandle, androidGraphics.JniEnvHandle);
+                    // Re-snapshot immediately before use to narrow the race with a concurrent
+                    // SurfaceView.surfaceDestroyed zeroing the handle between our last poll and
+                    // the native vkCreateAndroidSurfaceKHR call. This does not eliminate the race
+                    // (the underlying ANativeWindow can still be released by the platform after
+                    // we read the handle), but it prevents the most common case of forwarding a
+                    // stale non-zero pointer that has just been invalidated. A managed exception
+                    // is preferable to a SIGSEGV inside the Vulkan driver.
+                    // The JNIEnv handle is owned by SDL for the lifetime of the SDL thread and
+                    // is not subject to the same lifetime concern; SDL_GetAndroidJNIEnv would
+                    // throw if it returned null, so no extra guard is needed for it.
+                    IntPtr surfaceHandleAtCreation = androidGraphics.SurfaceHandle;
+                    IntPtr jniEnvHandle = androidGraphics.JniEnvHandle;
+
+                    if (surfaceHandleAtCreation == IntPtr.Zero)
+                        throw new InvalidOperationException(
+                            "Android surface handle became invalid between availability check and swapchain creation. " +
+                            "SurfaceView was likely destroyed concurrently — cannot create the Vulkan swapchain.");
+
+                    swapchain.Source = SwapchainSource.CreateAndroidSurface(surfaceHandleAtCreation, jniEnvHandle);
                     break;
                 }
             }

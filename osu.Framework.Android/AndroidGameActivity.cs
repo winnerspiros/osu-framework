@@ -58,6 +58,7 @@ namespace osu.Framework.Android
             System.Environment.CurrentDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
 
             recycleTempContentDirectory();
+            RequestedOrientation = ScreenOrientation.Landscape;
 
             base.OnCreate(savedInstanceState);
         }

@@ -43,6 +43,7 @@ namespace osu.Framework.Android
         protected override void SetupForRun()
         {
             base.SetupForRun();
+            Logger.AddFilteredText("HidSharp.Platform.MacOS.NativeMethods");
 
             // Set the main thread to THREAD_PRIORITY_DISPLAY (-4) for scheduler prioritisation.
             // In SingleThread mode (the default on Android), the main thread handles all game threads
@@ -60,10 +61,21 @@ namespace osu.Framework.Android
 
         protected override IWindow CreateWindow(GraphicsSurfaceType preferredSurface) => new AndroidGameWindow(preferredSurface, Options.FriendlyGameName);
 
+        private int surfaceReadyFrames;
+
         protected override void DrawFrame()
         {
             if (AndroidGameActivity.Surface.IsSurfaceReady)
-                base.DrawFrame();
+            {
+                if (surfaceReadyFrames > 2)
+                    base.DrawFrame();
+
+                surfaceReadyFrames++;
+            }
+            else
+            {
+                surfaceReadyFrames = 0;
+            }
         }
 
         public override bool CanExit => false;

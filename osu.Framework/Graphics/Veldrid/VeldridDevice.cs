@@ -89,6 +89,7 @@ namespace osu.Framework.Graphics.Veldrid
 
         private readonly IGraphicsSurface graphicsSurface;
         private Vector2I currentWindowSize;
+        private IntPtr lastAndroidSurfaceHandle;
 
         /// <summary>
         /// Creates a new <see cref="VeldridDevice"/>
@@ -196,6 +197,7 @@ namespace osu.Framework.Graphics.Veldrid
                             $"Android surface handle was not available within {max_wait_ms} ms. " +
                             "SurfaceView.surfaceCreated has not fired — cannot create the Vulkan swapchain.");
 
+                    lastAndroidSurfaceHandle = surfaceHandle;
                     swapchain.Source = SwapchainSource.CreateAndroidSurface(surfaceHandle, androidGraphics.JniEnvHandle);
                     break;
                 }
@@ -271,7 +273,34 @@ namespace osu.Framework.Graphics.Veldrid
         /// Swaps the back buffer with the front buffer to display the new frame.
         /// </summary>
         public void SwapBuffers()
-            => Device.SwapBuffers();
+        {
+            try
+            {
+                if (RuntimeInfo.OS == RuntimeInfo.Platform.Android)
+                {
+                    var androidGraphics = (IAndroidGraphicsSurface)graphicsSurface;
+                    IntPtr currentHandle = androidGraphics.SurfaceHandle;
+
+                    if (currentHandle != lastAndroidSurfaceHandle)
+                    {
+                        Logger.Log($"Android surface handle changed from {lastAndroidSurfaceHandle} to {currentHandle}. Present may fail.", level: LogLevel.Debug);
+                        lastAndroidSurfaceHandle = currentHandle;
+                    }
+                }
+
+                Device.SwapBuffers();
+            }
+            catch (VeldridException e)
+            {
+                if (RuntimeInfo.OS == RuntimeInfo.Platform.Android && e.Message.Contains("underlying surface has been lost"))
+                {
+                    Logger.Log($"Veldrid surface lost: {e.Message}", level: LogLevel.Important);
+                    return;
+                }
+
+                throw;
+            }
+        }
 
         /// <summary>
         /// Waits until all renderer commands have been fully executed GPU-side, as signaled by the graphics backend.

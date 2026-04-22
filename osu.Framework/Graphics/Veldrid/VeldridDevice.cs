@@ -91,6 +91,16 @@ namespace osu.Framework.Graphics.Veldrid
         private Vector2I currentWindowSize;
 
         /// <summary>
+        /// Number of consecutive surface-lost / swapchain failures observed in <see cref="SwapBuffers"/>.
+        /// Reset to zero on any successful present. If this exceeds <see cref="max_consecutive_swapchain_failures"/>
+        /// the exception is rethrown rather than swallowed, so a permanently dead device still surfaces as a crash
+        /// instead of an infinite recovery loop.
+        /// </summary>
+        private int consecutiveSwapchainFailures;
+
+        private const int max_consecutive_swapchain_failures = 60;
+
+        /// <summary>
         /// Creates a new <see cref="VeldridDevice"/>
         /// </summary>
         /// <param name="graphicsSurface"></param>
@@ -262,8 +272,19 @@ namespace osu.Framework.Graphics.Veldrid
         {
             if (windowSize != currentWindowSize)
             {
-                Device.ResizeMainWindow((uint)windowSize.X, (uint)windowSize.Y);
-                currentWindowSize = windowSize;
+                try
+                {
+                    Device.ResizeMainWindow((uint)windowSize.X, (uint)windowSize.Y);
+                    currentWindowSize = windowSize;
+                }
+                catch (VeldridException ex) when (isSwapchainSurfaceLost(ex))
+                {
+                    // Veldrid's Vulkan swapchain throws this when its underlying surface (e.g. the Android
+                    // SurfaceView's ANativeWindow) is in an invalid state at the moment we try to recreate it.
+                    // Leave currentWindowSize unchanged so the resize is retried on the next frame, by which
+                    // point the platform surface has typically stabilised.
+                    Logger.Log($"Vulkan swapchain surface lost during resize ({windowSize.X}x{windowSize.Y}); will retry next frame: {ex.Message}", level: LogLevel.Important);
+                }
             }
         }
 
@@ -271,7 +292,44 @@ namespace osu.Framework.Graphics.Veldrid
         /// Swaps the back buffer with the front buffer to display the new frame.
         /// </summary>
         public void SwapBuffers()
-            => Device.SwapBuffers();
+        {
+            try
+            {
+                Device.SwapBuffers();
+                consecutiveSwapchainFailures = 0;
+            }
+            catch (VeldridException ex) when (isSwapchainSurfaceLost(ex))
+            {
+                // Crash recovery for transient surface-lost on the very first frames after window creation
+                // (observed on Android with SDL3 + Vulkan, where the SurfaceView's underlying surface can
+                // become invalid between Veldrid initialisation and the first present). Without this guard
+                // the VeldridException propagates out of GameHost.DrawFrame and aborts the game thread.
+                consecutiveSwapchainFailures++;
+
+                Logger.Log(
+                    $"Vulkan swapchain surface lost during SwapBuffers (attempt {consecutiveSwapchainFailures}/{max_consecutive_swapchain_failures}); skipping frame: {ex.Message}",
+                    level: LogLevel.Important);
+
+                if (consecutiveSwapchainFailures >= max_consecutive_swapchain_failures)
+                {
+                    // Genuinely dead device — rethrow as a real crash rather than spin forever.
+                    throw;
+                }
+
+                // Force the next BeginFrame to call ResizeMainWindow, which asks Veldrid to rebuild the
+                // underlying swapchain (which may now succeed if the platform surface has recovered).
+                currentWindowSize = default;
+            }
+        }
+
+        private static bool isSwapchainSurfaceLost(VeldridException ex)
+        {
+            // Veldrid does not expose a typed exception for VK_ERROR_SURFACE_LOST_KHR / out-of-date surface
+            // failures, so match on the message text it produces in VkSwapchain.createSwapchain.
+            string message = ex.Message;
+            return message.Contains("Swapchain", StringComparison.Ordinal)
+                   || message.Contains("surface", StringComparison.OrdinalIgnoreCase);
+        }
 
         /// <summary>
         /// Waits until all renderer commands have been fully executed GPU-side, as signaled by the graphics backend.

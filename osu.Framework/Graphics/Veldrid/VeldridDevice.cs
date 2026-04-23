@@ -100,6 +100,8 @@ namespace osu.Framework.Graphics.Veldrid
         /// instead of an infinite recovery loop.
         /// </summary>
         private int consecutiveSwapchainFailures;
+        private int consecutiveResizeFailures;
+        private const int max_consecutive_resize_failures = 10;
 
         private const int max_consecutive_swapchain_failures = 5;
 
@@ -316,6 +318,7 @@ namespace osu.Framework.Graphics.Veldrid
             {
                 Device.ResizeMainWindow((uint)windowSize.X, (uint)windowSize.Y);
                 currentWindowSize = windowSize;
+                consecutiveResizeFailures = 0;
             }
             catch (VeldridException ex) when (isSwapchainSurfaceLost(ex))
             {
@@ -324,6 +327,13 @@ namespace osu.Framework.Graphics.Veldrid
                 // Leave currentWindowSize unchanged so the resize is retried on the next frame, by which
                 // point the platform surface has typically stabilised.
                 Logger.Log($"Vulkan swapchain surface lost during resize ({windowSize.X}x{windowSize.Y}); will retry next frame: {ex.Message}", level: LogLevel.Important);
+
+                // Re-queue the resize request so it is retried after the next successful present.
+                consecutiveResizeFailures++;
+                pendingWindowSize = windowSize;
+
+                if (consecutiveResizeFailures >= max_consecutive_resize_failures)
+                    Logger.Log($"Vulkan swapchain resize has failed {consecutiveResizeFailures} consecutive times; the surface may be permanently lost.", level: LogLevel.Error);
             }
         }
 
@@ -373,7 +383,7 @@ namespace osu.Framework.Graphics.Veldrid
                     }
                 }
 
-                Thread.Sleep(0);
+                Thread.Yield();
             }
         }
 

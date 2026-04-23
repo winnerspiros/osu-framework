@@ -98,7 +98,12 @@ namespace osu.Framework.Graphics.Veldrid
         /// </summary>
         private int consecutiveSwapchainFailures;
 
-        private const int max_consecutive_swapchain_failures = 60;
+        // Kept low (5) on purpose. The winnerspiros/veldrid fork now bounds vkAcquireNextImageKHR with a 100 ms
+        // timeout and recreates the swapchain on VK_TIMEOUT/VK_NOT_READY, so a genuine surface-lost recovers in
+        // 1–2 frames. Anything beyond a small handful of consecutive failures means the device is really dead and
+        // it is better to surface a crash than to keep swallowing exceptions for a full second per drop, which is
+        // long enough to trip the Android ANR / hang watchdogs the longer 60-frame loop was itself causing.
+        private const int max_consecutive_swapchain_failures = 5;
 
         /// <summary>
         /// Creates a new <see cref="VeldridDevice"/>

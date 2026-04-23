@@ -89,6 +89,9 @@ namespace osu.Framework.Graphics.Veldrid
 
         private readonly IGraphicsSurface graphicsSurface;
         private Vector2I currentWindowSize;
+        private Vector2I? pendingWindowSize;
+
+        private readonly Lock lockObject = new Lock();
 
         /// <summary>
         /// Number of consecutive surface-lost / swapchain failures observed in <see cref="SwapBuffers"/>.
@@ -98,7 +101,7 @@ namespace osu.Framework.Graphics.Veldrid
         /// </summary>
         private int consecutiveSwapchainFailures;
 
-        private const int max_consecutive_swapchain_failures = 60;
+        private const int max_consecutive_swapchain_failures = 5;
 
         /// <summary>
         /// Creates a new <see cref="VeldridDevice"/>
@@ -288,21 +291,39 @@ namespace osu.Framework.Graphics.Veldrid
         /// <param name="windowSize">The window size.</param>
         public void Resize(Vector2I windowSize)
         {
-            if (windowSize != currentWindowSize)
+            lock (lockObject)
             {
-                try
+                if (windowSize == currentWindowSize)
+                    return;
+
+                if (consecutiveSwapchainFailures > 0)
                 {
-                    Device.ResizeMainWindow((uint)windowSize.X, (uint)windowSize.Y);
-                    currentWindowSize = windowSize;
+                    // Only the most recent size matters; overwrite any earlier pending request.
+                    pendingWindowSize = windowSize;
+                    return;
                 }
-                catch (VeldridException ex) when (isSwapchainSurfaceLost(ex))
-                {
-                    // Veldrid's Vulkan swapchain throws this when its underlying surface (e.g. the Android
-                    // SurfaceView's ANativeWindow) is in an invalid state at the moment we try to recreate it.
-                    // Leave currentWindowSize unchanged so the resize is retried on the next frame, by which
-                    // point the platform surface has typically stabilised.
-                    Logger.Log($"Vulkan swapchain surface lost during resize ({windowSize.X}x{windowSize.Y}); will retry next frame: {ex.Message}", level: LogLevel.Important);
-                }
+
+                resizeCore(windowSize);
+            }
+        }
+
+        /// <summary>
+        /// Resizes the main window. Must be called while holding <see cref="lockObject"/>.
+        /// </summary>
+        private void resizeCore(Vector2I windowSize)
+        {
+            try
+            {
+                Device.ResizeMainWindow((uint)windowSize.X, (uint)windowSize.Y);
+                currentWindowSize = windowSize;
+            }
+            catch (VeldridException ex) when (isSwapchainSurfaceLost(ex))
+            {
+                // Veldrid's Vulkan swapchain throws this when its underlying surface (e.g. the Android
+                // SurfaceView's ANativeWindow) is in an invalid state at the moment we try to recreate it.
+                // Leave currentWindowSize unchanged so the resize is retried on the next frame, by which
+                // point the platform surface has typically stabilised.
+                Logger.Log($"Vulkan swapchain surface lost during resize ({windowSize.X}x{windowSize.Y}); will retry next frame: {ex.Message}", level: LogLevel.Important);
             }
         }
 
@@ -311,32 +332,48 @@ namespace osu.Framework.Graphics.Veldrid
         /// </summary>
         public void SwapBuffers()
         {
-            try
+            while (true)
             {
-                Device.SwapBuffers();
-                consecutiveSwapchainFailures = 0;
-            }
-            catch (VeldridException ex) when (isSwapchainSurfaceLost(ex))
-            {
-                // Crash recovery for transient surface-lost on the very first frames after window creation
-                // (observed on Android with SDL3 + Vulkan, where the SurfaceView's underlying surface can
-                // become invalid between Veldrid initialisation and the first present). Without this guard
-                // the VeldridException propagates out of GameHost.DrawFrame and aborts the game thread.
-                consecutiveSwapchainFailures++;
-
-                Logger.Log(
-                    $"Vulkan swapchain surface lost during SwapBuffers (attempt {consecutiveSwapchainFailures}/{max_consecutive_swapchain_failures}); skipping frame: {ex.Message}",
-                    level: LogLevel.Important);
-
-                if (consecutiveSwapchainFailures >= max_consecutive_swapchain_failures)
+                lock (lockObject)
                 {
-                    // Genuinely dead device — rethrow as a real crash rather than spin forever.
-                    throw;
+                    try
+                    {
+                        Device.SwapBuffers();
+                        consecutiveSwapchainFailures = 0;
+
+                        if (pendingWindowSize is Vector2I windowSize)
+                        {
+                            pendingWindowSize = null;
+                            resizeCore(windowSize);
+                        }
+
+                        return;
+                    }
+                    catch (VeldridException ex) when (isSwapchainSurfaceLost(ex))
+                    {
+                        // Crash recovery for transient surface-lost on the very first frames after window creation
+                        // (observed on Android with SDL3 + Vulkan, where the SurfaceView's underlying surface can
+                        // become invalid between Veldrid initialisation and the first present). Without this guard
+                        // the VeldridException propagates out of GameHost.DrawFrame and aborts the game thread.
+                        consecutiveSwapchainFailures++;
+
+                        Logger.Log(
+                            $"Vulkan swapchain surface lost during SwapBuffers (attempt {consecutiveSwapchainFailures}/{max_consecutive_swapchain_failures}); skipping frame: {ex.Message}",
+                            level: LogLevel.Important);
+
+                        if (consecutiveSwapchainFailures >= max_consecutive_swapchain_failures)
+                        {
+                            // Genuinely dead device — rethrow as a real crash rather than spin forever.
+                            throw;
+                        }
+
+                        // Force the next BeginFrame to call ResizeMainWindow, which asks Veldrid to rebuild the
+                        // underlying swapchain (which may now succeed if the platform surface has recovered).
+                        currentWindowSize = default;
+                    }
                 }
 
-                // Force the next BeginFrame to call ResizeMainWindow, which asks Veldrid to rebuild the
-                // underlying swapchain (which may now succeed if the platform surface has recovered).
-                currentWindowSize = default;
+                Thread.Sleep(0);
             }
         }
 

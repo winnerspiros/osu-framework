@@ -44,10 +44,19 @@ namespace osu.Framework.Platform
         protected override IEnumerable<InputHandler> CreateAvailableInputHandlers()
         {
             yield return new KeyboardHandler();
-            // tablet should get priority over mouse to correctly handle cases where tablet drivers report as mice as well.
-            yield return new OpenTabletDriverHandler();
 
-            if (FrameworkEnvironment.UseSDL3)
+            // OpenTabletDriver pulls in HidSharp which probes macOS-only HID APIs at startup,
+            // producing a noisy first-chance HidSharp.Platform.MacOS.NativeMethods exception on
+            // Android. Tablet drivers are also not a meaningful input source on Android, so skip
+            // the handler entirely on that platform.
+            // tablet should get priority over mouse to correctly handle cases where tablet drivers report as mice as well.
+            if (RuntimeInfo.OS != RuntimeInfo.Platform.Android)
+                yield return new OpenTabletDriverHandler();
+
+            // SDL3 pen events are not delivered on Android (stylus input arrives through the
+            // touch path), and subscribing the handler still costs an InputHandler entry plus
+            // per-frame event dispatch overhead. Skip on Android.
+            if (FrameworkEnvironment.UseSDL3 && RuntimeInfo.OS != RuntimeInfo.Platform.Android)
                 yield return new PenHandler();
 
             yield return new MouseHandler();

@@ -62,8 +62,20 @@ namespace osu.Framework.Android
 
         protected override void DrawFrame()
         {
-            if (AndroidGameActivity.Surface.IsSurfaceReady)
+            var surface = AndroidGameActivity.Surface;
+
+            if (surface.IsSurfaceReady)
+            {
                 base.DrawFrame();
+            }
+            else
+            {
+                // Surface is not in a drawable state (just created and not yet sized, paused,
+                // or being torn down). Release any JNI thread blocked in
+                // AndroidGameSurface.SurfaceDestroyed waiting for us to drain — we have skipped
+                // a frame, so no GPU work is in flight against the doomed surface.
+                surface.NotifyDrawThreadIdle();
+            }
         }
 
         public override bool CanExit => false;

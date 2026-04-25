@@ -1074,6 +1074,15 @@ namespace osu.Framework.Platform
                 Window.Create();
                 Window.Title = Options.FriendlyGameName;
 
+                // Load persisted Vulkan pipeline cache (if any) before initialising the renderer
+                // so it can be forwarded into VkPipelineCacheCreateInfo. This lets the driver skip
+                // recompiling shader pipelines whose SPIR-V was previously seen, meaningfully
+                // cutting cold-start shader-compile cost — particularly noticeable on Android.
+                // The blob is header-validated (vendorID/deviceID/UUID) by the driver, so passing
+                // a stale or device-mismatched file is safe and the driver silently discards it.
+                if (Renderer is IVeldridRenderer veldridRendererForLoad)
+                    veldridRendererForLoad.PipelineCacheData = tryLoadPipelineCache();
+
                 Renderer.Initialise(Window.GraphicsSurface);
 
                 Logger.Log("🖼️ Renderer initialised!");
@@ -1600,6 +1609,13 @@ namespace osu.Framework.Platform
             Config?.Dispose();
             DebugConfig?.Dispose();
 
+            // Persist the current VkPipelineCache contents before tearing down the window so the
+            // next launch can warm-start shader pipeline creation. Done atomically (temp + rename)
+            // so a crash mid-write can't leave a truncated blob in place. Vulkan-only no-op on
+            // every other backend.
+            if (Renderer is IVeldridRenderer veldridRendererForSave)
+                trySavePipelineCache(veldridRendererForSave.PipelineCacheData);
+
             Window?.Dispose();
 
             LoadingComponentsLogger.LogAndFlush();
@@ -1610,6 +1626,88 @@ namespace osu.Framework.Platform
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        #endregion
+
+        #region Vulkan pipeline cache persistence
+
+        private const string pipeline_cache_filename = "vk_pipeline_cache.bin";
+        private const string pipeline_cache_subdir = "cache";
+
+        /// <summary>
+        /// Reads the persisted Vulkan pipeline cache blob from <c>Storage/cache/vk_pipeline_cache.bin</c>,
+        /// if present. Returns <c>null</c> if the file is missing, unreadable, or the host has no usable
+        /// storage. The Vulkan driver header-validates the blob and silently discards mismatched data,
+        /// so we don't do any version checking ourselves.
+        /// </summary>
+        [CanBeNull]
+        private byte[] tryLoadPipelineCache()
+        {
+            try
+            {
+                var cacheStorage = Storage?.GetStorageForDirectory(pipeline_cache_subdir);
+                if (cacheStorage == null || !cacheStorage.Exists(pipeline_cache_filename))
+                    return null;
+
+                using var stream = cacheStorage.GetStream(pipeline_cache_filename, FileAccess.Read, FileMode.Open);
+                if (stream == null || stream.Length == 0)
+                    return null;
+
+                byte[] data = new byte[stream.Length];
+                int read = 0;
+                while (read < data.Length)
+                {
+                    int n = stream.Read(data, read, data.Length - read);
+                    if (n <= 0) break;
+                    read += n;
+                }
+
+                return read == data.Length ? data : null;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Failed to load Vulkan pipeline cache: {ex.Message}", level: LogLevel.Debug);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Persists the supplied Vulkan pipeline cache blob to <c>Storage/cache/vk_pipeline_cache.bin</c>
+        /// atomically (write to a temp file, then replace). A no-op when <paramref name="data"/> is null
+        /// or empty (e.g. on non-Vulkan backends). All exceptions are swallowed and demoted to Debug —
+        /// pipeline caching is purely an optimisation and must never block shutdown.
+        /// </summary>
+        private void trySavePipelineCache([CanBeNull] byte[] data)
+        {
+            if (data == null || data.Length == 0)
+                return;
+
+            try
+            {
+                var cacheStorage = Storage?.GetStorageForDirectory(pipeline_cache_subdir);
+                if (cacheStorage == null)
+                    return;
+
+                // Atomic replace: write to a sibling temp file then rename over the destination.
+                // Storage.GetStream is "create or truncate" by default, so the temp file is fresh.
+                string tempName = pipeline_cache_filename + ".tmp";
+
+                using (var stream = cacheStorage.CreateFileSafely(tempName))
+                    stream.Write(data, 0, data.Length);
+
+                if (cacheStorage.Exists(pipeline_cache_filename))
+                    cacheStorage.Delete(pipeline_cache_filename);
+
+                // Storage doesn't expose a Move primitive directly, so use the underlying full path.
+                string source = cacheStorage.GetFullPath(tempName);
+                string dest = cacheStorage.GetFullPath(pipeline_cache_filename);
+                File.Move(source, dest);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Failed to persist Vulkan pipeline cache: {ex.Message}", level: LogLevel.Debug);
+            }
         }
 
         #endregion

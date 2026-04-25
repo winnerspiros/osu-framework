@@ -45,11 +45,12 @@ namespace osu.Framework.Platform
         {
             yield return new KeyboardHandler();
 
+            // tablet should get priority over mouse to correctly handle cases where tablet drivers report as mice as well.
+            //
             // OpenTabletDriver pulls in HidSharp which probes macOS-only HID APIs at startup,
             // producing a noisy first-chance HidSharp.Platform.MacOS.NativeMethods exception on
             // Android. Tablet drivers are also not a meaningful input source on Android, so skip
             // the handler entirely on that platform.
-            // tablet should get priority over mouse to correctly handle cases where tablet drivers report as mice as well.
             if (RuntimeInfo.OS != RuntimeInfo.Platform.Android)
                 yield return new OpenTabletDriverHandler();
 

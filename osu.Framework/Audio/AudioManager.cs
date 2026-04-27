@@ -144,8 +144,12 @@ namespace osu.Framework.Audio
         ///
         /// An eventual goal would be to use a global mixer across all platforms as it can result
         /// in more control and better playback performance.
+        ///
+        /// Exposed publicly so external integrations (e.g. the Android Oboe redirector in the
+        /// winnerspiros/osu fork) can plug into the same handle without resorting to reflection
+        /// or InternalsVisibleTo hacks.
         /// </remarks>
-        internal readonly IBindable<int?> GlobalMixerHandle = new Bindable<int?>();
+        public readonly IBindable<int?> GlobalMixerHandle = new Bindable<int?>();
 
         public override bool IsLoaded => base.IsLoaded &&
                                          // bass default device is a null device (-1), not the actual system default.

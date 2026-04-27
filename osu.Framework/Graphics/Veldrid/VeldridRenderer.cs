@@ -72,9 +72,19 @@ namespace osu.Framework.Graphics.Veldrid
         private VeldridIndexBuffer? linearIndexBuffer;
         private VeldridIndexBuffer? quadIndexBuffer;
 
+        private byte[]? pendingPipelineCacheData;
+
+        public byte[]? PipelineCacheData
+        {
+            get => veldridDevice.GetPipelineCacheData();
+            set => pendingPipelineCacheData = value;
+        }
+
         protected override void Initialise(IGraphicsSurface graphicsSurface)
         {
-            veldridDevice = new VeldridDevice(graphicsSurface);
+            veldridDevice = new VeldridDevice(graphicsSurface, pendingPipelineCacheData);
+            // The blob has been forwarded into device creation; release the managed reference.
+            pendingPipelineCacheData = null;
             graphicsPipeline = new GraphicsPipeline(veldridDevice);
             bufferUpdatePipeline = new BasicPipeline(veldridDevice);
             textureUploadPipeline = new BasicPipeline(veldridDevice);

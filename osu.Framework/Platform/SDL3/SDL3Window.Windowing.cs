@@ -70,6 +70,11 @@ namespace osu.Framework.Platform.SDL3
                 if (min.Width > sizeWindowed.MaxValue.Width || min.Height > sizeWindowed.MaxValue.Height)
                     throw new InvalidOperationException($"Expected a size less than max window size ({sizeWindowed.MaxValue}), got {min}");
 
+                // SDL's Android video driver does not implement window min/max size and returns
+                // "That operation is not supported", which spams the log every time the binding fires.
+                if (RuntimeInfo.OS == RuntimeInfo.Platform.Android)
+                    return;
+
                 ScheduleCommand(() => SDL_SetWindowMinimumSize(SDLWindowHandle, min.Width, min.Height).LogErrorIfFailed());
             };
 
@@ -80,6 +85,9 @@ namespace osu.Framework.Platform.SDL3
 
                 if (max.Width < sizeWindowed.MinValue.Width || max.Height < sizeWindowed.MinValue.Height)
                     throw new InvalidOperationException($"Expected a size greater than min window size ({sizeWindowed.MinValue}), got {max}");
+
+                if (RuntimeInfo.OS == RuntimeInfo.Platform.Android)
+                    return;
 
                 ScheduleCommand(() => SDL_SetWindowMaximumSize(SDLWindowHandle, max.Width, max.Height).LogErrorIfFailed());
             };
@@ -636,6 +644,16 @@ namespace osu.Framework.Platform.SDL3
 
         private unsafe bool tryGetBorderSize(out MarginPadding borderSize)
         {
+            // Android's SDL video driver never reports border sizes (no system window decorations).
+            // Skip the probe entirely to avoid the per-frame "That operation is not supported"
+            // first-chance exception that ART captures (each capture is non-trivially expensive).
+            if (RuntimeInfo.OS == RuntimeInfo.Platform.Android)
+            {
+                bordersSizeSupported = false;
+                borderSize = default;
+                return false;
+            }
+
             if (bordersSizeSupported == false)
             {
                 borderSize = default;

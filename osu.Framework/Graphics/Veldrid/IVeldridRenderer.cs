@@ -97,5 +97,14 @@ namespace osu.Framework.Graphics.Veldrid
         /// </summary>
         /// <param name="texture">The texture.</param>
         void GenerateMipmaps(VeldridTexture texture);
+
+        /// <summary>
+        /// Pre-warmed VkPipelineCache blob persisted from a previous run, or <c>null</c>. Must be
+        /// assigned by the host <em>before</em> <see cref="IRenderer.Initialise"/> is called — it
+        /// is forwarded into Vulkan device creation. Reading after initialisation returns the
+        /// current cache contents, suitable for persisting to disk on shutdown. Returns <c>null</c>
+        /// when the active backend is not Vulkan.
+        /// </summary>
+        byte[]? PipelineCacheData { get; set; }
     }
 }

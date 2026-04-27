@@ -33,9 +33,18 @@ namespace osu.Framework.Graphics.Rendering.Deferred
         private readonly Stack<DrawNode> drawNodeStack = new Stack<DrawNode>();
         private VeldridStagingTexturePool texturePool = null!;
 
+        private byte[]? pendingPipelineCacheData;
+
+        public byte[]? PipelineCacheData
+        {
+            get => VeldridDevice.GetPipelineCacheData();
+            set => pendingPipelineCacheData = value;
+        }
+
         protected override void Initialise(IGraphicsSurface graphicsSurface)
         {
-            VeldridDevice = new VeldridDevice(graphicsSurface);
+            VeldridDevice = new VeldridDevice(graphicsSurface, pendingPipelineCacheData);
+            pendingPipelineCacheData = null;
             Graphics = new GraphicsPipeline(VeldridDevice);
             texturePool = new VeldridStagingTexturePool(Graphics);
             Context = new DeferredContext(this);

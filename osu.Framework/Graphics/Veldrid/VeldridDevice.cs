@@ -109,8 +109,14 @@ namespace osu.Framework.Graphics.Veldrid
         /// Creates a new <see cref="VeldridDevice"/>
         /// </summary>
         /// <param name="graphicsSurface"></param>
+        /// <param name="pipelineCacheData">
+        /// Optional pre-warmed VkPipelineCache blob (from a previous run, persisted to disk). Only
+        /// consulted on the Vulkan backend; ignored otherwise. Pass <c>null</c> on first launch.
+        /// The Vulkan driver header-validates the blob (vendorID / deviceID / driver UUID) and
+        /// silently discards stale data, so the consumer doesn't need to do its own version checking.
+        /// </param>
         /// <exception cref="InvalidOperationException"></exception>
-        public VeldridDevice(IGraphicsSurface graphicsSurface)
+        public VeldridDevice(IGraphicsSurface graphicsSurface, byte[]? pipelineCacheData = null)
         {
             // Veldrid must either be initialised on the main/"input" thread, or in a separate thread away from the draw thread at least.
             // Otherwise the window may not render anything on some platforms (macOS at least).
@@ -255,7 +261,16 @@ namespace osu.Framework.Graphics.Veldrid
                     break;
 
                 case GraphicsSurfaceType.Vulkan:
-                    Device = GraphicsDevice.CreateVulkan(options, swapchain);
+                    // Pass the persisted VkPipelineCache blob through so the driver can skip
+                    // recompiling shader pipelines whose SPIR-V was previously seen — meaningfully
+                    // cuts cold-start shader-compile cost on Android. The blob is header-validated
+                    // by the driver (vendorID/deviceID/UUID), so passing stale or device-mismatched
+                    // data is safe — the driver silently discards it.
+                    var vkOptions = new VulkanDeviceOptions
+                    {
+                        PipelineCacheData = pipelineCacheData,
+                    };
+                    Device = GraphicsDevice.CreateVulkan(options, swapchain, vkOptions);
                     Device.LogVulkan(out maxTextureSize);
                     break;
 
@@ -362,6 +377,28 @@ namespace osu.Framework.Graphics.Veldrid
         /// </remarks>
         public void WaitUntilIdle()
             => Device.WaitForIdle();
+
+        /// <summary>
+        /// Returns the current contents of the underlying VkPipelineCache as a serialised blob,
+        /// suitable for persisting to disk and feeding back into the constructor on the next launch.
+        /// Returns <c>null</c> when the active backend is not Vulkan or the cache is empty.
+        /// </summary>
+        /// <remarks>
+        /// The blob's first bytes are a driver-validated header (vendorID / deviceID / driver UUID),
+        /// so it is always safe to round-trip stale data — the driver silently discards mismatched
+        /// blobs at create time. Should typically be called once just before disposing the device.
+        /// </remarks>
+        public byte[]? GetPipelineCacheData()
+        {
+            if (graphicsSurface.Type != GraphicsSurfaceType.Vulkan)
+                return null;
+
+            if (!Device.GetVulkanInfo(out var info))
+                return null;
+
+            byte[] data = info.GetPipelineCacheData();
+            return data.Length == 0 ? null : data;
+        }
 
         /// <summary>
         /// Waits until the GPU signals that the next frame is ready to be rendered.

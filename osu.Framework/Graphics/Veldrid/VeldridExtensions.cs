@@ -503,6 +503,8 @@ namespace osu.Framework.Graphics.Veldrid
                                     {vulkanName} Device:                {Marshal.PtrToStringUTF8((IntPtr)properties.deviceName)}
                                     {vulkanName} Fragment Shading Rate: {info.HasFragmentShadingRate}
                                     {vulkanName} Mesh Shader:           {info.HasMeshShader}
+                                    {vulkanName} Synchronization2:      {info.HasSynchronization2}
+                                    {vulkanName} Timeline Semaphore:    {info.HasTimelineSemaphore}
                                     {vulkanName} Extensions:            {string.Join(',', extensionNames)}");
         }
 

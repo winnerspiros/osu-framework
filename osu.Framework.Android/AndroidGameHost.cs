@@ -8,7 +8,6 @@ using Android.Content;
 using AndroidX.Core.Content;
 using osu.Framework.Android.Graphics.Textures;
 using osu.Framework.Android.Graphics.Video;
-using osu.Framework.Configuration;
 using osu.Framework.Extensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Extensions.ObjectExtensions;
@@ -32,21 +31,13 @@ namespace osu.Framework.Android
             this.activity = activity;
         }
 
-        protected override void SetupConfig(IDictionary<FrameworkSetting, object> defaultOverrides)
-        {
-            if (!defaultOverrides.ContainsKey(FrameworkSetting.ExecutionMode))
-                defaultOverrides.Add(FrameworkSetting.ExecutionMode, ExecutionMode.SingleThread);
-
-            base.SetupConfig(defaultOverrides);
-        }
-
         protected override void SetupForRun()
         {
             base.SetupForRun();
 
             // Set the main thread to THREAD_PRIORITY_DISPLAY (-4) for scheduler prioritisation.
-            // In SingleThread mode (the default on Android), the main thread handles all game threads
-            // including rendering. This gives the rendering work higher scheduler priority.
+            // The main thread drives input/UI work and (in SingleThread mode) all game threads
+            // including rendering. Boosting it gives that work higher scheduler priority.
             try
             {
                 global::Android.OS.Process.SetThreadPriority(global::Android.OS.ThreadPriority.Display);

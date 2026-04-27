@@ -1695,16 +1695,16 @@ namespace osu.Framework.Platform
 
                 // Atomic replace: write to a sibling temp file then rename over the destination.
                 // Storage.GetStream is "create or truncate" by default, so the temp file is fresh.
-                const string tempName = pipeline_cache_filename + ".tmp";
+                const string temp_name = pipeline_cache_filename + ".tmp";
 
-                using (var stream = cacheStorage.CreateFileSafely(tempName))
+                using (var stream = cacheStorage.CreateFileSafely(temp_name))
                     stream.Write(data, 0, data.Length);
 
                 if (cacheStorage.Exists(pipeline_cache_filename))
                     cacheStorage.Delete(pipeline_cache_filename);
 
                 // Storage doesn't expose a Move primitive directly, so use the underlying full path.
-                string source = cacheStorage.GetFullPath(tempName);
+                string source = cacheStorage.GetFullPath(temp_name);
                 string dest = cacheStorage.GetFullPath(pipeline_cache_filename);
                 File.Move(source, dest);
             }

@@ -126,6 +126,17 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             // Device.UpdateTexture(texture, data, (uint)x, (uint)y, 0, (uint)width, (uint)height, 1, (uint)level, 0);
             //
             // Except we are using a staging texture pool to avoid the alloc overhead of each staging texture.
+            //
+            // Note: this path is intentionally NOT routed through GraphicsDevice.BeginTextureUpdateBatch
+            // (the Vk-overridden coalescing API). That batch is designed for callers issuing many
+            // device-level UpdateTexture calls without an open command list, where each call would
+            // become its own vkQueueSubmit; it Submits its own one-shot CB on Dispose. The framework
+            // already coalesces all per-frame texture work into the per-frame CommandList below
+            // (Commands.CopyTexture) which submits exactly once at end-of-frame, so wrapping this
+            // call site in a TextureUpdateBatch would *add* a second vkQueueSubmit per frame for
+            // zero functional gain. The fork-side wins that *do* benefit this path (bumped staging-
+            // pool defaults, sync2 / timeline-semaphores, persisted VkPipelineCache) apply
+            // automatically through the existing Device.UpdateTexture / Commands.CopyTexture calls.
             var staging = stagingPool.Get(width, height, texture.Format);
             device.Device.UpdateTexture(staging, data, 0, 0, 0, (uint)width, (uint)height, 1, (uint)level, 0);
             Commands.CopyTexture(staging, 0, 0, 0, 0, 0, texture, (uint)x, (uint)y, 0, (uint)level, 0, (uint)width, (uint)height, 1, 1);

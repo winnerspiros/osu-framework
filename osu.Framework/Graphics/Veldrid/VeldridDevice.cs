@@ -266,9 +266,20 @@ namespace osu.Framework.Graphics.Veldrid
                     // cuts cold-start shader-compile cost on Android. The blob is header-validated
                     // by the driver (vendorID/deviceID/UUID), so passing stale or device-mismatched
                     // data is safe — the driver silently discards it.
+                    //
+                    // Pin the Vk staging-pool sizes explicitly. The fork's backend defaults are
+                    // 64 KiB floor / 4 MiB recycle ceiling (vs upstream's vestigial 64 B / 512 B
+                    // which effectively bypassed the pool entirely for any realistic UpdateBuffer
+                    // size). We declare the same values here so the policy is visible/auditable in
+                    // the framework rather than dependent on backend default drift, and so the
+                    // floor matches the per-frame upload pattern the framework's
+                    // VeldridStagingTexturePool / staging-buffer paths actually generate
+                    // (typical glyph atlas tile / SSBO update is well under 64 KiB).
                     var vkOptions = new VulkanDeviceOptions
                     {
                         PipelineCacheData = pipelineCacheData,
+                        MinStagingBufferSize = 64 * 1024,
+                        MaxStagingBufferSize = 4 * 1024 * 1024,
                     };
                     Device = GraphicsDevice.CreateVulkan(options, swapchain, vkOptions);
                     Device.LogVulkan(out maxTextureSize);

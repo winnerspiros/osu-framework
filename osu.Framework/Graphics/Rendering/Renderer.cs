@@ -62,6 +62,30 @@ namespace osu.Framework.Graphics.Rendering
         /// </summary>
         public int MaxPixelsUploadedPerFrame { get; set; } = RuntimeInfo.IsMobile ? 1024 * 512 : 1024 * 1024 * 2;
 
+        /// <summary>
+        /// Maximum wall-clock time (in milliseconds) to spend draining the texture upload queue per frame.
+        /// This is an additional guard over <see cref="MaxTexturesUploadedPerFrame"/> and <see cref="MaxPixelsUploadedPerFrame"/>
+        /// to ensure that a cold-start burst of small uploads (which can easily fit under the count/pixel caps but
+        /// still take many milliseconds on slower mobile drivers, particularly Vulkan) cannot monopolise the draw
+        /// thread and prevent timely <c>SwapBuffers</c>/present.
+        /// </summary>
+        public double MaxTextureUploadMillisecondsPerFrame { get; set; } = RuntimeInfo.IsMobile ? 2.0 : 4.0;
+
+        /// <summary>
+        /// Number of initial frames after the renderer becomes initialised during which the per-frame upload count
+        /// is held to a small fixed cap, before being allowed to ramp up to <see cref="MaxTexturesUploadedPerFrame"/>.
+        /// This avoids letting the cold-start texture flood (atlases, glyphs, hundreds of icon textures) drain into
+        /// the very first few frames where shader/pipeline compilation and surface bring-up are also competing for
+        /// the draw thread.
+        /// </summary>
+        public int TextureUploadRampUpFrames { get; set; } = RuntimeInfo.IsMobile ? 60 : 30;
+
+        /// <summary>
+        /// The minimum per-frame upload count used during the ramp-up window controlled by
+        /// <see cref="TextureUploadRampUpFrames"/>.
+        /// </summary>
+        public int InitialMaxTexturesUploadedPerFrame { get; set; } = RuntimeInfo.IsMobile ? 4 : 8;
+
         public abstract bool IsDepthRangeZeroToOne { get; }
         public abstract bool IsUvOriginTopLeft { get; }
         public abstract bool IsClipSpaceYInverted { get; }
@@ -114,6 +138,23 @@ namespace osu.Framework.Graphics.Rendering
 
         private readonly ConcurrentQueue<ScheduledDelegate> expensiveOperationQueue = new ConcurrentQueue<ScheduledDelegate>();
         private readonly ConcurrentQueue<INativeTexture> textureUploadQueue = new ConcurrentQueue<INativeTexture>();
+
+        /// <summary>
+        /// Mirror of the contents of <see cref="textureUploadQueue"/> used as an O(1) membership check to avoid
+        /// quadratic enqueue cost on cold start, where the queue can grow into the high hundreds before the draw
+        /// thread has had a chance to drain it. Guarded by <see cref="textureUploadQueueLock"/>.
+        /// </summary>
+        private readonly HashSet<INativeTexture> textureUploadQueueSet = new HashSet<INativeTexture>();
+
+        private readonly object textureUploadQueueLock = new object();
+
+        /// <summary>
+        /// Number of frames elapsed since <see cref="IsInitialised"/> became <c>true</c>. Used to ramp the per-frame
+        /// texture upload cap up from <see cref="InitialMaxTexturesUploadedPerFrame"/> to
+        /// <see cref="MaxTexturesUploadedPerFrame"/> over <see cref="TextureUploadRampUpFrames"/> frames.
+        /// </summary>
+        private int framesSinceInitialised;
+
         private readonly RendererDisposalQueue disposalQueue = new RendererDisposalQueue();
 
         private readonly Scheduler resetScheduler = new Scheduler(() => ThreadSafety.IsDrawThread, new StopwatchClock(true)); // force no thread set until we are actually on the draw thread.
@@ -293,14 +334,36 @@ namespace osu.Framework.Graphics.Rendering
             statTextureUploadsDequeued.Value = 0;
             statTextureUploadsPerformed.Value = 0;
 
-            // increase the number of items processed with the queue length to ensure it doesn't get out of hand.
-            int targetUploads = Math.Clamp(textureUploadQueue.Count / 2, 1, MaxTexturesUploadedPerFrame);
+            // determine the per-frame upload count cap.
+            // during the first TextureUploadRampUpFrames after initialisation, hold the cap to a small fixed value
+            // (InitialMaxTexturesUploadedPerFrame). this prevents the cold-start texture flood (atlases, glyph pages,
+            // hundreds of icon textures all enqueued at once during LoadComplete) from being drained into the very
+            // first few frames where shader/pipeline compilation and surface bring-up are also competing for the
+            // draw thread, which on mobile Vulkan can result in a multi-second black-screen stall.
+            // afterwards, ramp linearly up to MaxTexturesUploadedPerFrame.
+            int rampFrames = Math.Max(0, TextureUploadRampUpFrames);
+            int initialCap = Math.Clamp(InitialMaxTexturesUploadedPerFrame, 1, MaxTexturesUploadedPerFrame);
+            int frameCap;
+            if (rampFrames == 0 || framesSinceInitialised >= rampFrames)
+                frameCap = MaxTexturesUploadedPerFrame;
+            else
+                frameCap = initialCap + (MaxTexturesUploadedPerFrame - initialCap) * framesSinceInitialised / rampFrames;
+
+            int targetUploads = Math.Max(1, frameCap);
             int uploads = 0;
             int uploadedPixels = 0;
+
+            // wall-clock budget is an additional guard so that even a few large or driver-slow uploads cannot
+            // monopolise the draw thread and cause a missed present.
+            long uploadBudgetTicks = (long)(MaxTextureUploadMillisecondsPerFrame * Stopwatch.Frequency / 1000.0);
+            long uploadStartTimestamp = uploadBudgetTicks > 0 ? Stopwatch.GetTimestamp() : 0;
 
             // continue attempting to upload textures until enough uploads have been performed.
             while (textureUploadQueue.TryDequeue(out INativeTexture? texture))
             {
+                lock (textureUploadQueueLock)
+                    textureUploadQueueSet.Remove(texture);
+
                 statTextureUploadsDequeued.Value++;
 
                 if (!texture.Upload())
@@ -313,7 +376,13 @@ namespace osu.Framework.Graphics.Rendering
 
                 if ((uploadedPixels += texture.Width * texture.Height) > MaxPixelsUploadedPerFrame)
                     break;
+
+                if (uploadBudgetTicks > 0 && Stopwatch.GetTimestamp() - uploadStartTimestamp >= uploadBudgetTicks)
+                    break;
             }
+
+            if (framesSinceInitialised < rampFrames)
+                framesSinceInitialised++;
 
             lastBoundTexture.AsSpan().Clear();
             lastBoundTextureIsAtlas.AsSpan().Clear();
@@ -909,8 +978,17 @@ namespace osu.Framework.Graphics.Rendering
         /// <param name="texture">The texture to be uploaded.</param>
         internal void EnqueueTextureUpload(INativeTexture texture)
         {
-            if (!IsInitialised || textureUploadQueue.Contains(texture))
+            if (!IsInitialised)
                 return;
+
+            // O(1) dedup. previously this performed a linear ConcurrentQueue<T>.Contains scan on every enqueue,
+            // which becomes quadratic during cold start where the queue can grow into the high hundreds before
+            // the draw thread drains it.
+            lock (textureUploadQueueLock)
+            {
+                if (!textureUploadQueueSet.Add(texture))
+                    return;
+            }
 
             textureUploadQueue.Enqueue(texture);
         }

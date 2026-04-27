@@ -1656,10 +1656,14 @@ namespace osu.Framework.Platform
 
                 byte[] data = new byte[stream.Length];
                 int read = 0;
+
                 while (read < data.Length)
                 {
                     int n = stream.Read(data, read, data.Length - read);
-                    if (n <= 0) break;
+
+                    if (n <= 0)
+                        break;
+
                     read += n;
                 }
 
@@ -1691,7 +1695,7 @@ namespace osu.Framework.Platform
 
                 // Atomic replace: write to a sibling temp file then rename over the destination.
                 // Storage.GetStream is "create or truncate" by default, so the temp file is fresh.
-                string tempName = pipeline_cache_filename + ".tmp";
+                const string tempName = pipeline_cache_filename + ".tmp";
 
                 using (var stream = cacheStorage.CreateFileSafely(tempName))
                     stream.Write(data, 0, data.Length);

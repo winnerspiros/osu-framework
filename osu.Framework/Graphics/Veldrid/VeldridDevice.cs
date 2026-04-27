@@ -106,27 +106,18 @@ namespace osu.Framework.Graphics.Veldrid
         private const int max_consecutive_swapchain_failures = 5;
 
         /// <summary>
-        /// Optional pre-warmed VkPipelineCache blob loaded from disk by the host before device
-        /// creation. Persisted on shutdown via <see cref="GetPipelineCacheData"/>. Only consulted
-        /// when the active backend is Vulkan; ignored on every other backend. The Vulkan driver
-        /// header-validates the blob (vendorID / deviceID / driver UUID) and silently discards
-        /// stale data, so the consumer doesn't need to do its own version checking.
-        /// </summary>
-        private readonly byte[]? initialPipelineCacheData;
-
-        /// <summary>
         /// Creates a new <see cref="VeldridDevice"/>
         /// </summary>
         /// <param name="graphicsSurface"></param>
         /// <param name="pipelineCacheData">
         /// Optional pre-warmed VkPipelineCache blob (from a previous run, persisted to disk). Only
         /// consulted on the Vulkan backend; ignored otherwise. Pass <c>null</c> on first launch.
+        /// The Vulkan driver header-validates the blob (vendorID / deviceID / driver UUID) and
+        /// silently discards stale data, so the consumer doesn't need to do its own version checking.
         /// </param>
         /// <exception cref="InvalidOperationException"></exception>
         public VeldridDevice(IGraphicsSurface graphicsSurface, byte[]? pipelineCacheData = null)
         {
-            initialPipelineCacheData = pipelineCacheData;
-
             // Veldrid must either be initialised on the main/"input" thread, or in a separate thread away from the draw thread at least.
             // Otherwise the window may not render anything on some platforms (macOS at least).
             Debug.Assert(!ThreadSafety.IsDrawThread, "Veldrid cannot be initialised on the draw thread.");
@@ -277,7 +268,7 @@ namespace osu.Framework.Graphics.Veldrid
                     // data is safe — the driver silently discards it.
                     var vkOptions = new VulkanDeviceOptions
                     {
-                        PipelineCacheData = initialPipelineCacheData,
+                        PipelineCacheData = pipelineCacheData,
                     };
                     Device = GraphicsDevice.CreateVulkan(options, swapchain, vkOptions);
                     Device.LogVulkan(out maxTextureSize);

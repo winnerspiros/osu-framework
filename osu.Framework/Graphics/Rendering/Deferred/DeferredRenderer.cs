@@ -37,7 +37,7 @@ namespace osu.Framework.Graphics.Rendering.Deferred
 
         public byte[]? PipelineCacheData
         {
-            get => VeldridDevice?.GetPipelineCacheData();
+            get => VeldridDevice.GetPipelineCacheData();
             set => pendingPipelineCacheData = value;
         }
 

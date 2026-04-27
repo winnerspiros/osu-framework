@@ -76,7 +76,7 @@ namespace osu.Framework.Graphics.Veldrid
 
         public byte[]? PipelineCacheData
         {
-            get => veldridDevice?.GetPipelineCacheData();
+            get => veldridDevice.GetPipelineCacheData();
             set => pendingPipelineCacheData = value;
         }
 

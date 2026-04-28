@@ -193,29 +193,45 @@ namespace osu.Framework.Graphics.Veldrid
                     var androidGraphics = (IAndroidGraphicsSurface)this.graphicsSurface;
 
                     // Android SurfaceView's native surface is not always ready when the SDL thread reaches
-                    // VeldridDevice initialisation. SurfaceHandle returns IntPtr.Zero in that window;
-                    // forwarding a null handle to vkCreateAndroidSurfaceKHR causes a SIGSEGV (pc=0) inside
-                    // the Vulkan driver. Poll briefly for the surface to become available.
+                    // VeldridDevice initialisation. On some OEMs (notably Adreno-based devices),
+                    // surfaceCreated fires with the holder's Surface.Handle already non-zero while the
+                    // underlying ANativeWindow is still 0×0; surfaceChanged delivers the real dimensions
+                    // shortly after. Polling only for a non-zero SurfaceHandle would proceed immediately
+                    // against the unsized window, baking a 0×0 swapchain that causes a permanent black
+                    // screen with no crash. We therefore gate on IsSurfaceReady (which additionally
+                    // requires surfaceChanged to have reported non-zero dimensions and the app lifecycle
+                    // to be resumed) rather than just a non-zero handle.
                     // Note: this is a one-time startup-only blocking wait on the SDL/input thread; the
                     // surface is empirically ready within a few hundred ms, and 5s is just an upper
                     // bound to fail fast with a managed exception rather than hang indefinitely.
-                    IntPtr surfaceHandle = androidGraphics.SurfaceHandle;
-
                     const int max_wait_ms = 5000;
                     const int poll_interval_ms = 50;
                     int waited = 0;
 
-                    while (surfaceHandle == IntPtr.Zero && waited < max_wait_ms)
+                    while (!androidGraphics.IsSurfaceReady && waited < max_wait_ms)
                     {
                         Thread.Sleep(poll_interval_ms);
                         waited += poll_interval_ms;
-                        surfaceHandle = androidGraphics.SurfaceHandle;
                     }
 
-                    if (surfaceHandle == IntPtr.Zero)
+                    if (!androidGraphics.IsSurfaceReady)
+                    {
+                        // Distinguish between the two failure modes so future reports are easier to triage.
+                        string reason = androidGraphics.SurfaceHandle == IntPtr.Zero
+                            ? "SurfaceView.surfaceCreated has not fired — the Android Surface handle is still null."
+                            : "SurfaceView.surfaceCreated fired but surfaceChanged with non-zero dimensions has not — the surface is still 0×0 or the app is not resumed.";
                         throw new InvalidOperationException(
-                            $"Android surface handle was not available within {max_wait_ms} ms. " +
-                            "SurfaceView.surfaceCreated has not fired — cannot create the Vulkan swapchain.");
+                            $"Android surface was not ready within {max_wait_ms} ms. {reason} Cannot create the Vulkan swapchain.");
+                    }
+
+                    // Re-read the drawable size now that the surface is confirmed ready; the size captured
+                    // earlier (before the poll) may have been 0×0 on Adreno devices where surfaceChanged
+                    // fires after the initial GetDrawableSize() call.
+                    var readySize = this.graphicsSurface.GetDrawableSize();
+                    swapchain.Width = (uint)readySize.Width;
+                    swapchain.Height = (uint)readySize.Height;
+
+                    Logger.Log($"Android surface ready after {waited} ms — drawable size {readySize.Width}×{readySize.Height}.", level: LogLevel.Important);
 
                     // Re-snapshot immediately before use to narrow the race with a concurrent
                     // SurfaceView.surfaceDestroyed zeroing the handle between our last poll and

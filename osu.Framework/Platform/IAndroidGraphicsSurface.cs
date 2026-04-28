@@ -17,5 +17,16 @@ namespace osu.Framework.Platform
         /// </summary>
         /// <remarks>https://developer.android.com/reference/android/view/Surface.html</remarks>
         IntPtr SurfaceHandle { get; }
+
+        /// <summary>
+        /// Whether the Android surface is fully ready to be drawn into.
+        /// </summary>
+        /// <remarks>
+        /// The default implementation returns <c>true</c> iff <see cref="SurfaceHandle"/> is non-zero,
+        /// preserving source compatibility for external implementers.
+        /// Android-specific implementations should additionally require that
+        /// <c>surfaceChanged</c> has delivered non-zero dimensions and the app lifecycle is resumed.
+        /// </remarks>
+        bool IsSurfaceReady => SurfaceHandle != IntPtr.Zero;
     }
 }

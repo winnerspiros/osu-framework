@@ -268,6 +268,9 @@ namespace osu.Framework.Platform.SDL3
         [SupportedOSPlatform("android")]
         IntPtr IAndroidGraphicsSurface.SurfaceHandle => window.SurfaceHandle;
 
+        [SupportedOSPlatform("android")]
+        bool IAndroidGraphicsSurface.IsSurfaceReady => window.IsSurfaceReady;
+
         #endregion
     }
 }

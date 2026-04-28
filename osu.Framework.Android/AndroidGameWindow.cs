@@ -11,6 +11,8 @@ namespace osu.Framework.Android
     {
         public override IntPtr SurfaceHandle => AndroidGameActivity.Surface.Holder?.Surface?.Handle ?? IntPtr.Zero;
 
+        public override bool IsSurfaceReady => AndroidGameActivity.Surface.IsSurfaceReady;
+
         public AndroidGameWindow(GraphicsSurfaceType surfaceType, string appName)
             : base(surfaceType, appName)
         {

@@ -383,31 +383,51 @@ namespace osu.Framework.Audio
         /// <param name="device">The device to initialise.</param>
         protected virtual bool InitBass(int device)
         {
-            // this likely doesn't help us but also doesn't seem to cause any issues or any cpu increase.
-            Bass.UpdatePeriod = 5;
-
-            // reduce latency to a known sane minimum.
-            Bass.DeviceBufferLength = 10;
-            Bass.PlaybackBufferLength = 40;
-
-            if (RuntimeInfo.OS == RuntimeInfo.Platform.Android)
+            if (int.TryParse(Environment.GetEnvironmentVariable("OSU_TEMP_TESTING_BASS_CONFIG_DEV_PERIOD"), out int devicePeriod))
             {
-                // Use minimal buffer settings on Android for lowest possible audio latency.
-                // On Android with AAudio/Oboe, smaller buffers reduce the BASS-side latency
-                // that sits on top of the native audio stack.
-                Bass.DeviceBufferLength = 5;
-                Bass.PlaybackBufferLength = 25;
-                Bass.UpdatePeriod = 2;
+                Logger.Log(
+                    $"Device period is set to \"{devicePeriod}\" via environment variable for testing purposes.\n\nThis is made available for testing so we can gather feedback on how to incorporate as a permanent game setting. Incorrect settings may lead to serious issues.",
+                    level: LogLevel.Important);
 
-                // Enable BASS_CONFIG_ANDROID_AAUDIO to prefer AAudio over OpenSL ES for lower latency on Android 8.1+.
-                Bass.Configure((ManagedBass.Configuration)67, 1);
+                // Device period normally is in milliseconds, but it might be set to a negative
+                // value too for an exact sample size, e.g. -256 for 256 samples.
+                // https://www.un4seen.com/doc/#bass/BASS_CONFIG_DEV_PERIOD.html
+                Bass.Configure(ManagedBass.Configuration.DevicePeriod, devicePeriod);
+
+                // 1ms is definitely too low, but we're setting such low number on purpose,
+                // in order for BASS to automatically set it to twice the length of BASS_CONFIG_DEV_PERIOD.
+                //
+                // See https://www.un4seen.com/doc/#bass/BASS_CONFIG_DEV_BUFFER.html
+                Bass.DeviceBufferLength = 1;
             }
-            else if (RuntimeInfo.OS == RuntimeInfo.Platform.iOS)
+            else
             {
-                // iOS CoreAudio natively supports low-latency output; tighten buffers accordingly.
-                Bass.DeviceBufferLength = 5;
-                Bass.PlaybackBufferLength = 30;
-                Bass.UpdatePeriod = 3;
+                // this likely doesn't help us but also doesn't seem to cause any issues or any cpu increase.
+                Bass.UpdatePeriod = 5;
+
+                // reduce latency to a known sane minimum.
+                Bass.DeviceBufferLength = 10;
+                Bass.PlaybackBufferLength = 40;
+
+                if (RuntimeInfo.OS == RuntimeInfo.Platform.Android)
+                {
+                    // Use minimal buffer settings on Android for lowest possible audio latency.
+                    // On Android with AAudio/Oboe, smaller buffers reduce the BASS-side latency
+                    // that sits on top of the native audio stack.
+                    Bass.DeviceBufferLength = 5;
+                    Bass.PlaybackBufferLength = 25;
+                    Bass.UpdatePeriod = 2;
+
+                    // Enable BASS_CONFIG_ANDROID_AAUDIO to prefer AAudio over OpenSL ES for lower latency on Android 8.1+.
+                    Bass.Configure((ManagedBass.Configuration)67, 1);
+                }
+                else if (RuntimeInfo.OS == RuntimeInfo.Platform.iOS)
+                {
+                    // iOS CoreAudio natively supports low-latency output; tighten buffers accordingly.
+                    Bass.DeviceBufferLength = 5;
+                    Bass.PlaybackBufferLength = 30;
+                    Bass.UpdatePeriod = 3;
+                }
             }
 
             // ensure there are no brief delays on audio operations (causing stream stalls etc.) after periods of silence.
@@ -467,8 +487,9 @@ namespace osu.Framework.Audio
                           BASS MIX version:       {BassMix.Version}
                           Device:                 {deviceInfo.Name}
                           Driver:                 {deviceInfo.Driver}
-                          Update period:          {Bass.UpdatePeriod} ms
+                          Device period length:   {devicePeriod}
                           Device buffer length:   {Bass.DeviceBufferLength} ms
+                          Update period:          {Bass.UpdatePeriod} ms
                           Playback buffer length: {Bass.PlaybackBufferLength} ms");
 
                 return true;

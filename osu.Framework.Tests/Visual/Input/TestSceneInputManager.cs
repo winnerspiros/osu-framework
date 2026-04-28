@@ -225,12 +225,7 @@ namespace osu.Framework.Tests.Visual.Input
 
         private void setPenSensitivityConfig(double sensitivity)
         {
-            var penHandler = getPenHandler();
-
-            if (penHandler == null)
-                return;
-
-            penHandler.Sensitivity.Value = sensitivity;
+            getPenHandler()?.Sensitivity.Set(sensitivity);
         }
 
         private void setCursorSensitivityConfig(double sensitivity)

@@ -150,6 +150,9 @@ namespace osu.Framework.Platform.SDL3
         [SupportedOSPlatform("android")]
         public virtual IntPtr SurfaceHandle => throw new PlatformNotSupportedException();
 
+        [SupportedOSPlatform("android")]
+        public virtual bool IsSurfaceReady => SurfaceHandle != IntPtr.Zero;
+
         public bool CapsLockPressed => SDL_GetModState().HasFlagFast(SDL_Keymod.SDL_KMOD_CAPS);
 
         public bool KeyboardAttached => SDL_HasKeyboard();

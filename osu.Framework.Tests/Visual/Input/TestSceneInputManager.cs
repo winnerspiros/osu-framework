@@ -225,7 +225,8 @@ namespace osu.Framework.Tests.Visual.Input
 
         private void setPenSensitivityConfig(double sensitivity)
         {
-            var penHandler = host.AvailableInputHandlers.OfType<PenHandler>().FirstOrDefault();
+            var penHandler = getPenHandler();
+
             if (penHandler == null)
                 return;
 
@@ -255,6 +256,11 @@ namespace osu.Framework.Tests.Visual.Input
         private MouseHandler getMouseHandler()
         {
             return host.AvailableInputHandlers.OfType<MouseHandler>().FirstOrDefault();
+        }
+
+        private PenHandler getPenHandler()
+        {
+            return host.AvailableInputHandlers.OfType<PenHandler>().FirstOrDefault();
         }
 
         private void setCursorVisibility(bool visible)

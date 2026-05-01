@@ -65,8 +65,12 @@ namespace osu.Framework.Android
         private volatile bool surfaceCreated;
         private volatile bool surfaceHasSize;
         private volatile bool isResumed = true;
+        private volatile int surfaceWidth;
+        private volatile int surfaceHeight;
 
         public bool IsSurfaceReady => surfaceCreated && surfaceHasSize && isResumed;
+
+        public System.Drawing.Size SurfaceSize => new System.Drawing.Size(surfaceWidth, surfaceHeight);
 
         /// <summary>
         /// Signalled by the Draw thread once it has observed <see cref="IsSurfaceReady"/> as
@@ -110,6 +114,8 @@ namespace osu.Framework.Android
         public override void SurfaceChanged(ISurfaceHolder? holder, [GeneratedEnum] Format format, int width, int height)
         {
             base.SurfaceChanged(holder, format, width, height);
+            surfaceWidth = width;
+            surfaceHeight = height;
             surfaceHasSize = width > 0 && height > 0;
         }
 
@@ -118,6 +124,8 @@ namespace osu.Framework.Android
             // Mark the surface as gone first so the Draw thread short-circuits its next frame.
             surfaceCreated = false;
             surfaceHasSize = false;
+            surfaceWidth = 0;
+            surfaceHeight = 0;
 
             // Ask the Draw thread to acknowledge that it has observed the teardown before we
             // let Android free the underlying ANativeWindow. The Draw thread sets the event in

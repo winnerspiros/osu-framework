@@ -15,7 +15,6 @@ using osu.Framework.Extensions;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
-using RuntimeInfo = osu.Framework.RuntimeInfo;
 
 namespace osu.Framework.Graphics.Textures
 {

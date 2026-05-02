@@ -15,6 +15,7 @@ using osu.Framework.Extensions;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
+using RuntimeInfo = osu.Framework.RuntimeInfo;
 
 namespace osu.Framework.Graphics.Textures
 {
@@ -39,8 +40,9 @@ namespace osu.Framework.Graphics.Textures
         /// built-in GL mipmapping performs poorly on atlases bigger than this maximum.
         /// If the built-in GL mipmapping is replaced in the future (see custom generation logic in `{GL,Veldrid}Texture`),
         /// then this limit can be increased to 4096 again.
+        /// On Android (Vulkan), a larger atlas reduces the number of VkImage allocations and vkQueueSubmit calls during texture streaming.
         /// </remarks>
-        private const int max_atlas_size = 1024;
+        private static readonly int max_atlas_size = RuntimeInfo.OS == RuntimeInfo.Platform.Android ? 2048 : 1024;
 
         /// <summary>
         /// Decides at what resolution multiple this <see cref="TextureStore"/> is providing sprites at.

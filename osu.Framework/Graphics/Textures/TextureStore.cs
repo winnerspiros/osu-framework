@@ -42,7 +42,7 @@ namespace osu.Framework.Graphics.Textures
         /// then this limit can be increased to 4096 again.
         /// On Android (Vulkan), a larger atlas reduces the number of VkImage allocations and vkQueueSubmit calls during texture streaming.
         /// </remarks>
-        private static int max_atlas_size => RuntimeInfo.OS == RuntimeInfo.Platform.Android ? 2048 : 1024;
+        private static readonly int max_atlas_size = RuntimeInfo.OS == RuntimeInfo.Platform.Android ? 2048 : 1024;
 
         /// <summary>
         /// Decides at what resolution multiple this <see cref="TextureStore"/> is providing sprites at.

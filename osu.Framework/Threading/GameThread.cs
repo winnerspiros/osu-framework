@@ -81,7 +81,7 @@ namespace osu.Framework.Threading
 
         /// <summary>
         /// Raised at the end of each frame, after all work and clock throttling have completed.
-        /// Can be used for per-frame reporting such as ADPF's <c>nADPFReportActualWorkDuration</c>.
+        /// Can be used for per-frame reporting such as ADPF's <c>nADPFReportActualDuration</c>.
         /// </summary>
         public event Action? FrameCompleted;
 

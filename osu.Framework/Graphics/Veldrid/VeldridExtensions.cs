@@ -496,16 +496,18 @@ namespace osu.Framework.Graphics.Veldrid
             string driverInfo = info.DriverInfo ?? "(unknown)";
 
             Logger.Log($@"{vulkanName} Initialized
-                                    {vulkanName} API Version:           {apiVersion}
-                                    {vulkanName} Driver Version:        {driverVersion}
-                                    {vulkanName} Driver Name:           {driverName}
-                                    {vulkanName} Driver Info:           {driverInfo}
-                                    {vulkanName} Device:                {Marshal.PtrToStringUTF8((IntPtr)properties.deviceName)}
-                                    {vulkanName} Fragment Shading Rate: {info.HasFragmentShadingRate}
-                                    {vulkanName} Mesh Shader:           {info.HasMeshShader}
-                                    {vulkanName} Synchronization2:      {info.HasSynchronization2}
-                                    {vulkanName} Timeline Semaphore:    {info.HasTimelineSemaphore}
-                                    {vulkanName} Extensions:            {string.Join(',', extensionNames)}");
+                                    {vulkanName} API Version:                      {apiVersion}
+                                    {vulkanName} Driver Version:                   {driverVersion}
+                                    {vulkanName} Driver Name:                      {driverName}
+                                    {vulkanName} Driver Info:                      {driverInfo}
+                                    {vulkanName} Device:                           {Marshal.PtrToStringUTF8((IntPtr)properties.deviceName)}
+                                    {vulkanName} Fragment Shading Rate:            {info.HasFragmentShadingRate}
+                                    {vulkanName} Mesh Shader:                      {info.HasMeshShader}
+                                    {vulkanName} Synchronization2:                 {info.HasSynchronization2}
+                                    {vulkanName} Timeline Semaphore:               {info.HasTimelineSemaphore}
+                                    {vulkanName} Display Timing (GOOGLE):          {info.HasDisplayTiming}
+                                    {vulkanName} Pipeline Creation Cache Control:  {info.HasPipelineCreationCacheControl}
+                                    {vulkanName} Extensions:                       {string.Join(',', extensionNames)}");
         }
 
         public static void LogMetal(this GraphicsDevice device, out int maxTextureSize)

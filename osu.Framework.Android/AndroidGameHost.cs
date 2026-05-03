@@ -51,8 +51,28 @@ namespace osu.Framework.Android
 
         protected override IWindow CreateWindow(GraphicsSurfaceType preferredSurface) => new AndroidGameWindow(preferredSurface, Options.FriendlyGameName);
 
+        private bool drawThreadPrioritySet;
+
         protected override void DrawFrame()
         {
+            // Boost the draw thread to THREAD_PRIORITY_DISPLAY on the first call so it
+            // matches the input thread priority set in SetupForRun. The draw thread is
+            // created after SetupForRun, so we can't set it there.
+            if (!drawThreadPrioritySet)
+            {
+                drawThreadPrioritySet = true;
+
+                try
+                {
+                    global::Android.OS.Process.SetThreadPriority(global::Android.OS.ThreadPriority.Display);
+                    Logger.Log("Android draw thread priority set to THREAD_PRIORITY_DISPLAY.", LoggingTarget.Runtime, LogLevel.Debug);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Failed to set Android draw thread priority: {ex.Message}", LoggingTarget.Runtime, LogLevel.Debug);
+                }
+            }
+
             var surface = AndroidGameActivity.Surface;
 
             if (surface.IsSurfaceReady)

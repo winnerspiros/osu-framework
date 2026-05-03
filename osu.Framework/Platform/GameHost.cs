@@ -1397,6 +1397,11 @@ namespace osu.Framework.Platform
                     updateLimiter = int.MaxValue;
                     break;
 
+                case FrameSync.ActualUnlimited:
+                    drawLimiter = int.MaxValue;
+                    updateLimiter = int.MaxValue;
+                    break;
+
                 case FrameSync.Custom:
                     drawLimiter = Config.GetBindable<int>(FrameworkSetting.CustomDrawLimit).Value;
                     updateLimiter = int.MaxValue;
@@ -1411,7 +1416,7 @@ namespace osu.Framework.Platform
                 updateLimiter = int.MaxValue;
             }
 
-            if (!AllowBenchmarkUnlimitedFrames)
+            if (!AllowBenchmarkUnlimitedFrames && frameSyncMode.Value != FrameSync.ActualUnlimited)
             {
                 drawLimiter = Math.Min(maximum_sane_fps, drawLimiter);
                 updateLimiter = Math.Min(maximum_sane_fps, updateLimiter);
@@ -1419,6 +1424,13 @@ namespace osu.Framework.Platform
 
             MaximumDrawHz = drawLimiter;
             MaximumUpdateHz = updateLimiter;
+
+            // Uncap the input thread for ActualUnlimited: with high polling rate devices
+            // (8kHz/16kHz mice/keyboards), the default 1000Hz input poll rate coalesces
+            // multiple hardware events per frame. Setting to 0 removes that cap.
+            InputThread.ActiveHz = frameSyncMode.Value == FrameSync.ActualUnlimited
+                ? 0
+                : GameThread.DEFAULT_ACTIVE_HZ;
         }
 
         private void setVSyncMode()

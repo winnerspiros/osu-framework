@@ -18,6 +18,7 @@ namespace osu.Framework.IO.Stores
         private readonly Dictionary<string, Action> actionList = new Dictionary<string, Action>();
 
         private readonly List<IResourceStore<T>> stores = new List<IResourceStore<T>>();
+        private readonly Lock storesLock = new Lock();
 
         private readonly List<string> searchExtensions = new List<string>();
 
@@ -66,7 +67,7 @@ namespace osu.Framework.IO.Stores
         /// <param name="store">The store to add.</param>
         public virtual void AddStore(IResourceStore<T> store)
         {
-            lock (stores)
+            lock (storesLock)
                 stores.Add(store);
         }
 
@@ -76,7 +77,7 @@ namespace osu.Framework.IO.Stores
         /// <param name="store">The store to remove.</param>
         public virtual void RemoveStore(IResourceStore<T> store)
         {
-            lock (stores)
+            lock (storesLock)
                 stores.Remove(store);
         }
 
@@ -182,12 +183,12 @@ namespace osu.Framework.IO.Stores
 
         public virtual IEnumerable<string> GetAvailableResources()
         {
-            lock (stores) return stores.SelectMany(s => s.GetAvailableResources()).ExcludeSystemFileNames();
+            lock (storesLock) return stores.SelectMany(s => s.GetAvailableResources()).ExcludeSystemFileNames();
         }
 
         private IResourceStore<T>[] getStores()
         {
-            lock (stores) return stores.ToArray();
+            lock (storesLock) return stores.ToArray();
         }
 
         #region IDisposable Support
@@ -205,7 +206,7 @@ namespace osu.Framework.IO.Stores
             if (!isDisposed)
             {
                 isDisposed = true;
-                lock (stores) stores.ForEach(s => s.Dispose());
+                lock (storesLock) stores.ForEach(s => s.Dispose());
             }
         }
 

@@ -15,56 +15,57 @@ namespace osu.Framework.Lists
         where T : class
     {
         private readonly WeakList<T> list = new WeakList<T>();
+        private readonly Lock syncLock = new Lock();
 
         public void Add(T item)
         {
-            lock (list)
+            lock (syncLock)
                 list.Add(item);
         }
 
         public void Add(WeakReference<T> weakReference)
         {
-            lock (list)
+            lock (syncLock)
                 list.Add(weakReference);
         }
 
         public bool Remove(T item)
         {
-            lock (list)
+            lock (syncLock)
                 return list.Remove(item);
         }
 
         public bool Remove(WeakReference<T> weakReference)
         {
-            lock (list)
+            lock (syncLock)
                 return list.Remove(weakReference);
         }
 
         public void RemoveAt(int index)
         {
-            lock (list)
+            lock (syncLock)
                 list.RemoveAt(index);
         }
 
         public bool Contains(T item)
         {
-            lock (list)
+            lock (syncLock)
                 return list.Contains(item);
         }
 
         public bool Contains(WeakReference<T> weakReference)
         {
-            lock (list)
+            lock (syncLock)
                 return list.Contains(weakReference);
         }
 
         public void Clear()
         {
-            lock (list)
+            lock (syncLock)
                 list.Clear();
         }
 
-        public Enumerator GetEnumerator() => new Enumerator(list);
+        public Enumerator GetEnumerator() => new Enumerator(list, syncLock);
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
@@ -73,18 +74,18 @@ namespace osu.Framework.Lists
         public struct Enumerator : IEnumerator<T>
         {
             private readonly WeakList<T> list;
+            private readonly Lock syncLock;
 
             private WeakList<T>.ValidItemsEnumerator listEnumerator;
+            private bool lockHeld;
 
-            private readonly bool lockTaken;
-
-            internal Enumerator(WeakList<T> list)
+            internal Enumerator(WeakList<T> list, Lock syncLock)
             {
                 this.list = list;
+                this.syncLock = syncLock;
 
-                lockTaken = false;
-                Monitor.Enter(list, ref lockTaken);
-
+                syncLock.Enter();
+                lockHeld = true;
                 listEnumerator = list.GetEnumerator();
             }
 
@@ -98,8 +99,11 @@ namespace osu.Framework.Lists
 
             public void Dispose()
             {
-                if (lockTaken)
-                    Monitor.Exit(list);
+                if (lockHeld)
+                {
+                    lockHeld = false;
+                    syncLock.Exit();
+                }
             }
         }
     }

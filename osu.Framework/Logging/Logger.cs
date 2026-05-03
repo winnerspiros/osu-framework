@@ -289,6 +289,7 @@ namespace osu.Framework.Logging
         private readonly RollingTime debugOutputRollingTime = new RollingTime(50, 10000);
 
         private readonly Queue<string> pendingFileOutput = new Queue<string>();
+        private readonly Lock pendingFileOutputLock = new Lock();
 
         private void add(string message = @"", LogLevel level = LogLevel.Verbose, Exception exception = null, bool outputToListeners = true)
         {
@@ -358,7 +359,7 @@ namespace osu.Framework.Logging
                 if (!Enabled)
                     return;
 
-                lock (pendingFileOutput)
+                lock (pendingFileOutputLock)
                 {
                     foreach (string l in lines)
                         pendingFileOutput.Enqueue(l);
@@ -374,7 +375,7 @@ namespace osu.Framework.Logging
         {
             string[] lines;
 
-            lock (pendingFileOutput)
+            lock (pendingFileOutputLock)
             {
                 lines = pendingFileOutput.ToArray();
                 pendingFileOutput.Clear();

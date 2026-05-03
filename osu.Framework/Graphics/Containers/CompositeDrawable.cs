@@ -172,7 +172,15 @@ namespace osu.Framework.Graphics.Containers
                 };
             }
 
-            var taskScheduler = loadables.Any(c => c.IsLongRunning) ? SCHEDULER_LONG_LOAD : SCHEDULER_STANDARD;
+            var taskScheduler = SCHEDULER_STANDARD;
+            for (int i = 0; i < loadables.Count; i++)
+            {
+                if (loadables[i].IsLongRunning)
+                {
+                    taskScheduler = SCHEDULER_LONG_LOAD;
+                    break;
+                }
+            }
 
             return Task.Factory.StartNew(() => loadComponents(loadables, deps, true, linkedSource.Token), linkedSource.Token, TaskCreationOptions.HideScheduler, taskScheduler).ContinueWith(loaded =>
             {

@@ -37,6 +37,8 @@ namespace osu.Framework.Threading
             if (scheduledDelegate == null)
                 return;
 
+            var spinner = new SpinWait();
+
             while (scheduledDelegate.State < ScheduledDelegate.RunState.Complete)
             {
                 var runScheduler = scheduler;
@@ -47,7 +49,7 @@ namespace osu.Framework.Threading
                 if (runScheduler.IsMainThread)
                     runScheduler.Update();
                 else
-                    Thread.Sleep(1);
+                    spinner.SpinOnce();
             }
         }
 

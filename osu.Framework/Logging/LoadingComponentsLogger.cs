@@ -13,12 +13,13 @@ namespace osu.Framework.Logging
     internal static class LoadingComponentsLogger
     {
         private static readonly WeakList<Drawable> loading_components = new WeakList<Drawable>();
+        private static readonly Lock loading_components_lock = new Lock();
 
         public static void Add(Drawable component)
         {
             if (!DebugUtils.IsDebugBuild) return;
 
-            lock (loading_components)
+            lock (loading_components_lock)
                 loading_components.Add(component);
         }
 
@@ -26,7 +27,7 @@ namespace osu.Framework.Logging
         {
             if (!DebugUtils.IsDebugBuild) return;
 
-            lock (loading_components)
+            lock (loading_components_lock)
                 loading_components.Remove(component);
         }
 
@@ -34,7 +35,7 @@ namespace osu.Framework.Logging
         {
             if (!DebugUtils.IsDebugBuild) return;
 
-            lock (loading_components)
+            lock (loading_components_lock)
             {
                 Logger.Log($"⏳ Currently loading components ({loading_components.Count()})");
 

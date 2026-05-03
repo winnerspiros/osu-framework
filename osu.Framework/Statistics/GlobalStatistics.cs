@@ -22,6 +22,7 @@ namespace osu.Framework.Statistics
         internal static event NotifyCollectionChangedEventHandler StatisticsChanged;
 
         private static readonly BindableList<IGlobalStatistic> statistics = new BindableList<IGlobalStatistic>();
+        private static readonly System.Threading.Lock statistics_lock = new System.Threading.Lock();
 
         static GlobalStatistics()
         {
@@ -37,7 +38,7 @@ namespace osu.Framework.Statistics
         /// <typeparam name="T">The type.</typeparam>
         public static GlobalStatistic<T> Get<T>(string group, string name)
         {
-            lock (statistics)
+            lock (statistics_lock)
             {
                 var existing = statistics.OfType<GlobalStatistic<T>>().FirstOrDefault(s => s.Name == name && s.Group == group);
                 if (existing != null)
@@ -55,7 +56,7 @@ namespace osu.Framework.Statistics
         /// <param name="group">An optional group identifier, limiting the clear operation to the matching group.</param>
         public static void Clear(string group = null)
         {
-            lock (statistics)
+            lock (statistics_lock)
             {
                 for (int i = 0; i < statistics.Count; i++)
                 {
@@ -71,7 +72,7 @@ namespace osu.Framework.Statistics
         /// <param name="statistic">The statistic to remove.</param>
         public static void Remove(IGlobalStatistic statistic)
         {
-            lock (statistics)
+            lock (statistics_lock)
                 statistics.Remove(statistic);
         }
 
@@ -81,7 +82,7 @@ namespace osu.Framework.Statistics
         /// <param name="stat">The statistic to register.</param>
         private static void register(IGlobalStatistic stat)
         {
-            lock (statistics)
+            lock (statistics_lock)
                 statistics.Add(stat);
         }
 
@@ -104,7 +105,7 @@ namespace osu.Framework.Statistics
 
         public static IGlobalStatistic[] GetStatistics()
         {
-            lock (statistics)
+            lock (statistics_lock)
                 return statistics.ToArray();
         }
     }

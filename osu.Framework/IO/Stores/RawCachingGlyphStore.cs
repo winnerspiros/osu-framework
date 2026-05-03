@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using osu.Framework.Extensions;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics.Textures;
@@ -36,6 +37,7 @@ namespace osu.Framework.IO.Stores
         private readonly Dictionary<string, Stream> pageStreamHandles = new Dictionary<string, Stream>();
 
         private readonly Dictionary<int, PageInfo> pageLookup = new Dictionary<int, PageInfo>();
+        private readonly Lock pageLookupLock = new Lock();
 
         public RawCachingGlyphStore(ResourceStore<byte[]> store, string? assetName = null, IResourceStore<TextureUpload>? textureLoader = null)
             : base(store, assetName, textureLoader)
@@ -49,7 +51,7 @@ namespace osu.Framework.IO.Stores
 
             // Use simple global locking for the time being.
             // If necessary, a per-lookup-key (page number) locking mechanism could be implemented similar to TextureStore.
-            lock (pageLookup)
+            lock (pageLookupLock)
             {
                 if (!pageLookup.TryGetValue(character.Page, out var pageInfo))
                     pageInfo = createCachedPageInfo(character.Page);

@@ -322,17 +322,32 @@ namespace osu.Framework.Graphics.Containers
         /// <returns><paramref name="cellSizes"/>.</returns>
         private float[] distribute(Dimension[] dimensions, float spanLength, float[] cellSizes)
         {
-            // Indices of all distributed cells
-            int[] distributedIndices = Enumerable.Range(0, cellSizes.Length).Where(i => i >= dimensions.Length || dimensions[i].Mode == GridSizeMode.Distributed).ToArray();
+            // Indices of all distributed cells — collect with a plain loop to avoid LINQ allocations.
+            int distributionCount = 0;
+            for (int i = 0; i < cellSizes.Length; i++)
+            {
+                if (i >= dimensions.Length || dimensions[i].Mode == GridSizeMode.Distributed)
+                    distributionCount++;
+            }
+
+            int[] distributedIndices = new int[distributionCount];
+            int writeIdx = 0;
+            for (int i = 0; i < cellSizes.Length; i++)
+            {
+                if (i >= dimensions.Length || dimensions[i].Mode == GridSizeMode.Distributed)
+                    distributedIndices[writeIdx++] = i;
+            }
 
             // The dimensions corresponding to all distributed cells
             IEnumerable<DimensionEntry> distributedDimensions = distributedIndices.Select(i => new DimensionEntry(i, i >= dimensions.Length ? new Dimension() : dimensions[i]));
 
             // Total number of distributed cells
-            int distributionCount = distributedIndices.Length;
+            distributionCount = distributedIndices.Length;
 
-            // Non-distributed size
-            float requiredSize = cellSizes.Sum();
+            // Non-distributed size — use a plain loop instead of LINQ Sum to avoid enumerator overhead.
+            float requiredSize = 0f;
+            for (int i = 0; i < cellSizes.Length; i++)
+                requiredSize += cellSizes[i];
 
             // Distribution size for _each_ distributed cell
             float distributionSize = Math.Max(0, spanLength - requiredSize) / distributionCount;

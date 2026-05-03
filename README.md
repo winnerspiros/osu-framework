@@ -64,7 +64,7 @@ Both Veldrid components are consumed as **`ProjectReference`s to git submodules*
 
 | Submodule | URL | Notes |
 |---|---|---|
-| `submodules/veldrid` | [winnerspiros/veldrid](https://github.com/winnerspiros/veldrid) | net10.0 / C# 14, `System.Threading.Lock`, full **D3D12 backend**, hot-path optimisations |
+| `submodules/veldrid` | [winnerspiros/veldrid](https://github.com/winnerspiros/veldrid) | net10.0 / C# 14, `System.Threading.Lock`, full **D3D12 backend**, hot-path optimisations, vtx/idx buffer caching, glInvalidateFramebuffer |
 | `submodules/veldrid-spirv` | [winnerspiros/veldrid-spirv](https://github.com/winnerspiros/veldrid-spirv) | net10.0, C++17 native side, **Android 16 KB page alignment** |
 
 **Packaging mechanics** (so the produced `ppy.osu.Framework` nupkg is fully self-contained and consumable on `nuget.org`):
@@ -78,7 +78,7 @@ Both Veldrid components are consumed as **`ProjectReference`s to git submodules*
 
 ### 🎯 Fork capabilities consumed by the framework
 
-The fork's *backend-internal* optimisations (Vulkan pipeline cache / push descriptors / dynamic rendering / `VK_EXT_host_image_copy`, Android Vulkan swapchain pre-transform/current-extent handling, D3D12 redundant state caching, D3D12/D3D11 staging-pool swap-remove, OpenGL pipeline state caching, Metal merged layout-offset loops, all-backend `System.Threading.Lock`, `Vortice.Windows 3.8.3`) are transparent — the framework benefits automatically with no code changes.
+The fork's *backend-internal* optimisations (Vulkan pipeline cache / push descriptors / dynamic rendering / `VK_EXT_host_image_copy`, **Vulkan vtx/idx buffer caching** (skips redundant `vkCmdBind*` GPU calls), Android Vulkan swapchain pre-transform/current-extent handling, D3D12 redundant state caching, **D3D12/D3D11/Metal/Vulkan staging-pool swap-remove** (O(1) pool reclaim), **OpenGL `glInvalidateFramebuffer`** (tile-store skip for offscreen FBOs — saves tile→DRAM writeback for non-sampled attachments), **Vulkan spec compliance** (skip clear for transient textures, §19.1), **modernization sweep** (switch expressions, `System.HashCode`, `Array.Empty`, string interpolation across all backends), OpenGL pipeline state caching, Metal merged layout-offset loops, all-backend `System.Threading.Lock`, `Vortice.Windows 3.8.3`) are transparent — the framework benefits automatically with no code changes.
 
 The framework explicitly wires the fork's new **public API surface** (`BackendInfoD3D11/D3D12/Metal/OpenGL/Vulkan`) in `VeldridExtensions.cs`:
 

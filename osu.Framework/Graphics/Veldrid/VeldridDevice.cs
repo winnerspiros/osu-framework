@@ -206,12 +206,30 @@ namespace osu.Framework.Graphics.Veldrid
                     // bound to fail fast with a managed exception rather than hang indefinitely.
                     const int max_wait_ms = 5000;
                     const int poll_interval_ms = 50;
+                    const int surface_stability_wait_ms = 150;
                     int waited = 0;
 
                     while (!androidGraphics.IsSurfaceReady && waited < max_wait_ms)
                     {
                         Thread.Sleep(poll_interval_ms);
                         waited += poll_interval_ms;
+                    }
+
+                    // Stability wait: even after IsSurfaceReady becomes true, AndroidGameSurface.SurfaceChanged
+                    // may be racing with OsuGameActivity.SurfaceChanged which calls SetFormat(RGBA8888) if the
+                    // surface was born RGB565. During the resulting SurfaceDestroyed→SurfaceCreated cycle,
+                    // vkGetPhysicalDeviceSurfaceCapabilitiesKHR returns dp-scaled dimensions (e.g. 1029×480 on
+                    // a 3088×1440 device). Sleeping 150 ms lets the teardown+recreate cycle complete; the
+                    // re-poll ensures the surface is still ready before we proceed to vkCreateSwapchainKHR.
+                    if (androidGraphics.IsSurfaceReady)
+                    {
+                        Thread.Sleep(surface_stability_wait_ms);
+
+                        while (!androidGraphics.IsSurfaceReady && waited < max_wait_ms)
+                        {
+                            Thread.Sleep(poll_interval_ms);
+                            waited += poll_interval_ms;
+                        }
                     }
 
                     if (!androidGraphics.IsSurfaceReady)

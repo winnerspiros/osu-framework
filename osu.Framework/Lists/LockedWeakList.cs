@@ -73,7 +73,6 @@ namespace osu.Framework.Lists
 
         public struct Enumerator : IEnumerator<T>
         {
-            private readonly WeakList<T> list;
             private readonly Lock syncLock;
 
             private WeakList<T>.ValidItemsEnumerator listEnumerator;
@@ -81,7 +80,6 @@ namespace osu.Framework.Lists
 
             internal Enumerator(WeakList<T> list, Lock syncLock)
             {
-                this.list = list;
                 this.syncLock = syncLock;
 
                 syncLock.Enter();

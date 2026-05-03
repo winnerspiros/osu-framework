@@ -121,11 +121,44 @@ The framework explicitly wires the fork's new **public API surface** (`BackendIn
 
 ### 🚀 Performance optimisations
 
-- Hot-path LINQ allocations eliminated across the framework (replaced with `for` loops, span-based code, cached collections).
-- `object`-based locks migrated to `System.Threading.Lock` for lower overhead on modern runtimes.
-- BASS audio, GL state-change, shader warm-up, texture upload, and mobile vertex-batching improvements.
+#### Threading / synchronisation
+
+Every `lock (someObject)` site in the framework has been migrated from the legacy `Monitor`-based pattern to `System.Threading.Lock`, which uses a purpose-built kernel primitive on .NET 9+/CLR and avoids the extra `typeof(T)` indirection that `Monitor.Enter` carries. This covers **17 additional lock sites** beyond the Veldrid renderer, including:
+
+- **`LockedWeakList`** — used by the bindable system on every value propagation and by the renderer's live-texture tracking. The `Enumerator` struct uses `Lock.Enter()` / `Lock.Exit()` directly (since `Lock.Scope` is a `ref struct` and cannot be held in a regular struct field).
+- **`TextureStore`** — three separate lock objects (`nestedStores`, `textureCache`, `retrievalCompletionSources`), each upgraded to a dedicated `Lock` field.
+- **`ThreadRunner`** — `threads` list lock, taken on every `RunMainLoop` iteration.
+- **`AudioThread`** — `managers` list lock, taken on every audio thread tick.
+- **`ResourceStore`** — `stores` list lock, taken on every resource lookup.
+- **`Scheduler`** — `queueLock`, taken every frame on each game thread (was already `Lock`; verified consistent).
+- **`AsyncDisposalQueue`**, **`Logger`**, **`LoadingComponentsLogger`**, **`AggregateBindable`**, **`RawCachingGlyphStore`**, **`GlobalStatistics`**, **`HeadlessGameHost.FastClock`** — all lock sites upgraded.
+
+#### Wait-loop improvements
+
+- **`AsyncBufferStream`** (both the background loader and the consumer `Read()` path): `Thread.Sleep(1)` → `SpinWait.SpinOnce()`. The spinner adapts — it spins briefly (no OS yield), then yields to the scheduler, then sleeps, rather than always yielding for a minimum of 1 ms.
+- **`GameThreadSynchronizationContext.Send`**: same fix. Cross-thread dispatch (used whenever game-thread work is posted from a non-game thread) no longer has a 1 ms floor.
+
+#### Allocation elimination
+
+- **`AsyncBufferStream`**: `blockLoadedStatus.All(loaded => loaded)` — previously allocated a lambda + LINQ iterator on every single block load — replaced with `Interlocked.Increment(ref loadedBlockCount) == blockLoadedStatus.Length`.
+- **`ButtonEventManager.handleButtonUp`**: `.Where(d => d.IsRootedAt(…)).ToList()` (a new `List<Drawable>` on every button-release event) → in-place `RemoveAll`.
+- **`ButtonEventManager.handleButtonDown`**: `InputQueue.ToList()` → `new List<Drawable>(InputQueue)` (removes `System.Linq` import entirely from the hot input path).
+- **`TimedExpiryCache`**: `DateTimeOffset.Now` → `Environment.TickCount64` for cache-entry expiry tracking (a single `long` read vs. a `DateTimeOffset` struct construction).
+- **`GridContainer.distribute`**: `Enumerable.Range(0, n).Where(…).ToArray()` + `cellSizes.Sum()` → two plain `for` loops. No LINQ iterator state machines or lambda delegates on layout passes.
+- **`CompositeDrawable` async load scheduling**: `loadables.Any(c => c.IsLongRunning)` → `for` loop with early `break` (no delegate allocation on every `LoadComponentAsync` call).
+- **`TabControl`**: `items.ToList()` foreach during tab removal → reverse-index `for` loop (no copy allocation); `SwitchableTabs.Count() < 2` → `!SwitchableTabs.Skip(1).Any()` (stops after finding two elements).
+- **`FrameStatisticsDisplay`**: `monitor.ActiveCounters.Any(b => b)` → `Array.IndexOf(…, true) >= 0` (avoids delegate allocation on every statistics poll cycle).
+- **`JoystickAxisInput`**: eliminates a double-enumeration of `Count()`.
+
+#### C# / switch modernisation
+
+- `AudioAdjustments`, `AggregateAdjustmentExtensions`, `SampleChannelBass`, `TrackBass`, `GameHost` switch statements → switch expressions (reduced stack frame usage, branch predictor friendlier).
+- `NotifyDictionaryChangedEventArgs`: `new[] { item }` → collection expression `[item]` (C# 12).
+
+#### Other hot-path wins
+
 - **`GridContainer`** cell sizing uses `RequiredParentSizeToFit` instead of `BoundingBox`, avoiding redundant matrix-to-parent-space transforms on every layout pass ([upstream Issue #3215](https://github.com/ppy/osu-framework/issues/3215)).
-- **`VeldridExtensions.LogD3D11`**: removed an unused `ID3D11Device` COM RCW that was being materialized on every device init just to read `FeatureLevel`.
+- **`VeldridExtensions.LogD3D11`**: removed an unused `ID3D11Device` COM RCW that was being materialised on every device init just to read `FeatureLevel`.
 - **`VeldridExtensions.LogOpenGL`**: hoisted cached `Version` / `ShadingLanguageVersion` reads out of the GL-thread execution scope (2 fewer unsafe `glGetString` + `Marshal.PtrToStringUTF8` calls per init).
 
 ### ⚙️ .NET 10 upgrade
@@ -150,6 +183,7 @@ The framework explicitly wires the fork's new **public API surface** (`BackendIn
 
 - All `IDE0032`, `IDE0055`, `IDE0057`, `IDE0042`, `IDE0062`, `IDE0270`, `IDE1006` style warnings resolved.
 - CI `CodeFileSanity` step excludes the veldrid / veldrid-spirv submodule directories.
+- `EnforceCodeStyleInBuild=true` build passes with **0 warnings, 0 errors** (includes Roslyn analyser rules `IDE0052` etc.).
 
 ## Licence
 

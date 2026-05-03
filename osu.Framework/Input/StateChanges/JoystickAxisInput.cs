@@ -25,8 +25,10 @@ namespace osu.Framework.Input.StateChanges
 
         public JoystickAxisInput(IEnumerable<JoystickAxis> axes)
         {
-            if (axes.Count() > JoystickState.MAX_AXES)
-                throw new ArgumentException($"The length of the provided axes collection ({axes.Count()}) exceeds the maximum length ({JoystickState.MAX_AXES})", nameof(axes));
+            int count = axes.Count();
+
+            if (count > JoystickState.MAX_AXES)
+                throw new ArgumentException($"The length of the provided axes collection ({count}) exceeds the maximum length ({JoystickState.MAX_AXES})", nameof(axes));
 
             Axes = axes;
         }

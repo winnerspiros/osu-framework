@@ -45,11 +45,11 @@ namespace osu.Framework.Allocation
 
         private void checkExpiry(object state)
         {
-            var now = DateTimeOffset.Now;
+            long now = Environment.TickCount64;
 
             foreach (var v in dictionary)
             {
-                if ((now - v.Value.LastAccessTime).TotalMilliseconds > ExpiryTime)
+                if (now - v.Value.LastAccessTick > ExpiryTime)
                 {
                     if (dictionary.TryRemove(v.Key, out TimedObject<TValue> removed) && DisposeOnRemoval)
                         (removed.Value as IDisposable)?.Dispose();
@@ -92,7 +92,7 @@ namespace osu.Framework.Allocation
 
         private class TimedObject<T>
         {
-            public DateTimeOffset LastAccessTime;
+            public long LastAccessTick;
 
             public T Value
             {
@@ -111,7 +111,7 @@ namespace osu.Framework.Allocation
 
             private void updateAccessTime()
             {
-                LastAccessTime = DateTimeOffset.Now;
+                LastAccessTick = Environment.TickCount64;
             }
         }
     }

@@ -25,12 +25,13 @@ namespace osu.Framework.Platform
         private readonly InputThread mainThread;
 
         private readonly List<GameThread> threads = new List<GameThread>();
+        private readonly Lock threadsLock = new Lock();
 
         public IReadOnlyCollection<GameThread> Threads
         {
             get
             {
-                lock (threads)
+                lock (threadsLock)
                     return threads.ToArray();
             }
         }
@@ -75,7 +76,7 @@ namespace osu.Framework.Platform
         /// </summary>
         public void AddThread(GameThread thread)
         {
-            lock (threads)
+            lock (threadsLock)
             {
                 if (!threads.Contains(thread))
                     threads.Add(thread);
@@ -87,7 +88,7 @@ namespace osu.Framework.Platform
         /// </summary>
         public void RemoveThread(GameThread thread)
         {
-            lock (threads)
+            lock (threadsLock)
                 threads.Remove(thread);
         }
 
@@ -106,7 +107,7 @@ namespace osu.Framework.Platform
             {
                 case ExecutionMode.SingleThread:
                 {
-                    lock (threads)
+                    lock (threadsLock)
                     {
                         foreach (var t in threads)
                             t.RunSingleFrame();

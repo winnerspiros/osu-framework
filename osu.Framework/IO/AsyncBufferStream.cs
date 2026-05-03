@@ -6,7 +6,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,6 +20,9 @@ namespace osu.Framework.IO
         private readonly byte[] data;
 
         private readonly bool[] blockLoadedStatus;
+
+        /// <summary>Number of blocks that have been loaded so far. Compared against <see cref="blockLoadedStatus"/>.Length to detect full-load without LINQ.</summary>
+        private volatile int loadedBlockCount;
 
         private volatile bool isClosed;
         private volatile bool isLoaded;
@@ -59,6 +61,7 @@ namespace osu.Framework.IO
             {
                 data = shared.data;
                 blockLoadedStatus = shared.blockLoadedStatus;
+                loadedBlockCount = shared.loadedBlockCount;
                 isLoaded = shared.isLoaded;
             }
 
@@ -72,6 +75,7 @@ namespace osu.Framework.IO
                 return;
 
             int last = -1;
+            var spinner = new SpinWait();
 
             while (!isLoaded && !isClosed)
             {
@@ -81,9 +85,11 @@ namespace osu.Framework.IO
 
                 if (curr < 0)
                 {
-                    Thread.Sleep(1);
+                    spinner.SpinOnce();
                     continue;
                 }
+
+                spinner.Reset();
 
                 int readStart = curr * block_size;
 
@@ -104,7 +110,8 @@ namespace osu.Framework.IO
                 blockLoadedStatus[curr] = true;
                 last = curr;
 
-                isLoaded = blockLoadedStatus.All(loaded => loaded);
+                // Use a counter instead of All() to avoid a lambda + iterator on every block load.
+                isLoaded = Interlocked.Increment(ref loadedBlockCount) == blockLoadedStatus.Length;
             }
 
             if (!isClosed) underlyingStream?.Close();
@@ -184,14 +191,19 @@ namespace osu.Framework.IO
             int endBlock = (position + amountBytesToRead) / block_size;
 
             //ensure all required buffers are loaded
+            var spinner = new SpinWait();
+
             for (int i = startBlock; i <= endBlock; i++)
             {
                 while (!blockLoadedStatus[i])
                 {
-                    Thread.Sleep(1);
                     if (isDisposed)
                         return 0;
+
+                    spinner.SpinOnce();
                 }
+
+                spinner.Reset();
             }
 
             data.AsSpan(position, amountBytesToRead).CopyTo(buffer);

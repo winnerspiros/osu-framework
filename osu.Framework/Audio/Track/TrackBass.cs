@@ -138,21 +138,10 @@ namespace osu.Framework.Audio.Track
 
         private int prepareStream(Stream data, bool quick)
         {
-            switch (data)
-            {
-                case MemoryStream:
-                case UnmanagedMemoryStream:
-                case AsyncBufferStream:
-                    // Buffering memory stream is definitely unworthy.
-                    dataStream = data;
-                    break;
-
-                default:
-                    // It would be most likely a FileStream.
-                    // Consider to use RandomAccess to optimise in favor of FileStream in .NET 6
-                    dataStream = new AsyncBufferStream(data, quick ? 8 : -1);
-                    break;
-            }
+            // Buffering already-in-memory streams is unnecessary; wrap everything else in an AsyncBufferStream.
+            dataStream = data is MemoryStream or UnmanagedMemoryStream or AsyncBufferStream
+                ? data
+                : new AsyncBufferStream(data, quick ? 8 : -1);
 
             fileCallbacks = new FileCallbacks(new DataStreamFileProcedures(dataStream));
 

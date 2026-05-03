@@ -14,25 +14,13 @@ namespace osu.Framework.Audio
         /// <param name="adjustment">The audio adjustments to return from.</param>
         /// <param name="type">The adjustment type.</param>
         /// <returns>The aggregate result.</returns>
-        public static IBindable<double> GetAggregate(this IAggregateAudioAdjustment adjustment, AdjustableProperty type)
+        public static IBindable<double> GetAggregate(this IAggregateAudioAdjustment adjustment, AdjustableProperty type) => type switch
         {
-            switch (type)
-            {
-                case AdjustableProperty.Volume:
-                    return adjustment.AggregateVolume;
-
-                case AdjustableProperty.Balance:
-                    return adjustment.AggregateBalance;
-
-                case AdjustableProperty.Frequency:
-                    return adjustment.AggregateFrequency;
-
-                case AdjustableProperty.Tempo:
-                    return adjustment.AggregateTempo;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), "Invalid adjustable property type.");
-            }
-        }
+            AdjustableProperty.Volume => adjustment.AggregateVolume,
+            AdjustableProperty.Balance => adjustment.AggregateBalance,
+            AdjustableProperty.Frequency => adjustment.AggregateFrequency,
+            AdjustableProperty.Tempo => adjustment.AggregateTempo,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), "Invalid adjustable property type."),
+        };
     }
 }

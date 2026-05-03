@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace osu.Framework.Bindables
 {
@@ -38,6 +39,7 @@ namespace osu.Framework.Bindables
         }
 
         private readonly List<WeakRefPair> sourceMapping = new List<WeakRefPair>();
+        private readonly Lock sourceMappingLock = new Lock();
 
         /// <summary>
         /// Add a new source to be included in aggregation.
@@ -45,7 +47,7 @@ namespace osu.Framework.Bindables
         /// <param name="bindable">The bindable to add.</param>
         public void AddSource(IBindable<T> bindable)
         {
-            lock (sourceMapping)
+            lock (sourceMappingLock)
             {
                 if (findExistingPair(bindable) != null)
                     return;
@@ -62,7 +64,7 @@ namespace osu.Framework.Bindables
         /// <param name="bindable">The bindable to remove.</param>
         public void RemoveSource(IBindable<T> bindable)
         {
-            lock (sourceMapping)
+            lock (sourceMappingLock)
             {
                 if (findExistingPair(bindable) is WeakRefPair pair)
                 {
@@ -89,7 +91,7 @@ namespace osu.Framework.Bindables
         {
             T calculated = initialValue;
 
-            lock (sourceMapping)
+            lock (sourceMappingLock)
             {
                 for (int i = 0; i < sourceMapping.Count; i++)
                 {
@@ -107,7 +109,7 @@ namespace osu.Framework.Bindables
 
         public void RemoveAllSources()
         {
-            lock (sourceMapping)
+            lock (sourceMappingLock)
             {
                 foreach (var mapping in sourceMapping.ToArray())
                 {

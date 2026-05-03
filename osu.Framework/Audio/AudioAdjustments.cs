@@ -116,36 +116,19 @@ namespace osu.Framework.Audio
             throw new ArgumentException($"{nameof(AdjustableProperty)} \"{type}\" is missing mapping", nameof(type));
         }
 
-        private BindableNumber<double> getProperty(AdjustableProperty type)
+        private BindableNumber<double> getProperty(AdjustableProperty type) => type switch
         {
-            switch (type)
-            {
-                case AdjustableProperty.Balance:
-                    return Balance;
+            AdjustableProperty.Balance => Balance,
+            AdjustableProperty.Frequency => Frequency,
+            AdjustableProperty.Volume => Volume,
+            AdjustableProperty.Tempo => Tempo,
+            _ => throw new ArgumentException($"{nameof(AdjustableProperty)} \"{type}\" is missing mapping", nameof(type)),
+        };
 
-                case AdjustableProperty.Frequency:
-                    return Frequency;
-
-                case AdjustableProperty.Volume:
-                    return Volume;
-
-                case AdjustableProperty.Tempo:
-                    return Tempo;
-            }
-
-            throw new ArgumentException($"{nameof(AdjustableProperty)} \"{type}\" is missing mapping", nameof(type));
-        }
-
-        private Func<double, double, double> getAggregateFunction(AdjustableProperty type)
+        private Func<double, double, double> getAggregateFunction(AdjustableProperty type) => type switch
         {
-            switch (type)
-            {
-                default:
-                    return (a, b) => a * b;
-
-                case AdjustableProperty.Balance:
-                    return (a, b) => a + b;
-            }
-        }
+            AdjustableProperty.Balance => (a, b) => a + b,
+            _ => (a, b) => a * b,
+        };
     }
 }

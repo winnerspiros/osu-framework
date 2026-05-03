@@ -65,8 +65,8 @@ namespace osu.Framework.Graphics.UserInterface
             get => items;
             set
             {
-                foreach (var item in items.ToList())
-                    RemoveItem(item);
+                for (int i = items.Count - 1; i >= 0; i--)
+                    RemoveItem(items[i]);
 
                 foreach (var item in value)
                     AddItem(item);
@@ -326,7 +326,7 @@ namespace osu.Framework.Graphics.UserInterface
 
             if (SwitchTabOnRemove && tab == SelectedTab)
             {
-                if (SwitchableTabs.Count() < 2)
+                if (!SwitchableTabs.Skip(1).Any())
                     SelectedTab = null;
                 else
                 {

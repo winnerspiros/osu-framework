@@ -126,7 +126,7 @@ namespace osu.Framework.Graphics.Performance
 
             int colour = 0;
 
-            bool hasCounters = monitor.ActiveCounters.Any(b => b);
+            bool hasCounters = Array.IndexOf(monitor.ActiveCounters, true) >= 0;
             Child = new Container
             {
                 AutoSizeAxes = Axes.Both,

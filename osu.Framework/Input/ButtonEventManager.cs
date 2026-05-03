@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using osu.Framework.Graphics;
 using osu.Framework.Input.Events;
 using osu.Framework.Input.StateChanges;
@@ -65,7 +64,7 @@ namespace osu.Framework.Input
         /// <returns>Whether the event was handled.</returns>
         private bool handleButtonDown(InputState state)
         {
-            List<Drawable> inputQueue = InputQueue.ToList();
+            List<Drawable> inputQueue = new List<Drawable>(InputQueue);
             Drawable? handledBy = HandleButtonDown(state, inputQueue);
 
             if (handledBy != null)
@@ -102,7 +101,9 @@ namespace osu.Framework.Input
             if (ButtonDownInputQueue == null)
                 return;
 
-            HandleButtonUp(state, ButtonDownInputQueue.Where(d => d.IsRootedAt(InputManager)).ToList());
+            // Filter out drawables that are no longer rooted in the input manager tree, in-place (avoids allocation of a new list).
+            ButtonDownInputQueue.RemoveAll(d => !d.IsRootedAt(InputManager));
+            HandleButtonUp(state, ButtonDownInputQueue);
             ButtonDownInputQueue = null;
         }
 

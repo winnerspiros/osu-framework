@@ -22,6 +22,7 @@ namespace osu.Framework.Allocation
         private static Task runTask;
 
         private static readonly List<IDisposable> disposal_queue = new List<IDisposable>();
+        private static readonly Lock disposal_queue_lock = new Lock();
 
         private static readonly ManualResetEventSlim processing_reset_event = new ManualResetEventSlim(true);
 
@@ -35,7 +36,7 @@ namespace osu.Framework.Allocation
         /// <param name="disposable">The object to dispose.</param>
         public static void Enqueue(IDisposable disposable)
         {
-            lock (disposal_queue)
+            lock (disposal_queue_lock)
             {
                 disposal_queue.Add(disposable);
 
@@ -52,7 +53,7 @@ namespace osu.Framework.Allocation
                 {
                     IDisposable[] itemsToDispose;
 
-                    lock (disposal_queue)
+                    lock (disposal_queue_lock)
                     {
                         itemsToDispose = disposal_queue.ToArray();
                         disposal_queue.Clear();
@@ -70,7 +71,7 @@ namespace osu.Framework.Allocation
                 }
                 finally
                 {
-                    lock (disposal_queue)
+                    lock (disposal_queue_lock)
                     {
                         if (Interlocked.Decrement(ref runningTasks) == 0)
                             processing_reset_event.Set();

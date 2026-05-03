@@ -24,9 +24,11 @@ namespace osu.Framework.Graphics.Textures
     public class TextureStore : ITextureStore
     {
         private readonly Dictionary<string, Texture> textureCache = new Dictionary<string, Texture>();
+        private readonly Lock textureCacheLock = new Lock();
 
         private readonly ResourceStore<TextureUpload> uploadStore = new ResourceStore<TextureUpload>();
         private readonly List<ITextureStore> nestedStores = new List<ITextureStore>();
+        private readonly Lock nestedStoresLock = new Lock();
 
         private readonly IRenderer renderer;
         private readonly TextureFilteringMode filteringMode;
@@ -91,7 +93,7 @@ namespace osu.Framework.Graphics.Textures
         /// <param name="store">The store to add.</param>
         public virtual void AddStore(ITextureStore store)
         {
-            lock (nestedStores)
+            lock (nestedStoresLock)
                 nestedStores.Add(store);
         }
 
@@ -101,7 +103,7 @@ namespace osu.Framework.Graphics.Textures
         /// <param name="store">The store to remove.</param>
         public virtual void RemoveStore(ITextureStore store)
         {
-            lock (nestedStores)
+            lock (nestedStoresLock)
                 nestedStores.Remove(store);
         }
 
@@ -155,6 +157,7 @@ namespace osu.Framework.Graphics.Textures
         public Texture Get(string name) => Get(name, default, default);
 
         private readonly Dictionary<string, Task> retrievalCompletionSources = new Dictionary<string, Task>();
+        private readonly Lock retrievalCompletionSourcesLock = new Lock();
 
         /// <summary>
         /// Retrieves a texture from the store and adds it to the atlas.
@@ -169,7 +172,7 @@ namespace osu.Framework.Graphics.Textures
 
             if (texture == null)
             {
-                lock (nestedStores)
+                lock (nestedStoresLock)
                 {
                     foreach (var nested in nestedStores)
                     {
@@ -188,7 +191,7 @@ namespace osu.Framework.Graphics.Textures
 
             if (stream == null)
             {
-                lock (nestedStores)
+                lock (nestedStoresLock)
                 {
                     foreach (var nested in nestedStores)
                     {
@@ -203,7 +206,7 @@ namespace osu.Framework.Graphics.Textures
 
         public IEnumerable<string> GetAvailableResources()
         {
-            lock (nestedStores)
+            lock (nestedStoresLock)
                 return uploadStore.GetAvailableResources().Concat(nestedStores.SelectMany(s => s.GetAvailableResources()).ExcludeSystemFileNames()).ToArray();
         }
 
@@ -216,7 +219,7 @@ namespace osu.Framework.Graphics.Textures
             TaskCompletionSource<Texture> tcs = null;
             Task task;
 
-            lock (retrievalCompletionSources)
+            lock (retrievalCompletionSourcesLock)
             {
                 // Check if the texture exists in the cache.
                 if (TryGetCached(key, out var cached))
@@ -258,7 +261,7 @@ namespace osu.Framework.Graphics.Textures
             finally
             {
                 // notify other lookups waiting on the same name lookup.
-                lock (retrievalCompletionSources)
+                lock (retrievalCompletionSourcesLock)
                 {
                     Debug.Assert(tcs != null);
 
@@ -278,7 +281,7 @@ namespace osu.Framework.Graphics.Textures
         /// <returns>Whether a cached texture was retrieved.</returns>
         protected virtual bool TryGetCached([NotNull] string lookupKey, [CanBeNull] out Texture texture)
         {
-            lock (textureCache)
+            lock (textureCacheLock)
                 return textureCache.TryGetValue(lookupKey, out texture);
         }
 
@@ -291,7 +294,7 @@ namespace osu.Framework.Graphics.Textures
         [CanBeNull]
         protected virtual Texture CacheAndReturnTexture([NotNull] string lookupKey, [CanBeNull] Texture texture)
         {
-            lock (textureCache)
+            lock (textureCacheLock)
                 return textureCache[lookupKey] = texture;
         }
 
@@ -301,7 +304,7 @@ namespace osu.Framework.Graphics.Textures
         /// <param name="texture">The texture to purge from the cache.</param>
         protected void Purge(Texture texture)
         {
-            lock (textureCache)
+            lock (textureCacheLock)
             {
                 if (textureCache.TryGetValue(texture.LookupKey, out var tex))
                 {
@@ -332,7 +335,7 @@ namespace osu.Framework.Graphics.Textures
                 isDisposed = true;
 
                 uploadStore.Dispose();
-                lock (nestedStores) nestedStores.ForEach(s => s.Dispose());
+                lock (nestedStoresLock) nestedStores.ForEach(s => s.Dispose());
             }
         }
 

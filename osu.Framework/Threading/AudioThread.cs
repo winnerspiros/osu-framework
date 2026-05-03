@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using ManagedBass;
 using ManagedBass.Mix;
 using ManagedBass.Wasapi;
@@ -46,6 +47,7 @@ namespace osu.Framework.Threading
         };
 
         private readonly List<AudioManager> managers = new List<AudioManager>();
+        private readonly Lock managersLock = new Lock();
 
         private static readonly HashSet<int> initialised_devices = new HashSet<int>();
 
@@ -58,7 +60,7 @@ namespace osu.Framework.Threading
             if (frameCount++ % 1000 == 0)
                 cpu_usage.Value = Bass.CPUUsage;
 
-            lock (managers)
+            lock (managersLock)
             {
                 for (int i = 0; i < managers.Count; i++)
                 {
@@ -70,7 +72,7 @@ namespace osu.Framework.Threading
 
         internal void RegisterManager(AudioManager manager)
         {
-            lock (managers)
+            lock (managersLock)
             {
                 if (managers.Contains(manager))
                     throw new InvalidOperationException($"{manager} was already registered");
@@ -83,7 +85,7 @@ namespace osu.Framework.Threading
 
         internal void UnregisterManager(AudioManager manager)
         {
-            lock (managers)
+            lock (managersLock)
                 managers.Remove(manager);
 
             manager.GlobalMixerHandle.UnbindFrom(globalMixerHandle);
@@ -93,7 +95,7 @@ namespace osu.Framework.Threading
         {
             base.OnExit();
 
-            lock (managers)
+            lock (managersLock)
             {
                 // AudioManagers are iterated over backwards since disposal will unregister and remove them from the list.
                 for (int i = managers.Count - 1; i >= 0; i--)

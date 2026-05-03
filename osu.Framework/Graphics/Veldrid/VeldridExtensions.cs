@@ -29,78 +29,33 @@ namespace osu.Framework.Graphics.Veldrid
     {
         public static RgbaFloat ToRgbaFloat(this Color4 colour) => new RgbaFloat(colour.R, colour.G, colour.B, colour.A);
 
-        public static BlendFactor ToBlendFactor(this BlendingType type)
+        public static BlendFactor ToBlendFactor(this BlendingType type) => type switch
         {
-            switch (type)
-            {
-                case BlendingType.DstAlpha:
-                    return BlendFactor.DestinationAlpha;
+            BlendingType.DstAlpha => BlendFactor.DestinationAlpha,
+            BlendingType.DstColor => BlendFactor.DestinationColor,
+            BlendingType.SrcAlpha => BlendFactor.SourceAlpha,
+            BlendingType.SrcColor => BlendFactor.SourceColor,
+            BlendingType.OneMinusDstAlpha => BlendFactor.InverseDestinationAlpha,
+            BlendingType.OneMinusDstColor => BlendFactor.InverseDestinationColor,
+            BlendingType.OneMinusSrcAlpha => BlendFactor.InverseSourceAlpha,
+            BlendingType.OneMinusSrcColor => BlendFactor.InverseSourceColor,
+            BlendingType.One => BlendFactor.One,
+            BlendingType.Zero => BlendFactor.Zero,
+            BlendingType.ConstantColor => BlendFactor.BlendFactor,
+            BlendingType.OneMinusConstantColor => BlendFactor.InverseBlendFactor,
+            // todo: veldrid has no support for those, we may want to consider removing them from BlendingType enum (we don't even provide a blend factor in the parameters).
+            _ => default,
+        };
 
-                case BlendingType.DstColor:
-                    return BlendFactor.DestinationColor;
-
-                case BlendingType.SrcAlpha:
-                    return BlendFactor.SourceAlpha;
-
-                case BlendingType.SrcColor:
-                    return BlendFactor.SourceColor;
-
-                case BlendingType.OneMinusDstAlpha:
-                    return BlendFactor.InverseDestinationAlpha;
-
-                case BlendingType.OneMinusDstColor:
-                    return BlendFactor.InverseDestinationColor;
-
-                case BlendingType.OneMinusSrcAlpha:
-                    return BlendFactor.InverseSourceAlpha;
-
-                case BlendingType.OneMinusSrcColor:
-                    return BlendFactor.InverseSourceColor;
-
-                case BlendingType.One:
-                    return BlendFactor.One;
-
-                case BlendingType.Zero:
-                    return BlendFactor.Zero;
-
-                case BlendingType.ConstantColor:
-                    return BlendFactor.BlendFactor;
-
-                case BlendingType.OneMinusConstantColor:
-                    return BlendFactor.InverseBlendFactor;
-
-                // todo: veldrid has no support for those, we may want to consider removing them from BlendingType enum (we don't even provide a blend factor in the parameters).
-                case BlendingType.ConstantAlpha:
-                case BlendingType.OneMinusConstantAlpha:
-                case BlendingType.SrcAlphaSaturate:
-                default:
-                    return default;
-            }
-        }
-
-        public static BlendFunction ToBlendFunction(this BlendingEquation equation)
+        public static BlendFunction ToBlendFunction(this BlendingEquation equation) => equation switch
         {
-            switch (equation)
-            {
-                case BlendingEquation.Add:
-                    return BlendFunction.Add;
-
-                case BlendingEquation.Subtract:
-                    return BlendFunction.Subtract;
-
-                case BlendingEquation.ReverseSubtract:
-                    return BlendFunction.ReverseSubtract;
-
-                case BlendingEquation.Min:
-                    return BlendFunction.Minimum;
-
-                case BlendingEquation.Max:
-                    return BlendFunction.Maximum;
-
-                default:
-                    return default;
-            }
-        }
+            BlendingEquation.Add => BlendFunction.Add,
+            BlendingEquation.Subtract => BlendFunction.Subtract,
+            BlendingEquation.ReverseSubtract => BlendFunction.ReverseSubtract,
+            BlendingEquation.Min => BlendFunction.Minimum,
+            BlendingEquation.Max => BlendFunction.Maximum,
+            _ => default,
+        };
 
         public static ColorWriteMask ToColorWriteMask(this BlendingMask mask)
         {
@@ -120,214 +75,89 @@ namespace osu.Framework.Graphics.Veldrid
 
             for (int i = 0; i < pixelFormats.Length; i++)
             {
-                switch (renderBufferFormats[i])
+                pixelFormats[i] = renderBufferFormats[i] switch
                 {
-                    case RenderBufferFormat.D16:
-                        pixelFormats[i] = PixelFormat.R16UNorm;
-                        break;
-
-                    case RenderBufferFormat.D32:
-                        pixelFormats[i] = PixelFormat.R32Float;
-                        break;
-
-                    case RenderBufferFormat.D24S8:
-                        pixelFormats[i] = PixelFormat.D24UNormS8UInt;
-                        break;
-
-                    case RenderBufferFormat.D32S8:
-                        pixelFormats[i] = PixelFormat.D32FloatS8UInt;
-                        break;
-
-                    default:
-                        throw new ArgumentException($"Unsupported render buffer format: {renderBufferFormats[i]}", nameof(renderBufferFormats));
-                }
+                    RenderBufferFormat.D16 => PixelFormat.R16UNorm,
+                    RenderBufferFormat.D32 => PixelFormat.R32Float,
+                    RenderBufferFormat.D24S8 => PixelFormat.D24UNormS8UInt,
+                    RenderBufferFormat.D32S8 => PixelFormat.D32FloatS8UInt,
+                    _ => throw new ArgumentException($"Unsupported render buffer format: {renderBufferFormats[i]}", nameof(renderBufferFormats)),
+                };
             }
 
             return pixelFormats;
         }
 
-        public static SamplerFilter ToSamplerFilter(this TextureFilteringMode mode)
+        public static SamplerFilter ToSamplerFilter(this TextureFilteringMode mode) => mode switch
         {
-            switch (mode)
-            {
-                case TextureFilteringMode.Linear:
-                    return SamplerFilter.MinLinearMagLinearMipLinear;
+            TextureFilteringMode.Linear => SamplerFilter.MinLinearMagLinearMipLinear,
+            TextureFilteringMode.Nearest => SamplerFilter.MinPointMagPointMipPoint,
+            _ => throw new ArgumentOutOfRangeException(nameof(mode)),
+        };
 
-                case TextureFilteringMode.Nearest:
-                    return SamplerFilter.MinPointMagPointMipPoint;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(mode));
-            }
-        }
-
-        public static ComparisonKind ToComparisonKind(this BufferTestFunction function)
+        public static ComparisonKind ToComparisonKind(this BufferTestFunction function) => function switch
         {
-            switch (function)
-            {
-                case BufferTestFunction.Always:
-                    return ComparisonKind.Always;
+            BufferTestFunction.Always => ComparisonKind.Always,
+            BufferTestFunction.Never => ComparisonKind.Never,
+            BufferTestFunction.LessThan => ComparisonKind.Less,
+            BufferTestFunction.Equal => ComparisonKind.Equal,
+            BufferTestFunction.LessThanOrEqual => ComparisonKind.LessEqual,
+            BufferTestFunction.GreaterThan => ComparisonKind.Greater,
+            BufferTestFunction.NotEqual => ComparisonKind.NotEqual,
+            BufferTestFunction.GreaterThanOrEqual => ComparisonKind.GreaterEqual,
+            _ => throw new ArgumentOutOfRangeException(nameof(function)),
+        };
 
-                case BufferTestFunction.Never:
-                    return ComparisonKind.Never;
-
-                case BufferTestFunction.LessThan:
-                    return ComparisonKind.Less;
-
-                case BufferTestFunction.Equal:
-                    return ComparisonKind.Equal;
-
-                case BufferTestFunction.LessThanOrEqual:
-                    return ComparisonKind.LessEqual;
-
-                case BufferTestFunction.GreaterThan:
-                    return ComparisonKind.Greater;
-
-                case BufferTestFunction.NotEqual:
-                    return ComparisonKind.NotEqual;
-
-                case BufferTestFunction.GreaterThanOrEqual:
-                    return ComparisonKind.GreaterEqual;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(function));
-            }
-        }
-
-        public static StencilOperation ToStencilOperation(this Rendering.StencilOperation operation)
+        public static StencilOperation ToStencilOperation(this Rendering.StencilOperation operation) => operation switch
         {
-            switch (operation)
-            {
-                case Rendering.StencilOperation.Zero:
-                    return StencilOperation.Zero;
+            Rendering.StencilOperation.Zero => StencilOperation.Zero,
+            Rendering.StencilOperation.Invert => StencilOperation.Invert,
+            Rendering.StencilOperation.Keep => StencilOperation.Keep,
+            Rendering.StencilOperation.Replace => StencilOperation.Replace,
+            Rendering.StencilOperation.Increase => StencilOperation.IncrementAndClamp,
+            Rendering.StencilOperation.Decrease => StencilOperation.DecrementAndClamp,
+            Rendering.StencilOperation.IncreaseWrap => StencilOperation.IncrementAndWrap,
+            Rendering.StencilOperation.DecreaseWrap => StencilOperation.DecrementAndWrap,
+            _ => throw new ArgumentOutOfRangeException(nameof(operation)),
+        };
 
-                case Rendering.StencilOperation.Invert:
-                    return StencilOperation.Invert;
-
-                case Rendering.StencilOperation.Keep:
-                    return StencilOperation.Keep;
-
-                case Rendering.StencilOperation.Replace:
-                    return StencilOperation.Replace;
-
-                case Rendering.StencilOperation.Increase:
-                    return StencilOperation.IncrementAndClamp;
-
-                case Rendering.StencilOperation.Decrease:
-                    return StencilOperation.DecrementAndClamp;
-
-                case Rendering.StencilOperation.IncreaseWrap:
-                    return StencilOperation.IncrementAndWrap;
-
-                case Rendering.StencilOperation.DecreaseWrap:
-                    return StencilOperation.DecrementAndWrap;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(operation));
-            }
-        }
-
-        public static VertexElementFormat ToVertexElementFormat(this VertexAttribPointerType type, int count)
+        public static VertexElementFormat ToVertexElementFormat(this VertexAttribPointerType type, int count) => (type, count) switch
         {
-            switch (type)
-            {
-                case VertexAttribPointerType.Byte when count == 2:
-                    return VertexElementFormat.SByte2;
+            (VertexAttribPointerType.Byte, 2) => VertexElementFormat.SByte2,
+            (VertexAttribPointerType.Byte, 4) => VertexElementFormat.SByte4,
+            (VertexAttribPointerType.UnsignedByte, 2) => VertexElementFormat.Byte2,
+            (VertexAttribPointerType.UnsignedByte, 4) => VertexElementFormat.Byte4,
+            (VertexAttribPointerType.Short, 2) => VertexElementFormat.Short2,
+            (VertexAttribPointerType.Short, 4) => VertexElementFormat.Short4,
+            (VertexAttribPointerType.UnsignedShort, 2) => VertexElementFormat.UShort2,
+            (VertexAttribPointerType.UnsignedShort, 4) => VertexElementFormat.UShort4,
+            (VertexAttribPointerType.Int, 1) => VertexElementFormat.Int1,
+            (VertexAttribPointerType.Int, 2) => VertexElementFormat.Int2,
+            (VertexAttribPointerType.Int, 3) => VertexElementFormat.Int3,
+            (VertexAttribPointerType.Int, 4) => VertexElementFormat.Int4,
+            (VertexAttribPointerType.UnsignedInt, 1) => VertexElementFormat.UInt1,
+            (VertexAttribPointerType.UnsignedInt, 2) => VertexElementFormat.UInt2,
+            (VertexAttribPointerType.UnsignedInt, 3) => VertexElementFormat.UInt3,
+            (VertexAttribPointerType.UnsignedInt, 4) => VertexElementFormat.UInt4,
+            (VertexAttribPointerType.Float, 1) => VertexElementFormat.Float1,
+            (VertexAttribPointerType.Float, 2) => VertexElementFormat.Float2,
+            (VertexAttribPointerType.Float, 3) => VertexElementFormat.Float3,
+            (VertexAttribPointerType.Float, 4) => VertexElementFormat.Float4,
+            (VertexAttribPointerType.HalfFloat, 1) => VertexElementFormat.Half1,
+            (VertexAttribPointerType.HalfFloat, 2) => VertexElementFormat.Half2,
+            (VertexAttribPointerType.HalfFloat, 4) => VertexElementFormat.Half4,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
+        };
 
-                case VertexAttribPointerType.Byte when count == 4:
-                    return VertexElementFormat.SByte4;
-
-                case VertexAttribPointerType.UnsignedByte when count == 2:
-                    return VertexElementFormat.Byte2;
-
-                case VertexAttribPointerType.UnsignedByte when count == 4:
-                    return VertexElementFormat.Byte4;
-
-                case VertexAttribPointerType.Short when count == 2:
-                    return VertexElementFormat.Short2;
-
-                case VertexAttribPointerType.Short when count == 4:
-                    return VertexElementFormat.Short4;
-
-                case VertexAttribPointerType.UnsignedShort when count == 2:
-                    return VertexElementFormat.UShort2;
-
-                case VertexAttribPointerType.UnsignedShort when count == 4:
-                    return VertexElementFormat.UShort4;
-
-                case VertexAttribPointerType.Int when count == 1:
-                    return VertexElementFormat.Int1;
-
-                case VertexAttribPointerType.Int when count == 2:
-                    return VertexElementFormat.Int2;
-
-                case VertexAttribPointerType.Int when count == 3:
-                    return VertexElementFormat.Int3;
-
-                case VertexAttribPointerType.Int when count == 4:
-                    return VertexElementFormat.Int4;
-
-                case VertexAttribPointerType.UnsignedInt when count == 1:
-                    return VertexElementFormat.UInt1;
-
-                case VertexAttribPointerType.UnsignedInt when count == 2:
-                    return VertexElementFormat.UInt2;
-
-                case VertexAttribPointerType.UnsignedInt when count == 3:
-                    return VertexElementFormat.UInt3;
-
-                case VertexAttribPointerType.UnsignedInt when count == 4:
-                    return VertexElementFormat.UInt4;
-
-                case VertexAttribPointerType.Float when count == 1:
-                    return VertexElementFormat.Float1;
-
-                case VertexAttribPointerType.Float when count == 2:
-                    return VertexElementFormat.Float2;
-
-                case VertexAttribPointerType.Float when count == 3:
-                    return VertexElementFormat.Float3;
-
-                case VertexAttribPointerType.Float when count == 4:
-                    return VertexElementFormat.Float4;
-
-                case VertexAttribPointerType.HalfFloat when count == 1:
-                    return VertexElementFormat.Half1;
-
-                case VertexAttribPointerType.HalfFloat when count == 2:
-                    return VertexElementFormat.Half2;
-
-                case VertexAttribPointerType.HalfFloat when count == 4:
-                    return VertexElementFormat.Half4;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
-        }
-
-        public static PrimitiveTopology ToPrimitiveTopology(this Rendering.PrimitiveTopology type)
+        public static PrimitiveTopology ToPrimitiveTopology(this Rendering.PrimitiveTopology type) => type switch
         {
-            switch (type)
-            {
-                case Rendering.PrimitiveTopology.Points:
-                    return PrimitiveTopology.PointList;
-
-                case Rendering.PrimitiveTopology.Lines:
-                    return PrimitiveTopology.LineList;
-
-                case Rendering.PrimitiveTopology.LineStrip:
-                    return PrimitiveTopology.LineStrip;
-
-                case Rendering.PrimitiveTopology.Triangles:
-                    return PrimitiveTopology.TriangleList;
-
-                case Rendering.PrimitiveTopology.TriangleStrip:
-                    return PrimitiveTopology.TriangleStrip;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type));
-            }
-        }
+            Rendering.PrimitiveTopology.Points => PrimitiveTopology.PointList,
+            Rendering.PrimitiveTopology.Lines => PrimitiveTopology.LineList,
+            Rendering.PrimitiveTopology.LineStrip => PrimitiveTopology.LineStrip,
+            Rendering.PrimitiveTopology.Triangles => PrimitiveTopology.TriangleList,
+            Rendering.PrimitiveTopology.TriangleStrip => PrimitiveTopology.TriangleStrip,
+            _ => throw new ArgumentOutOfRangeException(nameof(type)),
+        };
 
         public static GraphicsPipelineDescription Clone(this GraphicsPipelineDescription pipeline)
         {

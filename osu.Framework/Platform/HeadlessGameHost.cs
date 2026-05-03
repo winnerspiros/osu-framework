@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using osu.Framework.Configuration;
 using osu.Framework.Development;
 using osu.Framework.Graphics.Rendering.Dummy;
@@ -122,6 +123,7 @@ namespace osu.Framework.Platform
             private readonly ulong[] gameThreadLastFrames;
 
             private readonly Stopwatch stopwatch = new Stopwatch();
+            private readonly Lock stopwatchLock = new Lock();
 
             private double time;
 
@@ -142,7 +144,7 @@ namespace osu.Framework.Platform
             {
                 get
                 {
-                    lock (stopwatch)
+                    lock (stopwatchLock)
                     {
                         double realElapsedTime = stopwatch.Elapsed.TotalMilliseconds;
                         stopwatch.Restart();

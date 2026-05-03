@@ -992,61 +992,25 @@ namespace osu.Framework.Platform
             Logger.Log("No usable renderer was found!", level: LogLevel.Error);
         }
 
-        private static GraphicsSurfaceType rendererToGraphicsSurfaceType(RendererType renderer)
+        private static GraphicsSurfaceType rendererToGraphicsSurfaceType(RendererType renderer) => renderer switch
         {
-            GraphicsSurfaceType surface;
-
-            switch (renderer)
-            {
-                case RendererType.Deferred_Metal:
-                case RendererType.Metal:
-                    surface = GraphicsSurfaceType.Metal;
-                    break;
-
-                case RendererType.Deferred_Vulkan:
-                case RendererType.Vulkan:
-                    surface = GraphicsSurfaceType.Vulkan;
-                    break;
-
-                case RendererType.Deferred_Direct3D11:
-                case RendererType.Direct3D11:
-                    surface = GraphicsSurfaceType.Direct3D11;
-                    break;
-
-                case RendererType.Deferred_Direct3D12:
-                case RendererType.Direct3D12:
-                    surface = GraphicsSurfaceType.Direct3D12;
-                    break;
-
-                case RendererType.Deferred_OpenGL:
-                case RendererType.OpenGL:
-                    surface = GraphicsSurfaceType.OpenGL;
-                    break;
-
-                default:
-                    throw new ArgumentException("Provided renderer cannot be mapped to a veldrid surface");
-            }
-
-            return surface;
-        }
+            RendererType.Deferred_Metal or RendererType.Metal => GraphicsSurfaceType.Metal,
+            RendererType.Deferred_Vulkan or RendererType.Vulkan => GraphicsSurfaceType.Vulkan,
+            RendererType.Deferred_Direct3D11 or RendererType.Direct3D11 => GraphicsSurfaceType.Direct3D11,
+            RendererType.Deferred_Direct3D12 or RendererType.Direct3D12 => GraphicsSurfaceType.Direct3D12,
+            RendererType.Deferred_OpenGL or RendererType.OpenGL => GraphicsSurfaceType.OpenGL,
+            _ => throw new ArgumentException("Provided renderer cannot be mapped to a veldrid surface"),
+        };
 
         protected void SetupRendererAndWindow(string renderer, GraphicsSurfaceType surfaceType)
         {
-            switch (renderer)
+            IRenderer r = renderer switch
             {
-                case "veldrid":
-                    SetupRendererAndWindow(new VeldridRenderer(), surfaceType);
-                    break;
-
-                case "deferred":
-                    SetupRendererAndWindow(new DeferredRenderer(), surfaceType);
-                    break;
-
-                default:
-                case "gl":
-                    SetupRendererAndWindow(CreateGLRenderer(), surfaceType);
-                    break;
-            }
+                "veldrid" => new VeldridRenderer(),
+                "deferred" => new DeferredRenderer(),
+                _ => CreateGLRenderer(),
+            };
+            SetupRendererAndWindow(r, surfaceType);
         }
 
         protected void SetupRendererAndWindow(IRenderer renderer, GraphicsSurfaceType surfaceType)

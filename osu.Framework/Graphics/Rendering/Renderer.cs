@@ -9,6 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 using osu.Framework.Development;
 using osu.Framework.Extensions.TypeExtensions;
 using osu.Framework.Graphics.Primitives;
@@ -146,7 +147,7 @@ namespace osu.Framework.Graphics.Rendering
         /// </summary>
         private readonly HashSet<INativeTexture> textureUploadQueueSet = new HashSet<INativeTexture>();
 
-        private readonly object textureUploadQueueLock = new object();
+        private readonly Lock textureUploadQueueLock = new();
 
         /// <summary>
         /// Number of frames elapsed since <see cref="IsInitialised"/> became <c>true</c>. Used to ramp the per-frame

@@ -90,20 +90,11 @@ namespace osu.Framework.Audio.Sample
         {
             if (hasChannel)
             {
-                switch (bassMixer.ChannelIsActive(this))
-                {
-                    case PlaybackState.Playing:
-                    // Stalled counts as playing, as playback will continue once more data has streamed in.
-                    case PlaybackState.Stalled:
-                    // The channel is in a "paused" state via zero-frequency. It should be marked as playing even if it's in a paused state internally.
-                    case PlaybackState.Paused when userRequestedPlay:
-                        playing = true;
-                        break;
-
-                    default:
-                        playing = false;
-                        break;
-                }
+                var state = bassMixer.ChannelIsActive(this);
+                // Playing and Stalled both count as active playback.
+                // Paused counts as playing when the user explicitly requested play (zero-frequency pause).
+                playing = state is PlaybackState.Playing or PlaybackState.Stalled
+                          || (state == PlaybackState.Paused && userRequestedPlay);
             }
             else
             {

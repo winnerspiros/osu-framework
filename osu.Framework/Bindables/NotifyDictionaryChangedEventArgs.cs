@@ -35,7 +35,7 @@ namespace osu.Framework.Bindables
         /// <param name="action">The action.</param>
         /// <param name="item">The item affected.</param>
         public NotifyDictionaryChangedEventArgs(NotifyDictionaryChangedAction action, KeyValuePair<TKey, TValue> item)
-            : this(action, new[] { item })
+            : this(action, [item])
         {
         }
 
@@ -71,8 +71,8 @@ namespace osu.Framework.Bindables
         public NotifyDictionaryChangedEventArgs(KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem)
         {
             Action = NotifyDictionaryChangedAction.Replace;
-            NewItems = new[] { newItem };
-            OldItems = new[] { oldItem };
+            NewItems = [newItem];
+            OldItems = [oldItem];
         }
     }
 

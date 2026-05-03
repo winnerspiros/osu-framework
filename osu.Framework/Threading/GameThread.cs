@@ -80,6 +80,12 @@ namespace osu.Framework.Threading
         public EventHandler<UnhandledExceptionEventArgs>? UnhandledException;
 
         /// <summary>
+        /// Raised at the end of each frame, after all work and clock throttling have completed.
+        /// Can be used for per-frame reporting such as ADPF's <c>nADPFReportActualDuration</c>.
+        /// </summary>
+        public event Action? FrameCompleted;
+
+        /// <summary>
         /// A synchronisation context which posts to this thread.
         /// </summary>
         public SynchronizationContext SynchronizationContext => synchronizationContext;
@@ -455,6 +461,8 @@ namespace osu.Framework.Threading
                     Clock.ProcessFrame();
 
                 Monitor?.EndFrame();
+
+                FrameCompleted?.Invoke();
             }
             catch (Exception e)
             {

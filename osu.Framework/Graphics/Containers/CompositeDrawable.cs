@@ -173,6 +173,7 @@ namespace osu.Framework.Graphics.Containers
             }
 
             var taskScheduler = SCHEDULER_STANDARD;
+
             for (int i = 0; i < loadables.Count; i++)
             {
                 if (loadables[i].IsLongRunning)

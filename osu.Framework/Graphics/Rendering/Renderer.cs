@@ -147,7 +147,7 @@ namespace osu.Framework.Graphics.Rendering
         /// </summary>
         private readonly HashSet<INativeTexture> textureUploadQueueSet = new HashSet<INativeTexture>();
 
-        private readonly Lock textureUploadQueueLock = new();
+        private readonly Lock textureUploadQueueLock = new Lock();
 
         /// <summary>
         /// Number of frames elapsed since <see cref="IsInitialised"/> became <c>true</c>. Used to ramp the per-frame

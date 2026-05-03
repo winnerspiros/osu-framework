@@ -65,6 +65,7 @@ namespace osu.Framework.Lists
                 list.Clear();
         }
 
+        // ReSharper disable once InconsistentlySynchronizedField -- list is readonly; the Enumerator ctor acquires syncLock before accessing list contents.
         public Enumerator GetEnumerator() => new Enumerator(list, syncLock);
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();

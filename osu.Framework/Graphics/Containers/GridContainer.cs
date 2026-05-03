@@ -324,6 +324,7 @@ namespace osu.Framework.Graphics.Containers
         {
             // Indices of all distributed cells — collect with a plain loop to avoid LINQ allocations.
             int distributionCount = 0;
+
             for (int i = 0; i < cellSizes.Length; i++)
             {
                 if (i >= dimensions.Length || dimensions[i].Mode == GridSizeMode.Distributed)
@@ -332,6 +333,7 @@ namespace osu.Framework.Graphics.Containers
 
             int[] distributedIndices = new int[distributionCount];
             int writeIdx = 0;
+
             for (int i = 0; i < cellSizes.Length; i++)
             {
                 if (i >= dimensions.Length || dimensions[i].Mode == GridSizeMode.Distributed)

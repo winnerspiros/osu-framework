@@ -163,8 +163,8 @@ namespace osu.Framework.IO.Network
                     // Send HTTP/2 PING frames on active connections that have been idle for 60s.
                     // If no PING ACK arrives within 30s the connection is torn down and the request fails
                     // fast — rather than hanging until the app-level timeout fires.
-                    KeepAlivePingDelay = TimeSpan.FromSeconds(60),
-                    KeepAlivePingTimeout = TimeSpan.FromSeconds(30),
+                    KeepAlivePingDelay = TimeSpan.FromSeconds(keep_alive_ping_delay_seconds),
+                    KeepAlivePingTimeout = TimeSpan.FromSeconds(keep_alive_ping_timeout_seconds),
                     KeepAlivePingPolicy = HttpKeepAlivePingPolicy.WithActiveRequests,
                     ConnectCallback = onConnect,
                 }
@@ -874,6 +874,8 @@ namespace osu.Framework.IO.Network
         private static bool hasResolvedIPv6Availability;
 
         private const int connection_establish_timeout = 2000;
+        private const int keep_alive_ping_delay_seconds = 60;
+        private const int keep_alive_ping_timeout_seconds = 30;
 
         private static async ValueTask<Stream> onConnect(SocketsHttpConnectionContext context, CancellationToken cancellationToken)
         {
@@ -886,17 +888,28 @@ namespace osu.Framework.IO.Network
                 {
                     var localToken = cancellationToken;
 
-                    if (!hasResolvedIPv6Availability)
+                    CancellationTokenSource quickFailCts = null;
+                    CancellationTokenSource linkedTokenSource = null;
+
+                    try
                     {
-                        // to make things move fast, use a very low timeout for the initial ipv6 attempt.
-                        using var quickFailCts = new CancellationTokenSource(connection_establish_timeout);
-                        using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, quickFailCts.Token);
+                        if (!hasResolvedIPv6Availability)
+                        {
+                            // to make things move fast, use a very low timeout for the initial ipv6 attempt.
+                            quickFailCts = new CancellationTokenSource(connection_establish_timeout);
+                            linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, quickFailCts.Token);
 
-                        localToken = linkedTokenSource.Token;
+                            localToken = linkedTokenSource.Token;
+                        }
+
+                        return await attemptConnection(AddressFamily.InterNetworkV6, context, localToken)
+                            .ConfigureAwait(false);
                     }
-
-                    return await attemptConnection(AddressFamily.InterNetworkV6, context, localToken)
-                        .ConfigureAwait(false);
+                    finally
+                    {
+                        quickFailCts?.Dispose();
+                        linkedTokenSource?.Dispose();
+                    }
                 }
                 catch
                 {

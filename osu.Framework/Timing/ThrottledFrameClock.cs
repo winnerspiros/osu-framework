@@ -57,9 +57,11 @@ namespace osu.Framework.Timing
                 }
                 else
                 {
-                    // Even when running at unlimited frame-rate, we should call the scheduler
-                    // to give lower-priority background processes a chance to do work.
-                    TimeSlept = sleepAndUpdateCurrent(0);
+                    // Yield the OS timeslice so we don't spin 100% CPU in unlimited mode.
+                    // Thread.Sleep(0) releases the current thread's remaining timeslice to other
+                    // ready threads without a mandatory wait period.
+                    Thread.Sleep(0);
+                    TimeSlept = 0;
                 }
             }
             else

@@ -4,6 +4,7 @@
 #nullable disable
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -15,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using osu.Framework.Bindables;
+using osu.Framework.Development;
 using osu.Framework.Extensions;
 using osu.Framework.Extensions.ExceptionExtensions;
 using osu.Framework.Logging;
@@ -133,12 +135,13 @@ namespace osu.Framework.IO.Network
 
         private MemoryStream rawContent;
         private int responseBytesRead;
-        private byte[] buffer;
         private bool? allowInsecureRequests;
         private static readonly HttpClient client = new HttpClient(
-            // SocketsHttpHandler causes crash in Android Debug, and seems to have compatibility issue on SSL
-            // Use platform HTTP handler which is invoked by HttpClientHandler for better compatibility and app size
-            RuntimeInfo.OS == RuntimeInfo.Platform.Android
+            // SocketsHttpHandler causes crash on Android in debug builds due to debugger interop.
+            // On release builds (.NET 8+) it works correctly and is preferred — it brings Happy Eyeballs,
+            // PooledConnectionLifetime (stale-connection recovery after network switch), and
+            // EnableMultipleHttp2Connections (parallel request throughput) to Android as well.
+            RuntimeInfo.OS == RuntimeInfo.Platform.Android && DebugUtils.IsDebugBuild
                 ? new HttpClientHandler
                 {
                     Credentials = CredentialCache.DefaultCredentials,
@@ -149,13 +152,31 @@ namespace osu.Framework.IO.Network
                     AutomaticDecompression = DecompressionMethods.All,
                     // Can be replaced by a static HttpClient.DefaultCredentials after net60 everywhere.
                     Credentials = CredentialCache.DefaultCredentials,
+                    // Proactively cycle TCP connections every 2 minutes. Without this, pooled connections
+                    // live forever and silently go stale after a mobile network change (WiFi → 4G, tunnel,
+                    // etc.), causing the next request to fail with ECONNRESET before HttpClient retries.
+                    // 2 min also ensures DNS TTL changes (load-balancer rotations) are picked up quickly.
+                    PooledConnectionLifetime = TimeSpan.FromMinutes(2),
+                    // Allow a second HTTP/2 connection once the first reaches its concurrent-stream limit.
+                    // Prevents request queuing during heavy parallel API calls (beatmap browser, leaderboards).
+                    EnableMultipleHttp2Connections = true,
+                    // Send HTTP/2 PING frames on active connections that have been idle for 60s.
+                    // If no PING ACK arrives within 30s the connection is torn down and the request fails
+                    // fast — rather than hanging until the app-level timeout fires.
+                    KeepAlivePingDelay = TimeSpan.FromSeconds(keep_alive_ping_delay_seconds),
+                    KeepAlivePingTimeout = TimeSpan.FromSeconds(keep_alive_ping_timeout_seconds),
+                    KeepAlivePingPolicy = HttpKeepAlivePingPolicy.WithActiveRequests,
                     ConnectCallback = onConnect,
                 }
         )
         {
             // Timeout is controlled manually through cancellation tokens because
             // HttpClient does not properly timeout while reading chunked data
-            Timeout = System.Threading.Timeout.InfiniteTimeSpan
+            Timeout = System.Threading.Timeout.InfiniteTimeSpan,
+            // Prefer HTTP/2 for all requests (header compression, multiplexing, stream prioritisation).
+            // Falls back to HTTP/1.1 transparently when the server doesn't support it.
+            DefaultRequestVersion = HttpVersion.Version20,
+            DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher,
         };
 
         public WebRequest(string url = null, params object[] args)
@@ -474,33 +495,41 @@ namespace osu.Framework.IO.Network
                 reportForwardProgress();
                 Started?.Invoke();
 
-                buffer = new byte[buffer_size];
+                // Rent a pooled buffer to avoid a 32 KB heap allocation per request.
+                byte[] buffer = ArrayPool<byte>.Shared.Rent(buffer_size);
 
-                while (true)
+                try
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    int read = await responseStream
-                                     .ReadAsync(buffer.AsMemory(), cancellationToken)
-                                     .ConfigureAwait(false);
-
-                    reportForwardProgress();
-
-                    if (read > 0)
+                    while (true)
                     {
-                        await ResponseStream
-                              .WriteAsync(buffer.AsMemory(0, read), cancellationToken)
-                              .ConfigureAwait(false);
+                        cancellationToken.ThrowIfCancellationRequested();
 
-                        responseBytesRead += read;
-                        DownloadProgress?.Invoke(responseBytesRead, response.Content.Headers.ContentLength ?? responseBytesRead);
+                        int read = await responseStream
+                                         .ReadAsync(buffer.AsMemory(0, buffer_size), cancellationToken)
+                                         .ConfigureAwait(false);
+
+                        reportForwardProgress();
+
+                        if (read > 0)
+                        {
+                            await ResponseStream
+                                  .WriteAsync(buffer.AsMemory(0, read), cancellationToken)
+                                  .ConfigureAwait(false);
+
+                            responseBytesRead += read;
+                            DownloadProgress?.Invoke(responseBytesRead, response.Content.Headers.ContentLength ?? responseBytesRead);
+                        }
+                        else
+                        {
+                            ResponseStream.Seek(0, SeekOrigin.Begin);
+                            await Complete().ConfigureAwait(false);
+                            break;
+                        }
                     }
-                    else
-                    {
-                        ResponseStream.Seek(0, SeekOrigin.Begin);
-                        await Complete().ConfigureAwait(false);
-                        break;
-                    }
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(buffer);
                 }
             }
         }
@@ -845,6 +874,8 @@ namespace osu.Framework.IO.Network
         private static bool hasResolvedIPv6Availability;
 
         private const int connection_establish_timeout = 2000;
+        private const int keep_alive_ping_delay_seconds = 60;
+        private const int keep_alive_ping_timeout_seconds = 30;
 
         private static async ValueTask<Stream> onConnect(SocketsHttpConnectionContext context, CancellationToken cancellationToken)
         {
@@ -857,17 +888,28 @@ namespace osu.Framework.IO.Network
                 {
                     var localToken = cancellationToken;
 
-                    if (!hasResolvedIPv6Availability)
+                    CancellationTokenSource quickFailCts = null;
+                    CancellationTokenSource linkedTokenSource = null;
+
+                    try
                     {
-                        // to make things move fast, use a very low timeout for the initial ipv6 attempt.
-                        var quickFailCts = new CancellationTokenSource(connection_establish_timeout);
-                        var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, quickFailCts.Token);
+                        if (!hasResolvedIPv6Availability)
+                        {
+                            // to make things move fast, use a very low timeout for the initial ipv6 attempt.
+                            quickFailCts = new CancellationTokenSource(connection_establish_timeout);
+                            linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, quickFailCts.Token);
 
-                        localToken = linkedTokenSource.Token;
+                            localToken = linkedTokenSource.Token;
+                        }
+
+                        return await attemptConnection(AddressFamily.InterNetworkV6, context, localToken)
+                            .ConfigureAwait(false);
                     }
-
-                    return await attemptConnection(AddressFamily.InterNetworkV6, context, localToken)
-                        .ConfigureAwait(false);
+                    finally
+                    {
+                        quickFailCts?.Dispose();
+                        linkedTokenSource?.Dispose();
+                    }
                 }
                 catch
                 {

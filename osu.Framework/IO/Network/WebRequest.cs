@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using osu.Framework.Bindables;
+using osu.Framework.Development;
 using osu.Framework.Extensions;
 using osu.Framework.Extensions.ExceptionExtensions;
 using osu.Framework.Logging;
@@ -136,9 +137,11 @@ namespace osu.Framework.IO.Network
         private byte[] buffer;
         private bool? allowInsecureRequests;
         private static readonly HttpClient client = new HttpClient(
-            // SocketsHttpHandler causes crash in Android Debug, and seems to have compatibility issue on SSL
-            // Use platform HTTP handler which is invoked by HttpClientHandler for better compatibility and app size
-            RuntimeInfo.OS == RuntimeInfo.Platform.Android
+            // SocketsHttpHandler causes crash on Android in debug builds due to debugger interop.
+            // On release builds (.NET 8+) it works correctly and is preferred — it brings Happy Eyeballs,
+            // PooledConnectionLifetime (stale-connection recovery after network switch), and
+            // EnableMultipleHttp2Connections (parallel request throughput) to Android as well.
+            RuntimeInfo.OS == RuntimeInfo.Platform.Android && DebugUtils.IsDebugBuild
                 ? new HttpClientHandler
                 {
                     Credentials = CredentialCache.DefaultCredentials,
@@ -149,6 +152,14 @@ namespace osu.Framework.IO.Network
                     AutomaticDecompression = DecompressionMethods.All,
                     // Can be replaced by a static HttpClient.DefaultCredentials after net60 everywhere.
                     Credentials = CredentialCache.DefaultCredentials,
+                    // Proactively cycle TCP connections every 2 minutes. Without this, pooled connections
+                    // live forever and silently go stale after a mobile network change (WiFi → 4G, tunnel,
+                    // etc.), causing the next request to fail with ECONNRESET before HttpClient retries.
+                    // 2 min also ensures DNS TTL changes (load-balancer rotations) are picked up quickly.
+                    PooledConnectionLifetime = TimeSpan.FromMinutes(2),
+                    // Allow a second HTTP/2 connection once the first reaches its concurrent-stream limit.
+                    // Prevents request queuing during heavy parallel API calls (beatmap browser, leaderboards).
+                    EnableMultipleHttp2Connections = true,
                     ConnectCallback = onConnect,
                 }
         )

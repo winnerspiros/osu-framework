@@ -171,30 +171,46 @@ jobs:
       - name: Use Xcode 26.4
         run: |
           sudo xcode-select -switch /Applications/Xcode_26.4.app
-          # On macos-26, MacOSX.sdk and ALL versioned siblings (MacOSX26.sdk, MacOSX26.4.sdk) are
-          # stubs or circular symlinks with no SDKSettings.plist.  Search for a real macOS SDK in
-          # the current Xcode, then CommandLineTools, then any other installed Xcode (newest first).
+          # On macos-26, MacOSX.sdk and ALL versioned siblings in Xcode_26.4.app are stubs or circular
+          # symlinks with no SDKSettings.plist.  xcodebuild requires a real macOS 26.x SDK — search other
+          # Xcode_26.*.app installs (newest first, excluding 26.4 whose SDKs are all stubs) BEFORE falling
+          # back to CommandLineTools (which only has a macOS 15.x SDK, too old for Xcode 26.4).
           SDKS_DIR="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
           MACOS_SDK="$SDKS_DIR/MacOSX.sdk"
+          echo "=== MacOSX.sdk state ==="
+          ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
+          ls -la "$MACOS_SDK/SDKSettings.plist" 2>&1 || echo "(no SDKSettings.plist)"
+          if [ -L "$MACOS_SDK" ]; then echo "symlink target: $(readlink "$MACOS_SDK")"; fi
           if [ ! -f "$MACOS_SDK/SDKSettings.plist" ]; then
             REAL_SDK=""
-            SDK_SEARCH_DIRS="$SDKS_DIR /Library/Developer/CommandLineTools/SDKs"
-            for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -r); do
-              SDK_SEARCH_DIRS="$SDK_SEARCH_DIRS $xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
-            done
-            for dir in $SDK_SEARCH_DIRS; do
-              [ -d "$dir" ] || continue
-              for sdk in $(ls "$dir" 2>/dev/null | grep '^MacOSX.*\.sdk$' | sort -r); do
-                if [ -f "$dir/$sdk/SDKSettings.plist" ]; then
-                  REAL_SDK="$dir/$sdk"
-                  echo "Found macOS SDK: $REAL_SDK"
+            # Search other Xcode_26.*.app installs first (have macOS 26.x SDKs); CLT is last resort
+            # (CLT only has macOS 15.x SDK which xcodebuild 26.x rejects).  Skip MacOSX.sdk itself
+            # (it may also be a symlink or stub); only consider versioned entries like MacOSX26.3.sdk.
+            for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | grep -v '/Xcode_26\.4\.app$' | sort -rV); do
+              sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
+              [ -d "$sdk_dir" ] || continue
+              for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '^MacOSX[0-9].*\.sdk$' | sort -rV); do
+                if [ -f "$sdk_dir/$sdk/SDKSettings.plist" ]; then
+                  REAL_SDK="$sdk_dir/$sdk"
+                  echo "Found macOS SDK in $xapp: $REAL_SDK"
                   break 2
                 fi
               done
             done
+            # Fallback: CommandLineTools (macOS 15.x — better than nothing)
+            if [ -z "$REAL_SDK" ]; then
+              for sdk in $(ls /Library/Developer/CommandLineTools/SDKs 2>/dev/null | grep '^MacOSX[0-9].*\.sdk$' | sort -rV); do
+                if [ -f "/Library/Developer/CommandLineTools/SDKs/$sdk/SDKSettings.plist" ]; then
+                  REAL_SDK="/Library/Developer/CommandLineTools/SDKs/$sdk"
+                  echo "Found macOS SDK in CLT: $REAL_SDK"
+                  break
+                fi
+              done
+            fi
             if [ -n "$REAL_SDK" ]; then
               sudo rm -rf "$MACOS_SDK"
               sudo ln -sfn "$REAL_SDK" "$MACOS_SDK"
+              echo "Created MacOSX.sdk symlink -> $REAL_SDK"
             else
               echo "WARNING: no valid macOS SDK found in any Xcode or CLT installation"
               for dir in "$SDKS_DIR" /Library/Developer/CommandLineTools/SDKs; do
@@ -202,6 +218,8 @@ jobs:
               done
             fi
           fi
+          echo "=== MacOSX.sdk state after fix ==="
+          ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
 
       - name: Compile
         run: dotnet build -c Debug osu-framework.iOS.slnf

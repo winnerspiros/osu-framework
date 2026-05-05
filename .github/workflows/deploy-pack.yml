@@ -177,8 +177,12 @@ jobs:
           # dotnet/macios requires it to be a resolvable symlink; replace any stub dir with a proper one.
           SDKS_DIR="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
           MACOS_SDK="$SDKS_DIR/MacOSX.sdk"
-          if [ ! -L "$MACOS_SDK" ]; then
-            VERSIONED=$(ls "$SDKS_DIR" | grep '^MacOSX.*\.sdk$' | grep -v '^MacOSX\.sdk$' | sort -V | tail -1)
+          # Fix if it's a stub dir (!-L), broken symlink (!-e when -L), or circular symlink (!-e catches ELOOP).
+          if [ ! -L "$MACOS_SDK" ] || [ ! -e "$MACOS_SDK" ]; then
+            VERSIONED=""
+            for candidate in $(ls "$SDKS_DIR" 2>/dev/null | grep '^MacOSX.*\.sdk$' | grep -v '^MacOSX\.sdk$' | sort -V); do
+              [ -d "$SDKS_DIR/$candidate" ] && VERSIONED="$candidate"
+            done
             if [ -n "$VERSIONED" ]; then
               sudo rm -rf "$MACOS_SDK"
               sudo ln -sfn "$SDKS_DIR/$VERSIONED" "$MACOS_SDK"

@@ -173,7 +173,12 @@ jobs:
       - name: Use Xcode 26.4
         run: |
           sudo xcode-select -switch /Applications/Xcode_26.4.app
-          sudo xcodebuild -runFirstLaunch
+          # MacOSX.sdk unversioned symlink is missing in Xcode 26 on macos-26; create it so actool can be found via xcrun
+          SDK_DIR="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
+          if [ ! -e "$SDK_DIR/MacOSX.sdk" ]; then
+            VERSIONED=$(ls "$SDK_DIR" | grep '^MacOSX.*\.sdk$' | sort -V | tail -1)
+            sudo ln -sfn "$SDK_DIR/$VERSIONED" "$SDK_DIR/MacOSX.sdk"
+          fi
 
       - name: Pack (iOS Framework)
         run: dotnet pack -c Release osu.Framework.iOS /p:Version=${{ github.ref_name }} /p:GenerateDocumentationFile=true -o ${{steps.artifactsPath.outputs.NUGET_ARTIFACTS}}

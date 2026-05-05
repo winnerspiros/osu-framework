@@ -165,10 +165,12 @@ jobs:
         run: |
           sudo xcode-select -switch /Applications/Xcode_26.4.app
           # MacOSX.sdk unversioned symlink is missing in Xcode 26 on macos-26; create it so actool can be found via xcrun
-          SDK_DIR="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
-          if [ ! -e "$SDK_DIR/MacOSX.sdk" ]; then
-            VERSIONED=$(ls "$SDK_DIR" | grep '^MacOSX.*\.sdk$' | sort -V | tail -1)
-            sudo ln -sfn "$SDK_DIR/$VERSIONED" "$SDK_DIR/MacOSX.sdk"
+          VERSIONED_SDK=$(xcrun --sdk macosx --show-sdk-path 2>/dev/null)
+          if [ -n "$VERSIONED_SDK" ]; then
+            SDKS_DIR=$(dirname "$VERSIONED_SDK")
+            if [ ! -e "$SDKS_DIR/MacOSX.sdk" ]; then
+              sudo ln -sfn "$VERSIONED_SDK" "$SDKS_DIR/MacOSX.sdk"
+            fi
           fi
 
       - name: Set artifacts directory

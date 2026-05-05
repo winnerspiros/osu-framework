@@ -171,20 +171,18 @@ jobs:
       - name: Use Xcode 26.4
         run: |
           sudo xcode-select -switch /Applications/Xcode_26.4.app
-          # On macos-26, MacOSX.sdk and ALL versioned siblings in Xcode_26.4.app are stubs or circular
-          # symlinks with no SDKSettings.plist.  xcodebuild requires a real macOS 26.x SDK — search other
-          # Xcode_26.*.app installs (newest first, excluding 26.4 whose SDKs are all stubs) BEFORE falling
-          # back to CommandLineTools (which only has a macOS 15.x SDK, too old for Xcode 26.4).
+          # On macos-26, Xcode_26.4.app's MacOSX.sdk is a stub that xcodebuild cannot locate.
+          # Apple's runner image updates keep adding more files to the stub (SDKSettings.plist,
+          # then usr/include/stdio.h), defeating file-existence guards. Use xcodebuild itself as
+          # the definitive check — if it can't resolve the macOS SDK we replace the stub with a
+          # symlink to a real SDK found in another Xcode install or CommandLineTools.
           SDKS_DIR="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
           MACOS_SDK="$SDKS_DIR/MacOSX.sdk"
           echo "=== MacOSX.sdk state ==="
           ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
-          ls -la "$MACOS_SDK/SDKSettings.plist" 2>&1 || echo "(no SDKSettings.plist)"
-          ls -la "$MACOS_SDK/usr/include/stdio.h" 2>&1 || echo "(no usr/include/stdio.h)"
-          if [ -L "$MACOS_SDK" ]; then echo "symlink target: $(readlink "$MACOS_SDK")"; fi
-          # Guard: a real macOS SDK always has usr/include/stdio.h; stubs (even with SDKSettings.plist
-          # placeholder) lack it.  Xcode_26.4.app ships a stub dir — must replace with a real SDK.
-          if [ ! -f "$MACOS_SDK/usr/include/stdio.h" ]; then
+          echo "=== xcodebuild SDK check ==="
+          xcodebuild -sdk macosx -version 2>&1 || echo "(xcodebuild cannot locate macosx SDK)"
+          if ! xcodebuild -sdk macosx -version > /dev/null 2>&1; then
             REAL_SDK=""
             # Search other Xcode_26.*.app installs first (have macOS 26.x SDKs); CLT is last resort
             # (CLT only has macOS 15.x SDK which xcodebuild 26.x rejects).  Skip MacOSX.sdk itself
@@ -194,7 +192,7 @@ jobs:
               sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
               [ -d "$sdk_dir" ] || continue
               for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '^MacOSX[0-9].*\.sdk$' | sort -rV); do
-                if [ -f "$sdk_dir/$sdk/usr/include/stdio.h" ]; then
+                if [ -f "$sdk_dir/$sdk/SDKSettings.plist" ]; then
                   REAL_SDK="$sdk_dir/$sdk"
                   echo "Found macOS SDK in $xapp: $REAL_SDK"
                   break 2
@@ -204,7 +202,7 @@ jobs:
             # Fallback: CommandLineTools (macOS 15.x — better than nothing)
             if [ -z "$REAL_SDK" ]; then
               for sdk in $(ls /Library/Developer/CommandLineTools/SDKs 2>/dev/null | grep '^MacOSX[0-9].*\.sdk$' | sort -rV); do
-                if [ -f "/Library/Developer/CommandLineTools/SDKs/$sdk/usr/include/stdio.h" ]; then
+                if [ -f "/Library/Developer/CommandLineTools/SDKs/$sdk/SDKSettings.plist" ]; then
                   REAL_SDK="/Library/Developer/CommandLineTools/SDKs/$sdk"
                   echo "Found macOS SDK in CLT: $REAL_SDK"
                   break
@@ -224,6 +222,8 @@ jobs:
           fi
           echo "=== MacOSX.sdk state after fix ==="
           ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
+          echo "=== xcodebuild SDK check after fix ==="
+          xcodebuild -sdk macosx -version 2>&1 || echo "(xcodebuild cannot locate macosx SDK)"
 
       - name: Compile
         run: dotnet build -c Debug osu-framework.iOS.slnf

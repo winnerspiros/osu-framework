@@ -57,7 +57,7 @@
     NoWarn reliably suppresses both the warning and its `-warnaserror` upgrade.
   -->
   <PropertyGroup>
-    <NoWarn>$(NoWarn);CS1591;IDE0008;IDE0023;IDE0024;IDE0025;IDE0027;IDE0031;IDE0032;IDE0034;IDE0040;IDE0057;IDE0160;IDE0161</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;IDE0008;IDE0017;IDE0023;IDE0024;IDE0025;IDE0027;IDE0031;IDE0032;IDE0034;IDE0040;IDE0057;IDE0160;IDE0161</NoWarn>
   </PropertyGroup>
 
 </Project>

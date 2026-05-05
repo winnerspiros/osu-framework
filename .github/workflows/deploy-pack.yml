@@ -166,52 +166,55 @@ jobs:
           dotnet-version: "10.0.x"
 
       - name: Restore .NET Workloads
-        run: dotnet workload install ios
+        run: |
+          dotnet workload update
+          dotnet workload install ios
 
       # https://github.com/dotnet/macios/issues/19157
       # https://github.com/actions/runner-images/issues/12758
-      - name: Use Xcode 26.4+
+      - name: Use latest Xcode
         run: |
-          # Prefer the latest Xcode >= 26.4. The .NET iOS workload (net10.0_26.4) requires
-          # Xcode >= 26.4; later versions (e.g. 26.5 beta) are compatible and may ship a
-          # working MacOSX.sdk rather than the stub in Xcode_26.4.1.app.
+          # Use the latest Xcode available on the runner (26.5 beta or newer).
+          # dotnet workload update (above) fetches the latest workload manifest which
+          # should include net10.0_26.5 support matching the latest Xcode.
+          # Fix: MacOSX.sdk in the active Xcode is a minimal stub. Replace it with a symlink
+          # to the real versioned SDK (MacOSX26.5.sdk) found in the same or newer Xcode.
+          # Real SDKs have hundreds of headers in usr/include; stubs have ≤1.
           ACTIVE_XCODE=""
-          for xapp in /Applications/Xcode_26.5.app /Applications/Xcode_26.4.app; do
+          for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
             [ -d "$xapp" ] && ACTIVE_XCODE="$xapp" && break
           done
-          echo "Using Xcode: $ACTIVE_XCODE"
+          echo "Active Xcode: $ACTIVE_XCODE"
           sudo xcode-select -switch "$ACTIVE_XCODE"
-          # The .NET iOS SDK (Microsoft.iOS.Sdk.net10.0_26.4) constructs the MacOSX.sdk path
-          # from the active Xcode developer directory and passes it to xcodebuild as a full
-          # absolute path. On macos-26, Xcode_26.4.1.app ships MacOSX.sdk as a minimal stub
-          # that xcodebuild rejects when given the full path. Note: `xcodebuild -sdk macosx
-          # -version` exits 0 even with the stub (resolves by internal registry, not path) —
-          # it cannot be used as a guard. Fix: always replace MacOSX.sdk with a symlink to
-          # the best real versioned SDK from another Xcode install.
           SDKS_DIR="$ACTIVE_XCODE/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
           MACOS_SDK="$SDKS_DIR/MacOSX.sdk"
           echo "=== MacOSX.sdk state ==="
           ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
           REAL_SDK=""
-          # Extract version segment (e.g. Xcode_26.5) to exclude from search — its SDK
-          # variants may also be stubs. All other Xcode_26.*.app installs are candidates.
-          EXCLUDE=$(basename "$ACTIVE_XCODE" | grep -oE '^Xcode_26\.[0-9]+')
-          for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | grep -v "/$EXCLUDE" | sort -rV); do
+          # Search ALL Xcode_26.x.app installs (including active) for versioned MacOSX[N].sdk.
+          # Validate by usr/include header count: stubs ≤1 file, real SDKs have hundreds.
+          for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
             sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
             [ -d "$sdk_dir" ] || continue
             for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '^MacOSX[0-9].*\.sdk$' | sort -rV); do
-              if [ -f "$sdk_dir/$sdk/SDKSettings.plist" ]; then
-                REAL_SDK="$sdk_dir/$sdk"
-                echo "Found real macOS SDK in $xapp: $REAL_SDK"
+              cand="$sdk_dir/$sdk"
+              hdr_count=$(ls "$cand/usr/include" 2>/dev/null | wc -l | tr -d ' ')
+              echo "  Checking $cand: $hdr_count headers in usr/include"
+              if [ "${hdr_count:-0}" -gt 5 ]; then
+                REAL_SDK="$cand"
+                echo "Found real macOS SDK: $REAL_SDK"
                 break 2
               fi
             done
           done
-          # Fallback: CommandLineTools (macOS 15.x — last resort)
+          # Fallback: CommandLineTools
           if [ -z "$REAL_SDK" ]; then
             for sdk in $(ls /Library/Developer/CommandLineTools/SDKs 2>/dev/null | grep '^MacOSX[0-9].*\.sdk$' | sort -rV); do
-              if [ -f "/Library/Developer/CommandLineTools/SDKs/$sdk/SDKSettings.plist" ]; then
-                REAL_SDK="/Library/Developer/CommandLineTools/SDKs/$sdk"
+              cand="/Library/Developer/CommandLineTools/SDKs/$sdk"
+              hdr_count=$(ls "$cand/usr/include" 2>/dev/null | wc -l | tr -d ' ')
+              echo "  CLT $cand: $hdr_count headers"
+              if [ "${hdr_count:-0}" -gt 5 ]; then
+                REAL_SDK="$cand"
                 echo "Found macOS SDK in CLT: $REAL_SDK"
                 break
               fi
@@ -222,9 +225,13 @@ jobs:
             sudo ln -sfn "$REAL_SDK" "$MACOS_SDK"
             echo "Created MacOSX.sdk symlink -> $REAL_SDK"
           else
-            echo "WARNING: no valid macOS SDK found in any Xcode or CLT installation"
-            for dir in "$SDKS_DIR" /Library/Developer/CommandLineTools/SDKs; do
-              echo "=== $dir ==="; ls -la "$dir" 2>&1 || true
+            echo "WARNING: no valid macOS SDK found; listing all candidates:"
+            for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
+              sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
+              echo "  $xapp:"; ls "$sdk_dir" 2>&1 | sed 's/^/    /'
+              for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '\.sdk$'); do
+                echo "    $sdk: $(ls "$sdk_dir/$sdk" 2>/dev/null | wc -l | tr -d ' ') items, $(ls "$sdk_dir/$sdk/usr/include" 2>/dev/null | wc -l | tr -d ' ') hdrs"
+              done
             done
           fi
           echo "=== MacOSX.sdk state after fix ==="

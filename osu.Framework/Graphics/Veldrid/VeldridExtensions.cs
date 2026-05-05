@@ -326,7 +326,7 @@ namespace osu.Framework.Graphics.Veldrid
             string driverName = info.DriverName ?? "(unknown)";
             string driverInfo = info.DriverInfo ?? "(unknown)";
 
-            string deviceName = Marshal.PtrToStringUTF8((nint)(void*)(&properties.deviceName)) ?? string.Empty;
+            string deviceName = Marshal.PtrToStringUTF8((nint)(&properties.deviceName)) ?? string.Empty;
 
             Logger.Log($@"{vulkanName} Initialized
                                     {vulkanName} API Version:                      {apiVersion}

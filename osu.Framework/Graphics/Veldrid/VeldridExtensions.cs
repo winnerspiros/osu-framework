@@ -17,7 +17,7 @@ using Veldrid.MetalBindings;
 using Veldrid.OpenGLBindings;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
-using Vulkan;
+using Vortice.Vulkan;
 using GraphicsBackend = Veldrid.GraphicsBackend;
 using PrimitiveTopology = Veldrid.PrimitiveTopology;
 using StencilOperation = Veldrid.StencilOperation;
@@ -292,8 +292,9 @@ namespace osu.Framework.Graphics.Veldrid
             var instanceExtensionNames = info.AvailableInstanceExtensions;
             var deviceExtensionNames = info.AvailableDeviceExtensions;
 
-            VkPhysicalDeviceProperties properties;
-            VulkanNative.vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+            var vkInstance = new VkInstance(info.Instance);
+            var instanceApi = new VkInstanceApi(in vkInstance);
+            VkPhysicalDeviceProperties properties = instanceApi.vkGetPhysicalDeviceProperties(new VkPhysicalDevice(physicalDevice));
 
             maxTextureSize = (int)properties.limits.maxImageDimension2D;
 
@@ -304,7 +305,10 @@ namespace osu.Framework.Graphics.Veldrid
             for (int i = 0; i < deviceExtensionNames.Count; i++)
                 extensionNames.Add(deviceExtensionNames[i].Name);
 
-            string apiVersion = $"{properties.apiVersion >> 22}.{(properties.apiVersion >> 12) & 0x3FFU}.{properties.apiVersion & 0xFFFU}";
+            uint apiMajor = properties.apiVersion.Major;
+            uint apiMinor = properties.apiVersion.Minor;
+            uint apiPatch = properties.apiVersion.Patch;
+            string apiVersion = $"{apiMajor}.{apiMinor}.{apiPatch}";
             string driverVersion;
 
             // https://github.com/SaschaWillems/vulkan.gpuinfo.org/blob/1e6ca6e3c0763daabd6a101b860ab4354a07f5d3/functions.php#L293-L325
@@ -315,9 +319,6 @@ namespace osu.Framework.Graphics.Veldrid
             else // Vulkan's convention
                 driverVersion = $"{properties.driverVersion >> 22}.{(properties.driverVersion >> 12) & 0x3FFU}.{properties.driverVersion & 0xFFFU}";
 
-            uint apiMajor = properties.apiVersion >> 22;
-            uint apiMinor = (properties.apiVersion >> 12) & 0x3FFU;
-
             if (RuntimeInfo.OS == RuntimeInfo.Platform.Android && (apiMajor < 1 || (apiMajor == 1 && apiMinor < 3)))
                 Logger.Log($"Vulkan {apiVersion} detected on Android. Vulkan 1.3+ is recommended for optimal performance.", level: LogLevel.Important);
 
@@ -325,12 +326,14 @@ namespace osu.Framework.Graphics.Veldrid
             string driverName = info.DriverName ?? "(unknown)";
             string driverInfo = info.DriverInfo ?? "(unknown)";
 
+            string deviceName = Marshal.PtrToStringUTF8((nint)(&properties.deviceName)) ?? string.Empty;
+
             Logger.Log($@"{vulkanName} Initialized
                                     {vulkanName} API Version:                      {apiVersion}
                                     {vulkanName} Driver Version:                   {driverVersion}
                                     {vulkanName} Driver Name:                      {driverName}
                                     {vulkanName} Driver Info:                      {driverInfo}
-                                    {vulkanName} Device:                           {Marshal.PtrToStringUTF8((IntPtr)properties.deviceName)}
+                                    {vulkanName} Device:                           {deviceName}
                                     {vulkanName} Fragment Shading Rate:            {info.HasFragmentShadingRate}
                                     {vulkanName} Mesh Shader:                      {info.HasMeshShader}
                                     {vulkanName} Synchronization2:                 {info.HasSynchronization2}

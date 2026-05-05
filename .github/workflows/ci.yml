@@ -149,7 +149,7 @@ jobs:
 
   build-only-ios:
     name: Build only (iOS)
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
     steps:
       - name: Checkout
@@ -168,8 +168,67 @@ jobs:
 
       # https://github.com/dotnet/macios/issues/19157
       # https://github.com/actions/runner-images/issues/12758
-      - name: Use Xcode 26.3
-        run: sudo xcode-select -switch /Applications/Xcode_26.3.app
+      - name: Use Xcode 26.4
+        run: |
+          # Pin to Xcode 26.4 — the .NET iOS workload (net10.0_26.4) requires exactly Xcode 26.4.
+          # Using Xcode 26.5 causes a hard build failure: "requires Xcode 26.4, current is 26.5".
+          # Fix: MacOSX.sdk in Xcode 26.4 is a minimal stub. Replace it with a symlink to the
+          # real versioned SDK found across Xcode installs. Real SDKs have hundreds of headers;
+          # stubs have ≤1.
+          ACTIVE_XCODE="/Applications/Xcode_26.4.app"
+          echo "Active Xcode: $ACTIVE_XCODE"
+          sudo xcode-select -switch "$ACTIVE_XCODE"
+          SDKS_DIR="$ACTIVE_XCODE/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
+          MACOS_SDK="$SDKS_DIR/MacOSX.sdk"
+          echo "=== MacOSX.sdk state ==="
+          ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
+          REAL_SDK=""
+          # Search ALL Xcode_26.x.app installs (including active) for versioned MacOSX[N].sdk.
+          # Validate by usr/include header count: stubs ≤1 file, real SDKs have hundreds.
+          for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
+            sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
+            [ -d "$sdk_dir" ] || continue
+            for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '^MacOSX[0-9].*\.sdk$' | sort -rV); do
+              cand="$sdk_dir/$sdk"
+              hdr_count=$(ls "$cand/usr/include" 2>/dev/null | wc -l | tr -d ' ')
+              echo "  Checking $cand: $hdr_count headers in usr/include"
+              if [ "${hdr_count:-0}" -gt 5 ]; then
+                REAL_SDK="$cand"
+                echo "Found real macOS SDK: $REAL_SDK"
+                break 2
+              fi
+            done
+          done
+          # Fallback: CommandLineTools
+          if [ -z "$REAL_SDK" ]; then
+            for sdk in $(ls /Library/Developer/CommandLineTools/SDKs 2>/dev/null | grep '^MacOSX[0-9].*\.sdk$' | sort -rV); do
+              cand="/Library/Developer/CommandLineTools/SDKs/$sdk"
+              hdr_count=$(ls "$cand/usr/include" 2>/dev/null | wc -l | tr -d ' ')
+              echo "  CLT $cand: $hdr_count headers"
+              if [ "${hdr_count:-0}" -gt 5 ]; then
+                REAL_SDK="$cand"
+                echo "Found macOS SDK in CLT: $REAL_SDK"
+                break
+              fi
+            done
+          fi
+          if [ -n "$REAL_SDK" ]; then
+            sudo rm -rf "$MACOS_SDK"
+            sudo ln -sfn "$REAL_SDK" "$MACOS_SDK"
+            echo "Created MacOSX.sdk symlink -> $REAL_SDK"
+          else
+            echo "WARNING: no valid macOS SDK found; listing all candidates:"
+            for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
+              sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
+              echo "  $xapp:"; ls "$sdk_dir" 2>&1 | sed 's/^/    /'
+              for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '\.sdk$'); do
+                echo "    $sdk: $(ls "$sdk_dir/$sdk" 2>/dev/null | wc -l | tr -d ' ') items, $(ls "$sdk_dir/$sdk/usr/include" 2>/dev/null | wc -l | tr -d ' ') hdrs"
+              done
+            done
+          fi
+          echo "=== MacOSX.sdk state after fix ==="
+          ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
+          xcodebuild -sdk macosx -version 2>&1 || echo "(xcodebuild cannot locate macosx SDK)"
 
       - name: Compile
         run: dotnet build -c Debug osu-framework.iOS.slnf

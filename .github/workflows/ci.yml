@@ -171,27 +171,17 @@ jobs:
       - name: Use Xcode 26.4
         run: |
           sudo xcode-select -switch /Applications/Xcode_26.4.app
-          echo "Developer dir: $(xcode-select -p)"
-          # Find the actual macOS SDK path using xcodebuild (most authoritative)
+          # Find the actual macOS SDK path using xcodebuild (most authoritative).
+          # xcrun --sdk macosx is broken here: it returns MacOSX.sdk itself (circular).
           MACOS_SDK=$(xcodebuild -sdk macosx26.4 -version Path 2>/dev/null || xcodebuild -sdk macosx -version Path 2>/dev/null || echo "")
-          echo "macOS SDK path: '$MACOS_SDK'"
-          # The path dotnet/macios hardcodes for actool lookup
+          # The path dotnet/macios hardcodes when invoking xcrun -find actool.
           EXPECTED_SDK="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
-          echo "Expected SDK exists: $([ -e "$EXPECTED_SDK" ] && echo yes || echo no)"
-          echo "Expected SDK is link: $([ -L "$EXPECTED_SDK" ] && echo yes || echo no)"
-          if [ -n "$MACOS_SDK" ] && [ ! -e "$EXPECTED_SDK" ]; then
-            EXPECTED_DIR=$(dirname "$EXPECTED_SDK")
-            sudo mkdir -p "$EXPECTED_DIR"
+          # On macos-26, MacOSX.sdk may exist as an empty stub directory (not a valid SDK).
+          # A valid SDK always contains SDKSettings.plist; if it is missing the stub must be replaced.
+          if [ -n "$MACOS_SDK" ] && [ ! -f "$EXPECTED_SDK/SDKSettings.plist" ]; then
+            sudo rm -rf "$EXPECTED_SDK"
+            sudo mkdir -p "$(dirname "$EXPECTED_SDK")"
             sudo ln -sfn "$MACOS_SDK" "$EXPECTED_SDK"
-            echo "Created symlink: $EXPECTED_SDK -> $MACOS_SDK"
-          elif [ -e "$EXPECTED_SDK" ]; then
-            echo "MacOSX.sdk already exists: $(ls -la "$EXPECTED_SDK")"
-          else
-            echo "ERROR: Could not determine macOS SDK path"
-            echo "Platforms directory:"
-            ls -la "/Applications/Xcode_26.4.app/Contents/Developer/Platforms/" 2>&1 | head -20
-            echo "SDKs directory (if it exists):"
-            ls -la "$(dirname "$EXPECTED_SDK")" 2>&1 || echo "(dir not found)"
           fi
 
       - name: Compile

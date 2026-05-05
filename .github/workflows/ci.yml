@@ -171,19 +171,15 @@ jobs:
       - name: Use Xcode 26.4
         run: |
           sudo xcode-select -switch /Applications/Xcode_26.4.app
-          # MacOSX.sdk unversioned symlink is missing in Xcode 26 on macos-26; create it so actool can be found via xcrun.
-          # Use the explicit versioned SDK name to avoid a circular symlink: xcrun --sdk macosx may itself
-          # return the non-existent MacOSX.sdk path when that symlink is missing.
+          echo "DEVELOPER_DIR: $(xcode-select -p)"
           SDK_DIR="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
-          if [ -d "$SDK_DIR" ] && [ ! -e "$SDK_DIR/MacOSX.sdk" ]; then
-            # Try the explicit versioned SDK name first (macosx26.4 from Xcode 26.4.1)
-            SDK_PATH=$(xcrun --sdk macosx26.4 --show-sdk-path 2>/dev/null)
-            # If that fails, find any versioned .sdk directory other than MacOSX.sdk itself
-            if [ -z "$SDK_PATH" ] || echo "$SDK_PATH" | grep -q 'MacOSX\.sdk$'; then
-              SDK_PATH=$(ls -d "$SDK_DIR"/*.sdk 2>/dev/null | grep -v '/MacOSX\.sdk$' | sort -V | tail -1)
-            fi
-            [ -n "$SDK_PATH" ] && sudo ln -sfn "$SDK_PATH" "$SDK_DIR/MacOSX.sdk"
-          fi
+          echo "SDK_DIR exists: $([ -d "$SDK_DIR" ] && echo yes || echo no)"
+          echo "SDK_DIR contents:"
+          ls -la "$SDK_DIR" 2>&1 || echo "(ls failed)"
+          echo "MacOSX.sdk -e test: $([ -e "$SDK_DIR/MacOSX.sdk" ] && echo yes || echo no)"
+          echo "MacOSX.sdk -L test: $([ -L "$SDK_DIR/MacOSX.sdk" ] && echo yes || echo no)"
+          echo "xcrun macosx26.4: $(xcrun --sdk macosx26.4 --show-sdk-path 2>&1)"
+          echo "xcrun macosx: $(xcrun --sdk macosx --show-sdk-path 2>&1)"
 
       - name: Compile
         run: dotnet build -c Debug osu-framework.iOS.slnf

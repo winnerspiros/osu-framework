@@ -180,17 +180,21 @@ jobs:
           echo "=== MacOSX.sdk state ==="
           ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
           ls -la "$MACOS_SDK/SDKSettings.plist" 2>&1 || echo "(no SDKSettings.plist)"
+          ls -la "$MACOS_SDK/usr/include/stdio.h" 2>&1 || echo "(no usr/include/stdio.h)"
           if [ -L "$MACOS_SDK" ]; then echo "symlink target: $(readlink "$MACOS_SDK")"; fi
-          if [ ! -f "$MACOS_SDK/SDKSettings.plist" ]; then
+          # Guard: a real macOS SDK always has usr/include/stdio.h; stubs (even with SDKSettings.plist
+          # placeholder) lack it.  Xcode_26.4.app ships a stub dir — must replace with a real SDK.
+          if [ ! -f "$MACOS_SDK/usr/include/stdio.h" ]; then
             REAL_SDK=""
             # Search other Xcode_26.*.app installs first (have macOS 26.x SDKs); CLT is last resort
             # (CLT only has macOS 15.x SDK which xcodebuild 26.x rejects).  Skip MacOSX.sdk itself
             # (it may also be a symlink or stub); only consider versioned entries like MacOSX26.3.sdk.
-            for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | grep -v '/Xcode_26\.4\.app$' | sort -rV); do
+            # Exclude ALL Xcode 26.4 variants (Xcode_26.4.app symlink AND Xcode_26.4.1.app physical dir).
+            for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | grep -v '/Xcode_26\.4' | sort -rV); do
               sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
               [ -d "$sdk_dir" ] || continue
               for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '^MacOSX[0-9].*\.sdk$' | sort -rV); do
-                if [ -f "$sdk_dir/$sdk/SDKSettings.plist" ]; then
+                if [ -f "$sdk_dir/$sdk/usr/include/stdio.h" ]; then
                   REAL_SDK="$sdk_dir/$sdk"
                   echo "Found macOS SDK in $xapp: $REAL_SDK"
                   break 2
@@ -200,7 +204,7 @@ jobs:
             # Fallback: CommandLineTools (macOS 15.x — better than nothing)
             if [ -z "$REAL_SDK" ]; then
               for sdk in $(ls /Library/Developer/CommandLineTools/SDKs 2>/dev/null | grep '^MacOSX[0-9].*\.sdk$' | sort -rV); do
-                if [ -f "/Library/Developer/CommandLineTools/SDKs/$sdk/SDKSettings.plist" ]; then
+                if [ -f "/Library/Developer/CommandLineTools/SDKs/$sdk/usr/include/stdio.h" ]; then
                   REAL_SDK="/Library/Developer/CommandLineTools/SDKs/$sdk"
                   echo "Found macOS SDK in CLT: $REAL_SDK"
                   break

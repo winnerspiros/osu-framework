@@ -164,18 +164,13 @@ jobs:
       - name: Use Xcode 26.4
         run: |
           sudo xcode-select -switch /Applications/Xcode_26.4.app
-          # MacOSX.sdk unversioned symlink is missing in Xcode 26 on macos-26; create it so actool can be found via xcrun.
-          # Use the explicit versioned SDK name to avoid a circular symlink: xcrun --sdk macosx may itself
-          # return the non-existent MacOSX.sdk path when that symlink is missing.
-          SDK_DIR="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
-          if [ -d "$SDK_DIR" ] && [ ! -e "$SDK_DIR/MacOSX.sdk" ]; then
-            # Try the explicit versioned SDK name first (macosx26.4 from Xcode 26.4.1)
-            SDK_PATH=$(xcrun --sdk macosx26.4 --show-sdk-path 2>/dev/null)
-            # If that fails, find any versioned .sdk directory other than MacOSX.sdk itself
-            if [ -z "$SDK_PATH" ] || echo "$SDK_PATH" | grep -q 'MacOSX\.sdk$'; then
-              SDK_PATH=$(ls -d "$SDK_DIR"/*.sdk 2>/dev/null | grep -v '/MacOSX\.sdk$' | sort -V | tail -1)
-            fi
-            [ -n "$SDK_PATH" ] && sudo ln -sfn "$SDK_PATH" "$SDK_DIR/MacOSX.sdk"
+          # Find the actual macOS SDK path using xcodebuild (most authoritative)
+          MACOS_SDK=$(xcodebuild -sdk macosx26.4 -version Path 2>/dev/null || xcodebuild -sdk macosx -version Path 2>/dev/null || echo "")
+          # The path dotnet/macios hardcodes for actool lookup
+          EXPECTED_SDK="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+          if [ -n "$MACOS_SDK" ] && [ ! -e "$EXPECTED_SDK" ]; then
+            sudo mkdir -p "$(dirname "$EXPECTED_SDK")"
+            sudo ln -sfn "$MACOS_SDK" "$EXPECTED_SDK"
           fi
 
       - name: Set artifacts directory

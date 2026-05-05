@@ -171,15 +171,28 @@ jobs:
       - name: Use Xcode 26.4
         run: |
           sudo xcode-select -switch /Applications/Xcode_26.4.app
-          echo "DEVELOPER_DIR: $(xcode-select -p)"
-          SDK_DIR="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
-          echo "SDK_DIR exists: $([ -d "$SDK_DIR" ] && echo yes || echo no)"
-          echo "SDK_DIR contents:"
-          ls -la "$SDK_DIR" 2>&1 || echo "(ls failed)"
-          echo "MacOSX.sdk -e test: $([ -e "$SDK_DIR/MacOSX.sdk" ] && echo yes || echo no)"
-          echo "MacOSX.sdk -L test: $([ -L "$SDK_DIR/MacOSX.sdk" ] && echo yes || echo no)"
-          echo "xcrun macosx26.4: $(xcrun --sdk macosx26.4 --show-sdk-path 2>&1)"
-          echo "xcrun macosx: $(xcrun --sdk macosx --show-sdk-path 2>&1)"
+          echo "Developer dir: $(xcode-select -p)"
+          # Find the actual macOS SDK path using xcodebuild (most authoritative)
+          MACOS_SDK=$(xcodebuild -sdk macosx26.4 -version Path 2>/dev/null || xcodebuild -sdk macosx -version Path 2>/dev/null || echo "")
+          echo "macOS SDK path: '$MACOS_SDK'"
+          # The path dotnet/macios hardcodes for actool lookup
+          EXPECTED_SDK="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+          echo "Expected SDK exists: $([ -e "$EXPECTED_SDK" ] && echo yes || echo no)"
+          echo "Expected SDK is link: $([ -L "$EXPECTED_SDK" ] && echo yes || echo no)"
+          if [ -n "$MACOS_SDK" ] && [ ! -e "$EXPECTED_SDK" ]; then
+            EXPECTED_DIR=$(dirname "$EXPECTED_SDK")
+            sudo mkdir -p "$EXPECTED_DIR"
+            sudo ln -sfn "$MACOS_SDK" "$EXPECTED_SDK"
+            echo "Created symlink: $EXPECTED_SDK -> $MACOS_SDK"
+          elif [ -e "$EXPECTED_SDK" ]; then
+            echo "MacOSX.sdk already exists: $(ls -la "$EXPECTED_SDK")"
+          else
+            echo "ERROR: Could not determine macOS SDK path"
+            echo "Platforms directory:"
+            ls -la "/Applications/Xcode_26.4.app/Contents/Developer/Platforms/" 2>&1 | head -20
+            echo "SDKs directory (if it exists):"
+            ls -la "$(dirname "$EXPECTED_SDK")" 2>&1 || echo "(dir not found)"
+          fi
 
       - name: Compile
         run: dotnet build -c Debug osu-framework.iOS.slnf

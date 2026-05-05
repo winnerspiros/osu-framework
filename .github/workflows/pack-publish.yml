@@ -168,17 +168,33 @@ jobs:
           # dotnet/macios requires it to be a resolvable symlink; replace any stub dir with a proper one.
           SDKS_DIR="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
           MACOS_SDK="$SDKS_DIR/MacOSX.sdk"
-          # On macos-26, MacOSX.sdk may be a stub directory (no SDKSettings.plist) while versioned entries
-          # (MacOSX26.sdk, MacOSX26.4.sdk) are symlinks back to the stub.  Replace the stub with a symlink
-          # to the first versioned entry that contains a real SDKSettings.plist.
+          # On macos-26, MacOSX.sdk and ALL versioned siblings (MacOSX26.sdk, MacOSX26.4.sdk) are
+          # stubs or circular symlinks with no SDKSettings.plist.  Search for a real macOS SDK in
+          # the current Xcode, then CommandLineTools, then any other installed Xcode (newest first).
           if [ ! -f "$MACOS_SDK/SDKSettings.plist" ]; then
-            VERSIONED=""
-            for candidate in $(ls "$SDKS_DIR" 2>/dev/null | grep '^MacOSX.*\.sdk$' | grep -v '^MacOSX\.sdk$' | sort -V); do
-              [ -f "$SDKS_DIR/$candidate/SDKSettings.plist" ] && VERSIONED="$candidate" && break
+            REAL_SDK=""
+            SDK_SEARCH_DIRS="$SDKS_DIR /Library/Developer/CommandLineTools/SDKs"
+            for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -r); do
+              SDK_SEARCH_DIRS="$SDK_SEARCH_DIRS $xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
             done
-            if [ -n "$VERSIONED" ]; then
+            for dir in $SDK_SEARCH_DIRS; do
+              [ -d "$dir" ] || continue
+              for sdk in $(ls "$dir" 2>/dev/null | grep '^MacOSX.*\.sdk$' | sort -r); do
+                if [ -f "$dir/$sdk/SDKSettings.plist" ]; then
+                  REAL_SDK="$dir/$sdk"
+                  echo "Found macOS SDK: $REAL_SDK"
+                  break 2
+                fi
+              done
+            done
+            if [ -n "$REAL_SDK" ]; then
               sudo rm -rf "$MACOS_SDK"
-              sudo ln -sfn "$SDKS_DIR/$VERSIONED" "$MACOS_SDK"
+              sudo ln -sfn "$REAL_SDK" "$MACOS_SDK"
+            else
+              echo "WARNING: no valid macOS SDK found in any Xcode or CLT installation"
+              for dir in "$SDKS_DIR" /Library/Developer/CommandLineTools/SDKs; do
+                echo "=== $dir ==="; ls -la "$dir" 2>&1 || true
+              done
             fi
           fi
 

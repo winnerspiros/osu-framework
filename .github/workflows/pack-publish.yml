@@ -140,7 +140,7 @@ jobs:
 
   pack-ios:
     name: Pack (iOS)
-    runs-on: macos-15
+    runs-on: macos-26
     defaults:
       run:
         shell: bash

@@ -175,16 +175,30 @@ jobs:
           # dotnet/macios requires it to be a resolvable symlink; replace any stub dir with a proper one.
           SDKS_DIR="/Applications/Xcode_26.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
           MACOS_SDK="$SDKS_DIR/MacOSX.sdk"
+          echo "=== SDKs directory ==="
+          ls -la "$SDKS_DIR/" 2>&1 || echo "(ls failed)"
+          echo "=== MacOSX.sdk stat ==="
+          stat "$MACOS_SDK" 2>&1 || echo "(stat failed)"
+          echo "=== -L test: $([ -L "$MACOS_SDK" ] && echo IS_SYMLINK || echo NOT_SYMLINK) ==="
+          echo "=== -e test: $([ -e "$MACOS_SDK" ] && echo RESOLVES || echo DOES_NOT_RESOLVE) ==="
           # Fix if it's a stub dir (!-L), broken symlink (!-e when -L), or circular symlink (!-e catches ELOOP).
           if [ ! -L "$MACOS_SDK" ] || [ ! -e "$MACOS_SDK" ]; then
+            echo "=== MacOSX.sdk needs fixing ==="
             VERSIONED=""
             for candidate in $(ls "$SDKS_DIR" 2>/dev/null | grep '^MacOSX.*\.sdk$' | grep -v '^MacOSX\.sdk$' | sort -V); do
+              echo "  candidate: $candidate, -d: $([ -d "$SDKS_DIR/$candidate" ] && echo YES || echo NO)"
               [ -d "$SDKS_DIR/$candidate" ] && VERSIONED="$candidate"
             done
+            echo "=== VERSIONED=$VERSIONED ==="
             if [ -n "$VERSIONED" ]; then
               sudo rm -rf "$MACOS_SDK"
               sudo ln -sfn "$SDKS_DIR/$VERSIONED" "$MACOS_SDK"
+              echo "=== Created symlink: MacOSX.sdk -> $VERSIONED ==="
+            else
+              echo "=== WARNING: No valid versioned SDK found! ==="
             fi
+          else
+            echo "=== MacOSX.sdk already a valid symlink, no fix needed ==="
           fi
 
       - name: Compile

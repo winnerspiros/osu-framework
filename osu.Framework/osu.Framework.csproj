@@ -42,7 +42,7 @@
     <ProjectReference Include="..\submodules\veldrid-spirv\src\Veldrid.SPIRV\Veldrid.SPIRV.csproj" PrivateAssets="all" />
     <!-- Re-declare the Veldrid fork's runtime PackageReferences here so they are recorded in the produced nuspec
          and restored by consumers. PrivateAssets="all" on the ProjectReference above suppresses these transitively. -->
-    <PackageReference Include="ppy.Vk" Version="1.0.26" />
+    <PackageReference Include="Vortice.Vulkan" Version="3.2.1" />
     <PackageReference Include="Vortice.D3DCompiler" Version="3.8.3" />
     <PackageReference Include="Vortice.Direct3D11" Version="3.8.3" />
     <PackageReference Include="Vortice.Direct3D12" Version="3.8.3" />

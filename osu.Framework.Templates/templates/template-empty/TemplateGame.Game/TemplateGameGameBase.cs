@@ -28,7 +28,7 @@ namespace TemplateGame.Game
         [BackgroundDependencyLoader]
         private void load()
         {
-            Resources.AddStore(new DllResourceStore(typeof(TemplateGameResources).Assembly));
+            Resources.AddStore(new OptimizedResourceStore(new DllResourceStore(typeof(TemplateGameResources).Assembly), OptimizedResourceStore.DefaultFallbackRules));
         }
     }
 }

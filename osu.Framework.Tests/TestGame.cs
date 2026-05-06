@@ -15,7 +15,7 @@ namespace osu.Framework.Tests
         [BackgroundDependencyLoader]
         private void load()
         {
-            Resources.AddStore(new NamespacedResourceStore<byte[]>(new DllResourceStore(typeof(TestGame).Assembly), "Resources"));
+            Resources.AddStore(new OptimizedResourceStore(new NamespacedResourceStore<byte[]>(new DllResourceStore(typeof(TestGame).Assembly), "Resources"), OptimizedResourceStore.DefaultFallbackRules));
         }
 
         protected override bool OnExiting() => BlockExit.Value;

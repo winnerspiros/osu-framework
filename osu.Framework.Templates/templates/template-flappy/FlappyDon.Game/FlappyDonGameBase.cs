@@ -19,7 +19,7 @@ namespace FlappyDon.Game
         private void load()
         {
             // Load the assets from our Resources project
-            Resources.AddStore(new DllResourceStore(FlappyDonResources.ResourceAssembly));
+            Resources.AddStore(new OptimizedResourceStore(new DllResourceStore(FlappyDonResources.ResourceAssembly), OptimizedResourceStore.DefaultFallbackRules));
         }
     }
 }

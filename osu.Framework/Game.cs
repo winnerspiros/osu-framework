@@ -172,7 +172,7 @@ namespace osu.Framework
         private void load(FrameworkConfigManager config)
         {
             Resources = new ResourceStore<byte[]>();
-            Resources.AddStore(new NamespacedResourceStore<byte[]>(new DllResourceStore(typeof(Game).Assembly), @"Resources"));
+            Resources.AddStore(new OptimizedResourceStore(new NamespacedResourceStore<byte[]>(new DllResourceStore(typeof(Game).Assembly), @"Resources"), OptimizedResourceStore.DefaultFallbackRules));
 
             Textures = new TextureStore(Host.Renderer, Host.CreateTextureLoaderStore(new NamespacedResourceStore<byte[]>(Resources, @"Textures")),
                 filteringMode: DefaultTextureFilteringMode);

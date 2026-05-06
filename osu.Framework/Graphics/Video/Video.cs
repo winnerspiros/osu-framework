@@ -11,6 +11,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Configuration;
 using osu.Framework.Graphics.Animations;
 using osu.Framework.Logging;
+using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
 using osuTK;
 
@@ -88,7 +89,7 @@ namespace osu.Framework.Graphics.Video
         /// <param name="filename">The video file.</param>
         /// <param name="startAtCurrentTime">Whether the current clock time should be assumed as the 0th video frame.</param>
         public Video(string filename, bool startAtCurrentTime = true)
-            : this(File.OpenRead(filename), startAtCurrentTime)
+            : this(File.OpenRead(OptimizedResourceStore.ResolvePath(filename, File.Exists, OptimizedResourceStore.VideoFallbackRules)), startAtCurrentTime)
         {
         }
 

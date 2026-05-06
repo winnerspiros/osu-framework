@@ -17,9 +17,26 @@
   <ItemGroup>
     <ProjectReference Include="..\osu.Framework\osu.Framework.csproj" />
     <!-- Direct reference needed because osu.Framework uses PrivateAssets="all" on its ManagedBass
-         ProjectReference, which prevents the assembly from flowing transitively to this project. -->
-    <ProjectReference Include="..\submodules\managedbass\src\Bass\Portable\Bass.csproj" />
+         ProjectReference, which prevents the assembly from flowing transitively to this project.
+         PrivateAssets="all" suppresses emitting a NuGet dependency entry that would reference a
+         non-published fork version; the compiled assembly is bundled directly into the package
+         via IncludeSubmoduleAssemblies below. -->
+    <ProjectReference Include="..\submodules\managedbass\src\Bass\Portable\Bass.csproj" PrivateAssets="all" />
   </ItemGroup>
+
+  <!-- Bundle winnerspiros/ManagedBass fork DLLs directly into lib/<tfm>/ of the produced nupkg.
+       Required because the ProjectReference above uses PrivateAssets="all". -->
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeSubmoduleAssemblies</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+  <Target Name="IncludeSubmoduleAssemblies" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)"
+                            Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference'
+                                       AND '%(ReferenceCopyLocalPaths.Extension)' == '.dll'
+                                       AND $([System.String]::Copy('%(ReferenceCopyLocalPaths.Filename)').StartsWith('ManagedBass'))" />
+    </ItemGroup>
+  </Target>
   <ItemGroup>
     <PackageReference Include="Xamarin.AndroidX.Window" Version="1.5.1.2" PrivateAssets="compile" />
   </ItemGroup>

@@ -20,16 +20,23 @@ namespace osu.Framework.Graphics.Textures
     /// </summary>
     public class TextureLoaderStore : IResourceStore<TextureUpload>
     {
+        private static readonly string[] base_lookup_extensions = { "png", "jpg", "jpeg" };
+
         private readonly IResourceStore<byte[]> store;
         private readonly ResourceStore<byte[]> lookupStore;
+        private readonly HashSet<string> supportedImageExtensions;
 
         public TextureLoaderStore(IResourceStore<byte[]> store)
         {
             this.store = store;
+            supportedImageExtensions = Configuration.Default.ImageFormatsManager.ImageFormats
+                                                 .SelectMany(format => format.FileExtensions)
+                                                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
             lookupStore = new ResourceStore<byte[]>(new OptimizedResourceStore(store, OptimizedResourceStore.ImageFallbackRules, CanLoadOptimizedImageFormat));
-            lookupStore.AddExtension(@"png");
-            lookupStore.AddExtension(@"jpg");
-            lookupStore.AddExtension(@"jpeg");
+
+            foreach (string extension in base_lookup_extensions)
+                lookupStore.AddExtension(extension);
         }
 
         public Task<TextureUpload> GetAsync(string name, CancellationToken cancellationToken = default) =>
@@ -64,12 +71,7 @@ namespace osu.Framework.Graphics.Textures
             => TextureUpload.LoadFromStream<TPixel>(stream);
 
         protected virtual bool CanLoadOptimizedImageFormat(string extension)
-        {
-            extension = extension.TrimStart('.');
-
-            return Configuration.Default.ImageFormatsManager.ImageFormats
-                                .Any(format => format.FileExtensions.Any(fileExtension => fileExtension.Equals(extension, StringComparison.OrdinalIgnoreCase)));
-        }
+            => supportedImageExtensions.Contains(extension.TrimStart('.'));
 
         private IEnumerable<string> getLookupNames(string name)
         {
@@ -92,9 +94,8 @@ namespace osu.Framework.Graphics.Textures
             if (!string.IsNullOrEmpty(Path.GetExtension(name)))
                 yield break;
 
-            yield return $"{name}.png";
-            yield return $"{name}.jpg";
-            yield return $"{name}.jpeg";
+            foreach (string extension in base_lookup_extensions)
+                yield return $"{name}.{extension}";
         }
 
         public IEnumerable<string> GetAvailableResources() => lookupStore.GetAvailableResources();

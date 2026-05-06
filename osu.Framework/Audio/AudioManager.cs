@@ -418,7 +418,7 @@ namespace osu.Framework.Audio
                     Bass.PlaybackBufferLength = 25;
                     Bass.UpdatePeriod = 2;
 
-                    // Enable AAudio to prefer AAudio over OpenSL ES for lower latency on Android 8.1+.
+                    // Enable AndroidAAudio to prefer AAudio over OpenSL ES for lower latency on Android 8.1+.
                     Bass.AndroidAAudio = true;
                 }
                 else if (RuntimeInfo.OS == RuntimeInfo.Platform.iOS)

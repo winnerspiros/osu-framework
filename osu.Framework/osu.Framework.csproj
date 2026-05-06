@@ -94,9 +94,9 @@
        directly into lib/<tfm>/ of the produced ppy.osu.Framework nupkg. This is required because both forks use
        PrivateAssets="all" to suppress NuGet dependency entries that would reference non-published fork versions. -->
   <PropertyGroup>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeVeldridForkAssemblies</TargetsForTfmSpecificBuildOutput>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeSubmoduleAssemblies</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
-  <Target Name="IncludeVeldridForkAssemblies" DependsOnTargets="ResolveReferences">
+  <Target Name="IncludeSubmoduleAssemblies" DependsOnTargets="ResolveReferences">
     <ItemGroup>
       <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)"
                             Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference'

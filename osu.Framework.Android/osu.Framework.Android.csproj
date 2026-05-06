@@ -16,6 +16,9 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\osu.Framework\osu.Framework.csproj" />
+    <!-- Direct reference needed because osu.Framework uses PrivateAssets="all" on its ManagedBass
+         ProjectReference, which prevents the assembly from flowing transitively to this project. -->
+    <ProjectReference Include="..\submodules\managedbass\src\Bass\Portable\Bass.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Xamarin.AndroidX.Window" Version="1.5.1.2" PrivateAssets="compile" />

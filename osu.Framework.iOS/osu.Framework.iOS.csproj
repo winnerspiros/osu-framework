@@ -19,6 +19,11 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\osu.Framework\osu.Framework.csproj" />
+    <!-- Direct references needed because osu.Framework uses PrivateAssets="all" on its ManagedBass
+         ProjectReferences, which prevents the assemblies from flowing transitively to this project. -->
+    <ProjectReference Include="..\submodules\managedbass\src\Bass\Portable\Bass.csproj" />
+    <ProjectReference Include="..\submodules\managedbass\src\AddOns\BassFx\BassFx.csproj" />
+    <ProjectReference Include="..\submodules\managedbass\src\AddOns\BassMix\BassMix.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="runtimes\**\*" Pack="true" PackagePath="runtimes" />

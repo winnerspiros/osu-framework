@@ -8,6 +8,12 @@
   </PropertyGroup>
   <ItemGroup Label="Project References">
     <ProjectReference Include="..\osu.Framework\osu.Framework.csproj" />
+    <!-- Direct references to the ManagedBass submodule are needed because osu.Framework uses
+         PrivateAssets="all" on its ManagedBass ProjectReferences (to keep them out of the nuspec),
+         which prevents the assemblies from flowing transitively to this test project. -->
+    <ProjectReference Include="..\submodules\managedbass\src\Bass\Portable\Bass.csproj" />
+    <ProjectReference Include="..\submodules\managedbass\src\AddOns\BassFx\BassFx.csproj" />
+    <ProjectReference Include="..\submodules\managedbass\src\AddOns\BassMix\BassMix.csproj" />
   </ItemGroup>
   <ItemGroup Label="Package References">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />

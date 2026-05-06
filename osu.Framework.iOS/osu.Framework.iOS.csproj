@@ -20,11 +20,28 @@
   <ItemGroup>
     <ProjectReference Include="..\osu.Framework\osu.Framework.csproj" />
     <!-- Direct references needed because osu.Framework uses PrivateAssets="all" on its ManagedBass
-         ProjectReferences, which prevents the assemblies from flowing transitively to this project. -->
-    <ProjectReference Include="..\submodules\managedbass\src\Bass\Portable\Bass.csproj" />
-    <ProjectReference Include="..\submodules\managedbass\src\AddOns\BassFx\BassFx.csproj" />
-    <ProjectReference Include="..\submodules\managedbass\src\AddOns\BassMix\BassMix.csproj" />
+         ProjectReferences, which prevents the assemblies from flowing transitively to this project.
+         PrivateAssets="all" suppresses emitting NuGet dependency entries that would reference
+         non-published fork versions; the compiled assemblies are bundled directly into the package
+         via IncludeSubmoduleAssemblies below. -->
+    <ProjectReference Include="..\submodules\managedbass\src\Bass\Portable\Bass.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\submodules\managedbass\src\AddOns\BassFx\BassFx.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\submodules\managedbass\src\AddOns\BassMix\BassMix.csproj" PrivateAssets="all" />
   </ItemGroup>
+
+  <!-- Bundle winnerspiros/ManagedBass fork DLLs directly into lib/<tfm>/ of the produced nupkg.
+       Required because the ProjectReferences above use PrivateAssets="all". -->
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeSubmoduleAssemblies</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+  <Target Name="IncludeSubmoduleAssemblies" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)"
+                            Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference'
+                                       AND '%(ReferenceCopyLocalPaths.Extension)' == '.dll'
+                                       AND $([System.String]::Copy('%(ReferenceCopyLocalPaths.Filename)').StartsWith('ManagedBass'))" />
+    </ItemGroup>
+  </Target>
   <ItemGroup>
     <None Include="runtimes\**\*" Pack="true" PackagePath="runtimes" />
     <None Include="stubs\**\*" Pack="true" PackagePath="stubs" />

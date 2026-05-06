@@ -31,6 +31,12 @@
     <ProjectReference Include="$(MSBuildThisFileDirectory)veldrid\src\Veldrid\Veldrid.csproj" />
   </ItemGroup>
 
+  <!--
+    ManagedBass submodule: the fork's src/Directory.Build.props sets TargetFrameworks=netstandard2.0;net10.0.
+    Suppress all XML-doc and style warnings that surface when those projects are built as part of this solution
+    (the broad NoWarn below already covers them, but add project-name guards for forward safety).
+  -->
+
   <ItemGroup>
     <GlobalAnalyzerConfigFiles Remove="@(GlobalAnalyzerConfigFiles)" />
     <AdditionalFiles Remove="@(AdditionalFiles)" Condition="$([System.String]::Copy('%(AdditionalFiles.Filename)').Equals('BannedSymbols'))" />

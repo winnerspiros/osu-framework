@@ -22,10 +22,17 @@
     <PackageReference Include="FFmpeg.AutoGen" Version="4.3.0.1" />
     <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.5" />
     <PackageReference Include="ppy.managed-midi" Version="1.10.2" />
-    <PackageReference Include="ppy.ManagedBass" Version="2022.1216.0" />
-    <PackageReference Include="ppy.ManagedBass.Fx" Version="2022.1216.0" />
-    <PackageReference Include="ppy.ManagedBass.Mix" Version="2022.1216.0" />
-    <PackageReference Include="ppy.ManagedBass.Wasapi" Version="2022.1216.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="ManagedBass Submodule">
+    <!-- Use winnerspiros/ManagedBass fork (net10.0, typed AndroidAAudio/Mp3OldGaps/DevTimeout API, iOS static-linking support)
+         instead of the stale ppy.ManagedBass 2022.1216.0 NuGet packages.
+         PrivateAssets="all" suppresses emitting NuGet dependency entries that would reference a non-published fork version.
+         The compiled assemblies are bundled directly into the package via IncludeManagedBassAssemblies below. -->
+    <ProjectReference Include="..\submodules\managedbass\src\Bass\Portable\Bass.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\submodules\managedbass\src\AddOns\BassFx\BassFx.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\submodules\managedbass\src\AddOns\BassMix\BassMix.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\submodules\managedbass\src\AddOns\BassWasapi\BassWasapi.csproj" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Label="Veldrid Submodule">
@@ -82,10 +89,10 @@
     <PackageReference Include="System.Numerics.Tensors" Version="10.0.5" />
   </ItemGroup>
 
-  <!-- Bundle the winnerspiros/veldrid fork DLLs (ppy.Veldrid + Veldrid.MetalBindings + Veldrid.OpenGLBindings) directly into
-       lib/<tfm>/ of the produced ppy.osu.Framework nupkg. This is required because the Veldrid ProjectReference above uses
-       PrivateAssets="all" to suppress emitting a NuGet dependency entry that would otherwise point at a non-existent fork
-       version (NerdBank.GitVersioning produces e.g. 4.9.111-g... which is not published on nuget.org or any feed). -->
+  <!-- Bundle the winnerspiros/veldrid fork DLLs (ppy.Veldrid + Veldrid.MetalBindings + Veldrid.OpenGLBindings) and
+       winnerspiros/ManagedBass fork DLLs (ManagedBass + ManagedBass.Fx + ManagedBass.Mix + ManagedBass.Wasapi)
+       directly into lib/<tfm>/ of the produced ppy.osu.Framework nupkg. This is required because both forks use
+       PrivateAssets="all" to suppress NuGet dependency entries that would reference non-published fork versions. -->
   <PropertyGroup>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeVeldridForkAssemblies</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
@@ -95,7 +102,8 @@
                             Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference'
                                        AND '%(ReferenceCopyLocalPaths.Extension)' == '.dll'
                                        AND ($([System.String]::Copy('%(ReferenceCopyLocalPaths.Filename)').StartsWith('ppy.Veldrid'))
-                                            OR $([System.String]::Copy('%(ReferenceCopyLocalPaths.Filename)').StartsWith('Veldrid.')))" />
+                                            OR $([System.String]::Copy('%(ReferenceCopyLocalPaths.Filename)').StartsWith('Veldrid.'))
+                                            OR $([System.String]::Copy('%(ReferenceCopyLocalPaths.Filename)').StartsWith('ManagedBass')))" />
     </ItemGroup>
   </Target>
 </Project>

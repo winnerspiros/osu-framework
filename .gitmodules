@@ -4,3 +4,6 @@
 [submodule "submodules/veldrid-spirv"]
 	path = submodules/veldrid-spirv
 	url = https://github.com/winnerspiros/veldrid-spirv.git
+[submodule "submodules/managedbass"]
+	path = submodules/managedbass
+	url = https://github.com/winnerspiros/ManagedBass

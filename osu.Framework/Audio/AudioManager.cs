@@ -418,8 +418,8 @@ namespace osu.Framework.Audio
                     Bass.PlaybackBufferLength = 25;
                     Bass.UpdatePeriod = 2;
 
-                    // Enable BASS_CONFIG_ANDROID_AAUDIO to prefer AAudio over OpenSL ES for lower latency on Android 8.1+.
-                    Bass.Configure((ManagedBass.Configuration)67, 1);
+                    // Enable AAudio to prefer AAudio over OpenSL ES for lower latency on Android 8.1+.
+                    Bass.AndroidAAudio = true;
                 }
                 else if (RuntimeInfo.OS == RuntimeInfo.Platform.iOS)
                 {
@@ -446,11 +446,11 @@ namespace osu.Framework.Audio
             // - This disables support for ItunSMPB tag parsing to match previous expectations.
             // - This also disables a change which assumes a 529 sample (2116 byte in stereo 16-bit) delay if the MP3 file doesn't specify one.
             //   (That was added in Bass for more consistent results across platforms and standard/mp3-free BASS versions, because OSX/iOS's MP3 decoder always removes 529 samples)
-            Bass.Configure((ManagedBass.Configuration)68, 1);
+            Bass.Configure(ManagedBass.Configuration.Mp3OldGaps, 1);
 
             // Disable BASS_CONFIG_DEV_TIMEOUT flag to keep BASS audio output from pausing on device processing timeout.
             // See https://www.un4seen.com/forum/?topic=19601 for more information.
-            Bass.Configure((ManagedBass.Configuration)70, false);
+            Bass.DevTimeout = false;
 
             bool success = attemptInit();
 

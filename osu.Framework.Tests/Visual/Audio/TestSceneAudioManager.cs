@@ -34,7 +34,10 @@ namespace osu.Framework.Tests.Visual.Audio
             AddAssert("resource store lookups unchanged", () => resourceStore.GetFilenames("test"), () => Is.EquivalentTo(filenames));
 
             AddStep("attempt to look up sample", () => sampleStore.Get("sample"));
-            AddAssert("extension lookups attempted", () => resourceStore.AttemptedLookups, () => Is.EquivalentTo(new[] { "sample", "sample.wav", "sample.mp3" }));
+            // .wav and .mp3 each fall back to .ogg via AudioFallbackRules before the original extension,
+            // so two sample.ogg lookups are expected (one per source extension).
+            AddAssert("extension lookups attempted", () => resourceStore.AttemptedLookups,
+                () => Is.EquivalentTo(new[] { "sample", "sample.ogg", "sample.wav", "sample.ogg", "sample.mp3" }));
         }
 
         [Test]
@@ -48,8 +51,10 @@ namespace osu.Framework.Tests.Visual.Audio
             AddStep("add another extension", () => sampleStore.AddExtension("ogg"));
 
             AddStep("attempt to look up sample", () => sampleStore.Get("sample"));
+            // .wav and .mp3 each fall back to .ogg via AudioFallbackRules, plus the explicit .ogg extension
+            // also produces a direct lookup — three sample.ogg entries total.
             AddAssert("extension lookups attempted", () => resourceStore.AttemptedLookups,
-                () => Is.EquivalentTo(new[] { "sample", "sample.wav", "sample.mp3", "sample.ogg" }));
+                () => Is.EquivalentTo(new[] { "sample", "sample.ogg", "sample.wav", "sample.ogg", "sample.mp3", "sample.ogg" }));
         }
 
         private class TestResourceStore : ResourceStore<byte[]>

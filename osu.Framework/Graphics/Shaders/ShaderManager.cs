@@ -81,7 +81,7 @@ namespace osu.Framework.Graphics.Shaders
             if (cached != null)
                 return cached;
 
-            byte[]? rawData = GetRawData(name) ?? throw new FileNotFoundException($"{type} shader part could not be found.", name);
+            byte[] rawData = GetRawData(name) ?? throw new FileNotFoundException($"{type} shader part could not be found.", name);
 
             return partCache[name] = renderer.CreateShaderPart(this, name, rawData, type);
         }

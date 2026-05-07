@@ -28,7 +28,7 @@ namespace osu.Framework.Audio.Sample
 
         internal SampleStore([NotNull] IResourceStore<byte[]> store, [NotNull] AudioMixer mixer)
         {
-            this.store = new ResourceStore<byte[]>(store);
+            this.store = new ResourceStore<byte[]>(new OptimizedResourceStore(store, OptimizedResourceStore.AudioFallbackRules));
             this.mixer = mixer;
 
             AddExtension(@"wav");

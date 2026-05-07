@@ -19,6 +19,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
+using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Platform.Linux.Native;
@@ -134,7 +135,7 @@ namespace osu.Framework.Graphics.Video
         /// <param name="renderer">The renderer to display the video.</param>
         /// <param name="filename">The path to the file that should be decoded.</param>
         public VideoDecoder(IRenderer renderer, string filename)
-            : this(renderer, File.OpenRead(filename))
+            : this(renderer, File.OpenRead(OptimizedResourceStore.ResolvePath(filename, File.Exists, OptimizedResourceStore.VideoFallbackRules)))
         {
         }
 

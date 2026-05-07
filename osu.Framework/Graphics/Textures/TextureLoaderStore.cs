@@ -30,9 +30,8 @@ namespace osu.Framework.Graphics.Textures
         public TextureLoaderStore(IResourceStore<byte[]> store)
         {
             this.store = store;
-            supportedImageExtensions = ImageSharpConfiguration.Default.ImageFormatsManager.ImageFormats
-                                                  .SelectMany(format => format.FileExtensions)
-                                                  .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var imageFormats = ImageSharpConfiguration.Default.ImageFormatsManager.ImageFormats;
+            supportedImageExtensions = imageFormats.SelectMany(format => format.FileExtensions).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             lookupStore = new ResourceStore<byte[]>(new OptimizedResourceStore(store, OptimizedResourceStore.ImageFallbackRules, CanLoadOptimizedImageFormat));
 

@@ -31,8 +31,8 @@ namespace osu.Framework.Graphics.Textures
         {
             this.store = store;
             supportedImageExtensions = ImageSharpConfiguration.Default.ImageFormatsManager.ImageFormats
-                                                 .SelectMany(format => format.FileExtensions)
-                                                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                                                  .SelectMany(format => format.FileExtensions)
+                                                  .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             lookupStore = new ResourceStore<byte[]>(new OptimizedResourceStore(store, OptimizedResourceStore.ImageFallbackRules, CanLoadOptimizedImageFormat));
 

@@ -80,7 +80,7 @@ namespace osu.Framework.Tests.IO
 
             public TestByteResourceStore(IReadOnlyDictionary<string, byte[]> resources) => this.resources = resources;
 
-            public byte[] Get(string name) => resources.TryGetValue(name, out byte[] value) ? value : null;
+            public byte[] Get(string name) => resources.GetValueOrDefault(name);
 
             public Task<byte[]> GetAsync(string name, CancellationToken cancellationToken = default) => Task.FromResult(Get(name));
 

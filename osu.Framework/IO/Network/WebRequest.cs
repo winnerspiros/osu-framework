@@ -203,7 +203,7 @@ namespace osu.Framework.IO.Network
         /// </summary>
         public bool Completed
         {
-            get => field;
+            get;
             private set
             {
                 field = value;

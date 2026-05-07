@@ -44,7 +44,7 @@ namespace osu.Framework.Graphics.Performance
 
         public FrameStatisticsMode State
         {
-            get => field;
+            get;
             set
             {
                 if (field == value) return;

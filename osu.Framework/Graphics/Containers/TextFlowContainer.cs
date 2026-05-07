@@ -352,7 +352,7 @@ namespace osu.Framework.Graphics.Containers
             /// </summary>
             public float FirstLineIndent
             {
-                get => field;
+                get;
                 set
                 {
                     if (value == field) return;
@@ -368,7 +368,7 @@ namespace osu.Framework.Graphics.Containers
             /// </summary>
             public float ContentIndent
             {
-                get => field;
+                get;
                 set
                 {
                     if (value == field) return;
@@ -385,7 +385,7 @@ namespace osu.Framework.Graphics.Containers
             /// </summary>
             public float ParagraphSpacing
             {
-                get => field;
+                get;
                 set
                 {
                     if (value == field) return;
@@ -402,7 +402,7 @@ namespace osu.Framework.Graphics.Containers
             /// </summary>
             public float LineSpacing
             {
-                get => field;
+                get;
                 set
                 {
                     if (value == field) return;
@@ -418,7 +418,7 @@ namespace osu.Framework.Graphics.Containers
             /// </summary>
             public Anchor TextAnchor
             {
-                get => field;
+                get;
                 set
                 {
                     if (field == value)

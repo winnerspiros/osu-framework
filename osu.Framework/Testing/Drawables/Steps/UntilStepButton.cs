@@ -35,7 +35,7 @@ namespace osu.Framework.Testing.Drawables.Steps
 
         public new string Text
         {
-            get => field;
+            get;
             init => base.Text = field = value;
         } = string.Empty;
 

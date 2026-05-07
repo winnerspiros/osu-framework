@@ -50,7 +50,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
         public int? MipLevel
         {
-            get => field;
+            get;
             set
             {
                 field = value;

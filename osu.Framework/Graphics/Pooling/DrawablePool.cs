@@ -50,7 +50,7 @@ namespace osu.Framework.Graphics.Pooling
 
             int id = Interlocked.Increment(ref poolInstanceID);
 
-            statistic = GlobalStatistics.Get<DrawablePoolUsageStatistic>(nameof(DrawablePool<T>), typeof(T).ReadableName() + $"`{id}");
+            statistic = GlobalStatistics.Get<DrawablePoolUsageStatistic>(nameof(DrawablePool<>), typeof(T).ReadableName() + $"`{id}");
             statistic.Value = new DrawablePoolUsageStatistic();
         }
 
@@ -112,7 +112,7 @@ namespace osu.Framework.Graphics.Pooling
         public T Get(Action<T> setupAction = null)
         {
             if (LoadState <= LoadState.Loading)
-                throw new InvalidOperationException($"A {nameof(DrawablePool<T>)} must be in a loaded state before retrieving pooled drawables.");
+                throw new InvalidOperationException($"A {nameof(DrawablePool<>)} must be in a loaded state before retrieving pooled drawables.");
 
             if (!pool.TryPop(out var drawable))
             {
@@ -177,7 +177,7 @@ namespace osu.Framework.Graphics.Pooling
         /// </summary>
         public int CurrentPoolSize
         {
-            get => field;
+            get;
             private set
             {
                 Debug.Assert(statistic != null);
@@ -191,7 +191,7 @@ namespace osu.Framework.Graphics.Pooling
         /// </summary>
         public int CountInUse
         {
-            get => field;
+            get;
             private set
             {
                 Debug.Assert(statistic != null);
@@ -205,7 +205,7 @@ namespace osu.Framework.Graphics.Pooling
         /// </summary>
         public int CountExcessConstructed
         {
-            get => field;
+            get;
             private set
             {
                 Debug.Assert(statistic != null);

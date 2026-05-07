@@ -123,7 +123,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         public bool ReadOnly
         {
-            get => field;
+            get;
             set
             {
                 field = value;

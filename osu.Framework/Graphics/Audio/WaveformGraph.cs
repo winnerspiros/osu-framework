@@ -41,7 +41,7 @@ namespace osu.Framework.Graphics.Audio
         /// </summary>
         public float Resolution
         {
-            get => field;
+            get;
             set
             {
                 ArgumentOutOfRangeException.ThrowIfNegative(value);
@@ -60,7 +60,7 @@ namespace osu.Framework.Graphics.Audio
         /// </summary>
         public Waveform? Waveform
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

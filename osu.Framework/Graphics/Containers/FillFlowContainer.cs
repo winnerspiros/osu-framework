@@ -55,7 +55,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public FillDirection Direction
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

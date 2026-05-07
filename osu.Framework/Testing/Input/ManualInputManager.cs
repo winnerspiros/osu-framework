@@ -27,7 +27,7 @@ namespace osu.Framework.Testing.Input
         /// </summary>
         public bool ShowVisualCursorGuide
         {
-            get => field;
+            get;
             set
             {
                 if (value == field)

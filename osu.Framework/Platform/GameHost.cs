@@ -275,7 +275,7 @@ namespace osu.Framework.Platform
         /// </remarks>
         public double MaximumUpdateHz
         {
-            get => field;
+            get;
             set => threadRunner.MaximumUpdateHz = UpdateThread.ActiveHz = field = value;
         } = GameThread.DEFAULT_ACTIVE_HZ;
 
@@ -287,7 +287,7 @@ namespace osu.Framework.Platform
         /// </remarks>
         public double MaximumDrawHz
         {
-            get => field;
+            get;
             set
             {
                 field = value;
@@ -304,7 +304,7 @@ namespace osu.Framework.Platform
         /// </remarks>
         public double MaximumInactiveHz
         {
-            get => field;
+            get;
             set
             {
                 threadRunner.MaximumInactiveHz = UpdateThread.InactiveHz = field = value;
@@ -653,7 +653,7 @@ namespace osu.Framework.Platform
 
         public ExecutionState ExecutionState
         {
-            get => field;
+            get;
             private set
             {
                 if (field == value)

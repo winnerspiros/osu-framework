@@ -40,7 +40,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public bool ScrollbarVisible
         {
-            get => field;
+            get;
             set
             {
                 field = value;
@@ -55,7 +55,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public bool ScrollbarOverlapsContent
         {
-            get => field;
+            get;
             set
             {
                 field = value;

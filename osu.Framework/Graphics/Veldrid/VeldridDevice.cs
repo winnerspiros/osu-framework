@@ -265,9 +265,11 @@ namespace osu.Framework.Graphics.Veldrid
                     IntPtr jniEnvHandle = androidGraphics.JniEnvHandle;
 
                     if (surfaceHandleAtCreation == IntPtr.Zero)
+                    {
                         throw new InvalidOperationException(
                             "Android surface handle became invalid between availability check and swapchain creation. " +
                             "SurfaceView was likely destroyed concurrently — cannot create the Vulkan swapchain.");
+                    }
 
                     swapchain.Source = SwapchainSource.CreateAndroidSurface(surfaceHandleAtCreation, jniEnvHandle);
                     break;

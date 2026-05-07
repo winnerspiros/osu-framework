@@ -196,7 +196,7 @@ namespace osu.Framework.Platform
 
             var json = JToken.Parse(str);
 
-            string? typeName = json["Type"]?.Value<string>() ?? throw new InvalidOperationException("Response JSON has missing Type field.");
+            string typeName = json["Type"]?.Value<string>() ?? throw new InvalidOperationException("Response JSON has missing Type field.");
 
             var type = Type.GetType(typeName);
             var value = json["Value"];

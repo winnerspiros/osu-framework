@@ -51,7 +51,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public GridContainerContent Content
         {
-            get => field;
+            get;
             set
             {
                 if (field?.Equals(value) == true)

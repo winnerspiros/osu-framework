@@ -64,7 +64,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public Axes TextureRelativeSizeAxes
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

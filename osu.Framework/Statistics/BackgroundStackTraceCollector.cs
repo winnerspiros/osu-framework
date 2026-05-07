@@ -60,7 +60,7 @@ namespace osu.Framework.Statistics
         /// </summary>
         public bool Enabled
         {
-            get => field;
+            get;
             set
             {
                 if (value == field || targetThread == null) return;

@@ -44,7 +44,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public bool AllowNonContiguousMatching
         {
-            get => field;
+            get;
             set
             {
                 if (value == field)
@@ -60,7 +60,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public string SearchTerm
         {
-            get => field;
+            get;
             set
             {
                 if (value == field)

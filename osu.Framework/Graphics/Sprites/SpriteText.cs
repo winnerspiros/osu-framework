@@ -104,7 +104,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public LocalisableString Text
         {
-            get => field;
+            get;
             set
             {
                 if (field.Equals(value))
@@ -131,7 +131,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public FontUsage Font
         {
-            get => field;
+            get;
             set
             {
                 field = value;
@@ -149,7 +149,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </remarks>
         public bool AllowMultiline
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -168,7 +168,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public bool Shadow
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -225,7 +225,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public bool UseFullGlyphHeight
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -246,7 +246,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </remarks>
         public bool Truncate
         {
-            get => field;
+            get;
             set
             {
                 if (field == value) return;
@@ -265,7 +265,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public string EllipsisString
         {
-            get => field;
+            get;
             set
             {
                 if (field == value) return;
@@ -317,7 +317,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </remarks>
         public float MaxWidth
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

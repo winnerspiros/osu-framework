@@ -42,7 +42,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public Edges SafeAreaOverrideEdges
         {
-            get => field;
+            get;
             set
             {
                 field = value;

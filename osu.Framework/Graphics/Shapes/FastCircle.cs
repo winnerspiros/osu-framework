@@ -20,7 +20,7 @@ namespace osu.Framework.Graphics.Shapes
     {
         public float EdgeSmoothness
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

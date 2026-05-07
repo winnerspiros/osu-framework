@@ -22,7 +22,7 @@ namespace osu.Framework.Testing.Drawables
 
         public bool MatchingFilter
         {
-            get => field;
+            get;
             set
             {
                 field = value;

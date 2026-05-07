@@ -14,7 +14,7 @@ namespace osu.Framework.Graphics.Visualisation
     {
         public Drawable Target
         {
-            get => field;
+            get;
             set
             {
                 if (field == value) return;

@@ -335,7 +335,7 @@ namespace osu.Framework.Bindables
         /// </summary>
         public bool Disabled
         {
-            get => field;
+            get;
             set
             {
                 if (value == field)
@@ -519,7 +519,7 @@ namespace osu.Framework.Bindables
         private void ensureMutationAllowed()
         {
             if (Disabled)
-                throw new InvalidOperationException($"Cannot mutate the {nameof(BindableDictionary<TKey, TValue>)} while it is Disabled.");
+                throw new InvalidOperationException($"Cannot mutate the {nameof(BindableDictionary<,>)} while it is Disabled.");
         }
 
         public bool IsDefault => Count == 0;

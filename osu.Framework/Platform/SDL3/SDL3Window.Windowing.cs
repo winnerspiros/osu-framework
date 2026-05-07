@@ -136,7 +136,7 @@ namespace osu.Framework.Platform.SDL3
         /// </summary>
         public bool Focused
         {
-            get => field;
+            get;
             protected set
             {
                 if (value == field)
@@ -184,7 +184,7 @@ namespace osu.Framework.Platform.SDL3
         /// </summary>
         public unsafe bool Resizable
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -244,7 +244,7 @@ namespace osu.Framework.Platform.SDL3
         /// </summary>
         public unsafe bool Visible
         {
-            get => field;
+            get;
             set
             {
                 field = value;

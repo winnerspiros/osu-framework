@@ -61,7 +61,7 @@ namespace osu.Framework.Logging
         /// </summary>
         public static Storage Storage
         {
-            get => field;
+            get;
             set
             {
                 field = value ?? throw new ArgumentNullException(nameof(value));

@@ -16,7 +16,7 @@ namespace osu.Framework.Audio.Track
 {
     internal class TrackStore : AudioCollectionManager<AdjustableAudioComponent>, ITrackStore
     {
-        private readonly IResourceStore<byte[]> store;
+        private readonly ResourceStore<byte[]> store;
         private readonly AudioMixer mixer;
 
         internal TrackStore([NotNull] IResourceStore<byte[]> store, [NotNull] AudioMixer mixer)
@@ -24,7 +24,7 @@ namespace osu.Framework.Audio.Track
             this.store = new ResourceStore<byte[]>(new OptimizedResourceStore(store, OptimizedResourceStore.AudioFallbackRules));
             this.mixer = mixer;
 
-            (this.store as ResourceStore<byte[]>)?.AddExtension(@"mp3");
+            this.store.AddExtension(@"mp3");
         }
 
         public Track GetVirtual(double length = double.PositiveInfinity, string name = "virtual")

@@ -12,3 +12,8 @@ root = true
 [*.cs]
 # Allow file-scoped namespaces (used by winnerspiros/veldrid-spirv) without IDE0160 errors.
 csharp_style_namespace_declarations = file_scoped:silent
+
+# Suppress redundant using directive (IDE0005 / InspectCode RemoveRedundantUsingDirective).
+# Submodule files are third-party code we don't maintain, so style warnings are suppressed.
+dotnet_diagnostic.IDE0005.severity = none
+resharper_remove_redundant_using_directives_highlighting = none

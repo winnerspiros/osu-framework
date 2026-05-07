@@ -64,18 +64,8 @@ namespace osu.Framework.IO.Stores
 
             fallbackRules ??= Enumerable.Empty<FallbackRule>();
 
-            lookupExtensionsBySourceExtension = fallbackRules.GroupBy(rule => rule.SourceExtension, StringComparer.OrdinalIgnoreCase)
-                                                              .ToDictionary(group => group.Key,
-                                                                            group => group.SelectMany(rule => rule.LookupExtensions).Distinct(StringComparer.OrdinalIgnoreCase).ToArray(),
-                                                                            StringComparer.OrdinalIgnoreCase);
-
-            aliasExtensionsByAvailableExtension = fallbackRules.SelectMany(rule => rule.LookupExtensions
-                                                                              .Where(extension => !string.Equals(extension, rule.SourceExtension, StringComparison.OrdinalIgnoreCase))
-                                                                              .Select(extension => new KeyValuePair<string, string>(extension, rule.SourceExtension)))
-                                                              .GroupBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase)
-                                                              .ToDictionary(group => group.Key,
-                                                                            group => group.Select(pair => pair.Value).Distinct(StringComparer.OrdinalIgnoreCase).ToArray(),
-                                                                            StringComparer.OrdinalIgnoreCase);
+            lookupExtensionsBySourceExtension = buildSourceExtensionMap(fallbackRules);
+            aliasExtensionsByAvailableExtension = buildAliasExtensionMap(fallbackRules);
         }
 
         public byte[] Get(string name)
@@ -197,11 +187,21 @@ namespace osu.Framework.IO.Stores
             }
         }
 
+        private static Dictionary<string, string[]> buildSourceExtensionMap(IEnumerable<FallbackRule> rules) =>
+            rules.GroupBy(r => r.SourceExtension, StringComparer.OrdinalIgnoreCase)
+                 .ToDictionary(g => g.Key, g => g.SelectMany(r => r.LookupExtensions).Distinct(StringComparer.OrdinalIgnoreCase).ToArray(), StringComparer.OrdinalIgnoreCase);
+
+        private static Dictionary<string, string[]> buildAliasExtensionMap(IEnumerable<FallbackRule> rules) =>
+            rules.SelectMany(rule => rule.LookupExtensions
+                                         .Where(ext => !string.Equals(ext, rule.SourceExtension, StringComparison.OrdinalIgnoreCase))
+                                         .Select(ext => new KeyValuePair<string, string>(ext, rule.SourceExtension)))
+                 .GroupBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase)
+                 .ToDictionary(g => g.Key, g => g.Select(pair => pair.Value).Distinct(StringComparer.OrdinalIgnoreCase).ToArray(), StringComparer.OrdinalIgnoreCase);
+
         private static Dictionary<string, string[]> buildLookupMap(IEnumerable<FallbackRule> fallbackRules) =>
-            (fallbackRules ?? Enumerable.Empty<FallbackRule>()).GroupBy(rule => rule.SourceExtension, StringComparer.OrdinalIgnoreCase)
-                                                             .ToDictionary(group => group.Key,
-                                                                           group => group.SelectMany(rule => rule.LookupExtensions).Distinct(StringComparer.OrdinalIgnoreCase).ToArray(),
-                                                                           StringComparer.OrdinalIgnoreCase);
+            (fallbackRules ?? Enumerable.Empty<FallbackRule>())
+            .GroupBy(r => r.SourceExtension, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.SelectMany(r => r.LookupExtensions).Distinct(StringComparer.OrdinalIgnoreCase).ToArray(), StringComparer.OrdinalIgnoreCase);
 
         private static string changeExtension(string name, string extension) =>
             Path.ChangeExtension(name, normaliseExtension(extension));

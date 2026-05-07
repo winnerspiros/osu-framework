@@ -1,7 +1,8 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
+#nullable disable
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,7 +12,6 @@ using NUnit.Framework;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.IO.Stores;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace osu.Framework.Tests.IO
 {
@@ -68,6 +68,8 @@ namespace osu.Framework.Tests.IO
 
                 return new Image<TPixel>(1, 1);
             }
+
+            protected override bool CanLoadOptimizedImageFormat(string extension) => true;
         }
 
         private sealed class TestByteResourceStore : IResourceStore<byte[]>

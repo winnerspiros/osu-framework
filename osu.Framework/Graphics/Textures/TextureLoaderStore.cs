@@ -29,7 +29,7 @@ namespace osu.Framework.Graphics.Textures
         public TextureLoaderStore(IResourceStore<byte[]> store)
         {
             this.store = store;
-            supportedImageExtensions = Configuration.Default.ImageFormatsManager.ImageFormats
+            supportedImageExtensions = SixLabors.ImageSharp.Configuration.Default.ImageFormatsManager.ImageFormats
                                                  .SelectMany(format => format.FileExtensions)
                                                  .ToHashSet(StringComparer.OrdinalIgnoreCase);
 

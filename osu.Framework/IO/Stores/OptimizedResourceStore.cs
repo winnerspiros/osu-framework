@@ -30,25 +30,25 @@ namespace osu.Framework.IO.Stores
             }
         }
 
-        public static readonly IReadOnlyList<FallbackRule> ImageFallbackRules = new[]
+        public static IReadOnlyList<FallbackRule> ImageFallbackRules { get; } = new[]
         {
             new FallbackRule("png", "avif", "webp", "png"),
             new FallbackRule("jpg", "avif", "webp", "jpg"),
             new FallbackRule("jpeg", "avif", "webp", "jpeg"),
         };
 
-        public static readonly IReadOnlyList<FallbackRule> AudioFallbackRules = new[]
+        public static IReadOnlyList<FallbackRule> AudioFallbackRules { get; } = new[]
         {
             new FallbackRule("wav", "ogg", "wav"),
             new FallbackRule("mp3", "ogg", "mp3"),
         };
 
-        public static readonly IReadOnlyList<FallbackRule> VideoFallbackRules = new[]
+        public static IReadOnlyList<FallbackRule> VideoFallbackRules { get; } = new[]
         {
             new FallbackRule("mp4", "webm", "mp4"),
         };
 
-        public static readonly IReadOnlyList<FallbackRule> DefaultFallbackRules = ImageFallbackRules.Concat(AudioFallbackRules).Concat(VideoFallbackRules).ToArray();
+        public static IReadOnlyList<FallbackRule> DefaultFallbackRules { get; } = ImageFallbackRules.Concat(AudioFallbackRules).Concat(VideoFallbackRules).ToArray();
 
         private readonly IResourceStore<byte[]> store;
         private readonly Dictionary<string, string[]> lookupExtensionsBySourceExtension;
@@ -57,7 +57,9 @@ namespace osu.Framework.IO.Stores
 
         public OptimizedResourceStore(IResourceStore<byte[]> store, IEnumerable<FallbackRule> fallbackRules = null, Func<string, bool> isExtensionSupported = null)
         {
-            this.store = store ?? throw new ArgumentNullException(nameof(store));
+            ArgumentNullException.ThrowIfNull(store);
+
+            this.store = store;
             this.isExtensionSupported = isExtensionSupported ?? (_ => true);
 
             fallbackRules ??= Enumerable.Empty<FallbackRule>();
@@ -72,12 +74,12 @@ namespace osu.Framework.IO.Stores
             aliasExtensionsByAvailableExtension = fallbackRules
                                                   .SelectMany(rule => rule.LookupExtensions
                                                                           .Where(extension => !string.Equals(extension, rule.SourceExtension, StringComparison.OrdinalIgnoreCase))
-                                                                          .Select(extension => (Extension: extension, SourceExtension: rule.SourceExtension)))
-                                                  .GroupBy(pair => pair.Extension, StringComparer.OrdinalIgnoreCase)
-                                                  .ToDictionary(group => group.Key, group => group.Select(pair => pair.SourceExtension)
-                                                                                                   .Distinct(StringComparer.OrdinalIgnoreCase)
-                                                                                                   .ToArray(),
-                                                                StringComparer.OrdinalIgnoreCase);
+                                                                          .Select(extension => new KeyValuePair<string, string>(extension, rule.SourceExtension)))
+                                                  .GroupBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase)
+                                                  .ToDictionary(group => group.Key, group => group.Select(pair => pair.Value)
+                                                                                                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                                                                                                    .ToArray(),
+                                                                 StringComparer.OrdinalIgnoreCase);
         }
 
         public byte[] Get(string name)
@@ -153,8 +155,7 @@ namespace osu.Framework.IO.Stores
             if (path == null)
                 return null;
 
-            if (exists == null)
-                throw new ArgumentNullException(nameof(exists));
+            ArgumentNullException.ThrowIfNull(exists);
 
             foreach (string candidate in enumerateLookupNames(path, buildLookupMap(fallbackRules), isExtensionSupported ?? (_ => true)))
             {

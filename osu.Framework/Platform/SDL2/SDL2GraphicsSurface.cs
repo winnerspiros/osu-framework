@@ -119,16 +119,12 @@ namespace osu.Framework.Platform.SDL2
             Debug.Assert(entryPointNameOffsetsInstance != null);
             Debug.Assert(entryPointNamesInstance != null);
 
-            fixed (byte* name = entryPointNamesInstance)
+            for (int i = 0; i < entryPointsInstance.Length; i++)
             {
-                for (int i = 0; i < entryPointsInstance.Length; i++)
+                // Pin the specific byte in the names array directly (bounds-checked by the runtime).
+                // This avoids unvalidated pointer arithmetic from an untrusted reflection-derived offset.
+                fixed (byte* ptr = &entryPointNamesInstance[entryPointNameOffsetsInstance[i]])
                 {
-                    int offset = entryPointNameOffsetsInstance[i];
-
-                    if ((uint)offset >= (uint)entryPointNamesInstance.Length)
-                        throw new InvalidOperationException($"OpenGL entry point name offset {offset} at index {i} is out of range.");
-
-                    byte* ptr = name + offset;
                     string? str = Marshal.PtrToStringAnsi(new IntPtr(ptr));
 
                     Debug.Assert(str != null);

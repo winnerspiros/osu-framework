@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.IO.Stores;
+using ImageSharpConfiguration = SixLabors.ImageSharp.Configuration;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -29,7 +30,7 @@ namespace osu.Framework.Graphics.Textures
         public TextureLoaderStore(IResourceStore<byte[]> store)
         {
             this.store = store;
-            supportedImageExtensions = SixLabors.ImageSharp.Configuration.Default.ImageFormatsManager.ImageFormats
+            supportedImageExtensions = ImageSharpConfiguration.Default.ImageFormatsManager.ImageFormats
                                                  .SelectMany(format => format.FileExtensions)
                                                  .ToHashSet(StringComparer.OrdinalIgnoreCase);
 

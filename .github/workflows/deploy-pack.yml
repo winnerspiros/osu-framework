@@ -5,6 +5,9 @@ on:
     tags:
       - '*'
 
+permissions:
+  contents: read
+
 jobs:
   notify_pending_production_deploy:
     runs-on: ubuntu-latest

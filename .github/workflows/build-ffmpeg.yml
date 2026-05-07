@@ -1,6 +1,9 @@
 name: Build FFmpeg
 on: workflow_dispatch
 
+permissions:
+  contents: read
+
 jobs:
   build-macos:
     name: Build macOS
@@ -241,6 +244,9 @@ jobs:
   make-pr:
     name: Create pull request
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      pull-requests: write
     needs:
       - combine-macos
       - combine-iOS

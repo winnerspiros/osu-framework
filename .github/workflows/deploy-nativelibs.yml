@@ -3,6 +3,9 @@
 on: workflow_dispatch
 name: Deploy - NativeLibs
 
+permissions:
+  contents: read
+
 jobs:
   check-if-tag:
     name: Set Package Version

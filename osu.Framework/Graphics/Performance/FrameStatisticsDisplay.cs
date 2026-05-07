@@ -74,7 +74,7 @@ namespace osu.Framework.Graphics.Performance
 
         public FrameStatisticsMode State
         {
-            get => field;
+            get;
             set
             {
                 if (field == value) return;
@@ -312,7 +312,7 @@ namespace osu.Framework.Graphics.Performance
 
         public bool Running
         {
-            get => field;
+            get;
             set
             {
                 if (field == value) return;
@@ -328,7 +328,7 @@ namespace osu.Framework.Graphics.Performance
 
         public bool Expanded
         {
-            get => field;
+            get;
             set
             {
                 value &= State == FrameStatisticsMode.Full;
@@ -546,7 +546,7 @@ namespace osu.Framework.Graphics.Performance
 
             public bool Expanded
             {
-                get => field;
+                get;
                 set
                 {
                     if (field == value) return;

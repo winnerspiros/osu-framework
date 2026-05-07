@@ -67,7 +67,7 @@ namespace osu.Framework.Platform.SDL2
         /// </summary>
         public string Title
         {
-            get => field;
+            get;
             set
             {
                 field = value;

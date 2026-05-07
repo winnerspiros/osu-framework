@@ -53,7 +53,7 @@ namespace osu.Framework.Graphics.Containers.Markdown
         /// </summary>
         public string Text
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

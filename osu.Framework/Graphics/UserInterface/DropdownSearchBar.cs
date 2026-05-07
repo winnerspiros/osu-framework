@@ -26,7 +26,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         public bool AlwaysDisplayOnFocus
         {
-            get => field;
+            get;
             set
             {
                 field = value;

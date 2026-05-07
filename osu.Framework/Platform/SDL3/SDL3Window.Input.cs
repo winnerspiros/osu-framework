@@ -39,7 +39,7 @@ namespace osu.Framework.Platform.SDL3
         /// </summary>
         public bool RelativeMouseMode
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

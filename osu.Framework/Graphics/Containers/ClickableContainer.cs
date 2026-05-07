@@ -13,7 +13,7 @@ namespace osu.Framework.Graphics.Containers
     {
         public Action Action
         {
-            get => field;
+            get;
             set
             {
                 field = value;

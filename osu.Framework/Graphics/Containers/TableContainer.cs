@@ -33,7 +33,7 @@ namespace osu.Framework.Graphics.Containers
         [CanBeNull]
         public Drawable[,] Content
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -52,7 +52,7 @@ namespace osu.Framework.Graphics.Containers
         public TableColumn[] Columns
         {
             [NotNull]
-            get => field;
+            get;
             [CanBeNull]
             set
             {
@@ -73,7 +73,7 @@ namespace osu.Framework.Graphics.Containers
         public Dimension RowSize
         {
             [NotNull]
-            get => field;
+            get;
             [CanBeNull]
             set
             {
@@ -93,7 +93,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public bool ShowHeaders
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

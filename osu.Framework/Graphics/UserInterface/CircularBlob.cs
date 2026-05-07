@@ -30,7 +30,7 @@ namespace osu.Framework.Graphics.UserInterface
         /// </summary>
         public float InnerRadius
         {
-            get => field;
+            get;
             set
             {
                 if (!float.IsFinite(value))
@@ -43,7 +43,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         public float Amplitude
         {
-            get => field;
+            get;
             set
             {
                 if (!float.IsFinite(value))
@@ -56,7 +56,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         public float Frequency
         {
-            get => field;
+            get;
             set
             {
                 if (!float.IsFinite(value))
@@ -69,7 +69,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         public int Seed
         {
-            get => field;
+            get;
             set
             {
                 field = value;

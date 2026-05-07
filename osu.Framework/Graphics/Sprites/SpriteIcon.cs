@@ -57,7 +57,7 @@ namespace osu.Framework.Graphics.Sprites
 
         public bool Shadow
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -106,7 +106,7 @@ namespace osu.Framework.Graphics.Sprites
 
         public IconUsage Icon
         {
-            get => field;
+            get;
             set
             {
                 if (field.Equals(value)) return;

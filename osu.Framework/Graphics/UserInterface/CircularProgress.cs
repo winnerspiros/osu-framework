@@ -21,7 +21,7 @@ namespace osu.Framework.Graphics.UserInterface
     {
         public double Progress
         {
-            get => field;
+            get;
             set
             {
                 if (!double.IsFinite(value))
@@ -60,7 +60,7 @@ namespace osu.Framework.Graphics.UserInterface
         /// </summary>
         public float InnerRadius
         {
-            get => field;
+            get;
             set
             {
                 if (!float.IsFinite(value))
@@ -73,7 +73,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         public bool RoundedCaps
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

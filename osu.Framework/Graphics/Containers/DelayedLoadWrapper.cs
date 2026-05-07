@@ -60,7 +60,7 @@ namespace osu.Framework.Graphics.Containers
 
         public Drawable Content
         {
-            get => field;
+            get;
             protected set
             {
                 if (field == value)

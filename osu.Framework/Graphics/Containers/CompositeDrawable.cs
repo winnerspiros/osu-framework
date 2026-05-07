@@ -628,7 +628,7 @@ namespace osu.Framework.Graphics.Containers
             if (range is IContainerEnumerable<Drawable>)
             {
                 throw new InvalidOperationException($"Attempting to add a {nameof(IContainer)} as a range of children to {this}."
-                                                    + $"If intentional, consider using the {nameof(IContainerEnumerable<Drawable>.Children)} property instead.");
+                                                    + $"If intentional, consider using the {nameof(IContainerEnumerable<>.Children)} property instead.");
             }
 
             foreach (Drawable d in range)
@@ -1134,7 +1134,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public bool ForceLocalVertexBatch
         {
-            get => field;
+            get;
             protected set
             {
                 if (field == value)
@@ -1487,7 +1487,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public bool Masking
         {
-            get => field;
+            get;
             protected set
             {
                 if (field == value)
@@ -1507,7 +1507,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public float MaskingSmoothness
         {
-            get => field;
+            get;
             protected set
             {
                 //must be above zero to avoid a div-by-zero in the shader logic.
@@ -1527,7 +1527,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public float CornerRadius
         {
-            get => field;
+            get;
             protected set
             {
                 if (field == value)
@@ -1549,7 +1549,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public float CornerExponent
         {
-            get => field;
+            get;
             protected set
             {
                 if (!Precision.DefinitelyBigger(value, 0) || value > 10)
@@ -1579,7 +1579,7 @@ namespace osu.Framework.Graphics.Containers
         /// </remarks>
         public float BorderThickness
         {
-            get => field;
+            get;
             protected set
             {
                 if (field == value)

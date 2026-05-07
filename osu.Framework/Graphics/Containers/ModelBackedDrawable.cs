@@ -30,7 +30,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         protected T? Model
         {
-            get => field;
+            get;
             set
             {
                 if (field == null && value == null)

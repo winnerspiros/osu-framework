@@ -409,7 +409,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
 
         public int? MipLevel
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

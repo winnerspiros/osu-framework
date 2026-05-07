@@ -124,7 +124,7 @@ namespace osu.Framework.Platform.SDL2
         /// </summary>
         public bool Focused
         {
-            get => field;
+            get;
             private set
             {
                 if (value == field)
@@ -170,7 +170,7 @@ namespace osu.Framework.Platform.SDL2
         /// </summary>
         public bool Resizable
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -230,7 +230,7 @@ namespace osu.Framework.Platform.SDL2
         /// </summary>
         public bool Visible
         {
-            get => field;
+            get;
             set
             {
                 field = value;

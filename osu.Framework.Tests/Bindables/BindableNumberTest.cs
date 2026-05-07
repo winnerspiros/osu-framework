@@ -50,10 +50,10 @@ namespace osu.Framework.Tests.Bindables
 
             object bindable = createBindable(type);
 
-            MethodInfo setMethod = bindable.GetType().GetMethod(nameof(BindableNumber<int>.Set), BindingFlags.Public | BindingFlags.Instance)?.MakeGenericMethod(type);
+            MethodInfo setMethod = bindable.GetType().GetMethod(nameof(BindableNumber<>.Set), BindingFlags.Public | BindingFlags.Instance)?.MakeGenericMethod(type);
             setMethod?.Invoke(bindable, new[] { expectedValue });
 
-            PropertyInfo valueProperty = bindable.GetType().GetProperty(nameof(BindableNumber<int>.Value), BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo valueProperty = bindable.GetType().GetProperty(nameof(BindableNumber<>.Value), BindingFlags.Public | BindingFlags.Instance);
             object value = valueProperty?.GetValue(bindable);
 
             Assert.That(Convert.ChangeType(value, typeof(int)), Is.EqualTo(expectedValue));
@@ -98,10 +98,10 @@ namespace osu.Framework.Tests.Bindables
 
             object bindable = createBindable(type);
 
-            MethodInfo addMethod = bindable.GetType().GetMethod(nameof(BindableNumber<int>.Add), BindingFlags.Public | BindingFlags.Instance)?.MakeGenericMethod(type);
+            MethodInfo addMethod = bindable.GetType().GetMethod(nameof(BindableNumber<>.Add), BindingFlags.Public | BindingFlags.Instance)?.MakeGenericMethod(type);
             addMethod?.Invoke(bindable, new[] { expectedValue });
 
-            PropertyInfo valueProperty = bindable.GetType().GetProperty(nameof(BindableNumber<int>.Value), BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo valueProperty = bindable.GetType().GetProperty(nameof(BindableNumber<>.Value), BindingFlags.Public | BindingFlags.Instance);
             object value = valueProperty?.GetValue(bindable);
 
             Assert.That(Convert.ChangeType(value, typeof(int)), Is.EqualTo(expectedValue));

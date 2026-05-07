@@ -49,7 +49,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public bool DrawOriginal
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -87,7 +87,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public float BlurRotation
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -143,7 +143,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public EffectPlacement EffectPlacement
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -189,7 +189,7 @@ namespace osu.Framework.Graphics.Containers
 
         public float GrayscaleStrength
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -213,7 +213,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public bool RedrawOnScale
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

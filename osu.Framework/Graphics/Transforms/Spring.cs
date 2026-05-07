@@ -36,7 +36,7 @@ namespace osu.Framework.Graphics.Transforms
 
         public SpringParameters Parameters
         {
-            get => field;
+            get;
             set
             {
                 field = value;

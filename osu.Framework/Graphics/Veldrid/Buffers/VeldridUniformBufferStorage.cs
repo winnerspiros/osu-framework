@@ -26,7 +26,7 @@ namespace osu.Framework.Graphics.Veldrid.Buffers
 
         public TData Data
         {
-            get => field;
+            get;
             set
             {
                 field = value;

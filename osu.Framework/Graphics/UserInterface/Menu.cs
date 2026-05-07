@@ -188,7 +188,7 @@ namespace osu.Framework.Graphics.UserInterface
         /// </summary>
         public float MaxWidth
         {
-            get => field;
+            get;
             set
             {
                 if (Precision.AlmostEquals(field, value))
@@ -205,7 +205,7 @@ namespace osu.Framework.Graphics.UserInterface
         /// </summary>
         public float MaxHeight
         {
-            get => field;
+            get;
             set
             {
                 if (Precision.AlmostEquals(field, value))
@@ -855,7 +855,7 @@ namespace osu.Framework.Graphics.UserInterface
 
             public MenuItemState State
             {
-                get => field;
+                get;
                 set
                 {
                     field = value;

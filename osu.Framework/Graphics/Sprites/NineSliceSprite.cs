@@ -60,7 +60,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </remarks>
         public Axes TextureInsetRelativeAxes
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

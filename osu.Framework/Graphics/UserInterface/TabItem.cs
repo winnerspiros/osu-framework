@@ -51,7 +51,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         public bool Pinned
         {
-            get => field;
+            get;
             set
             {
                 if (field == value) return;

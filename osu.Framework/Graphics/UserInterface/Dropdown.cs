@@ -85,7 +85,7 @@ namespace osu.Framework.Graphics.UserInterface
         /// </summary>
         public IBindableList<T> ItemSource
         {
-            get => field;
+            get;
             set
             {
                 ArgumentNullException.ThrowIfNull(value);
@@ -127,7 +127,7 @@ namespace osu.Framework.Graphics.UserInterface
         private void addDropdownItem(T value, int? position = null)
         {
             if (itemMap.ContainsKey(value))
-                throw new ArgumentException($"The item {value} already exists in this {nameof(Dropdown<T>)}.");
+                throw new ArgumentException($"The item {value} already exists in this {nameof(Dropdown<>)}.");
 
             var item = new DropdownMenuItem<T>(value, () =>
             {
@@ -591,7 +591,7 @@ namespace osu.Framework.Graphics.UserInterface
 
                 public bool MatchingFilter
                 {
-                    get => field;
+                    get;
                     set
                     {
                         field = value;
@@ -629,7 +629,7 @@ namespace osu.Framework.Graphics.UserInterface
                 /// </summary>
                 public bool IsPreSelected
                 {
-                    get => field;
+                    get;
                     set
                     {
                         if (field == value)

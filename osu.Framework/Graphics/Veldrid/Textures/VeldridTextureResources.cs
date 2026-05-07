@@ -15,7 +15,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
 
         public Sampler? Sampler
         {
-            get => field;
+            get;
             set
             {
                 field?.Dispose();

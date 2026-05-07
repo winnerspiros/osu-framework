@@ -95,7 +95,7 @@ namespace osu.Framework.Threading
         /// </summary>
         public CultureInfo? CurrentCulture
         {
-            get => field;
+            get;
             set
             {
                 field = value;
@@ -112,7 +112,7 @@ namespace osu.Framework.Threading
         /// </remarks>
         public double ActiveHz
         {
-            get => field;
+            get;
             set
             {
                 field = value;
@@ -128,7 +128,7 @@ namespace osu.Framework.Threading
         /// </remarks>
         public double InactiveHz
         {
-            get => field;
+            get;
             set
             {
                 field = value;

@@ -32,7 +32,7 @@ namespace osu.Framework.Graphics.Visualisation
 
         public bool IsHighlighted
         {
-            get => field;
+            get;
             set
             {
                 field = value;
@@ -52,7 +52,7 @@ namespace osu.Framework.Graphics.Visualisation
 
         public bool MatchingFilter
         {
-            get => field;
+            get;
             set
             {
                 bool wasPresent = IsPresent;

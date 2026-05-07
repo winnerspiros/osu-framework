@@ -47,7 +47,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </remarks>
         public bool SynchronisedDrawQuad
         {
-            get => field;
+            get;
             set
             {
                 if (value == field)
@@ -64,7 +64,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public bool DisplayOriginalEffects
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

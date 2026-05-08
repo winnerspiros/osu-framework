@@ -1977,7 +1977,17 @@ namespace osu.Framework.Graphics.Containers
 
         private void autoSizeResizeTo(Vector2 newSize, double duration = 0, Easing easing = Easing.None)
         {
-            var currentTransform = TransformsForTargetMember(nameof(baseSize)).FirstOrDefault() as AutoSizeTransform;
+            // Use a direct loop instead of LINQ FirstOrDefault+cast to avoid enumerator allocation per call.
+            AutoSizeTransform currentTransform = null;
+
+            foreach (var t in TransformsForTargetMember(nameof(baseSize)))
+            {
+                if (t is AutoSizeTransform at)
+                {
+                    currentTransform = at;
+                    break;
+                }
+            }
 
             if ((currentTransform?.EndValue ?? Size) != newSize)
             {

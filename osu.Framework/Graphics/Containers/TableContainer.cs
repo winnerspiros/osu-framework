@@ -4,7 +4,6 @@
 #nullable disable
 
 using System;
-using System.Linq;
 using JetBrains.Annotations;
 using osu.Framework.Extensions;
 using osu.Framework.Graphics.Sprites;
@@ -159,8 +158,17 @@ namespace osu.Framework.Graphics.Containers
         {
             grid.Content = getContentWithHeaders().ToJagged();
 
-            grid.ColumnDimensions = Columns.Select(c => c.Dimension).ToArray();
-            grid.RowDimensions = Enumerable.Repeat(RowSize, totalRows).ToArray();
+            var columnDimensions = new Dimension[Columns.Length];
+            for (int i = 0; i < Columns.Length; i++)
+                columnDimensions[i] = Columns[i].Dimension;
+
+            grid.ColumnDimensions = columnDimensions;
+
+            var rowDimensions = new Dimension[totalRows];
+            for (int i = 0; i < totalRows; i++)
+                rowDimensions[i] = RowSize;
+
+            grid.RowDimensions = rowDimensions;
 
             updateAnchors();
         }

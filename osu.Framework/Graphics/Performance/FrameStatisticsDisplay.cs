@@ -7,7 +7,6 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Containers;
@@ -291,7 +290,17 @@ namespace osu.Framework.Graphics.Performance
                     // Offset to check the previous time bar first.
                     var timeBar = timeBars[(timeBarIndex + i + 1) % timeBars.Length];
 
-                    var firstBox = timeBar.OfType<GCBox>().FirstOrDefault();
+                    // Use a direct loop instead of LINQ OfType+FirstOrDefault to avoid enumerator allocation.
+                    GCBox firstBox = null;
+
+                    foreach (var child in timeBar)
+                    {
+                        if (child is GCBox box)
+                        {
+                            firstBox = box;
+                            break;
+                        }
+                    }
 
                     if (firstBox != null)
                     {

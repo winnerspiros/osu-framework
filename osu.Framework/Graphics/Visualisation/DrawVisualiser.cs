@@ -237,7 +237,18 @@ namespace osu.Framework.Graphics.Visualisation
             base.Update();
 
             updateCursorTarget();
-            overlay.Target = Searching ? cursorTarget : inputManager.HoveredDrawables.OfType<VisualisedDrawable>().FirstOrDefault()?.Target;
+            overlay.Target = Searching ? cursorTarget : getFirstHoveredVisualisedDrawableTarget();
+        }
+
+        private Drawable getFirstHoveredVisualisedDrawableTarget()
+        {
+            foreach (var d in inputManager.HoveredDrawables)
+            {
+                if (d is VisualisedDrawable vd)
+                    return vd.Target;
+            }
+
+            return null;
         }
 
         private static readonly Dictionary<Type, bool> is_type_valid_target_cache = new Dictionary<Type, bool>();

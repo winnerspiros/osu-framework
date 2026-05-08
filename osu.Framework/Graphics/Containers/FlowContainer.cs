@@ -220,7 +220,17 @@ namespace osu.Framework.Graphics.Containers
                     if (drawable.RelativePositionAxes != Axes.None)
                         throw new InvalidOperationException($"A flow container cannot contain a child with relative positioning (it is {drawable.RelativePositionAxes}).");
 
-                    var existingTransform = drawable.TransformsForTargetMember(FlowTransform.TARGET_MEMBER).FirstOrDefault(x => x is FlowTransform) as FlowTransform;
+                    // Use a direct loop instead of LINQ FirstOrDefault+cast to avoid enumerator allocation per child.
+                    FlowTransform existingTransform = null;
+
+                    foreach (var t in drawable.TransformsForTargetMember(FlowTransform.TARGET_MEMBER))
+                    {
+                        if (t is FlowTransform ft)
+                        {
+                            existingTransform = ft;
+                            break;
+                        }
+                    }
                     Vector2 currentTargetPos = existingTransform?.EndValue ?? drawable.Position;
 
                     if (Precision.AlmostEquals(currentTargetPos, pos)) continue;

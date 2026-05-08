@@ -102,7 +102,7 @@ namespace osu.Framework.Graphics.Sprites
                 suffix = string.Empty;
 
             if (string.IsNullOrEmpty(family))
-                FontName = string.IsNullOrEmpty(suffix) ? string.Empty : "-" + suffix;
+                FontName = string.IsNullOrEmpty(suffix) ? string.Empty : string.Concat("-", suffix);
             else
                 FontName = string.IsNullOrEmpty(suffix) ? family : string.Concat(family, "-", suffix);
 

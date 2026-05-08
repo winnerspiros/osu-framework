@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Caching;
@@ -168,10 +167,28 @@ namespace osu.Framework.Graphics.Containers
                     filterTermsList.Add(localisation.GetLocalisedString(localisedStr));
                 }
 
-                //Words matched by parent is not needed to match children
-                nonMatchingTerms = searchTerms.Where(term =>
-                    !filterTermsList.Any(filterTerm =>
-                        checkTerm(filterTerm, term, nonContiguousMatching))).ToArray();
+                // Words matched by parent are not needed to match children.
+                // Use explicit loops to avoid allocating enumerators per search term.
+                var nonMatching = new List<string>();
+
+                foreach (string term in searchTerms)
+                {
+                    bool matched = false;
+
+                    for (int i = 0; i < filterTermsList.Count; i++)
+                    {
+                        if (checkTerm(filterTermsList[i], term, nonContiguousMatching))
+                        {
+                            matched = true;
+                            break;
+                        }
+                    }
+
+                    if (!matched)
+                        nonMatching.Add(term);
+                }
+
+                nonMatchingTerms = nonMatching.Count == 0 ? searchTerms : nonMatching.ToArray();
             }
 
             return nonMatchingTerms.Count == 0;

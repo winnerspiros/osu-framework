@@ -188,7 +188,7 @@ namespace osu.Framework.Graphics.Containers
                         nonMatching.Add(term);
                 }
 
-                nonMatchingTerms = nonMatching.Count == 0 ? searchTerms : nonMatching.ToArray();
+                nonMatchingTerms = nonMatching;
             }
 
             return nonMatchingTerms.Count == 0;

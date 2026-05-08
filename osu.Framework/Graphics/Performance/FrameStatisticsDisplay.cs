@@ -7,6 +7,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Containers;
@@ -295,9 +296,9 @@ namespace osu.Framework.Graphics.Performance
 
                     foreach (var child in timeBar)
                     {
-                        if (child is GCBox box)
+                        if (child is GCBox gcBox)
                         {
-                            firstBox = box;
+                            firstBox = gcBox;
                             break;
                         }
                     }

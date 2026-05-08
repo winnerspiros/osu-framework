@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Caching;
@@ -158,13 +157,38 @@ namespace osu.Framework.Graphics.Containers
 
             if (drawable is IFilterable filterable)
             {
-                IEnumerable<string> filterTerms = filterable.FilterTerms.SelectMany(localisedStr =>
-                    new[] { localisedStr.ToString(), localisation.GetLocalisedString(localisedStr) });
+                // Materialise the filter terms list once to avoid re-creating the SelectMany
+                // enumerator (and its per-item array allocations) for every search term below.
+                var filterTermsList = new List<string>();
 
-                //Words matched by parent is not needed to match children
-                nonMatchingTerms = searchTerms.Where(term =>
-                    !filterTerms.Any(filterTerm =>
-                        checkTerm(filterTerm, term, nonContiguousMatching))).ToArray();
+                foreach (var localisedStr in filterable.FilterTerms)
+                {
+                    filterTermsList.Add(localisedStr.ToString());
+                    filterTermsList.Add(localisation.GetLocalisedString(localisedStr));
+                }
+
+                // Words matched by parent are not needed to match children.
+                // Use explicit loops to avoid allocating enumerators per search term.
+                var nonMatching = new List<string>();
+
+                foreach (string term in searchTerms)
+                {
+                    bool matched = false;
+
+                    for (int i = 0; i < filterTermsList.Count; i++)
+                    {
+                        if (checkTerm(filterTermsList[i], term, nonContiguousMatching))
+                        {
+                            matched = true;
+                            break;
+                        }
+                    }
+
+                    if (!matched)
+                        nonMatching.Add(term);
+                }
+
+                nonMatchingTerms = nonMatching;
             }
 
             return nonMatchingTerms.Count == 0;

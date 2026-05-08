@@ -291,7 +291,17 @@ namespace osu.Framework.Graphics.Performance
                     // Offset to check the previous time bar first.
                     var timeBar = timeBars[(timeBarIndex + i + 1) % timeBars.Length];
 
-                    var firstBox = timeBar.OfType<GCBox>().FirstOrDefault();
+                    // Use a direct loop instead of LINQ OfType+FirstOrDefault to avoid enumerator allocation.
+                    GCBox firstBox = null;
+
+                    foreach (var child in timeBar)
+                    {
+                        if (child is GCBox gcBox)
+                        {
+                            firstBox = gcBox;
+                            break;
+                        }
+                    }
 
                     if (firstBox != null)
                     {

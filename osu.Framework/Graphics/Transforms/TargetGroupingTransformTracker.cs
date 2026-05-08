@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using JetBrains.Annotations;
 using osu.Framework.Lists;
 
@@ -324,10 +323,17 @@ namespace osu.Framework.Graphics.Transforms
             else
                 toFlushPredicate = t => !t.IsLooping && t.TargetMember == targetMember;
 
-            // Flush is undefined for endlessly looping transforms
-            var toFlush = transforms.Where(toFlushPredicate).ToArray();
+            // Flush is undefined for endlessly looping transforms.
+            // Collect matching transforms while removing them in a single pass to halve predicate evaluations.
+            var toFlush = new List<Transform>();
+            transforms.RemoveAll(t =>
+            {
+                if (!toFlushPredicate(t))
+                    return false;
 
-            transforms.RemoveAll(t => toFlushPredicate(t));
+                toFlush.Add(t);
+                return true;
+            });
             resetLastAppliedCache();
 
             foreach (Transform t in toFlush)

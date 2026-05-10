@@ -97,20 +97,20 @@ namespace osu.Framework.Graphics.Veldrid
         /// <param name="executionIndex">The finished execution index.</param>
         private void executionFinished(ulong executionIndex)
         {
-            for (int i = 0; i < used.Count; i++)
-            {
-                var item = used[i];
+            // Items in `used` are in non-decreasing order of FrameUsageIndex.
+            // Items matching executionIndex form a contiguous prefix; find how many there are.
+            int count = 0;
 
-                // Usages are sequential so we can stop checking after the usage exceeding the index.
-                if (item.FrameUsageIndex > executionIndex)
-                    break;
+            while (count < used.Count && used[count].FrameUsageIndex == executionIndex)
+                count++;
 
-                if (item.FrameUsageIndex != executionIndex)
-                    continue;
+            // Bulk-move the matching items to `available` in one pass, then remove the prefix
+            // in a single RemoveRange call — avoiding the O(m×n) cost of per-item RemoveAt.
+            for (int i = 0; i < count; i++)
+                available.Add(used[i]);
 
-                available.Add(item);
-                used.RemoveAt(i--);
-            }
+            if (count > 0)
+                used.RemoveRange(0, count);
 
             updateStats();
         }
@@ -121,7 +121,7 @@ namespace osu.Framework.Graphics.Veldrid
             usageStat.Value.CountInUse = used.Count;
         }
 
-        private class PooledUsage
+        private struct PooledUsage
         {
             /// <summary>
             /// The tracked resource.

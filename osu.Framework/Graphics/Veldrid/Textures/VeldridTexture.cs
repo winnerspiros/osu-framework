@@ -528,6 +528,11 @@ namespace osu.Framework.Graphics.Veldrid.Textures
 
         // todo: should this be limited to MAX_MIPMAP_LEVELS or was that constant supposed to be for automatic mipmap generation only?
         // previous implementation was allocating mip levels all the way to 1x1 size when an ITextureUpload.Level > 0, therefore it's not limited there.
-        protected static int CalculateMipmapLevels(int width, int height) => 1 + BitOperations.Log2((uint)Math.Max(width, height));
+        protected static int CalculateMipmapLevels(int width, int height)
+        {
+            uint maxDimension = (uint)Math.Max(width, height);
+            // Guard: a 0-dimension texture is degenerate; return 1 level to avoid undefined behavior in BitOperations.Log2(0).
+            return maxDimension == 0 ? 1 : 1 + BitOperations.Log2(maxDimension);
+        }
     }
 }

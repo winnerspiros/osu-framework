@@ -293,10 +293,10 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             foreach (var (set, resource, layout) in pendingTextureBindings)
                 Commands.SetGraphicsResourceSet(set, resource.GetResourceSet(Factory, layout));
 
-            foreach (var binding in pendingUniformBindings)
+            foreach (var (set, buffer, layout, offset) in pendingUniformBindings)
             {
-                uint offset = binding.Offset;
-                Commands.SetGraphicsResourceSet(binding.Set, binding.Buffer.GetResourceSet(binding.Layout), 1, ref offset);
+                uint off = offset;
+                Commands.SetGraphicsResourceSet(set, buffer.GetResourceSet(layout), 1, ref off);
             }
 
             int indexStart = currentIndexBuffer.TranslateToIndex(vertexStart);

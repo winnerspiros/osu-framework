@@ -25,6 +25,10 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
         private readonly Dictionary<string, IVeldridUniformBuffer> attachedUniformBuffers = new Dictionary<string, IVeldridUniformBuffer>();
         private readonly Dictionary<IVeldridUniformBuffer, uint> uniformBufferOffsets = new Dictionary<IVeldridUniformBuffer, uint>();
 
+        // Scratch lists reused each draw call to avoid repeated layout dictionary lookups.
+        private readonly List<(uint Set, VeldridTextureResources Resource, ResourceLayout Layout)> pendingTextureBindings = new List<(uint, VeldridTextureResources, ResourceLayout)>();
+        private readonly List<(uint Set, IVeldridUniformBuffer Buffer, ResourceLayout Layout, uint Offset)> pendingUniformBindings = new List<(uint, IVeldridUniformBuffer, ResourceLayout, uint)>();
+
         private GraphicsPipelineDescription pipelineDesc = new GraphicsPipelineDescription
         {
             RasterizerState = RasterizerStateDescription.CULL_NONE,
@@ -255,9 +259,10 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             if (pipelineDesc.ResourceLayouts?.Length != currentShader.LayoutCount)
                 Array.Resize(ref pipelineDesc.ResourceLayouts, currentShader.LayoutCount);
 
-            // Combined pass: set up pipeline layouts and resource sets in two iterations
-            // instead of four separate dictionary walks.
-            foreach (var (unit, _) in attachedTextures)
+            // Phase 1: look up layouts once per resource, populate pipelineDesc, and cache results
+            // in scratch lists so the binding phase below needs no additional dictionary lookups.
+            pendingTextureBindings.Clear();
+            foreach (var (unit, resource) in attachedTextures)
             {
                 var layout = currentShader.GetTextureLayout(unit);
 
@@ -265,32 +270,10 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
                     continue;
 
                 pipelineDesc.ResourceLayouts[layout.Set] = layout.Layout;
+                pendingTextureBindings.Add(((uint)layout.Set, resource, layout.Layout));
             }
 
-            foreach (var (name, _) in attachedUniformBuffers)
-            {
-                var layout = currentShader.GetUniformBufferLayout(name);
-
-                if (layout == null)
-                    continue;
-
-                pipelineDesc.ResourceLayouts[layout.Set] = layout.Layout;
-            }
-
-            // Activate the pipeline.
-            Commands.SetPipeline(createPipeline());
-
-            // Activate texture and uniform buffer resources.
-            foreach (var (unit, texture) in attachedTextures)
-            {
-                var layout = currentShader.GetTextureLayout(unit);
-
-                if (layout == null)
-                    continue;
-
-                Commands.SetGraphicsResourceSet((uint)layout.Set, texture.GetResourceSet(Factory, layout.Layout));
-            }
-
+            pendingUniformBindings.Clear();
             foreach (var (name, buffer) in attachedUniformBuffers)
             {
                 var layout = currentShader.GetUniformBufferLayout(name);
@@ -298,8 +281,22 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
                 if (layout == null)
                     continue;
 
-                uint bufferOffset = uniformBufferOffsets.GetValueOrDefault(buffer);
-                Commands.SetGraphicsResourceSet((uint)layout.Set, buffer.GetResourceSet(layout.Layout), 1, ref bufferOffset);
+                pipelineDesc.ResourceLayouts[layout.Set] = layout.Layout;
+                pendingUniformBindings.Add(((uint)layout.Set, buffer, layout.Layout, uniformBufferOffsets.GetValueOrDefault(buffer)));
+            }
+
+            // Activate the pipeline.
+            Commands.SetPipeline(createPipeline());
+
+            // Phase 2: bind resources using the cached (set, resource/buffer, layout) tuples —
+            // no additional layout dictionary lookups required.
+            foreach (var (set, resource, layout) in pendingTextureBindings)
+                Commands.SetGraphicsResourceSet(set, resource.GetResourceSet(Factory, layout));
+
+            foreach (var binding in pendingUniformBindings)
+            {
+                uint offset = binding.Offset;
+                Commands.SetGraphicsResourceSet(binding.Set, binding.Buffer.GetResourceSet(binding.Layout), 1, ref offset);
             }
 
             int indexStart = currentIndexBuffer.TranslateToIndex(vertexStart);

@@ -77,15 +77,14 @@ namespace osu.Framework.Graphics.Veldrid
         {
             currentExecutionIndex = executionIndex;
 
-            if (available.Count > 0)
+            // Free ALL available resources that have gone unused long enough.
+            // Iterating in reverse avoids the O(n) element-shift cost of RemoveAt for each removal.
+            for (int i = available.Count - 1; i >= 0; i--)
             {
-                var item = available[0];
-                ulong framesSinceUsage = executionIndex - item.FrameUsageIndex;
-
-                if (framesSinceUsage >= Rendering.Renderer.RESOURCE_FREE_NO_USAGE_LENGTH)
+                if (executionIndex - available[i].FrameUsageIndex >= Rendering.Renderer.RESOURCE_FREE_NO_USAGE_LENGTH)
                 {
-                    item.Resource.Dispose();
-                    available.RemoveAt(0);
+                    available[i].Resource.Dispose();
+                    available.RemoveAt(i);
                 }
             }
 

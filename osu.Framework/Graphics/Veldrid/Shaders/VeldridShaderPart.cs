@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using osu.Framework.Graphics.Rendering;
@@ -23,6 +22,7 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
 
         private static readonly Regex uniform_pattern = new Regex(@"^(\s*layout\s*\(.*)set\s*=\s*(-?\d)(.*\)\s*(?:(?:readonly\s*)?buffer|uniform))", RegexOptions.Multiline);
         private static readonly Regex include_pattern = new Regex(@"^\s*#\s*include\s+[""<](.*)["">]");
+        private static readonly Regex void_main_pattern = new Regex(@"void main\((.*)\)");
 
         public readonly ShaderPartType Type;
 
@@ -47,10 +47,14 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
             code += loadFile(data, true);
 
             // Find the minimum uniform/buffer binding set across all shader codes. This will be a negative number (see sh_GlobalUniforms.h / sh_MaskingInfo.h).
-            int minSet = uniform_pattern.Matches(code)
-                                        .Where(m => m.Success)
-                                        .Select(m => int.Parse(m.Groups[2].Value, CultureInfo.InvariantCulture))
-                                        .DefaultIfEmpty(0).Min();
+            // Avoid LINQ: Matches() only returns successful matches, so Where(Success) is redundant; replace the chain with a plain loop.
+            int minSet = 0;
+
+            foreach (Match m in uniform_pattern.Matches(code))
+            {
+                int set = int.Parse(m.Groups[2].Value, CultureInfo.InvariantCulture);
+                if (set < minSet) minSet = set;
+            }
 
             // Increment the binding set of all uniform blocks equal to the absolute value of the minimum set from above.
             // After this transformation, blocks with negative sets will start from set 0, and all other user blocks begin after them.
@@ -122,10 +126,11 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
                 if (!mainFile)
                     return output;
 
-                Inputs.AddRange(
-                    shader_input_pattern.Matches(output).Select(m => new VeldridShaderAttribute(int.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture), m.Groups[2].Value)));
-                Outputs.AddRange(
-                    shader_output_pattern.Matches(output).Select(m => new VeldridShaderAttribute(int.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture), m.Groups[2].Value)));
+                foreach (Match m in shader_input_pattern.Matches(output))
+                    Inputs.Add(new VeldridShaderAttribute(int.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture), m.Groups[2].Value));
+
+                foreach (Match m in shader_output_pattern.Matches(output))
+                    Outputs.Add(new VeldridShaderAttribute(int.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture), m.Groups[2].Value));
 
                 string outputCode = loadFile(store.GetRawData($"Internal/sh_{Type}_Output.h"), false);
 
@@ -134,7 +139,7 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
                     const string real_main_name = "__internal_real_main";
 
                     outputCode = outputCode.Replace("{{ real_main }}", real_main_name);
-                    output = Regex.Replace(output, @"void main\((.*)\)", $"void {real_main_name}()") + outputCode + '\n';
+                    output = void_main_pattern.Replace(output, $"void {real_main_name}()") + outputCode + '\n';
                 }
 
                 return output;
@@ -159,15 +164,29 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
         {
             string result = code;
 
-            int outputLayoutIndex = Outputs.Max(m => m.Location) + 1;
+            // Avoid LINQ Max(lambda): compute max location with a plain loop.
+            int maxOutputLocation = 0;
+
+            for (int i = 0; i < Outputs.Count; i++)
+            {
+                if (Outputs[i].Location > maxOutputLocation)
+                    maxOutputLocation = Outputs[i].Location;
+            }
+
+            int outputLayoutIndex = maxOutputLocation + 1;
 
             var attributesLayout = new StringBuilder();
             var attributesAssignment = new StringBuilder();
             var outputAttributes = new List<VeldridShaderAttribute>();
 
+            // Build a set of already-covered input locations to avoid O(n²) Any() calls.
+            var coveredLocations = new HashSet<int>(Inputs.Count + attributes.Count);
+            foreach (var inp in Inputs)
+                coveredLocations.Add(inp.Location);
+
             foreach (VeldridShaderAttribute attribute in attributes)
             {
-                if (Inputs.Any(i => attribute.Location == i.Location))
+                if (coveredLocations.Contains(attribute.Location))
                     continue;
 
                 string inputName = $"__unused_input_{attribute.Location}";
@@ -187,8 +206,18 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
             result = result.Replace("{{ fragment_output_assignment }}", attributesAssignment.ToString().Trim());
 
             var part = new VeldridShaderPart(result, header, Type, store);
-            part.Inputs.AddRange(Inputs.Concat(attributes).DistinctBy(a => a.Location));
-            part.Outputs.AddRange(Outputs.Concat(outputAttributes));
+
+            // Merge Inputs and attributes without LINQ; coveredLocations tracks what's already in Inputs.
+            part.Inputs.AddRange(Inputs);
+
+            foreach (var attr in attributes)
+            {
+                if (coveredLocations.Add(attr.Location))
+                    part.Inputs.Add(attr);
+            }
+
+            part.Outputs.AddRange(Outputs);
+            part.Outputs.AddRange(outputAttributes);
             return part;
         }
 

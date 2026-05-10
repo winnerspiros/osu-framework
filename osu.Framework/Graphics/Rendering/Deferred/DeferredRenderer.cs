@@ -144,7 +144,7 @@ namespace osu.Framework.Graphics.Rendering.Deferred
             => EnqueueTextureUpload(texture);
 
         void IVeldridRenderer.GenerateMipmaps(VeldridTexture texture)
-            => Graphics.Commands.GenerateMipmaps(texture.GetResourceList().Single().Texture);
+            => Graphics.Commands.GenerateMipmaps(texture.GetResourceList()[0].Texture);
 
         public void RegisterUniformBufferForReset(IVeldridUniformBuffer veldridUniformBuffer)
             => uniformBufferResetList.Add(veldridUniformBuffer);

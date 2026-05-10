@@ -52,14 +52,31 @@ namespace osu.Framework.Graphics.Rendering.Deferred
         public void Write(int index, MemoryReference memory)
             => memory.WriteTo(renderer.Context, buffer, index * elementSize);
 
+        private ResourceSet? cachedSet;
+        private ResourceLayout? cachedSetLayout;
+
         public ResourceSet GetResourceSet(ResourceLayout layout)
-            => renderer.Factory.CreateResourceSet(new ResourceSetDescription(layout, buffer));
+        {
+            // ResourceLayout instances are created once per shader during compilation and reused across frames,
+            // so reference equality correctly identifies a layout change (e.g. a different shader binding this SSBO).
+            if (cachedSet == null || cachedSetLayout != layout)
+            {
+                cachedSet?.Dispose();
+                cachedSet = renderer.Factory.CreateResourceSet(new ResourceSetDescription(layout, buffer));
+                cachedSetLayout = layout;
+            }
+
+            return cachedSet;
+        }
 
         public void ResetCounters()
         {
         }
 
         public void Dispose()
-            => buffer.Dispose();
+        {
+            cachedSet?.Dispose();
+            buffer.Dispose();
+        }
     }
 }

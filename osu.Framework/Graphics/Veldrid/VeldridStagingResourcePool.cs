@@ -46,10 +46,12 @@ namespace osu.Framework.Graphics.Veldrid
 
                 if (match(existing.Resource, state))
                 {
+                    // `existing` is a struct copy. Mutating FrameUsageIndex here only affects the local copy,
+                    // which is intentional — it is this mutated copy that we pass to used.Add() below.
                     existing.FrameUsageIndex = currentExecutionIndex;
 
                     available.RemoveAt(i);
-                    used.Add(existing);
+                    used.Add(existing); // adds the updated copy with the new FrameUsageIndex
 
                     resource = existing.Resource;
 
@@ -77,15 +79,14 @@ namespace osu.Framework.Graphics.Veldrid
         {
             currentExecutionIndex = executionIndex;
 
-            if (available.Count > 0)
+            // Free ALL available resources that have gone unused long enough.
+            // Iterating in reverse avoids the O(n) element-shift cost of RemoveAt for each removal.
+            for (int i = available.Count - 1; i >= 0; i--)
             {
-                var item = available[0];
-                ulong framesSinceUsage = executionIndex - item.FrameUsageIndex;
-
-                if (framesSinceUsage >= Rendering.Renderer.RESOURCE_FREE_NO_USAGE_LENGTH)
+                if (executionIndex - available[i].FrameUsageIndex >= Rendering.Renderer.RESOURCE_FREE_NO_USAGE_LENGTH)
                 {
-                    item.Resource.Dispose();
-                    available.RemoveAt(0);
+                    available[i].Resource.Dispose();
+                    available.RemoveAt(i);
                 }
             }
 
@@ -98,20 +99,20 @@ namespace osu.Framework.Graphics.Veldrid
         /// <param name="executionIndex">The finished execution index.</param>
         private void executionFinished(ulong executionIndex)
         {
-            for (int i = 0; i < used.Count; i++)
-            {
-                var item = used[i];
+            // Items in `used` are in non-decreasing order of FrameUsageIndex.
+            // Items matching executionIndex form a contiguous prefix; find how many there are.
+            int count = 0;
 
-                // Usages are sequential so we can stop checking after the usage exceeding the index.
-                if (item.FrameUsageIndex > executionIndex)
-                    break;
+            while (count < used.Count && used[count].FrameUsageIndex == executionIndex)
+                count++;
 
-                if (item.FrameUsageIndex != executionIndex)
-                    continue;
+            // Bulk-move the matching items to `available` in one pass, then remove the prefix
+            // in a single RemoveRange call — avoiding the O(m×n) cost of per-item RemoveAt.
+            for (int i = 0; i < count; i++)
+                available.Add(used[i]);
 
-                available.Add(item);
-                used.RemoveAt(i--);
-            }
+            if (count > 0)
+                used.RemoveRange(0, count);
 
             updateStats();
         }
@@ -122,7 +123,7 @@ namespace osu.Framework.Graphics.Veldrid
             usageStat.Value.CountInUse = used.Count;
         }
 
-        private class PooledUsage
+        private struct PooledUsage
         {
             /// <summary>
             /// The tracked resource.

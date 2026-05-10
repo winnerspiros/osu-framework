@@ -45,6 +45,9 @@ namespace osu.Framework.Graphics.Veldrid.Buffers
         private int changeBeginIndex = -1;
         private int changeCount;
 
+        private ResourceSet? cachedSet;
+        private ResourceLayout? cachedSetLayout;
+
         public TData this[int index]
         {
             get => data[index];
@@ -89,7 +92,17 @@ namespace osu.Framework.Graphics.Veldrid.Buffers
         public ResourceSet GetResourceSet(ResourceLayout layout)
         {
             flushChanges();
-            return renderer.Factory.CreateResourceSet(new ResourceSetDescription(layout, buffer));
+
+            // ResourceLayout instances are created once per shader during compilation and reused across frames,
+            // so reference equality correctly identifies a layout change (e.g. a different shader binding this SSBO).
+            if (cachedSet == null || cachedSetLayout != layout)
+            {
+                cachedSet?.Dispose();
+                cachedSet = renderer.Factory.CreateResourceSet(new ResourceSetDescription(layout, buffer));
+                cachedSetLayout = layout;
+            }
+
+            return cachedSet;
         }
 
         public void ResetCounters()
@@ -98,6 +111,7 @@ namespace osu.Framework.Graphics.Veldrid.Buffers
 
         public void Dispose()
         {
+            cachedSet?.Dispose();
             buffer.Dispose();
         }
     }

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Shaders;
@@ -101,8 +100,9 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
         {
             Debug.Assert(parts.Length == 2);
 
-            VeldridShaderPart vertex = parts.Single(p => p.Type == ShaderPartType.Vertex);
-            VeldridShaderPart fragment = parts.Single(p => p.Type == ShaderPartType.Fragment);
+            // parts is always [vertex, fragment] or [fragment, vertex]; avoid LINQ on this hot-once path.
+            VeldridShaderPart vertex = parts[0].Type == ShaderPartType.Vertex ? parts[0] : parts[1];
+            VeldridShaderPart fragment = parts[0].Type == ShaderPartType.Fragment ? parts[0] : parts[1];
 
             // some attributes from the vertex output may not be used by the fragment shader, but that could break some renderers (e.g. D3D11).
             // therefore include any unused vertex output to a fragment shader as fragment input & output.

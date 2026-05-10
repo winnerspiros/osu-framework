@@ -165,9 +165,14 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
             var attributesAssignment = new StringBuilder();
             var outputAttributes = new List<VeldridShaderAttribute>();
 
+            // Build a set of already-covered input locations to avoid O(n²) Any() calls.
+            var coveredLocations = new HashSet<int>(Inputs.Count + attributes.Count);
+            foreach (var inp in Inputs)
+                coveredLocations.Add(inp.Location);
+
             foreach (VeldridShaderAttribute attribute in attributes)
             {
-                if (Inputs.Any(i => attribute.Location == i.Location))
+                if (coveredLocations.Contains(attribute.Location))
                     continue;
 
                 string inputName = $"__unused_input_{attribute.Location}";
@@ -187,7 +192,15 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
             result = result.Replace("{{ fragment_output_assignment }}", attributesAssignment.ToString().Trim());
 
             var part = new VeldridShaderPart(result, header, Type, store);
-            part.Inputs.AddRange(Inputs.Concat(attributes).DistinctBy(a => a.Location));
+
+            // Merge Inputs and attributes without LINQ; coveredLocations tracks what's already in Inputs.
+            part.Inputs.AddRange(Inputs);
+            foreach (var attr in attributes)
+            {
+                if (coveredLocations.Add(attr.Location))
+                    part.Inputs.Add(attr);
+            }
+
             part.Outputs.AddRange(Outputs.Concat(outputAttributes));
             return part;
         }

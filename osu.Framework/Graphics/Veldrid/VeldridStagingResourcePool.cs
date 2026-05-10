@@ -46,10 +46,12 @@ namespace osu.Framework.Graphics.Veldrid
 
                 if (match(existing.Resource, state))
                 {
+                    // `existing` is a struct copy. Mutating FrameUsageIndex here only affects the local copy,
+                    // which is intentional — it is this mutated copy that we pass to used.Add() below.
                     existing.FrameUsageIndex = currentExecutionIndex;
 
                     available.RemoveAt(i);
-                    used.Add(existing);
+                    used.Add(existing); // adds the updated copy with the new FrameUsageIndex
 
                     resource = existing.Resource;
 

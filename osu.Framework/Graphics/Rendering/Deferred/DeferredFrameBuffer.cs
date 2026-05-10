@@ -162,6 +162,12 @@ namespace osu.Framework.Graphics.Rendering.Deferred
 
                 if (deferredFrameBuffer.formats?[0] is PixelFormat depth)
                 {
+                    // TextureUsage.Transient tells the Vulkan backend to allocate with
+                    // VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT + LAZILY_ALLOCATED memory on
+                    // tile-based GPUs (Adreno, Mali, PowerVR). Combined with the DontCare storeOp
+                    // the Veldrid fork applies to transient depth attachments, this keeps depth
+                    // entirely in tile RAM — zero DRAM allocation and no tile→DRAM writeback.
+                    // Other backends (OpenGL, D3D11, D3D12, Metal) silently ignore the flag.
                     depthTexture = deferredFrameBuffer.renderer.Factory.CreateTexture(
                         TextureDescription.Texture2D(
                             resources.Texture.Width,
@@ -169,7 +175,7 @@ namespace osu.Framework.Graphics.Rendering.Deferred
                             1,
                             1,
                             depth,
-                            TextureUsage.DepthStencil));
+                            TextureUsage.DepthStencil | TextureUsage.Transient));
                 }
 
                 framebuffer = deferredFrameBuffer.renderer.Factory.CreateFramebuffer(new FramebufferDescription

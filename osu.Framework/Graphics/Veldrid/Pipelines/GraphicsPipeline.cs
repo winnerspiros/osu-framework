@@ -262,6 +262,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             // Phase 1: look up layouts once per resource, populate pipelineDesc, and cache results
             // in scratch lists so the binding phase below needs no additional dictionary lookups.
             pendingTextureBindings.Clear();
+
             foreach (var (unit, resource) in attachedTextures)
             {
                 var layout = currentShader.GetTextureLayout(unit);
@@ -274,6 +275,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             }
 
             pendingUniformBindings.Clear();
+
             foreach (var (name, buffer) in attachedUniformBuffers)
             {
                 var layout = currentShader.GetUniformBufferLayout(name);

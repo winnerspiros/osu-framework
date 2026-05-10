@@ -166,6 +166,7 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
 
             // Avoid LINQ Max(lambda): compute max location with a plain loop.
             int maxOutputLocation = 0;
+
             for (int i = 0; i < Outputs.Count; i++)
             {
                 if (Outputs[i].Location > maxOutputLocation)
@@ -208,6 +209,7 @@ namespace osu.Framework.Graphics.Veldrid.Shaders
 
             // Merge Inputs and attributes without LINQ; coveredLocations tracks what's already in Inputs.
             part.Inputs.AddRange(Inputs);
+
             foreach (var attr in attributes)
             {
                 if (coveredLocations.Add(attr.Location))

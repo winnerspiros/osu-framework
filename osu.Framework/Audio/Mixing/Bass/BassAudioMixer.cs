@@ -381,8 +381,9 @@ namespace osu.Framework.Audio.Mixing.Bass
             base.Dispose(disposing);
 
             // Move all contained channels back to the default mixer.
-            foreach (var channel in activeChannels.ToArray())
-                Remove(channel);
+            // Iterate backwards to avoid allocating a copy array — Remove() mutates activeChannels.
+            for (int i = activeChannels.Count - 1; i >= 0; i--)
+                Remove(activeChannels[i]);
 
             if (Handle != 0)
             {

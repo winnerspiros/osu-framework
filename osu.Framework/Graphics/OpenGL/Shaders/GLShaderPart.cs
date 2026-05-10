@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using osu.Framework.Graphics.Rendering;
@@ -19,6 +18,7 @@ namespace osu.Framework.Graphics.OpenGL.Shaders
         public static readonly Regex SHADER_INPUT_PATTERN = new Regex(@"^\s*layout\s*\(\s*location\s*=\s*(-?\d+)\s*\)\s*(in\s+(?:(?:lowp|mediump|highp)\s+)?\w+\s+(\w+)\s*;)", RegexOptions.Multiline);
         private static readonly Regex uniform_pattern = new Regex(@"^(\s*layout\s*\(.*)set\s*=\s*(-?\d)(.*\)\s*(?:(?:readonly\s*)?buffer|uniform))", RegexOptions.Multiline);
         private static readonly Regex include_pattern = new Regex(@"^\s*#\s*include\s+[""<](.*)["">]");
+        private static readonly Regex void_main_pattern = new Regex(@"void main\((.*)\)");
 
         internal bool Compiled { get; private set; }
 
@@ -46,14 +46,16 @@ namespace osu.Framework.Graphics.OpenGL.Shaders
             shaderCodes.Add(loadFile(data, true));
 
             // Find the minimum uniform/buffer binding set across all shader codes. This will be a negative number (see sh_GlobalUniforms.h / sh_MaskingInfo.h).
+            // Avoid LINQ: Matches() only returns successful matches, so Where(Success) is redundant; replace the chain with a plain loop.
             int minSet = 0;
 
             foreach (string code in shaderCodes)
             {
-                minSet = Math.Min(minSet, uniform_pattern.Matches(code)
-                                                         .Where(m => m.Success)
-                                                         .Select(m => int.Parse(m.Groups[2].Value, CultureInfo.InvariantCulture))
-                                                         .DefaultIfEmpty(0).Min());
+                foreach (Match m in uniform_pattern.Matches(code))
+                {
+                    int set = int.Parse(m.Groups[2].Value, CultureInfo.InvariantCulture);
+                    if (set < minSet) minSet = set;
+                }
             }
 
             // Increment the binding set of all uniform blocks equal to the absolute value of the minimum set from above.
@@ -135,7 +137,7 @@ namespace osu.Framework.Graphics.OpenGL.Shaders
                         const string real_main_name = "__internal_real_main";
 
                         backbufferCode = backbufferCode.Replace("{{ real_main }}", real_main_name);
-                        code = Regex.Replace(code, @"void main\((.*)\)", $"void {real_main_name}()") + backbufferCode + '\n';
+                        code = void_main_pattern.Replace(code, $"void {real_main_name}()") + backbufferCode + '\n';
                     }
                 }
 

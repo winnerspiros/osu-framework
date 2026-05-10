@@ -93,6 +93,8 @@ namespace osu.Framework.Graphics.Veldrid.Buffers
         {
             flushChanges();
 
+            // ResourceLayout instances are created once per shader during compilation and reused across frames,
+            // so reference equality correctly identifies a layout change (e.g. a different shader binding this SSBO).
             if (cachedSet == null || cachedSetLayout != layout)
             {
                 cachedSet?.Dispose();

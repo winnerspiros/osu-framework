@@ -151,8 +151,6 @@ namespace osu.Framework.Graphics.Veldrid.Buffers
 
         private class FrameBufferTexture : VeldridTexture
         {
-            protected override TextureUsage Usages => base.Usages | TextureUsage.RenderTarget;
-
             public FrameBufferTexture(VeldridRenderer renderer, SamplerFilter filteringMode = SamplerFilter.MinLinearMagLinearMipLinear)
                 : base(renderer, 1, 1, true, filteringMode)
             {

@@ -153,6 +153,8 @@ PublishScripts/
 *.nupkg
 # Keep local-packages/ vendored .nupkg files (winnerspiros fork builds)
 !local-packages/*.nupkg
+# Keep nuget-local/ vendored .nupkg files (SDL3-CS with SDL 3.5-main native libs)
+!nuget-local/*.nupkg
 # The packages folder can be ignored because of Package Restore
 **/packages/*
 # except build/, which is used as an MSBuild target.

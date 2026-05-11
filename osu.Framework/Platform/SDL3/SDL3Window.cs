@@ -168,6 +168,12 @@ namespace osu.Framework.Platform.SDL3
 
             SDL_SetHint(SDL_HINT_APP_NAME, appName).LogErrorIfFailed();
 
+            // Set hints that must be applied before SDL_Init:
+            // moves joystick I/O off the main thread, giving smoother gamepad events
+            SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1"u8).LogErrorIfFailed();
+            // requests the Android AAudio/OpenSL ES fast-mixer path — reduces audio latency 20-60 ms
+            SDL_SetHint(SDL_HINT_ANDROID_LOW_LATENCY_AUDIO, "1"u8).LogErrorIfFailed();
+
             if (!SDL_Init(SDL_InitFlags.SDL_INIT_VIDEO | SDL_InitFlags.SDL_INIT_GAMEPAD))
             {
                 throw new InvalidOperationException($"Failed to initialise SDL: {SDL_GetError()}");
@@ -226,6 +232,9 @@ namespace osu.Framework.Platform.SDL3
             SDL_SetHint(SDL_HINT_PEN_MOUSE_EVENTS, "0"u8).LogErrorIfFailed();
             SDL_SetHint(SDL_HINT_IME_IMPLEMENTED_UI, "composition"u8).LogErrorIfFailed();
             SDL_SetHint(SDL_HINT_WINDOWS_RAW_KEYBOARD, "1"u8).LogErrorIfFailed();
+            // When SDL_WarpMouseInWindow is called while relative mode is active (e.g. on focus regain),
+            // prevent a spurious large absolute SDL_MOUSEMOTION that would cause an unwanted cursor jump.
+            SDL_SetHint(SDL_HINT_MOUSE_EMULATE_WARP_WITH_RELATIVE, "1"u8).LogErrorIfFailed();
 
             SDLWindowHandle = SDL_CreateWindow(Title, Size.Width, Size.Height, flags);
 
@@ -504,7 +513,7 @@ namespace osu.Framework.Platform.SDL3
 
         protected void ScheduleCommand(Action action) => commandScheduler.Add(action, false);
 
-        private const int events_per_peep = 64;
+        private const int events_per_peep = 128;
         private readonly SDL_Event[] events = new SDL_Event[events_per_peep];
 
         /// <summary>

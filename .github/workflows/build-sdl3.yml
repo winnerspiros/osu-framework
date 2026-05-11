@@ -1,0 +1,270 @@
+name: Build SDL3 Native Libraries
+# Rebuilds libSDL3 for every supported platform from SDL3 main and repacks
+# the ppy.SDL3-CS NuGet in nuget-local/ with the updated binaries.
+# Run manually after upstream SDL lands important fixes or new features.
+on:
+  workflow_dispatch:
+
+env:
+  SDL_BUILD_TYPE: Release
+  # Keep in sync with the SDL commit used to build nuget-local/ppy.SDL3-CS.*.nupkg
+  SDL_REF: main
+
+jobs:
+  build-linux:
+    name: Linux ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-22.04
+            cmake_flags: -GNinja
+            apt_arch: ":amd64"
+          - arch: x86
+            runner: ubuntu-22.04
+            cmake_flags: -GNinja -DCMAKE_C_FLAGS=-m32 -DCMAKE_CXX_FLAGS=-m32
+            apt_arch: ":i386"
+          - arch: arm64
+            runner: ubuntu-22.04-arm
+            cmake_flags: -GNinja
+            apt_arch: ":arm64"
+          - arch: arm
+            runner: ubuntu-22.04-arm
+            cmake_flags: -GNinja -DCMAKE_C_FLAGS="-marm -mfpu=neon" -DCMAKE_CXX_FLAGS="-marm -mfpu=neon"
+            apt_arch: ":armhf"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SDL build dependencies
+        run: |
+          if [[ "${{ matrix.arch }}" == "x86" ]]; then
+            sudo dpkg --add-architecture i386
+            sudo apt-get update -q
+            sudo apt-get install -y -q \
+              gcc-multilib g++-multilib \
+              libwayland-dev${{ matrix.apt_arch }} libx11-dev${{ matrix.apt_arch }} \
+              libxext-dev${{ matrix.apt_arch }} libxrandr-dev${{ matrix.apt_arch }} \
+              libxcursor-dev${{ matrix.apt_arch }} libxinerama-dev${{ matrix.apt_arch }} \
+              libxi-dev${{ matrix.apt_arch }} libxtst-dev${{ matrix.apt_arch }} \
+              libxfixes-dev${{ matrix.apt_arch }} libdbus-1-dev${{ matrix.apt_arch }} \
+              libudev-dev${{ matrix.apt_arch }} libdrm-dev${{ matrix.apt_arch }} \
+              libgbm-dev${{ matrix.apt_arch }} libegl1-mesa-dev${{ matrix.apt_arch }} \
+              libgles2-mesa-dev${{ matrix.apt_arch }} libvulkan-dev${{ matrix.apt_arch }} \
+              libpulse-dev${{ matrix.apt_arch }} libasound2-dev${{ matrix.apt_arch }} \
+              libpipewire-0.3-dev${{ matrix.apt_arch }} wayland-protocols \
+              libxkbcommon-dev${{ matrix.apt_arch }} ninja-build
+          else
+            sudo apt-get update -q
+            sudo apt-get install -y -q \
+              libwayland-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev \
+              libxinerama-dev libxi-dev libxtst-dev libxfixes-dev libdbus-1-dev \
+              libudev-dev libdrm-dev libgbm-dev libegl1-mesa-dev libgles2-mesa-dev \
+              libvulkan-dev libpulse-dev libasound2-dev libpipewire-0.3-dev \
+              wayland-protocols libxkbcommon-dev ninja-build
+          fi
+
+      - name: Checkout SDL source
+        run: |
+          git clone --depth=1 https://github.com/libsdl-org/SDL.git /tmp/SDL --branch ${{ env.SDL_REF }}
+          echo "SDL_COMMIT=$(git -C /tmp/SDL rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Build SDL3
+        run: |
+          cmake /tmp/SDL -B /tmp/sdl-build \
+            -DCMAKE_BUILD_TYPE=${{ env.SDL_BUILD_TYPE }} \
+            -DSDL_SHARED=ON -DSDL_STATIC=OFF \
+            -DSDL_TEST_LIBRARY=OFF -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF \
+            -DSDL_JACK=OFF -DSDL_SNDIO=OFF \
+            ${{ matrix.cmake_flags }}
+          cmake --build /tmp/sdl-build --parallel $(nproc)
+
+      - name: Upload libSDL3.so
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.arch }}
+          path: /tmp/sdl-build/libSDL3.so.*.*.* 
+
+  build-windows:
+    name: Windows ${{ matrix.arch }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            cmake_flags: -A x64
+          - arch: x86
+            cmake_flags: -A Win32
+          - arch: arm64
+            cmake_flags: -A ARM64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout SDL source
+        run: git clone --depth=1 https://github.com/libsdl-org/SDL.git C:\SDL --branch ${{ env.SDL_REF }}
+
+      - name: Build SDL3
+        run: |
+          cmake C:\SDL -B C:\sdl-build `
+            -DCMAKE_BUILD_TYPE=${{ env.SDL_BUILD_TYPE }} `
+            -DSDL_SHARED=ON -DSDL_STATIC=OFF `
+            -DSDL_TEST_LIBRARY=OFF -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF `
+            ${{ matrix.cmake_flags }}
+          cmake --build C:\sdl-build --config ${{ env.SDL_BUILD_TYPE }} --parallel
+
+      - name: Upload SDL3.dll
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-${{ matrix.arch }}
+          path: C:\sdl-build\${{ env.SDL_BUILD_TYPE }}\SDL3.dll
+
+  build-macos:
+    name: macOS ${{ matrix.arch }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            cmake_flags: -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14
+          - arch: arm64
+            cmake_flags: -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout SDL source
+        run: git clone --depth=1 https://github.com/libsdl-org/SDL.git /tmp/SDL --branch ${{ env.SDL_REF }}
+
+      - name: Build SDL3
+        run: |
+          cmake /tmp/SDL -B /tmp/sdl-build \
+            -DCMAKE_BUILD_TYPE=${{ env.SDL_BUILD_TYPE }} \
+            -DSDL_SHARED=ON -DSDL_STATIC=OFF \
+            -DSDL_TEST_LIBRARY=OFF -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF \
+            ${{ matrix.cmake_flags }}
+          cmake --build /tmp/sdl-build --parallel $(sysctl -n hw.logicalcpu)
+
+      - name: Upload libSDL3.dylib
+        uses: actions/upload-artifact@v4
+        with:
+          name: osx-${{ matrix.arch }}
+          path: /tmp/sdl-build/libSDL3.*.*.*.dylib
+
+  build-android:
+    name: Android ${{ matrix.abi }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - abi: arm64-v8a
+            rid: android-arm64
+          - abi: armeabi-v7a
+            rid: android-arm
+          - abi: x86_64
+            rid: android-x64
+          - abi: x86
+            rid: android-x86
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup NDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install NDK
+        run: sdkmanager --install "ndk;28.2.13676358"
+
+      - name: Checkout SDL source
+        run: git clone --depth=1 https://github.com/libsdl-org/SDL.git /tmp/SDL --branch ${{ env.SDL_REF }}
+
+      - name: Build SDL3 for Android
+        run: |
+          cmake /tmp/SDL -B /tmp/sdl-build \
+            -DCMAKE_BUILD_TYPE=${{ env.SDL_BUILD_TYPE }} \
+            -DSDL_SHARED=ON -DSDL_STATIC=OFF \
+            -DSDL_TEST_LIBRARY=OFF -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=${{ matrix.abi }} \
+            -DANDROID_PLATFORM=24 \
+            -GNinja
+          cmake --build /tmp/sdl-build --parallel $(nproc)
+
+      - name: Upload libSDL3.so
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.rid }}
+          path: /tmp/sdl-build/libSDL3.so
+
+  repack-nupkg:
+    name: Repack NuGet package
+    runs-on: ubuntu-22.04
+    needs: [build-linux, build-windows, build-macos, build-android]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: /tmp/sdl-artifacts
+
+      - name: Install dependencies
+        run: sudo apt-get install -y -q unzip zip
+
+      - name: Extract existing nupkg
+        run: |
+          BASE_PKG=$(ls nuget-local/ppy.SDL3-CS.*.nupkg | sort -V | tail -1)
+          echo "BASE_PKG=$BASE_PKG" >> $GITHUB_ENV
+          mkdir -p /tmp/nupkg-contents
+          unzip -q "$BASE_PKG" -d /tmp/nupkg-contents
+          rm /tmp/nupkg-contents/.signature.p7s 2>/dev/null || true
+
+      - name: Replace native libraries
+        run: |
+          # Linux
+          cp /tmp/sdl-artifacts/linux-x64/libSDL3.so.*.*.* /tmp/nupkg-contents/runtimes/linux-x64/native/libSDL3.so
+          cp /tmp/sdl-artifacts/linux-x86/libSDL3.so.*.*.* /tmp/nupkg-contents/runtimes/linux-x86/native/libSDL3.so
+          cp /tmp/sdl-artifacts/linux-arm64/libSDL3.so.*.*.* /tmp/nupkg-contents/runtimes/linux-arm64/native/libSDL3.so
+          cp /tmp/sdl-artifacts/linux-arm/libSDL3.so.*.*.* /tmp/nupkg-contents/runtimes/linux-arm/native/libSDL3.so
+          # Windows
+          cp /tmp/sdl-artifacts/win-x64/SDL3.dll /tmp/nupkg-contents/runtimes/win-x64/native/SDL3.dll
+          cp /tmp/sdl-artifacts/win-x86/SDL3.dll /tmp/nupkg-contents/runtimes/win-x86/native/SDL3.dll
+          cp /tmp/sdl-artifacts/win-arm64/SDL3.dll /tmp/nupkg-contents/runtimes/win-arm64/native/SDL3.dll
+          # macOS
+          cp /tmp/sdl-artifacts/osx-x64/libSDL3.*.*.*.dylib /tmp/nupkg-contents/runtimes/osx-x64/native/libSDL3.dylib
+          cp /tmp/sdl-artifacts/osx-arm64/libSDL3.*.*.*.dylib /tmp/nupkg-contents/runtimes/osx-arm64/native/libSDL3.dylib
+          # Android
+          cp /tmp/sdl-artifacts/android-arm64/libSDL3.so /tmp/nupkg-contents/runtimes/android-arm64/native/libSDL3.so
+          cp /tmp/sdl-artifacts/android-arm/libSDL3.so /tmp/nupkg-contents/runtimes/android-arm/native/libSDL3.so
+          cp /tmp/sdl-artifacts/android-x64/libSDL3.so /tmp/nupkg-contents/runtimes/android-x64/native/libSDL3.so
+          cp /tmp/sdl-artifacts/android-x86/libSDL3.so /tmp/nupkg-contents/runtimes/android-x86/native/libSDL3.so
+
+      - name: Bump nupkg version and repack
+        run: |
+          TODAY=$(date +%Y.%-m%-d.0)
+          # Update nuspec version
+          sed -i "s|<version>.*</version>|<version>$TODAY</version>|" /tmp/nupkg-contents/ppy.SDL3-CS.nuspec
+          # Repack
+          cd /tmp/nupkg-contents
+          zip -q -r /tmp/ppy.SDL3-CS.$TODAY.nupkg . -x "*.nupkg"
+          echo "NEW_PKG=ppy.SDL3-CS.$TODAY.nupkg" >> $GITHUB_ENV
+          echo "NEW_VERSION=$TODAY" >> $GITHUB_ENV
+
+      - name: Update repository
+        run: |
+          # Remove old nupkg, add new one
+          rm -f nuget-local/ppy.SDL3-CS.*.nupkg
+          cp /tmp/ppy.SDL3-CS.${{ env.NEW_VERSION }}.nupkg nuget-local/
+          # Update PackageReference version
+          sed -i 's|<PackageReference Include="ppy\.SDL3-CS" Version="[^"]*"|<PackageReference Include="ppy.SDL3-CS" Version="${{ env.NEW_VERSION }}"|' osu.Framework/osu.Framework.csproj
+
+      - name: Commit updated nupkg
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update SDL3 native libs to ${{ env.NEW_VERSION }} (SDL main ${{ env.SDL_REF }})"
+          file_pattern: "nuget-local/*.nupkg osu.Framework/osu.Framework.csproj"

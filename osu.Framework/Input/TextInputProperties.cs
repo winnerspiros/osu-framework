@@ -17,5 +17,19 @@ namespace osu.Framework.Input
     /// </para>
     /// </param>
     /// <param name="AutoCapitalisation">Whether text should be automatically capitalised.</param>
-    public record struct TextInputProperties(TextInputType Type, bool AllowIme = true, bool AutoCapitalisation = false);
+    /// <param name="IsMultiline">
+    /// Whether the text input field accepts multiple lines of text.
+    /// When <c>true</c>, the on-screen keyboard on mobile platforms will show a Return key
+    /// instead of a Done/Go key, and the IME composition will span multiple lines.
+    /// </param>
+    /// <param name="MaxLength">
+    /// The maximum number of characters accepted by this text field, or <c>null</c> for no limit.
+    /// On supported platforms (Android, GDK) the native keyboard will enforce this limit.
+    /// </param>
+    public record struct TextInputProperties(
+        TextInputType Type,
+        bool AllowIme = true,
+        bool AutoCapitalisation = false,
+        bool IsMultiline = false,
+        int? MaxLength = null);
 }

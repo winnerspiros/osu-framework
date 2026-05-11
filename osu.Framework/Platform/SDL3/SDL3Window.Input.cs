@@ -24,6 +24,10 @@ namespace osu.Framework.Platform.SDL3
 {
     internal unsafe partial class SDL3Window
     {
+        // SDL3-CS 2026.429.0 doesn't expose this property yet; define the string constant directly.
+        // See: https://wiki.libsdl.org/SDL3/SDL_StartTextInputWithProperties
+        private const string SDL_PROP_TEXTINPUT_MAX_LENGTH_NUMBER = "SDL.textinput.max_length";
+
         private void setupInput(FrameworkConfigManager config)
         {
             config.BindWith(FrameworkSetting.ConfineMouseMode, ConfineMouseMode);

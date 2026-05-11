@@ -9,4 +9,7 @@
   <ItemGroup>
     <AndroidLibrary Include="SDL3-CS.aar" Bind="true" />
   </ItemGroup>
+  <ItemGroup>
+    <TransformFile Include="Transforms\Metadata.xml" />
+  </ItemGroup>
 </Project>

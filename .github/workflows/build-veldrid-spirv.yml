@@ -1,0 +1,139 @@
+name: Build Veldrid-SPIRV Android Native Libraries
+# Rebuilds libveldrid-spirv.so for all Android architectures from winnerspiros/veldrid-spirv
+# (commit b268bf39ea already adds -Wl,-z,max-page-size=16384 for Android 16 / 16KB page size
+# compatibility) and repacks the ppy.Veldrid.SPIRV NuGet in nuget-local/ with the updated
+# Android binaries, while retaining the upstream Windows/macOS/Linux/iOS native binaries.
+#
+# Run manually via workflow_dispatch whenever the veldrid-spirv submodule is updated.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write  # needed to commit the updated nupkg back to the repo
+
+env:
+  NDK_VERSION: 28.2.13676358
+  BASE_SPIRV_VERSION: 1.0.15-gb66ebf81d2  # upstream version supplying non-Android native libs
+
+jobs:
+  build-android:
+    name: Android ${{ matrix.abi }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - abi: arm64-v8a
+            rid: android-arm64
+          - abi: armeabi-v7a
+            rid: android-arm
+          - abi: x86_64
+            rid: android-x64
+          - abi: x86
+            rid: android-x86
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive  # also initialises veldrid-spirv's ext/SPIRV-Cross submodule
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install NDK ${{ env.NDK_VERSION }}
+        run: sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
+
+      - name: Sync shaderc dependencies
+        working-directory: submodules/veldrid-spirv
+        run: python3 ext/update_shaderc_sources.py --dir ext/shaderc --file ext/known_good.json
+
+      - name: Build libveldrid-spirv.so (${{ matrix.abi }})
+        working-directory: submodules/veldrid-spirv
+        run: |
+          cmake . -B /tmp/spirv-build \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=${{ matrix.abi }} \
+            -DANDROID_PLATFORM=android-21 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_FLAGS_RELEASE="-g0" \
+            -GNinja
+          cmake --build /tmp/spirv-build --parallel $(nproc)
+
+      - name: Strip debug symbols
+        run: |
+          $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip \
+            --strip-debug /tmp/spirv-build/libveldrid-spirv.so \
+            -o /tmp/libveldrid-spirv.so
+
+      - name: Upload ${{ matrix.rid }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.rid }}
+          path: /tmp/libveldrid-spirv.so
+          if-no-files-found: error
+
+  repack-nupkg:
+    name: Repack NuGet package
+    runs-on: ubuntu-22.04
+    needs: build-android
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Android artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/spirv-artifacts
+
+      - name: Install dependencies
+        run: sudo apt-get install -y -q unzip zip
+
+      - name: Download base ppy.Veldrid.SPIRV NuGet
+        run: |
+          curl -sL \
+            "https://www.nuget.org/api/v2/package/ppy.Veldrid.SPIRV/${{ env.BASE_SPIRV_VERSION }}" \
+            -o /tmp/base.nupkg
+          mkdir -p /tmp/nupkg-contents
+          unzip -q /tmp/base.nupkg -d /tmp/nupkg-contents
+          # Remove NuGet signature so we can repack without a signing key
+          rm -f /tmp/nupkg-contents/.signature.p7s
+
+      - name: Replace Android native libraries
+        run: |
+          cp /tmp/spirv-artifacts/android-arm64/libveldrid-spirv.so \
+             /tmp/nupkg-contents/runtimes/android-arm64/native/libveldrid-spirv.so
+          cp /tmp/spirv-artifacts/android-arm/libveldrid-spirv.so \
+             /tmp/nupkg-contents/runtimes/android-arm/native/libveldrid-spirv.so
+          cp /tmp/spirv-artifacts/android-x64/libveldrid-spirv.so \
+             /tmp/nupkg-contents/runtimes/android-x64/native/libveldrid-spirv.so
+          cp /tmp/spirv-artifacts/android-x86/libveldrid-spirv.so \
+             /tmp/nupkg-contents/runtimes/android-x86/native/libveldrid-spirv.so
+
+      - name: Bump version and repack
+        run: |
+          COMMIT=$(git rev-parse --short HEAD:submodules/veldrid-spirv)
+          NEW_VERSION="1.0.15-g${COMMIT}"
+          # Update version in .nuspec
+          NUSPEC=$(ls /tmp/nupkg-contents/*.nuspec)
+          sed -i "s|<version>.*</version>|<version>${NEW_VERSION}</version>|" "$NUSPEC"
+          # Repack
+          cd /tmp/nupkg-contents
+          zip -q -r /tmp/ppy.Veldrid.SPIRV.${NEW_VERSION}.nupkg . -x "*.nupkg"
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+
+      - name: Update repository
+        run: |
+          rm -f nuget-local/ppy.Veldrid.SPIRV.*.nupkg
+          cp /tmp/ppy.Veldrid.SPIRV.${{ env.NEW_VERSION }}.nupkg nuget-local/
+          # Update the PackageReference version in osu.Framework.csproj
+          sed -i \
+            's|<PackageReference Include="ppy\.Veldrid\.SPIRV" Version="[^"]*"|<PackageReference Include="ppy.Veldrid.SPIRV" Version="${{ env.NEW_VERSION }}"|' \
+            osu.Framework/osu.Framework.csproj
+
+      - name: Commit updated nupkg
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update Veldrid.SPIRV Android native libs to ${{ env.NEW_VERSION }} (16KB page alignment)"
+          file_pattern: "nuget-local/*.nupkg osu.Framework/osu.Framework.csproj"

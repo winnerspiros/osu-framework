@@ -61,9 +61,11 @@
          No PrivateAssets here — natives must flow transitively to downstream test/game projects.
          The PackageId of the SPIRV submodule is renamed in submodules/Directory.Build.targets so this
          package isn't shadowed during NuGet restore.
-         Version pinned to the latest published build on nuget.org (gb66ebf81d2); only native binaries
-         are consumed so the slight hash difference from submodule commit b268bf39ea has no effect. -->
-    <PackageReference Include="ppy.Veldrid.SPIRV" Version="1.0.15-gb66ebf81d2" IncludeAssets="native" />
+         Local package in nuget-local/ (built from winnerspiros/veldrid-spirv submodule at gb268bf39e)
+         takes precedence via nuget.config. Android native libs rebuilt with -Wl,-z,max-page-size=16384
+         for Android 16 / 16KB page size compatibility (fixes XA0141). Update by running
+         .github/workflows/build-veldrid-spirv.yml dispatch job. -->
+    <PackageReference Include="ppy.Veldrid.SPIRV" Version="1.0.15-gb268bf39e" IncludeAssets="native" />
     <PackageReference Include="SharpFNT" Version="2.0.0" />
     <!-- Preview version of ImageSharp causes NU5104. -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />

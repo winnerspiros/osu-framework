@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
   notify_pending_production_deploy:
@@ -41,8 +42,35 @@ jobs:
             -d "$BODY" \
             "${{ secrets.DISCORD_INFRA_WEBHOOK_URL }}"
 
+  # Publish the vendored SDL3-CS package to GitHub Packages so that osu consumers
+  # can resolve the ppy.SDL3-CS dependency when they install ppy.osu.Framework from our feed.
+  publish-sdl3-cs:
+    name: Publish SDL3-CS to GitHub Packages
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Publish SDL3-CS to GitHub Packages
+        run: |
+          PKG=$(ls nuget-local/ppy.SDL3-CS.*.nupkg 2>/dev/null | sort -V | tail -1)
+          if [ -z "$PKG" ]; then
+            echo "No ppy.SDL3-CS nupkg found in nuget-local/ — skipping." && exit 0
+          fi
+          dotnet nuget push "$PKG" \
+            --api-key ${{ secrets.GITHUB_TOKEN }} \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --skip-duplicate
+
   pack-framework:
     name: Pack (Framework)
+    needs: publish-sdl3-cs
     runs-on: windows-latest
     environment: production
     defaults:
@@ -51,6 +79,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Set artifacts directory
         id: artifactsPath
@@ -109,6 +140,7 @@ jobs:
 
   pack-android:
     name: Pack (Android)
+    needs: publish-sdl3-cs
     runs-on: windows-latest
     environment: production
     defaults:
@@ -117,6 +149,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Set artifacts directory
         id: artifactsPath
@@ -150,6 +185,7 @@ jobs:
 
   pack-ios:
     name: Pack (iOS)
+    needs: publish-sdl3-cs
     runs-on: macos-26
     environment: production
     defaults:
@@ -158,6 +194,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Set artifacts directory
         id: artifactsPath

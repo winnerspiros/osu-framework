@@ -230,7 +230,27 @@ namespace osu.Framework.Platform.SDL3
             }
             set
             {
-                SDL_GL_SetSwapInterval(value ? 1 : 0);
+                if (value)
+                {
+                    // Prefer adaptive VSync (-1) which tears instead of stalling when the frame arrives late,
+                    // giving lower perceived latency when running slightly below the display refresh rate.
+                    // Fall back to standard VSync (1) if the driver or platform does not support it.
+                    if (!SDL_GL_SetSwapInterval(-1))
+                    {
+                        Logger.Log("Adaptive VSync (-1) not supported; falling back to standard VSync.", LoggingTarget.Runtime, LogLevel.Debug);
+
+                        if (!SDL_GL_SetSwapInterval(1))
+                        {
+                            Logger.Log($"Standard VSync (1) also failed: {SDL_GetError()}", LoggingTarget.Runtime, LogLevel.Important);
+                            return; // leave verticalSync cache unchanged so callers know the state
+                        }
+                    }
+                }
+                else
+                {
+                    SDL_GL_SetSwapInterval(0).LogErrorIfFailed();
+                }
+
                 verticalSync = value;
             }
         }

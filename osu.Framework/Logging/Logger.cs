@@ -291,6 +291,12 @@ namespace osu.Framework.Logging
         private readonly Queue<string> pendingFileOutput = new Queue<string>();
         private readonly Lock pendingFileOutputLock = new Lock();
 
+        // Persistent writer kept open for the lifetime of the logger to avoid the overhead of
+        // reopening the file on every scheduled batch.  Lazily initialised on first write,
+        // flushed explicitly after each batch, and closed in Dispose / FlushForShutdown.
+        private StreamWriter fileWriter;
+        private readonly Lock fileWriterLock = new Lock();
+
         private void add(string message = @"", LogLevel level = LogLevel.Verbose, Exception exception = null, bool outputToListeners = true)
         {
             if (!Enabled || level < Level)
@@ -381,28 +387,52 @@ namespace osu.Framework.Logging
                 pendingFileOutput.Clear();
             }
 
-            try
+            lock (fileWriterLock)
             {
-                using (var stream = Storage.GetStream(Filename, FileAccess.Write, FileMode.Append))
-                using (var writer = new StreamWriter(stream))
+                try
                 {
+                    if (fileWriter == null)
+                    {
+                        // Lazily open (or re-open after a failure) keeping the handle alive between batches.
+                        var stream = Storage.GetStream(Filename, FileAccess.Write, FileMode.Append);
+                        fileWriter = new StreamWriter(stream, leaveOpen: false) { AutoFlush = false };
+                    }
+
                     if (!headerAdded)
                     {
-                        writer.WriteLine("----------------------------------------------------------");
-                        writer.WriteLine($"{Name} Log (LogLevel: {Level})");
-                        writer.WriteLine($"Running {GameIdentifier} {VersionIdentifier} on .NET {Environment.Version}");
-                        writer.WriteLine($"Environment: {RuntimeInfo.OS} ({Environment.OSVersion}), {Environment.ProcessorCount} cores ");
-                        writer.WriteLine("----------------------------------------------------------");
+                        fileWriter.WriteLine("----------------------------------------------------------");
+                        fileWriter.WriteLine($"{Name} Log (LogLevel: {Level})");
+                        fileWriter.WriteLine($"Running {GameIdentifier} {VersionIdentifier} on .NET {Environment.Version}");
+                        fileWriter.WriteLine($"Environment: {RuntimeInfo.OS} ({Environment.OSVersion}), {Environment.ProcessorCount} cores ");
+                        fileWriter.WriteLine("----------------------------------------------------------");
 
                         headerAdded = true;
                     }
 
                     foreach (string line in lines)
-                        writer.WriteLine(line);
+                        fileWriter.WriteLine(line);
+
+                    fileWriter.Flush();
+                }
+                catch
+                {
+                    // On any write failure, close the writer so it will be re-opened on the next batch.
+                    try { fileWriter?.Close(); }
+                    catch { }
+
+                    fileWriter = null;
                 }
             }
-            catch
+        }
+
+        private void closeFileWriter()
+        {
+            lock (fileWriterLock)
             {
+                try { fileWriter?.Close(); }
+                catch { }
+
+                fileWriter = null;
             }
         }
 
@@ -482,6 +512,13 @@ namespace osu.Framework.Logging
         {
             Flush();
             NewEntry = null;
+
+            // Close any persistent file writers now that all pending lines have been written.
+            lock (static_sync_lock)
+            {
+                foreach (var logger in static_loggers.Values)
+                    logger.closeFileWriter();
+            }
         }
     }
 

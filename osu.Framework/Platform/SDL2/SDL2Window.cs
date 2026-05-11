@@ -680,6 +680,10 @@ namespace osu.Framework.Platform.SDL2
         /// </summary>
         public event Action<string>? DragDrop;
 
+        // SDL2 does not expose a system theme API; always report Unknown.
+        public event Action<SystemTheme>? SystemThemeChanged { add { } remove { } }
+        public SystemTheme CurrentSystemTheme => SystemTheme.Unknown;
+
         #endregion
 
         public void Dispose()

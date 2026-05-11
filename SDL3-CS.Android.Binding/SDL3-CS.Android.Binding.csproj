@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <OutputType>Library</OutputType>
+    <AssemblyName>SDL3-CS.Android.Binding</AssemblyName>
+    <RootNamespace>Org.Libsdl.App</RootNamespace>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <AndroidLibrary Include="SDL3-CS.aar" Bind="true" />
+  </ItemGroup>
+  <ItemGroup>
+    <TransformFile Include="Transforms\Metadata.xml" />
+  </ItemGroup>
+</Project>

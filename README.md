@@ -4,12 +4,13 @@
 
 # osu!framework
 
-[![Build status](https://github.com/ppy/osu-framework/actions/workflows/ci.yml/badge.svg?branch=master&event=push)](https://github.com/ppy/osu-framework/actions/workflows/ci.yml)
-[![GitHub release](https://img.shields.io/github/release/ppy/osu-framework.svg)](https://github.com/ppy/osu-framework/releases/latest)
-[![CodeFactor](https://www.codefactor.io/repository/github/ppy/osu-framework/badge)](https://www.codefactor.io/repository/github/ppy/osu-framework)
+[![Build status](https://github.com/winnerspiros/osu-framework/actions/workflows/ci.yml/badge.svg?branch=master&event=push)](https://github.com/winnerspiros/osu-framework/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/release/winnerspiros/osu-framework.svg)](https://github.com/winnerspiros/osu-framework/releases/latest)
 [![dev chat](https://discordapp.com/api/guilds/188630481301012481/widget.png?style=shield)](https://discord.gg/ppy)
 
 A game framework written with [osu!](https://github.com/ppy/osu) in mind.
+
+> **This is the [winnerspiros/osu-framework](https://github.com/winnerspiros/osu-framework) performance fork.** It tracks [ppy/osu-framework](https://github.com/ppy/osu-framework) upstream and layers latency/throughput improvements on top. See [Changes from upstream](#changes-from-upstream-ppyosu-framework) for the full diff.
 
 ## Developing a game using osu!framework
 
@@ -46,7 +47,7 @@ Code analysis can be run with `powershell ./InspectCode.ps1` or `InspectCode.sh`
 
 Contributions can be made via pull requests to this repository.
 
-If you're unsure of what you can help with, check out the [list of open issues](https://github.com/ppy/osu-framework/issues) (especially those with the ["good first issue"](https://github.com/ppy/osu-framework/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22good+first+issue%22) label).
+If you're unsure of what you can help with, check out the [list of open issues](https://github.com/winnerspiros/osu-framework/issues).
 
 Before starting, please make sure you are familiar with the [development and testing](https://github.com/ppy/osu-framework/wiki/Development-and-Testing) procedure we have set up. New component development, and where possible, bug fixing and debugging existing components **should always be done under VisualTests**.
 
@@ -154,6 +155,34 @@ Every `lock (someObject)` site in the framework has been migrated from the legac
 
 - `AudioAdjustments`, `AggregateAdjustmentExtensions`, `SampleChannelBass`, `TrackBass`, `GameHost` switch statements → switch expressions (reduced stack frame usage, branch predictor friendlier).
 - `NotifyDictionaryChangedEventArgs`: `new[] { item }` → collection expression `[item]` (C# 12).
+
+#### Thread scheduling priorities
+
+Game threads are given OS-level priorities to minimise scheduling jitter and latency:
+
+- **`AudioThread`** → `ThreadPriority.Highest`. BASS's mixer callback is extremely latency-sensitive — even a few milliseconds of preemption causes audible glitches. The audio thread runs at near-zero CPU utilisation between callbacks, so the elevated priority does not starve other threads.
+- **`DrawThread`** / **`UpdateThread`** → `ThreadPriority.AboveNormal`. Ensures the render loop and simulation loop are scheduled promptly and are not delayed by lower-priority background work.
+- All other `GameThread` subclasses remain at `ThreadPriority.Normal` (no regression).
+
+#### Veldrid `GraphicsPipeline` — draw-call hot path
+
+`DrawVertices` is called hundreds of times per frame (sprites, glyphs, effects). Two dictionary lookups per draw were eliminated:
+
+1. **Texture binding**: `Dictionary<int, VeldridTextureResources>` → `VeldridTextureResources?[16]` flat array. Integer keys are used as direct indices — zero hash computation. A `maxAttachedTextureUnit` high-water mark means the `DrawVertices` loop stops after the highest occupied slot (typically 1–4) rather than scanning the full array. `Array.Clear(16 slots)` in `Begin()` replaces `Dictionary.Clear()`.
+
+2. **Uniform buffer offsets**: the separate `Dictionary<IVeldridUniformBuffer, uint>` that tracked per-buffer offsets was eliminated. The offset is now stored inline as the second field of the `attachedUniformBuffers` value tuple — one fewer identity-hash lookup per UBO per draw call.
+
+#### Deferred rendering list pre-sizing
+
+`DeferredContext.RenderEvents` pre-sized to **4096** entries; `ResourceAllocator.resources` to **512** entries, `memoryBuffers` to **8**. Avoids `List<T>` capacity doubling during first-frame warmup (default capacity = 4, growing to hundreds of entries over the first frame).
+
+#### `ResourceStore<T>` — lock-free snapshot reads
+
+Every `Get()` / `GetStream()` call previously acquired a lock and called `stores.ToArray()` — allocating a fresh array on each resource lookup (texture loads, font glyph fetches, audio file opens). The stores list is now maintained as a `volatile IResourceStore<T>[]` snapshot that is atomically swapped only when `AddStore` / `RemoveStore` is called (rare, startup-only). Hot reads are lock-free.
+
+#### `Logger` — persistent file handle
+
+The log `StreamWriter` is now kept open for the lifetime of the logger. Previously the file handle was opened and closed on every 50 ms scheduler flush tick — adding two syscalls and a heap allocation per tick. The writer is lazily opened on first use, explicitly flushed after each batch, and disposed only on shutdown.
 
 #### Other hot-path wins
 

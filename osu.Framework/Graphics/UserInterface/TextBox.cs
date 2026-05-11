@@ -179,6 +179,13 @@ namespace osu.Framework.Graphics.UserInterface
         /// </remarks>
         private readonly Scheduler textInputScheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, null);
 
+        /// <summary>
+        /// Tracks the number of IME-specific tasks that have been queued in <see cref="textInputScheduler"/> but not yet executed.
+        /// Used by <see cref="FinalizeImeComposition"/> and <see cref="CancelImeComposition"/> to distinguish IME tasks
+        /// from regular text-input tasks, so non-IME text events don't trigger IME finalisation logic.
+        /// </summary>
+        private int pendingImeTaskCount;
+
         protected TextBox()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -588,11 +595,11 @@ namespace osu.Framework.Graphics.UserInterface
         protected void FinalizeImeComposition(bool userEvent)
         {
             // do nothing if there isn't an active composition.
-            // importantly, if there are pending tasks, we should finish those off regardless
+            // importantly, if there are pending IME tasks, we should finish those off regardless
             // and then call `onImeResult()`.
-            // the composition being inactive and having scheduled tasks shouldn't happen,
+            // the composition being inactive and having pending IME tasks shouldn't happen,
             // but the check is here to cover that improbable edge case.
-            if (!ImeCompositionActive && !textInputScheduler.HasPendingTasks)
+            if (!ImeCompositionActive && pendingImeTaskCount == 0)
                 return;
 
             textInputScheduler.Add(() => onImeResult(userEvent, false));
@@ -612,7 +619,7 @@ namespace osu.Framework.Graphics.UserInterface
         protected void CancelImeComposition()
         {
             // same rationale as above, in `FinalizeImeComposition()`
-            if (!ImeCompositionActive && !textInputScheduler.HasPendingTasks)
+            if (!ImeCompositionActive && pendingImeTaskCount == 0)
                 return;
 
             if (textInputBound)
@@ -1542,13 +1549,20 @@ namespace osu.Framework.Graphics.UserInterface
 
         private void handleImeComposition(string composition, int selectionStart, int selectionLength)
         {
-            textInputScheduler.Add(() => onImeComposition(composition, selectionStart, selectionLength, true));
+            pendingImeTaskCount++;
+            textInputScheduler.Add(() =>
+            {
+                pendingImeTaskCount--;
+                onImeComposition(composition, selectionStart, selectionLength, true);
+            });
         }
 
         private void handleImeResult(string result)
         {
+            pendingImeTaskCount++;
             textInputScheduler.Add(() =>
             {
+                pendingImeTaskCount--;
                 onImeComposition(result, result.Length, 0, false);
                 onImeResult(true, true);
             });

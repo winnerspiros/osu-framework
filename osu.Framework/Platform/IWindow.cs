@@ -96,6 +96,17 @@ namespace osu.Framework.Platform
         event Action? KeymapChanged;
 
         /// <summary>
+        /// Invoked when the operating system switches between light and dark colour schemes.
+        /// Query <see cref="CurrentSystemTheme"/> inside the handler for the new value.
+        /// </summary>
+        event Action<SystemTheme>? SystemThemeChanged;
+
+        /// <summary>
+        /// The colour scheme (light or dark) currently preferred by the operating system.
+        /// </summary>
+        SystemTheme CurrentSystemTheme { get; }
+
+        /// <summary>
         /// Invoked when the user drops a file into the window.
         /// </summary>
         event Action<string>? DragDrop;

@@ -27,6 +27,12 @@ namespace osu.Framework.Threading
             PreloadBass();
         }
 
+        // Audio needs the highest practical scheduling priority: even a few milliseconds of
+        // preemption causes audible glitches or stuttering in the BASS mixer callback.
+        // Highest is used instead of AboveNormal because the audio thread runs at a very
+        // controlled, low-CPU rate (UpdatePeriod = 5 ms) and will not starve other threads.
+        protected override ThreadPriority Priority => ThreadPriority.Highest;
+
         public override bool IsCurrent => ThreadSafety.IsAudioThread;
 
         internal sealed override void MakeCurrent()

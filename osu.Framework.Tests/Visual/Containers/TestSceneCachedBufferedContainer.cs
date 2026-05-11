@@ -1,6 +1,7 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Collections.Generic;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -83,7 +84,8 @@ namespace osu.Framework.Tests.Visual.Containers
             AddAssert("box 5 count is less than box 6 count", () => boxes[5].Count < boxes[6].Count);
 
             // ensure we don't break on colour invalidations (due to blanket invalidation logic in Drawable.Invalidate).
-            AddAssert("box 7 count equals box 8 count", () => boxes[7].Count == boxes[8].Count);
+            // In multi-threaded mode, update and draw threads are desynchronised so a 1-frame discrepancy is acceptable.
+            AddAssert("box 7 count approximately equals box 8 count", () => Math.Abs(boxes[7].Count - boxes[8].Count) <= 1);
 
             AddAssert("box 10 count is 1", () => boxes[10].Count == 1);
         }

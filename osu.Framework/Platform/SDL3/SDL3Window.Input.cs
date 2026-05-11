@@ -207,6 +207,13 @@ namespace osu.Framework.Platform.SDL3
             else
                 SDL_ClearProperty(props, SDL_PROP_TEXTINPUT_AUTOCORRECT_BOOLEAN).LogErrorIfFailed();
 
+            SDL_SetBooleanProperty(props, SDL_PROP_TEXTINPUT_MULTILINE_BOOLEAN, properties.IsMultiline).LogErrorIfFailed();
+
+            if (properties.MaxLength.HasValue)
+                SDL_SetNumberProperty(props, "SDL.textinput.max_length", properties.MaxLength.Value).LogErrorIfFailed();
+            else
+                SDL_ClearProperty(props, "SDL.textinput.max_length").LogErrorIfFailed();
+
             SDL_StartTextInputWithProperties(SDLWindowHandle, props).LogErrorIfFailed();
         });
 
@@ -228,9 +235,11 @@ namespace osu.Framework.Platform.SDL3
 
         public void SetTextInputRect(RectangleF rect) => ScheduleCommand(() =>
         {
-            // TODO: SDL3 allows apps to set cursor position through the third parameter of SDL_SetTextInputArea.
             var sdlRect = ((RectangleI)(rect / Scale)).ToSDLRect();
-            SDL_SetTextInputArea(SDLWindowHandle, &sdlRect, 0).LogErrorIfFailed();
+            // cursor_offset is the offset of the current cursor from rect.X in window coordinates.
+            // The composition rect spans from the start to the end of the composing text; the cursor
+            // is at the right edge of that span, so the offset equals the rect's width.
+            SDL_SetTextInputArea(SDLWindowHandle, &sdlRect, sdlRect.w).LogErrorIfFailed();
         });
 
         #region SDL Event Handling

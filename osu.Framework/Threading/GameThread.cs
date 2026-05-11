@@ -29,6 +29,15 @@ namespace osu.Framework.Threading
         public readonly string Name;
 
         /// <summary>
+        /// The OS thread priority for this game thread.
+        /// Applied when the underlying <see cref="Thread"/> is created.
+        /// Defaults to <see cref="ThreadPriority.Normal"/>; performance-critical threads
+        /// (audio, draw, update) override this to <see cref="ThreadPriority.AboveNormal"/>
+        /// to reduce scheduling jitter and latency.
+        /// </summary>
+        protected virtual ThreadPriority Priority => ThreadPriority.Normal;
+
+        /// <summary>
         /// Whether the game is active (in the foreground).
         /// </summary>
         public readonly IBindable<bool> IsActive = new Bindable<bool>(true);
@@ -407,6 +416,7 @@ namespace osu.Framework.Threading
             {
                 Name = SuffixedThreadNameFor(Name),
                 IsBackground = true,
+                Priority = Priority,
             };
 
             void runWork()

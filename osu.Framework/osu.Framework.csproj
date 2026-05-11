@@ -41,11 +41,11 @@
          (which would otherwise reference a non-existent ppy.Veldrid version produced by Nerdbank.GitVersioning, e.g. 4.9.111).
          The compiled assemblies are instead bundled directly into the package via the IncludeVeldridForkAssemblies target below. -->
     <ProjectReference Include="..\submodules\veldrid\src\Veldrid\Veldrid.csproj" PrivateAssets="all" />
-    <!-- Build winnerspiros/veldrid-spirv (commit b268bf39ea — the same commit ppy.Veldrid.SPIRV NuGet 1.0.15-gb268bf39ea was built from)
-         from source so the resulting Veldrid.SPIRV.dll is linked against our source-built ppy.Veldrid 4.9.111 (not the NuGet's
-         4.9.0.0, which would cause a runtime FileNotFoundException at first shader compile). The submodule's csproj ships a stale
-         PackageReference to ppy.Veldrid 4.9.69-ga405fe8484 which is overridden in submodules/Directory.Build.targets to a sibling
-         ProjectReference to the local Veldrid fork. PrivateAssets="all" + bundling pattern matches Veldrid above. -->
+    <!-- Build winnerspiros/veldrid-spirv (commit b268bf39ea) from source so the resulting Veldrid.SPIRV.dll is linked against
+         our source-built ppy.Veldrid 4.9.111 (not the NuGet's 4.9.0.0, which would cause a runtime FileNotFoundException at
+         first shader compile). The submodule's csproj ships a stale PackageReference to ppy.Veldrid 4.9.69-ga405fe8484 which is
+         overridden in submodules/Directory.Build.targets to a sibling ProjectReference to the local Veldrid fork.
+         PrivateAssets="all" + bundling pattern matches Veldrid above. -->
     <ProjectReference Include="..\submodules\veldrid-spirv\src\Veldrid.SPIRV\Veldrid.SPIRV.csproj" PrivateAssets="all" />
     <!-- Re-declare the Veldrid fork's runtime PackageReferences here so they are recorded in the produced nuspec
          and restored by consumers. PrivateAssets="all" on the ProjectReference above suppresses these transitively. -->
@@ -60,8 +60,12 @@
          ProjectReference and triggers a runtime FileNotFoundException for ppy.Veldrid 4.9.0.0).
          No PrivateAssets here — natives must flow transitively to downstream test/game projects.
          The PackageId of the SPIRV submodule is renamed in submodules/Directory.Build.targets so this
-         package isn't shadowed during NuGet restore. -->
-    <PackageReference Include="ppy.Veldrid.SPIRV" Version="1.0.15-gb268bf39ea" IncludeAssets="native" />
+         package isn't shadowed during NuGet restore.
+         Local package in nuget-local/ (built from winnerspiros/veldrid-spirv submodule at gb268bf39e)
+         takes precedence via nuget.config. Android native libs rebuilt with -Wl,-z,max-page-size=16384
+         for Android 16 / 16KB page size compatibility (fixes XA0141). Update by running
+         .github/workflows/build-veldrid-spirv.yml dispatch job. -->
+    <PackageReference Include="ppy.Veldrid.SPIRV" Version="1.0.15-gb268bf39e" IncludeAssets="native" />
     <PackageReference Include="SharpFNT" Version="2.0.0" />
     <!-- Preview version of ImageSharp causes NU5104. -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
@@ -72,7 +76,9 @@
     <PackageReference Include="ppy.osuTK.NS20" Version="1.0.211" />
     <PackageReference Include="StbiSharp" Version="1.2.1" />
     <PackageReference Include="ppy.SDL2-CS" Version="1.0.741-alpha" />
-    <PackageReference Include="ppy.SDL3-CS" Version="2026.320.0" />
+    <!-- Updated to SDL 3.5.0-main (linux-x64 rebuilt from commit f6a1eb9ba96e; bindings extended with new text input props).
+         Local package in nuget-local/ takes precedence via nuget.config. -->
+    <PackageReference Include="ppy.SDL3-CS" Version="2026.511.0" />
     <PackageReference Include="ppy.osu.Framework.SourceGeneration" Version="2025.1121.1" />
 
     <!-- DO NOT use ProjectReference for native packaging project.

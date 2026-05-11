@@ -691,7 +691,7 @@ namespace osu.Framework.Bindables
         string IFormattable.ToString(string format, IFormatProvider formatProvider) => ((FormattableString)$"{GetType().ReadableName()}({nameof(Count)}={Count})").ToString(formatProvider);
 
         [ThreadStatic]
-        private static HashSet<BindableList<T>>? recursionList;
+        private static HashSet<BindableList<T>> recursionList;
 
         private static HashSet<BindableList<T>> getRecursionList()
         {

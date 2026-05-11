@@ -18,7 +18,7 @@ namespace osu.Framework.Graphics.Rendering.Deferred
         public GraphicsPipeline Graphics
             => Renderer.Graphics;
 
-        public readonly List<RenderEvent> RenderEvents = new List<RenderEvent>();
+        public readonly List<RenderEvent> RenderEvents = new List<RenderEvent>(4096);
 
         public readonly DeferredRenderer Renderer;
         public readonly ResourceAllocator Allocator;

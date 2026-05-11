@@ -21,9 +21,17 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
         private static readonly GlobalStatistic<int> stat_graphics_pipeline_created = GlobalStatistics.Get<int>(nameof(VeldridRenderer), "Total pipelines created");
 
         private readonly Dictionary<GraphicsPipelineDescription, Pipeline> pipelineCache = new Dictionary<GraphicsPipelineDescription, Pipeline>();
-        private readonly Dictionary<int, VeldridTextureResources> attachedTextures = new Dictionary<int, VeldridTextureResources>();
-        private readonly Dictionary<string, IVeldridUniformBuffer> attachedUniformBuffers = new Dictionary<string, IVeldridUniformBuffer>();
-        private readonly Dictionary<IVeldridUniformBuffer, uint> uniformBufferOffsets = new Dictionary<IVeldridUniformBuffer, uint>();
+
+        // Fixed-size array indexed by texture unit (max 16 units, matching Renderer.lastBoundTexture).
+        // Avoids per-draw Dictionary hashing for what is typically 1–4 active texture units.
+        private const int max_texture_units = 16;
+        private readonly VeldridTextureResources?[] attachedTextures = new VeldridTextureResources?[max_texture_units];
+        private int maxAttachedTextureUnit = -1; // highest occupied slot, keeps iteration O(used) not O(16)
+
+        // UBO name → (buffer, offset-in-bytes). Merging offset into the same dict value removes
+        // the separate uniformBufferOffsets dictionary and its per-draw lookup.
+        private readonly Dictionary<string, (IVeldridUniformBuffer Buffer, uint Offset)> attachedUniformBuffers
+            = new Dictionary<string, (IVeldridUniformBuffer, uint)>();
 
         // Scratch lists reused each draw call to avoid repeated layout dictionary lookups.
         private readonly List<(uint Set, VeldridTextureResources Resource, ResourceLayout Layout)> pendingTextureBindings = new List<(uint, VeldridTextureResources, ResourceLayout)>();
@@ -52,9 +60,9 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
         {
             base.Begin();
 
-            attachedTextures.Clear();
+            Array.Clear(attachedTextures);
+            maxAttachedTextureUnit = -1;
             attachedUniformBuffers.Clear();
-            uniformBufferOffsets.Clear();
             currentFrameBuffer = null;
             currentShader = null;
             currentIndexBuffer = null;
@@ -211,7 +219,14 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             var resources = texture.GetResourceList();
 
             for (int i = 0; i < resources.Count; i++)
-                attachedTextures[unit++] = resources[i];
+            {
+                attachedTextures[unit] = resources[i];
+
+                if (unit > maxAttachedTextureUnit)
+                    maxAttachedTextureUnit = unit;
+
+                unit++;
+            }
         }
 
         /// <summary>
@@ -220,15 +235,26 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
         /// <param name="name">The uniform block name.</param>
         /// <param name="buffer">The uniform buffer.</param>
         public void AttachUniformBuffer(string name, IVeldridUniformBuffer buffer)
-            => attachedUniformBuffers[name] = buffer;
+            => attachedUniformBuffers[name] = (buffer, 0);
 
         /// <summary>
-        /// Sets the offset of a uniform buffer.
+        /// Sets the offset of a uniform buffer that was previously attached via <see cref="AttachUniformBuffer"/>.
         /// </summary>
-        /// <param name="buffer">The uniform buffer.</param>
-        /// <param name="bufferOffsetInBytes">The offset in the uniform buffer.</param>
+        /// <param name="buffer">The uniform buffer whose offset should be updated.</param>
+        /// <param name="bufferOffsetInBytes">The new offset in bytes.</param>
         public void SetUniformBufferOffset(IVeldridUniformBuffer buffer, uint bufferOffsetInBytes)
-            => uniformBufferOffsets[buffer] = bufferOffsetInBytes;
+        {
+            // Linear scan is intentional: there are typically 2–4 uniform buffers per shader,
+            // so this is faster than an additional Dictionary<IVeldridUniformBuffer, string> lookup.
+            foreach (var (name, entry) in attachedUniformBuffers)
+            {
+                if (ReferenceEquals(entry.Buffer, buffer))
+                {
+                    attachedUniformBuffers[name] = (buffer, bufferOffsetInBytes);
+                    return;
+                }
+            }
+        }
 
         /// <summary>
         /// Draws vertices from the active vertex buffer.
@@ -263,8 +289,15 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             // in scratch lists so the binding phase below needs no additional dictionary lookups.
             pendingTextureBindings.Clear();
 
-            foreach (var (unit, resource) in attachedTextures)
+            // Iterate only up to the highest occupied unit — avoids touching all 16 slots when
+            // only 1–4 are actually bound (which is the common case).
+            for (int unit = 0; unit <= maxAttachedTextureUnit; unit++)
             {
+                var resource = attachedTextures[unit];
+
+                if (resource == null)
+                    continue;
+
                 var layout = currentShader.GetTextureLayout(unit);
 
                 if (layout == null)
@@ -276,7 +309,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
 
             pendingUniformBindings.Clear();
 
-            foreach (var (name, buffer) in attachedUniformBuffers)
+            foreach (var (name, (buffer, offset)) in attachedUniformBuffers)
             {
                 var layout = currentShader.GetUniformBufferLayout(name);
 
@@ -284,7 +317,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
                     continue;
 
                 pipelineDesc.ResourceLayouts[layout.Set] = layout.Layout;
-                pendingUniformBindings.Add(((uint)layout.Set, buffer, layout.Layout, uniformBufferOffsets.GetValueOrDefault(buffer)));
+                pendingUniformBindings.Add(((uint)layout.Set, buffer, layout.Layout, offset));
             }
 
             // Activate the pipeline.

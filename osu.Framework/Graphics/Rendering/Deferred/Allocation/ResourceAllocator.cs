@@ -19,8 +19,8 @@ namespace osu.Framework.Graphics.Rendering.Deferred.Allocation
     {
         private const int min_buffer_size = 2 * 1024 * 1024; // 2MB per buffer.
 
-        private readonly List<object?> resources = new List<object?>();
-        private readonly List<MemoryBuffer> memoryBuffers = new List<MemoryBuffer>();
+        private readonly List<object?> resources = new List<object?>(512);
+        private readonly List<MemoryBuffer> memoryBuffers = new List<MemoryBuffer>(8);
 
         /// <summary>
         /// Prepares this <see cref="ResourceAllocator"/> for a new frame.

@@ -70,6 +70,7 @@ jobs:
 
   pack-framework:
     name: Pack (Framework)
+    needs: publish-sdl3-cs
     runs-on: windows-latest
     environment: production
     defaults:
@@ -78,6 +79,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Set artifacts directory
         id: artifactsPath
@@ -136,6 +140,7 @@ jobs:
 
   pack-android:
     name: Pack (Android)
+    needs: publish-sdl3-cs
     runs-on: windows-latest
     environment: production
     defaults:
@@ -144,6 +149,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Set artifacts directory
         id: artifactsPath
@@ -177,6 +185,7 @@ jobs:
 
   pack-ios:
     name: Pack (iOS)
+    needs: publish-sdl3-cs
     runs-on: macos-26
     environment: production
     defaults:
@@ -185,6 +194,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Set artifacts directory
         id: artifactsPath

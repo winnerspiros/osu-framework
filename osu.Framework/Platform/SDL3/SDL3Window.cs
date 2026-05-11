@@ -176,6 +176,9 @@ namespace osu.Framework.Platform.SDL3
             // request real-time scheduling for SDL threads (audio/timer) where the OS permits it;
             // SDL will fall back silently if the process lacks the necessary privilege
             SDL_SetHint(SDL_HINT_THREAD_FORCE_REALTIME_TIME_CRITICAL, "1"u8).LogErrorIfFailed();
+            // request high-frequency enhanced gamepad/joystick reports (gyro, accelerometer, battery, etc.)
+            // introduced in SDL 3.5 main; allows gamepads to report at their native polling rate
+            SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1"u8).LogErrorIfFailed();
 
             if (!SDL_Init(SDL_InitFlags.SDL_INIT_VIDEO | SDL_InitFlags.SDL_INIT_GAMEPAD))
             {

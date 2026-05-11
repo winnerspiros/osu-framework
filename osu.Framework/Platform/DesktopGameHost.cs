@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using osu.Framework.Configuration;
 using osu.Framework.Extensions;
 using osu.Framework.Logging;
+using static SDL.SDL3;
 
 namespace osu.Framework.Platform
 {
@@ -80,13 +81,21 @@ namespace osu.Framework.Platform
             if (!url.CheckIsValidUrl())
                 throw new ArgumentException("The provided URL must be one of either http://, https:// or mailto: protocols.", nameof(url));
 
-            try
+            // SDL_OpenURL is preferred over Process.Start because it correctly handles
+            // Wayland (via xdg-open / desktop portals) and avoids xdg-open failures
+            // that Process.Start silently swallows on some Linux desktop environments.
+            if (!SDL_OpenURL(url))
             {
-                openUsingShellExecute(url);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Unable to open external link.");
+                Logger.Log($"SDL_OpenURL failed ({SDL_GetError()}); retrying with shell execute.", LoggingTarget.Runtime, LogLevel.Debug);
+
+                try
+                {
+                    openUsingShellExecute(url);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "Unable to open external link.");
+                }
             }
         }
 

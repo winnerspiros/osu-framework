@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using osu.Framework.Development;
 using osu.Framework.Platform;
 using osu.Framework.Statistics;
@@ -18,6 +19,9 @@ namespace osu.Framework.Threading
         {
             this.drawThread = drawThread;
         }
+
+        // Raise above Normal to reduce scheduling jitter between update and draw cycles.
+        protected override ThreadPriority Priority => ThreadPriority.AboveNormal;
 
         protected sealed override void OnInitialize()
         {

@@ -20,6 +20,12 @@ namespace osu.Framework.IO.Stores
         private readonly List<IResourceStore<T>> stores = new List<IResourceStore<T>>();
         private readonly Lock storesLock = new Lock();
 
+        // Cached snapshot of `stores` — rebuilt only when the list changes.
+        // Read without a lock: volatile ensures visibility; the array reference itself
+        // is atomically swapped, so readers always see a consistent snapshot.
+        // This eliminates a heap allocation on every Get / GetStream call.
+        private volatile IResourceStore<T>[] storesSnapshot = [];
+
         private readonly List<string> searchExtensions = new List<string>();
 
         /// <summary>
@@ -68,7 +74,10 @@ namespace osu.Framework.IO.Stores
         public virtual void AddStore(IResourceStore<T> store)
         {
             lock (storesLock)
+            {
                 stores.Add(store);
+                storesSnapshot = stores.ToArray();
+            }
         }
 
         /// <summary>
@@ -78,7 +87,10 @@ namespace osu.Framework.IO.Stores
         public virtual void RemoveStore(IResourceStore<T> store)
         {
             lock (storesLock)
+            {
                 stores.Remove(store);
+                storesSnapshot = stores.ToArray();
+            }
         }
 
         public virtual async Task<T> GetAsync(string name, CancellationToken cancellationToken = default)
@@ -183,13 +195,10 @@ namespace osu.Framework.IO.Stores
 
         public virtual IEnumerable<string> GetAvailableResources()
         {
-            lock (storesLock) return stores.SelectMany(s => s.GetAvailableResources()).ExcludeSystemFileNames();
+            return storesSnapshot.SelectMany(s => s.GetAvailableResources()).ExcludeSystemFileNames();
         }
 
-        private IResourceStore<T>[] getStores()
-        {
-            lock (storesLock) return stores.ToArray();
-        }
+        private IResourceStore<T>[] getStores() => storesSnapshot;
 
         #region IDisposable Support
 
@@ -206,7 +215,12 @@ namespace osu.Framework.IO.Stores
             if (!isDisposed)
             {
                 isDisposed = true;
-                lock (storesLock) stores.ForEach(s => s.Dispose());
+
+                lock (storesLock)
+                {
+                    stores.ForEach(s => s.Dispose());
+                    storesSnapshot = [];
+                }
             }
         }
 

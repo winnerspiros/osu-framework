@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using osu.Framework.Development;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
@@ -20,6 +21,10 @@ namespace osu.Framework.Threading
         {
             this.host = host;
         }
+
+        // Raise above Normal so the render loop is scheduled promptly after the update thread
+        // and is not preempted by lower-priority background work.
+        protected override ThreadPriority Priority => ThreadPriority.AboveNormal;
 
         public override bool IsCurrent => ThreadSafety.IsDrawThread;
 

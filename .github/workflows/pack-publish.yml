@@ -40,7 +40,10 @@ jobs:
 
       - name: Publish SDL3-CS to GitHub Packages
         run: |
-          PKG=$(ls nuget-local/ppy.SDL3-CS.*.nupkg | sort -V | tail -1)
+          PKG=$(ls nuget-local/ppy.SDL3-CS.*.nupkg 2>/dev/null | sort -V | tail -1)
+          if [ -z "$PKG" ]; then
+            echo "No ppy.SDL3-CS nupkg found in nuget-local/ — skipping." && exit 0
+          fi
           dotnet nuget push "$PKG" \
             --api-key ${{ secrets.GITHUB_TOKEN }} \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \

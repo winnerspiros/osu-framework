@@ -238,7 +238,12 @@ namespace osu.Framework.Platform.SDL3
                     if (!SDL_GL_SetSwapInterval(-1))
                     {
                         Logger.Log("Adaptive VSync (-1) not supported; falling back to standard VSync.", LoggingTarget.Runtime, LogLevel.Debug);
-                        SDL_GL_SetSwapInterval(1).LogErrorIfFailed();
+
+                        if (!SDL_GL_SetSwapInterval(1))
+                        {
+                            Logger.Log($"Standard VSync (1) also failed: {SDL_GetError()}", LoggingTarget.Runtime, LogLevel.Important);
+                            return; // leave verticalSync cache unchanged so callers know the state
+                        }
                     }
                 }
                 else

@@ -16,7 +16,12 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\osu.Framework\osu.Framework.csproj" />
-    <ProjectReference Include="..\SDL3-CS.Android.Binding\SDL3-CS.Android.Binding.csproj" />
+    <!-- SDL3-CS.Android.Binding is intentionally NOT referenced here.
+         The vendored ppy.SDL3-CS NuGet package (nuget-local/) already ships
+         SDL3-CS.dll for net10.0-android (and net8.0-android34.0) which provides
+         SDLActivity / SDLSurface / all Java-binding types, plus the SDL3-CS.aar
+         embedded Java library. Adding a ProjectReference to SDL3-CS.Android.Binding
+         would produce a CS0433 "type exists in two assemblies" build error. -->
     <!-- Direct reference needed because osu.Framework uses PrivateAssets="all" on its ManagedBass
          ProjectReference, which prevents the assembly from flowing transitively to this project.
          PrivateAssets="all" suppresses emitting a NuGet dependency entry that would reference a

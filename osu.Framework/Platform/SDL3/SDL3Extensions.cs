@@ -1242,5 +1242,13 @@ namespace osu.Framework.Platform.SDL3
 
             return returnValue;
         }
+
+        /// <summary>Converts an <see cref="SDL_SystemTheme"/> value to the framework's <see cref="SystemTheme"/>.</summary>
+        public static SystemTheme ToFrameworkTheme(this SDL_SystemTheme theme) => theme switch
+        {
+            SDL_SystemTheme.SDL_SYSTEM_THEME_LIGHT => SystemTheme.Light,
+            SDL_SystemTheme.SDL_SYSTEM_THEME_DARK => SystemTheme.Dark,
+            _ => SystemTheme.Unknown,
+        };
     }
 }

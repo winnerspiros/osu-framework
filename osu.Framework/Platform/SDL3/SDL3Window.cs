@@ -173,6 +173,9 @@ namespace osu.Framework.Platform.SDL3
             SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1"u8).LogErrorIfFailed();
             // requests the Android AAudio/OpenSL ES fast-mixer path — reduces audio latency 20-60 ms
             SDL_SetHint(SDL_HINT_ANDROID_LOW_LATENCY_AUDIO, "1"u8).LogErrorIfFailed();
+            // request real-time scheduling for SDL threads (audio/timer) where the OS permits it;
+            // SDL will fall back silently if the process lacks the necessary privilege
+            SDL_SetHint(SDL_HINT_THREAD_FORCE_REALTIME_TIME_CRITICAL, "1"u8).LogErrorIfFailed();
 
             if (!SDL_Init(SDL_InitFlags.SDL_INIT_VIDEO | SDL_InitFlags.SDL_INIT_GAMEPAD))
             {
@@ -186,6 +189,9 @@ namespace osu.Framework.Platform.SDL3
                           SDL3 Video driver: {SDL_GetCurrentVideoDriver()}");
 
             IsWayland = SDL_GetCurrentVideoDriver() == "wayland";
+
+            // Read the initial system theme so CurrentSystemTheme is correct before the first event arrives.
+            CurrentSystemTheme = SDL_GetSystemTheme().ToFrameworkTheme();
 
             SDL_SetLogOutputFunction(&logOutput, IntPtr.Zero);
             SDL_SetEventFilter(&eventFilter, ObjectHandle.Handle);
@@ -642,11 +648,26 @@ namespace osu.Framework.Platform.SDL3
                 case SDL_EventType.SDL_EVENT_PEN_MOTION:
                     handlePenMotionEvent(e.pmotion);
                     break;
+
+                case SDL_EventType.SDL_EVENT_SYSTEM_THEME_CHANGED:
+                    handleSystemThemeChangedEvent();
+                    break;
+
+                case SDL_EventType.SDL_EVENT_LOCALE_CHANGED:
+                    Logger.Log("SDL locale changed.");
+                    break;
             }
         }
 
         // ReSharper disable once UnusedParameter.Local
         private void handleQuitEvent(SDL_QuitEvent evtQuit) => ExitRequested?.Invoke();
+
+        private void handleSystemThemeChangedEvent()
+        {
+            var theme = SDL_GetSystemTheme().ToFrameworkTheme();
+            CurrentSystemTheme = theme;
+            ScheduleEvent(() => SystemThemeChanged?.Invoke(theme));
+        }
 
         #endregion
 
@@ -717,6 +738,12 @@ namespace osu.Framework.Platform.SDL3
         /// Invoked when the user drops a file into the window.
         /// </summary>
         public event Action<string>? DragDrop;
+
+        /// <inheritdoc cref="IWindow.SystemThemeChanged"/>
+        public event Action<SystemTheme>? SystemThemeChanged;
+
+        /// <inheritdoc cref="IWindow.CurrentSystemTheme"/>
+        public SystemTheme CurrentSystemTheme { get; private set; }
 
         protected void TriggerDragDrop(string filename) => DragDrop?.Invoke(filename);
 

@@ -1,9 +1,15 @@
 name: Build SDL3 Native Libraries
 # Rebuilds libSDL3 for every supported platform from SDL3 main and repacks
 # the ppy.SDL3-CS NuGet in nuget-local/ with the updated binaries.
-# Run manually after upstream SDL lands important fixes or new features.
+# Runs automatically every Monday and can also be triggered manually.
 on:
   workflow_dispatch:
+  schedule:
+    # Every Monday at 03:00 UTC — picks up the latest SDL3 main commits
+    - cron: '0 3 * * 1'
+
+permissions:
+  contents: write  # needed to commit the updated nupkg back to the repo
 
 env:
   SDL_BUILD_TYPE: Release

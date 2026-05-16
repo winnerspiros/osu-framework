@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Audio;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Textures;
-using osuTK;
+using System.Numerics;
 
 namespace FlappyDon.Game.Elements
 {

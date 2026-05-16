@@ -196,22 +196,20 @@ namespace osu.Framework.Platform.SDL3
             }
         } = true;
 
-        private Size size = new Size(default_width, default_height);
-
         /// <summary>
         /// Returns or sets the window's internal size, before scaling.
         /// </summary>
         public virtual Size Size
         {
-            get => size;
+            get => field;
             protected set
             {
-                if (value.Equals(size)) return;
+                if (value.Equals(field)) return;
 
-                size = value;
+                field = value;
                 Resized?.Invoke();
             }
-        }
+        } = new Size(default_width, default_height);
 
         public Size MinSize
         {

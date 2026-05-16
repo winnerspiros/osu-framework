@@ -81,14 +81,12 @@ namespace osu.Framework.Platform.SDL3
             set => CursorStateBindable.Value = value;
         }
 
-        private RectangleF? cursorConfineRect;
-
         public RectangleF? CursorConfineRect
         {
-            get => cursorConfineRect;
+            get => field;
             set
             {
-                cursorConfineRect = value;
+                field = value;
                 updateCursorConfinement();
             }
         }

@@ -1167,7 +1167,7 @@ namespace osu.Framework.Platform
 
         private void populateInputHandlers()
         {
-            AvailableInputHandlers = CreateAvailableInputHandlers().ToImmutableArray();
+            AvailableInputHandlers = [.. CreateAvailableInputHandlers()];
         }
 
         private void initialiseInputHandlers()

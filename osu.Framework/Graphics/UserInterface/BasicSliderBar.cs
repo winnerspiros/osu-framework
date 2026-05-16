@@ -23,17 +23,15 @@ namespace osu.Framework.Graphics.UserInterface
             set => SelectionBox.Colour = value;
         }
 
-        private Color4 focusColour = FrameworkColour.YellowGreen;
-
         public Color4 FocusColour
         {
-            get => focusColour;
+            get => field;
             set
             {
-                focusColour = value;
+                field = value;
                 updateFocus();
             }
-        }
+        } = FrameworkColour.YellowGreen;
 
         protected readonly Box SelectionBox;
         protected readonly Box Box;

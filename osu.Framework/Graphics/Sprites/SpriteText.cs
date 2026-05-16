@@ -180,24 +180,22 @@ namespace osu.Framework.Graphics.Sprites
             }
         }
 
-        private Color4 shadowColour = new Color4(0, 0, 0, 0.2f);
-
         /// <summary>
         /// The colour of the shadow displayed around the text. A shadow will only be displayed if the <see cref="Shadow"/> property is set to true.
         /// </summary>
         public Color4 ShadowColour
         {
-            get => shadowColour;
+            get => field;
             set
             {
-                if (shadowColour == value)
+                if (field == value)
                     return;
 
-                shadowColour = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
-        }
+        } = new Color4(0, 0, 0, 0.2f);
 
         private Vector2 shadowOffset = new Vector2(0, 0.06f);
 
@@ -371,41 +369,37 @@ namespace osu.Framework.Graphics.Sprites
             }
         }
 
-        private Vector2 spacing;
-
         /// <summary>
         /// Gets or sets the spacing between characters of this <see cref="SpriteText"/>.
         /// </summary>
         public Vector2 Spacing
         {
-            get => spacing;
+            get => field;
             set
             {
-                if (spacing == value)
+                if (field == value)
                     return;
 
-                spacing = value;
+                field = value;
 
                 invalidate(true, true);
             }
         }
-
-        private MarginPadding padding;
 
         /// <summary>
         /// Shrinks the space which may be occupied by characters of this <see cref="SpriteText"/> by the specified amount on each side.
         /// </summary>
         public MarginPadding Padding
         {
-            get => padding;
+            get => field;
             set
             {
-                if (padding.Equals(value))
+                if (field.Equals(value))
                     return;
 
                 if (!Validation.IsFinite(value)) throw new ArgumentException($@"{nameof(Padding)} must be finite, but is {value}.");
 
-                padding = value;
+                field = value;
 
                 invalidate(true, true);
             }

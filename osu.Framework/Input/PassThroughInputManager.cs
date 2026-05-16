@@ -28,24 +28,22 @@ namespace osu.Framework.Input
     /// </remarks>
     public partial class PassThroughInputManager : CustomInputManager, IRequireHighFrequencyMousePosition
     {
-        private bool useParentInput = true;
-
         /// <summary>
         /// If there's an InputManager above us, decide whether we should use their available state.
         /// </summary>
         public virtual bool UseParentInput
         {
-            get => useParentInput;
+            get => field;
             set
             {
-                if (useParentInput == value) return;
+                if (field == value) return;
 
-                useParentInput = value;
+                field = value;
 
                 if (UseParentInput)
                     syncWithParent();
             }
-        }
+        } = true;
 
         private InputManager? parentInputManager;
 

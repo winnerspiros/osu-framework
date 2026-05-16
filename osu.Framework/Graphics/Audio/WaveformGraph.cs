@@ -17,7 +17,6 @@ using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using osu.Framework.Utils;
-using osuTK;
 using osuTK.Graphics;
 using Vector2 = System.Numerics.Vector2;
 

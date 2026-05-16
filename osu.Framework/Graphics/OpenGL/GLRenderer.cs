@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using osu.Framework.Extensions;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Graphics.OpenGL.Batches;
 using osu.Framework.Graphics.OpenGL.Buffers;

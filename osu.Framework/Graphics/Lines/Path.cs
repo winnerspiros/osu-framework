@@ -206,9 +206,13 @@ namespace osu.Framework.Graphics.Lines
             var localPos = ToLocalSpace(screenSpacePos);
             float pathRadiusSquared = PathRadius * PathRadius;
 
-            foreach (var t in segments)
+            // Calling segments ensures both segmentsBacking and segmentAABBsBacking are populated.
+            var segs = segments;
+            var bounds = segmentAABBsBacking;
+
+            for (int i = 0; i < segs.Count; i++)
             {
-                if (t.DistanceSquaredToPoint(localPos) <= pathRadiusSquared)
+                if (bounds[i].Contains(localPos) && segs[i].DistanceSquaredToPoint(localPos) <= pathRadiusSquared)
                     return true;
             }
 
@@ -251,18 +255,31 @@ namespace osu.Framework.Graphics.Lines
         }
 
         private readonly List<Line> segmentsBacking = new List<Line>();
+        private readonly List<RectangleF> segmentAABBsBacking = new List<RectangleF>();
         private readonly Cached segmentsCache = new Cached();
         private List<Line> segments => segmentsCache.IsValid ? segmentsBacking : generateSegments();
 
         private List<Line> generateSegments()
         {
             segmentsBacking.Clear();
+            segmentAABBsBacking.Clear();
 
             if (vertices.Count > 1)
             {
                 Vector2 offset = vertexBounds.TopLeft;
+                float r = PathRadius;
+
                 for (int i = 0; i < vertices.Count - 1; ++i)
-                    segmentsBacking.Add(new Line(vertices[i] - offset, vertices[i + 1] - offset));
+                {
+                    var line = new Line(vertices[i] - offset, vertices[i + 1] - offset);
+                    segmentsBacking.Add(line);
+
+                    float minX = Math.Min(line.StartPoint.X, line.EndPoint.X) - r;
+                    float minY = Math.Min(line.StartPoint.Y, line.EndPoint.Y) - r;
+                    float maxX = Math.Max(line.StartPoint.X, line.EndPoint.X) + r;
+                    float maxY = Math.Max(line.StartPoint.Y, line.EndPoint.Y) + r;
+                    segmentAABBsBacking.Add(new RectangleF(minX, minY, maxX - minX, maxY - minY));
+                }
             }
 
             segmentsCache.Validate();

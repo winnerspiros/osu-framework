@@ -30,7 +30,7 @@ namespace osu.Framework.Graphics.UserInterface
                 if (HasFocus)
                     background.Colour = value;
             }
-        } = new Color4(100, 100, 100, 255);
+        }
 
         protected Color4 BackgroundUnfocused
         {

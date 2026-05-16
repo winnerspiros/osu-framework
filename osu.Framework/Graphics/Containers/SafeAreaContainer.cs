@@ -9,7 +9,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Layout;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Containers
 {

@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Input;
 using osu.Framework.Platform;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.UserInterface
 {

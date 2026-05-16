@@ -15,7 +15,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Veldrid;
 using osu.Framework.Testing;
 using osu.Framework.Utils;
-using osuTK;
+using System.Numerics;
 using osuTK.Graphics;
 using osuTK.Graphics.ES30;
 

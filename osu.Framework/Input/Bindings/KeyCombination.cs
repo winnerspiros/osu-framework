@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using osu.Framework.Extensions;
 using osu.Framework.Input.States;
-using osuTK;
+using System.Numerics;
 using osuTK.Input;
 
 namespace osu.Framework.Input.Bindings

@@ -1,9 +1,9 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
 using System.Collections.Generic;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Input
 {
@@ -68,11 +68,11 @@ namespace osu.Framework.Input
             }
 
             Vector2 diff = position - lastRelevantPosition.Value;
-            float distance = diff.Length;
+            float distance = diff.Length();
             Vector2 direction = diff / distance;
 
             Vector2 realDiff = position - lastActualPosition.Value;
-            float realMovementDistance = realDiff.Length;
+            float realMovementDistance = realDiff.Length();
             if (realMovementDistance < 1)
                 return returnedPositions;
 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using osu.Framework.Extensions;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Graphics.OpenGL.Batches;
 using osu.Framework.Graphics.OpenGL.Buffers;
@@ -19,6 +20,9 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Statistics;
 using osuTK;
+using Vector2 = System.Numerics.Vector2;
+using Vector3 = System.Numerics.Vector3;
+using Vector4 = System.Numerics.Vector4;
 using osuTK.Graphics;
 using osuTK.Graphics.ES30;
 using SixLabors.ImageSharp;
@@ -167,15 +171,18 @@ namespace osu.Framework.Graphics.OpenGL
                     break;
 
                 case IUniformWithValue<Vector2> v2:
-                    GL.Uniform2(uniform.Location, ref v2.GetValueByRef());
+                    osuTK.Vector2 v2tk = v2.GetValue().ToOsuTK();
+                    GL.Uniform2(uniform.Location, ref v2tk);
                     break;
 
                 case IUniformWithValue<Vector3> v3:
-                    GL.Uniform3(uniform.Location, ref v3.GetValueByRef());
+                    osuTK.Vector3 v3tk = v3.GetValue().ToOsuTK();
+                    GL.Uniform3(uniform.Location, ref v3tk);
                     break;
 
                 case IUniformWithValue<Vector4> v4:
-                    GL.Uniform4(uniform.Location, ref v4.GetValueByRef());
+                    osuTK.Vector4 v4tk = v4.GetValue().ToOsuTK();
+                    GL.Uniform4(uniform.Location, ref v4tk);
                     break;
 
                 case IUniformWithValue<Matrix2> m2:

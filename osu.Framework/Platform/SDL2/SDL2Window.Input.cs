@@ -12,7 +12,7 @@ using osu.Framework.Graphics.Primitives;
 using osu.Framework.Input;
 using osu.Framework.Input.States;
 using osu.Framework.Logging;
-using osuTK;
+using System.Numerics;
 using osuTK.Input;
 using static SDL2.SDL;
 using RectangleF = osu.Framework.Graphics.Primitives.RectangleF;

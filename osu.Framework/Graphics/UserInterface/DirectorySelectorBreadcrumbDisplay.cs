@@ -11,7 +11,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Localisation;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.UserInterface
 {

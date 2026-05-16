@@ -5,11 +5,12 @@
 
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Layout;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Sprites
 {
@@ -193,7 +194,7 @@ namespace osu.Framework.Graphics.Sprites
             if (EdgeSmoothness == Vector2.Zero)
                 return Vector2.Zero;
 
-            return DrawInfo.MatrixInverse.ExtractScale().Xy * EdgeSmoothness;
+            return DrawInfo.MatrixInverse.ExtractScale().Xy.ToSystemNumerics() * EdgeSmoothness;
         }
 
         protected override Quad ComputeScreenSpaceDrawQuad()
@@ -229,12 +230,12 @@ namespace osu.Framework.Graphics.Sprites
 
             // RectangleF texRect = RelativeDrawTextureRectangle;
             // Vector2 shrinkageAmount = Vector2.Divide(texRect.Size * (1 << IRenderer.MAX_MIPMAP_LEVELS) / 2, Texture.Size);
-            // shrinkageAmount = Vector2.ComponentMin(shrinkageAmount, texRect.Size / 2);
+            // shrinkageAmount = Vector2.Min(shrinkageAmount, texRect.Size / 2);
             // texRect = texRect.Inflate(-shrinkageAmount);
             //
             // return ToScreenSpace(texRect * DrawSize);
 
-            Vector3 scale = DrawInfo.MatrixInverse.ExtractScale();
+            var scale = DrawInfo.MatrixInverse.ExtractScale();
             RectangleF rectangle = DrawTextureRectangle;
 
             // If the texture wraps or is clamped to its edge in some direction, then the entire
@@ -252,7 +253,7 @@ namespace osu.Framework.Graphics.Sprites
                 rectangle.Height = DrawHeight;
             }
 
-            Vector2 shrinkageAmount = Vector2.ComponentMin(scale.Xy, rectangle.Size / 2);
+            Vector2 shrinkageAmount = Vector2.Min(scale.Xy.ToSystemNumerics(), rectangle.Size / 2);
 
             return ToScreenSpace(rectangle.Inflate(-shrinkageAmount));
         }

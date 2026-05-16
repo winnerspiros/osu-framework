@@ -5,7 +5,6 @@ using System.Numerics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osuTK.Graphics;
-using Vector2 = osuTK.Vector2;
 
 namespace osu.Framework.Graphics.UserInterface
 {

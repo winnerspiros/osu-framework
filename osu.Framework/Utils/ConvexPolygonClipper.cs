@@ -5,7 +5,7 @@ using System;
 using System.Runtime.CompilerServices;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Primitives;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Utils
 {

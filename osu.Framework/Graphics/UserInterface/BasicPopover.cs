@@ -3,7 +3,7 @@
 
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Graphics.Shapes;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.UserInterface
 {

@@ -7,7 +7,7 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Platform.Windows.Native;
 using osu.Framework.Statistics;
-using osuTK;
+using System.Numerics;
 using static SDL2.SDL;
 
 namespace osu.Framework.Platform.Windows

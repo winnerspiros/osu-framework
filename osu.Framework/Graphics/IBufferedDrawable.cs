@@ -2,7 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Graphics.Rendering;
-using osuTK;
+using System.Numerics;
 using osuTK.Graphics;
 
 namespace osu.Framework.Graphics

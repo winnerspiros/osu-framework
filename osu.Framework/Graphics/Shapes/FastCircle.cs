@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Rendering.Vertices;
 using osu.Framework.Graphics.Shaders;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Shapes
 {

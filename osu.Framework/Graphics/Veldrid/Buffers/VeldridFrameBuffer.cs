@@ -7,7 +7,7 @@ using System.Linq;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Veldrid.Textures;
-using osuTK;
+using System.Numerics;
 using Veldrid;
 using Texture = Veldrid.Texture;
 

@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Transforms;
-using osuTK;
+using System.Numerics;
 using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Visualisation

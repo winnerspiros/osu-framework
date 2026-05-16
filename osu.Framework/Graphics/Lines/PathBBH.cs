@@ -6,7 +6,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using osu.Framework.Graphics.Primitives;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Lines
 {

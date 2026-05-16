@@ -13,7 +13,7 @@ using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.Layout;
 using osu.Framework.Utils;
-using osuTK;
+using System.Numerics;
 using osuTK.Input;
 
 namespace osu.Framework.Graphics.Containers

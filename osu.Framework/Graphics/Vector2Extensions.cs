@@ -1,10 +1,12 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using osu.Framework.Graphics.Primitives;
 using osuTK;
+using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Graphics
 {
@@ -26,8 +28,9 @@ namespace osu.Framework.Graphics
         /// <param name="result">The transformed vector</param>
         public static void Transform(ref Vector2 pos, ref Matrix3 mat, out Vector2 result)
         {
-            result.X = mat.Row0.X * pos.X + mat.Row1.X * pos.Y + mat.Row2.X;
-            result.Y = mat.Row0.Y * pos.X + mat.Row1.Y * pos.Y + mat.Row2.Y;
+            result = new Vector2(
+                mat.Row0.X * pos.X + mat.Row1.X * pos.Y + mat.Row2.X,
+                mat.Row0.Y * pos.X + mat.Row1.Y * pos.Y + mat.Row2.Y);
         }
 
         /// <summary>
@@ -108,5 +111,30 @@ namespace osu.Framework.Graphics
         public static bool InRightHalfPlaneOf(this Vector2 point, in Line line)
             => (line.EndPoint.X - line.StartPoint.X) * (point.Y - line.StartPoint.Y)
                 - (line.EndPoint.Y - line.StartPoint.Y) * (point.X - line.StartPoint.X) < 0;
+
+        /// <summary>Returns a normalized (unit-length) copy of the vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 Normalized(this Vector2 v) => Vector2.Normalize(v);
+
+        /// <summary>Computes the perpendicular dot product (2D cross product) of two vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float PerpDot(Vector2 a, Vector2 b) => a.X * b.Y - a.Y * b.X;
+
+        /// <summary>Computes the perpendicular dot product (2D cross product) of two vectors.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void PerpDot(ref Vector2 a, ref Vector2 b, out float result) =>
+            result = a.X * b.Y - a.Y * b.X;
+
+        /// <summary>Returns a normalized (unit-length) copy of the vector (fast approximation, same as <see cref="Normalized"/>).</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 NormalizeFast(Vector2 v) => Vector2.Normalize(v);
+
+        /// <summary>Returns the vector perpendicular to the right: (Y, -X).</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 PerpendicularRight(this Vector2 v) => new Vector2(v.Y, -v.X);
+
+        /// <summary>Returns the vector perpendicular to the left: (-Y, X).</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 PerpendicularLeft(this Vector2 v) => new Vector2(-v.Y, v.X);
     }
 }

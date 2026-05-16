@@ -5,6 +5,7 @@ using System;
 using System.Runtime.CompilerServices;
 using osu.Framework.Utils;
 using osuTK;
+using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Graphics.Primitives
 {
@@ -26,7 +27,7 @@ namespace osu.Framework.Graphics.Primitives
         /// <summary>
         /// The length of the line.
         /// </summary>
-        public float Rho => (EndPoint - StartPoint).Length;
+        public float Rho => (EndPoint - StartPoint).Length();
 
         /// <summary>
         /// The direction of the second point from the first.

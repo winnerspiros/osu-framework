@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Utils
 {

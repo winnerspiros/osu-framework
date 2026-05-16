@@ -7,7 +7,7 @@ using System.IO;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.UserInterface
 {

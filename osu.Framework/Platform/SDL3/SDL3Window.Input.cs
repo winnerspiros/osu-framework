@@ -14,7 +14,7 @@ using osu.Framework.Input;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Input.States;
 using osu.Framework.Logging;
-using osuTK;
+using System.Numerics;
 using osuTK.Input;
 using SDL;
 using static SDL.SDL3;

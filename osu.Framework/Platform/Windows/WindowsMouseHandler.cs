@@ -3,7 +3,7 @@
 
 using System.Runtime.Versioning;
 using osu.Framework.Input.Handlers.Mouse;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Platform.Windows
 {

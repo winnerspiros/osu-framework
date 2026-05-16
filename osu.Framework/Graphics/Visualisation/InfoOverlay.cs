@@ -5,7 +5,7 @@
 
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Primitives;
-using osuTK;
+using System.Numerics;
 using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Visualisation

@@ -6,7 +6,7 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.IO.Serialization
 {

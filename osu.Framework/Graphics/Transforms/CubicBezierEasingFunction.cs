@@ -3,7 +3,7 @@
 
 using System;
 using osu.Framework.Utils;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Transforms
 {

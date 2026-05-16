@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using osu.Framework.Caching;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Sprites;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Text
 {
@@ -197,7 +197,7 @@ namespace osu.Framework.Text
             currentPos.X += glyph.XAdvance;
             currentNewLine = false;
 
-            Bounds = Vector2.ComponentMax(Bounds, currentPos + new Vector2(0, currentLineHeight));
+            Bounds = Vector2.Max(Bounds, currentPos + new Vector2(0, currentLineHeight));
             return true;
         }
 
@@ -303,7 +303,7 @@ namespace osu.Framework.Text
                 float characterBottomBound = useFontSizeAsHeight ? character.LinePosition + font.Size : character.DrawRectangle.Bottom;
 
                 // As above, the bounds are calculated through the character draw rectangles
-                Bounds = Vector2.ComponentMax(Bounds, new Vector2(characterRightBound, characterBottomBound));
+                Bounds = Vector2.Max(Bounds, new Vector2(characterRightBound, characterBottomBound));
             }
 
             // The new line is removed when the first character on the line is removed, thus the current position is never on a new line

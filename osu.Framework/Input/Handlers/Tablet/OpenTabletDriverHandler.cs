@@ -15,7 +15,7 @@ using osu.Framework.Extensions;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Platform;
 using osu.Framework.Statistics;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Input.Handlers.Tablet
 {
@@ -208,7 +208,7 @@ namespace osu.Framework.Input.Handlers.Tablet
                     {
                         Width = scaledSize.X,
                         Height = scaledSize.Y,
-                        Position = position.ToSystemNumerics()
+                        Position = position
                     };
                     break;
                 }

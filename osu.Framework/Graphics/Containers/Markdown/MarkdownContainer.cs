@@ -17,7 +17,7 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Graphics.Containers.Markdown.Footnotes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Utils;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Containers.Markdown
 {

@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Primitives
 {
@@ -341,7 +341,7 @@ namespace osu.Framework.Graphics.Primitives
                 Math.Max(0.0f, Math.Max(localSpacePos.Y - Bottom, Top - localSpacePos.Y))
             );
 
-            return dist.LengthSquared;
+            return dist.LengthSquared();
         }
 
         internal float DistanceExponentiated(Vector2 localSpacePos, float exponent)

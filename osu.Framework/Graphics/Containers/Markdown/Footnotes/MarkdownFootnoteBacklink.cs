@@ -4,7 +4,7 @@
 using Markdig.Extensions.Footnotes;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Sprites;
-using osuTK;
+using System.Numerics;
 using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Containers.Markdown.Footnotes

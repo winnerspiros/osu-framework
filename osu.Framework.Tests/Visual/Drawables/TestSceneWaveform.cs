@@ -18,6 +18,7 @@ using osu.Framework.Input.Events;
 using osu.Framework.Testing;
 using osuTK;
 using osuTK.Graphics;
+using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {

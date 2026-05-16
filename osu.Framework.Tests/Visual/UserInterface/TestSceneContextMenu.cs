@@ -14,7 +14,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Testing;
 using osu.Framework.Utils;
-using osuTK;
+using System.Numerics;
 using osuTK.Graphics;
 using osuTK.Input;
 

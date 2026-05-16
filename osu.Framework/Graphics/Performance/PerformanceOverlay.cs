@@ -15,7 +15,7 @@ using osu.Framework.Platform;
 using osu.Framework.Platform.SDL2;
 using osu.Framework.Platform.SDL3;
 using osu.Framework.Threading;
-using osuTK;
+using System.Numerics;
 using osuTK.Graphics;
 using osuTK.Input;
 using SixLabors.ImageSharp.PixelFormats;

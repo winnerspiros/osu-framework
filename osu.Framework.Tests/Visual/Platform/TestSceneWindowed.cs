@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -12,7 +12,9 @@ using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
+using System.Numerics;
 using osuTK;
+using Vector2 = System.Numerics.Vector2;
 using WindowState = osu.Framework.Platform.WindowState;
 
 namespace osu.Framework.Tests.Visual.Platform

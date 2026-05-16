@@ -37,6 +37,7 @@ using osu.Framework.Timing;
 using osuTK;
 using osuTK.Graphics;
 using Logger = osu.Framework.Logging.Logger;
+using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Testing
 {

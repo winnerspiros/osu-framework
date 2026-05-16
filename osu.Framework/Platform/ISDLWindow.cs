@@ -4,7 +4,7 @@
 using System;
 using osu.Framework.Bindables;
 using osu.Framework.Input;
-using osuTK;
+using System.Numerics;
 using osuTK.Input;
 using RectangleF = osu.Framework.Graphics.Primitives.RectangleF;
 

@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -13,7 +13,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osu.Framework.Testing;
 using osu.Framework.Utils;
-using osuTK;
+using System.Numerics;
 using osuTK.Graphics;
 using osuTK.Input;
 
@@ -453,8 +453,8 @@ namespace osu.Framework.Tests.Visual.Input
         }
 
         private void checkLastPositionDelta(Func<float> expected) => AddAssert("correct position delta", () =>
-            Precision.AlmostEquals(s1.LastDelta.Length, expected()) &&
-            Precision.AlmostEquals(s2.LastDelta.Length, expected()));
+            Precision.AlmostEquals(s1.LastDelta.Length(), expected()) &&
+            Precision.AlmostEquals(s2.LastDelta.Length(), expected()));
 
         private void checkLastScrollDelta(Vector2 expected) => AddAssert("correct scroll delta", () =>
             Precision.AlmostEquals(s1.LastScrollDelta, expected) &&

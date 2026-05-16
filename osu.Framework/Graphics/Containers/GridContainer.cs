@@ -11,7 +11,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Caching;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Layout;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Containers
 {

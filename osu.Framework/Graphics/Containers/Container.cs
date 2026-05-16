@@ -12,7 +12,7 @@ using osu.Framework.Extensions.TypeExtensions;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Effects;
 using osu.Framework.Lists;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Containers
 {

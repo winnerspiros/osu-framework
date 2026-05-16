@@ -8,7 +8,7 @@ using osu.Framework.Graphics.Rendering.Deferred.Events;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Veldrid.Buffers;
 using osu.Framework.Graphics.Veldrid.Textures;
-using osuTK;
+using System.Numerics;
 using Veldrid;
 using Texture = osu.Framework.Graphics.Textures.Texture;
 

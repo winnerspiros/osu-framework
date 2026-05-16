@@ -33,7 +33,7 @@ using osu.Framework.Statistics;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using osu.Framework.Utils;
-using osuTK;
+using System.Numerics;
 using osuTK.Graphics;
 using osuTK.Input;
 using Container = osu.Framework.Graphics.Containers.Container;
@@ -1687,9 +1687,9 @@ namespace osu.Framework.Graphics
             Vector2 bottomRightSize2 = -bottomRightOffset * ratio2;
 
             // Expand bounds according to clipped offset
-            return Vector2.ComponentMax(
-                Vector2.ComponentMax(topLeftSize1, topLeftSize2),
-                Vector2.ComponentMax(bottomRightSize1, bottomRightSize2));
+            return Vector2.Max(
+                Vector2.Max(topLeftSize1, topLeftSize2),
+                Vector2.Max(bottomRightSize1, bottomRightSize2));
         }
 
         /// <summary>

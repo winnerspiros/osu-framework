@@ -165,10 +165,13 @@ namespace osu.Framework.Platform
         {
             string str = JsonConvert.SerializeObject(message, Formatting.None);
             byte[] data = Encoding.UTF8.GetBytes(str);
-            byte[] header = BitConverter.GetBytes(data.Length);
 
-            await stream.WriteAsync(header.AsMemory()).ConfigureAwait(false);
-            await stream.WriteAsync(data.AsMemory()).ConfigureAwait(false);
+            // Write header + payload as one buffer to avoid pipe fragmentation from two small writes.
+            byte[] packet = new byte[sizeof(int) + data.Length];
+            BitConverter.TryWriteBytes(packet.AsSpan(0, sizeof(int)), data.Length);
+            data.CopyTo(packet.AsSpan(sizeof(int)));
+
+            await stream.WriteAsync(packet.AsMemory()).ConfigureAwait(false);
             await stream.FlushAsync().ConfigureAwait(false);
         }
 

@@ -28,7 +28,7 @@ namespace osu.Framework.Platform
         /// </summary>
         public event Func<IpcMessage, IpcMessage?>? MessageReceived;
 
-        private Thread? thread;
+        private Task? listenTask;
 
         private readonly CancellationTokenSource cancellationSource = new CancellationTokenSource();
 
@@ -52,7 +52,7 @@ namespace osu.Framework.Platform
         /// </returns>
         public bool Bind()
         {
-            if (thread != null)
+            if (listenTask != null)
                 throw new InvalidOperationException($"Can't {nameof(Bind)} more than once.");
 
             var listener = new TcpListener(IPAddress.Loopback, port);
@@ -61,11 +61,7 @@ namespace osu.Framework.Platform
             {
                 listener.Start();
 
-                (thread = new Thread(() => listen(listener))
-                {
-                    Name = $"{GetType().Name} (listening on {port})",
-                    IsBackground = true
-                }).Start();
+                listenTask = listenAsync(listener);
 
                 return true;
             }
@@ -80,7 +76,7 @@ namespace osu.Framework.Platform
             }
         }
 
-        private void listen(TcpListener listener)
+        private async Task listenAsync(TcpListener listener)
         {
             var token = cancellationSource.Token;
 
@@ -88,20 +84,27 @@ namespace osu.Framework.Platform
             {
                 while (!token.IsCancellationRequested)
                 {
-                    while (!listener.Pending())
+                    TcpClient client;
+
+                    try
                     {
-                        Thread.Sleep(10);
-                        if (token.IsCancellationRequested)
-                            return;
+                        client = await listener.AcceptTcpClientAsync(token).ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return;
                     }
 
-                    using (var client = listener.AcceptTcpClient())
+                    using (client)
                     {
+                        // Disable Nagle's algorithm for minimal loopback IPC latency.
+                        client.NoDelay = true;
+
                         using (var stream = client.GetStream())
                         {
                             try
                             {
-                                var message = receive(stream, token).GetResultSafely();
+                                var message = await receive(stream, token).ConfigureAwait(false);
 
                                 if (message == null)
                                     continue;
@@ -109,7 +112,7 @@ namespace osu.Framework.Platform
                                 var response = MessageReceived?.Invoke(message);
 
                                 if (response != null)
-                                    send(stream, response).Wait(token);
+                                    await send(stream, response).ConfigureAwait(false);
                             }
                             catch (Exception e)
                             {
@@ -118,9 +121,6 @@ namespace osu.Framework.Platform
                         }
                     }
                 }
-            }
-            catch (TaskCanceledException)
-            {
             }
             finally
             {
@@ -142,6 +142,7 @@ namespace osu.Framework.Platform
         {
             using (var client = new TcpClient())
             {
+                client.NoDelay = true;
                 await client.ConnectAsync(IPAddress.Loopback, port).ConfigureAwait(false);
 
                 using (var stream = client.GetStream())
@@ -158,6 +159,7 @@ namespace osu.Framework.Platform
         {
             using (var client = new TcpClient())
             {
+                client.NoDelay = true;
                 await client.ConnectAsync(IPAddress.Loopback, port).ConfigureAwait(false);
 
                 using (var stream = client.GetStream())
@@ -173,10 +175,13 @@ namespace osu.Framework.Platform
         {
             string str = JsonConvert.SerializeObject(message, Formatting.None);
             byte[] data = Encoding.UTF8.GetBytes(str);
-            byte[] header = BitConverter.GetBytes(data.Length);
 
-            await stream.WriteAsync(header.AsMemory()).ConfigureAwait(false);
-            await stream.WriteAsync(data.AsMemory()).ConfigureAwait(false);
+            // Write header + payload as one buffer to avoid TCP fragmentation from two small writes.
+            byte[] packet = new byte[sizeof(int) + data.Length];
+            BitConverter.TryWriteBytes(packet.AsSpan(0, sizeof(int)), data.Length);
+            data.CopyTo(packet.AsSpan(sizeof(int)));
+
+            await stream.WriteAsync(packet.AsMemory()).ConfigureAwait(false);
             await stream.FlushAsync().ConfigureAwait(false);
         }
 
@@ -223,10 +228,10 @@ namespace osu.Framework.Platform
         {
             const int thread_join_timeout = 2000;
 
-            if (thread != null)
+            if (listenTask != null)
             {
                 cancellationSource.Cancel();
-                if (!thread.Join(thread_join_timeout))
+                if (!listenTask.Wait(thread_join_timeout))
                     Logger.Log($"IPC thread failed to exit in allocated time ({thread_join_timeout}ms).", LoggingTarget.Runtime, LogLevel.Important);
             }
         }

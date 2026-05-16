@@ -186,7 +186,9 @@ namespace osu.Framework.Android
 
             try
             {
-                hintSession!.UpdateTargetWorkDuration(computeTargetDurationNs());
+                // Use the already-computed hz to avoid a second effectiveTargetHz() call
+                // (which may invoke a JNI RefreshRate query when the draw rate is uncapped).
+                hintSession!.UpdateTargetWorkDuration((long)(1_000_000_000.0 / currentHz));
             }
             catch (Exception ex)
             {

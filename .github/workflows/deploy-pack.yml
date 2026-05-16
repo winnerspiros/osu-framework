@@ -71,7 +71,7 @@ jobs:
   pack-framework:
     name: Pack (Framework)
     needs: publish-sdl3-cs
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
     environment: production
     defaults:
       run:
@@ -141,7 +141,7 @@ jobs:
   pack-android:
     name: Pack (Android)
     needs: publish-sdl3-cs
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
     environment: production
     defaults:
       run:

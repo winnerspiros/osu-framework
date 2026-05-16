@@ -50,6 +50,12 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
         private DeviceBuffer? currentVertexBuffer;
         private VertexLayoutDescription currentVertexLayout;
 
+        // Cache the last successfully activated pipeline so that draw calls with identical state
+        // can skip the dictionary hash-and-lookup in createPipeline(). Invalidated whenever any
+        // field of pipelineDesc changes.
+        private Pipeline? cachedPipeline;
+        private bool pipelineDescDirty = true;
+
         public GraphicsPipeline(VeldridDevice device)
             : base(device)
         {
@@ -67,6 +73,8 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             currentShader = null;
             currentIndexBuffer = null;
             currentVertexBuffer = null;
+            cachedPipeline = null;
+            pipelineDescDirty = true;
         }
 
         /// <summary>
@@ -87,7 +95,10 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
         /// </summary>
         /// <param name="enabled">Whether the scissor test is enabled.</param>
         public void SetScissorState(bool enabled)
-            => pipelineDesc.RasterizerState.ScissorTestEnabled = enabled;
+        {
+            pipelineDesc.RasterizerState.ScissorTestEnabled = enabled;
+            pipelineDescDirty = true;
+        }
 
         /// <summary>
         /// Sets the active shader.
@@ -99,6 +110,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
 
             currentShader = shader;
             pipelineDesc.ShaderSet.Shaders = shader.Shaders;
+            pipelineDescDirty = true;
         }
 
         /// <summary>
@@ -114,6 +126,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             pipelineDesc.BlendState.AttachmentStates[0].DestinationAlphaFactor = blendingParameters.DestinationAlpha.ToBlendFactor();
             pipelineDesc.BlendState.AttachmentStates[0].ColorFunction = blendingParameters.RGBEquation.ToBlendFunction();
             pipelineDesc.BlendState.AttachmentStates[0].AlphaFunction = blendingParameters.AlphaEquation.ToBlendFunction();
+            pipelineDescDirty = true;
         }
 
         /// <summary>
@@ -121,7 +134,10 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
         /// </summary>
         /// <param name="blendingMask">The blending mask.</param>
         public void SetBlendMask(BlendingMask blendingMask)
-            => pipelineDesc.BlendState.AttachmentStates[0].ColorWriteMask = blendingMask.ToColorWriteMask();
+        {
+            pipelineDesc.BlendState.AttachmentStates[0].ColorWriteMask = blendingMask.ToColorWriteMask();
+            pipelineDescDirty = true;
+        }
 
         /// <summary>
         /// Sets the active viewport rectangle.
@@ -146,6 +162,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             pipelineDesc.DepthStencilState.DepthTestEnabled = depthInfo.DepthTest;
             pipelineDesc.DepthStencilState.DepthWriteEnabled = depthInfo.WriteDepth;
             pipelineDesc.DepthStencilState.DepthComparison = depthInfo.Function.ToComparisonKind();
+            pipelineDescDirty = true;
         }
 
         /// <summary>
@@ -161,6 +178,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             pipelineDesc.DepthStencilState.StencilBack.Fail = pipelineDesc.DepthStencilState.StencilFront.Fail = stencilInfo.StencilTestFailOperation.ToStencilOperation();
             pipelineDesc.DepthStencilState.StencilBack.DepthFail = pipelineDesc.DepthStencilState.StencilFront.DepthFail = stencilInfo.DepthTestFailOperation.ToStencilOperation();
             pipelineDesc.DepthStencilState.StencilBack.Comparison = pipelineDesc.DepthStencilState.StencilFront.Comparison = stencilInfo.TestFunction.ToComparisonKind();
+            pipelineDescDirty = true;
         }
 
         /// <summary>
@@ -175,6 +193,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
 
             Commands.SetFramebuffer(fb);
             pipelineDesc.Outputs = fb.OutputDescription;
+            pipelineDescDirty = true;
         }
 
         /// <summary>
@@ -189,6 +208,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
 
             Commands.SetVertexBuffer(0, buffer);
             pipelineDesc.ShaderSet.VertexLayouts[0] = layout;
+            pipelineDescDirty = true;
 
             FrameStatistics.Increment(StatisticsCounterType.VBufBinds);
 
@@ -279,11 +299,18 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             if (currentIndexBuffer == null)
                 throw new InvalidOperationException("No index buffer bound.");
 
-            pipelineDesc.PrimitiveTopology = topology;
+            if (pipelineDesc.PrimitiveTopology != topology)
+            {
+                pipelineDesc.PrimitiveTopology = topology;
+                pipelineDescDirty = true;
+            }
 
             // Only resize the resource layouts array when the shader's layout count actually changed.
             if (pipelineDesc.ResourceLayouts?.Length != currentShader.LayoutCount)
+            {
                 Array.Resize(ref pipelineDesc.ResourceLayouts, currentShader.LayoutCount);
+                pipelineDescDirty = true;
+            }
 
             // Phase 1: look up layouts once per resource, populate pipelineDesc, and cache results
             // in scratch lists so the binding phase below needs no additional dictionary lookups.
@@ -303,7 +330,12 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
                 if (layout == null)
                     continue;
 
-                pipelineDesc.ResourceLayouts[layout.Set] = layout.Layout;
+                if (pipelineDesc.ResourceLayouts![layout.Set] != layout.Layout)
+                {
+                    pipelineDesc.ResourceLayouts[layout.Set] = layout.Layout;
+                    pipelineDescDirty = true;
+                }
+
                 pendingTextureBindings.Add(((uint)layout.Set, resource, layout.Layout));
             }
 
@@ -316,11 +348,16 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
                 if (layout == null)
                     continue;
 
-                pipelineDesc.ResourceLayouts[layout.Set] = layout.Layout;
+                if (pipelineDesc.ResourceLayouts![layout.Set] != layout.Layout)
+                {
+                    pipelineDesc.ResourceLayouts[layout.Set] = layout.Layout;
+                    pipelineDescDirty = true;
+                }
+
                 pendingUniformBindings.Add(((uint)layout.Set, buffer, layout.Layout, offset));
             }
 
-            // Activate the pipeline.
+            // Activate the pipeline — use the cached instance when the description has not changed.
             Commands.SetPipeline(createPipeline());
 
             // Phase 2: bind resources using the cached (set, resource/buffer, layout) tuples —
@@ -341,12 +378,18 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
 
         private Pipeline createPipeline()
         {
+            if (!pipelineDescDirty && cachedPipeline != null)
+                return cachedPipeline;
+
+            pipelineDescDirty = false;
+
             if (!pipelineCache.TryGetValue(pipelineDesc, out var instance))
             {
                 pipelineCache[pipelineDesc.Clone()] = instance = Factory.CreateGraphicsPipeline(ref pipelineDesc);
                 stat_graphics_pipeline_created.Value++;
             }
 
+            cachedPipeline = instance;
             return instance;
         }
     }

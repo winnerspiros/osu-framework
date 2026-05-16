@@ -71,7 +71,7 @@ jobs:
        fail-fast: false
        matrix:
           os:
-            - { prettyname: Windows, fullname: windows-latest, configuration: Debug }
+            - { prettyname: Windows, fullname: windows-2025-vs2026, configuration: Debug }
             - { prettyname: macOS, fullname: macos-latest, configuration: Debug }
             - { prettyname: Linux, fullname: ubuntu-latest, configuration: Debug }
             - { prettyname: Linux, fullname: ubuntu-latest, configuration: Release }
@@ -121,7 +121,7 @@ jobs:
 
   build-only-android:
     name: Build only (Android)
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
     timeout-minutes: 60
     steps:
       - name: Checkout

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Android.App;
 using Android.Content;
 using AndroidX.Core.Content;
@@ -53,6 +54,13 @@ namespace osu.Framework.Android
 
         private bool drawThreadPrioritySet;
 
+        // PerformanceHintSession state — only used on API 31+ (Android 12+).
+        // Tells the Android scheduler the target and actual frame durations so it can
+        // choose appropriate CPU clock frequencies without relying solely on thread priority.
+        private global::Android.OS.PerformanceHintManager.Session? hintSession;
+        private bool hintSessionInitialised;
+        private double lastSessionTargetHz;
+
         protected override void DrawFrame()
         {
             // Boost the draw thread to THREAD_PRIORITY_DISPLAY on the first call so it
@@ -73,7 +81,24 @@ namespace osu.Framework.Android
                 }
             }
 
+            // Create or update the PerformanceHintSession once we're on the draw thread.
+            if (!hintSessionInitialised)
+            {
+                hintSessionInitialised = true;
+                tryInitPerformanceHintSession();
+            }
+            else if (hintSession != null)
+            {
+                updateHintSessionTargetIfNeeded();
+            }
+
             var surface = AndroidGameActivity.Surface;
+
+            // Capture the active session and timestamp together so that the
+            // Stopwatch.GetTimestamp() syscall is skipped on frames where no hint session
+            // is active, and so the compiler can verify the null-safety of the report call.
+            var activeSession = hintSession;
+            long workStart = activeSession != null && surface.IsSurfaceReady ? Stopwatch.GetTimestamp() : 0;
 
             if (surface.IsSurfaceReady)
             {
@@ -87,6 +112,112 @@ namespace osu.Framework.Android
                 // a frame, so no GPU work is in flight against the doomed surface.
                 surface.NotifyDrawThreadIdle();
             }
+
+            // Report actual frame work duration to the hint session so the Android scheduler
+            // can tune CPU clock frequency to match the target. This is called after DrawFrame
+            // so the measurement includes GPU submission but excludes VSync idle wait.
+            if (workStart != 0)
+            {
+                long workEnd = Stopwatch.GetTimestamp();
+                long actualDurationNs = (long)((workEnd - workStart) * (1_000_000_000.0 / Stopwatch.Frequency));
+
+                try
+                {
+                    activeSession!.ReportActualWorkDuration(actualDurationNs);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"PerformanceHintSession.ReportActualWorkDuration failed: {ex.Message}", LoggingTarget.Runtime, LogLevel.Debug);
+                    hintSession = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Attempts to create an Android <c>PerformanceHintSession</c> (API 31+) for the current
+        /// draw thread. The session tells the OS scheduler the expected frame work duration so it
+        /// can keep CPU clocks high enough without busy-spinning. Silently does nothing on older
+        /// API levels or if the system service is unavailable.
+        /// </summary>
+        [global::System.Runtime.Versioning.SupportedOSPlatform("android31.0")]
+        private void tryInitPerformanceHintSession()
+        {
+            if (global::Android.OS.Build.VERSION.SdkInt < global::Android.OS.BuildVersionCodes.S)
+                return;
+
+            try
+            {
+                var manager = activity.ApplicationContext?.GetSystemService("performance_hint")
+                    as global::Android.OS.PerformanceHintManager;
+
+                if (manager == null)
+                {
+                    Logger.Log("PerformanceHintManager not available on this device.", LoggingTarget.Runtime, LogLevel.Debug);
+                    return;
+                }
+
+                long targetDurationNs = computeTargetDurationNs();
+                lastSessionTargetHz = effectiveTargetHz();
+
+                hintSession = manager.CreateHintSession(new[] { global::Android.OS.Process.MyTid() }, targetDurationNs);
+
+                Logger.Log($"Android PerformanceHintSession created (target: {targetDurationNs / 1_000_000.0:F2} ms).",
+                    LoggingTarget.Runtime, LogLevel.Important);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Failed to create Android PerformanceHintSession: {ex.Message}", LoggingTarget.Runtime, LogLevel.Debug);
+            }
+        }
+
+        /// <summary>
+        /// Updates the session's target work duration when <see cref="GameHost.MaximumDrawHz"/> has
+        /// changed since the session was last configured.
+        /// </summary>
+        [global::System.Runtime.Versioning.SupportedOSPlatform("android31.0")]
+        private void updateHintSessionTargetIfNeeded()
+        {
+            double currentHz = effectiveTargetHz();
+
+            if (Math.Abs(currentHz - lastSessionTargetHz) < 0.5)
+                return;
+
+            lastSessionTargetHz = currentHz;
+
+            try
+            {
+                // Use the already-computed hz to avoid a second effectiveTargetHz() call
+                // (which may invoke a JNI RefreshRate query when the draw rate is uncapped).
+                hintSession!.UpdateTargetWorkDuration((long)(1_000_000_000.0 / currentHz));
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"PerformanceHintSession.UpdateTargetWorkDuration failed: {ex.Message}", LoggingTarget.Runtime, LogLevel.Debug);
+                hintSession = null;
+            }
+        }
+
+        /// <summary>
+        /// Returns the draw Hz that should be used as the hint-session target.
+        /// Falls back to the display's natural refresh rate when <see cref="GameHost.MaximumDrawHz"/>
+        /// is uncapped (> 360) or zero.
+        /// </summary>
+        private double effectiveTargetHz()
+        {
+            double drawHz = MaximumDrawHz;
+
+            if (drawHz > 0 && drawHz <= 360)
+                return drawHz;
+
+            // Uncapped or unreasonably high — use the display's own refresh rate.
+            float displayHz = activity.WindowManager?.DefaultDisplay?.RefreshRate ?? 0f;
+            return displayHz > 0 ? displayHz : 120.0;
+        }
+
+        private long computeTargetDurationNs()
+        {
+            double hz = effectiveTargetHz();
+            return (long)(1_000_000_000.0 / hz);
         }
 
         public override bool CanExit => false;

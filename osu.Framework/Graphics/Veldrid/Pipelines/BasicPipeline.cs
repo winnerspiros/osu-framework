@@ -56,6 +56,13 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
         /// </summary>
         private readonly Queue<Fence> fencePool = new Queue<Fence>();
 
+        /// <summary>
+        /// Whether any commands have been recorded into this pipeline's command list since the last <see cref="Begin"/> call.
+        /// Set this to <c>true</c> whenever commands are recorded outside of <see cref="UpdateTexture{T}"/>.
+        /// When <c>false</c> at <see cref="End"/>, the submission is skipped to avoid an unnecessary <c>vkQueueSubmit</c>.
+        /// </summary>
+        public bool HasPendingWork { get; set; }
+
         private readonly VeldridDevice device;
 
         public BasicPipeline(VeldridDevice device)
@@ -71,6 +78,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
         {
             updatePendingExecutions();
             executionIndex++;
+            HasPendingWork = false;
 
             Commands.Begin();
             ExecutionStarted?.Invoke(executionIndex);
@@ -81,11 +89,21 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
         /// </summary>
         public void End()
         {
+            Commands.End();
+
+            if (!HasPendingWork)
+            {
+                // Nothing was recorded — immediately signal completion without a GPU round-trip.
+                // This avoids an unnecessary vkQueueSubmit (≈0.3 ms on Adreno) on frames where
+                // the buffer-update pipeline has no work (e.g. static scenes with unchanged UBOs).
+                ExecutionFinished?.Invoke(executionIndex);
+                return;
+            }
+
             if (!fencePool.TryDequeue(out Fence? fence))
                 fence = Factory.CreateFence(false);
             pendingExecutions.Add(new ExecutionCompletionFence(fence, executionIndex));
 
-            Commands.End();
             device.Device.SubmitCommands(Commands, fence);
         }
 
@@ -140,6 +158,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             var staging = stagingPool.Get(width, height, texture.Format);
             device.Device.UpdateTexture(staging, data, 0, 0, 0, (uint)width, (uint)height, 1, (uint)level, 0);
             Commands.CopyTexture(staging, 0, 0, 0, 0, 0, texture, (uint)x, (uint)y, 0, (uint)level, 0, (uint)width, (uint)height, 1, 1);
+            HasPendingWork = true;
         }
 
         /// <summary>
@@ -184,6 +203,7 @@ namespace osu.Framework.Graphics.Veldrid.Pipelines
             Commands.CopyTexture(
                 staging, 0, 0, 0, 0, 0,
                 texture, (uint)x, (uint)y, 0, (uint)level, 0, (uint)width, (uint)height, 1, 1);
+            HasPendingWork = true;
         }
 
         /// <summary>

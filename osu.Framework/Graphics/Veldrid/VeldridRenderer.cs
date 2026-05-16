@@ -199,6 +199,7 @@ namespace osu.Framework.Graphics.Veldrid
             {
                 indexBuffer?.Dispose();
                 indexBuffer = new VeldridIndexBuffer(bufferUpdatePipeline, layout, verticesCount);
+                bufferUpdatePipeline.HasPendingWork = true;
             }
 
             graphicsPipeline.SetIndexBuffer(indexBuffer);
@@ -291,7 +292,13 @@ namespace osu.Framework.Graphics.Veldrid
             => graphicsPipeline.GenerateMipmaps(texture);
 
         public CommandList BufferUpdateCommands
-            => bufferUpdatePipeline.Commands;
+        {
+            get
+            {
+                bufferUpdatePipeline.HasPendingWork = true;
+                return bufferUpdatePipeline.Commands;
+            }
+        }
 
         void IVeldridRenderer.BindShader(VeldridShader shader)
             => BindShader(shader);

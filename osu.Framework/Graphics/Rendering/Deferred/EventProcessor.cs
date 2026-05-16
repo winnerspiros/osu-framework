@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Buffers;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -10,6 +11,7 @@ using osu.Framework.Graphics.Rendering.Deferred.Events;
 using osu.Framework.Graphics.Veldrid.Buffers;
 using osu.Framework.Graphics.Veldrid.Pipelines;
 using osu.Framework.Graphics.Veldrid.Textures;
+using osu.Framework.Statistics;
 
 namespace osu.Framework.Graphics.Rendering.Deferred
 {
@@ -18,6 +20,9 @@ namespace osu.Framework.Graphics.Rendering.Deferred
     /// </summary>
     internal readonly ref struct EventProcessor
     {
+        private static readonly GlobalStatistic<int> stat_dead_state_events_skipped =
+            GlobalStatistics.Get<int>(nameof(EventProcessor), "Dead state events skipped");
+
         private readonly DeferredContext context;
         private readonly GraphicsPipeline graphics;
 
@@ -125,8 +130,25 @@ namespace osu.Framework.Graphics.Rendering.Deferred
 
         private void processEvents()
         {
-            foreach (var renderEvent in context.RenderEvents)
+            int count = context.RenderEvents.Count;
+
+            if (count == 0)
+                return;
+
+            // Pre-pass: identify single-slot pipeline-state events that are overridden before the
+            // next Flush or Clear without any intervening draw. These "dead" events produce no
+            // visible effect and can be skipped, reducing GPU command-buffer overhead.
+            byte[] skipFlags = ArrayPool<byte>.Shared.Rent(count);
+            Array.Clear(skipFlags, 0, count);
+            stat_dead_state_events_skipped.Value = eliminateDeadStateEvents(skipFlags, count);
+
+            for (int i = 0; i < count; i++)
             {
+                if (skipFlags[i] != 0)
+                    continue;
+
+                var renderEvent = context.RenderEvents[i];
+
                 switch (renderEvent.Type)
                 {
                     case RenderEventType.SetFrameBuffer:
@@ -226,6 +248,138 @@ namespace osu.Framework.Graphics.Rendering.Deferred
                     }
                 }
             }
+
+            ArrayPool<byte>.Shared.Return(skipFlags);
+        }
+
+        /// <summary>
+        /// Forward-scans the event list and marks single-slot pipeline state events as dead
+        /// (skipFlags[i] = 1) when they are overridden by a subsequent event of the same type
+        /// before the next <see cref="RenderEventType.Flush"/> or <see cref="RenderEventType.Clear"/>.
+        /// This reduces the number of GPU state-change commands issued per frame.
+        /// </summary>
+        /// <returns>The number of events marked as dead.</returns>
+        private int eliminateDeadStateEvents(byte[] skipFlags, int count)
+        {
+            int deadCount = 0;
+
+            // For each single-slot state type: index of the most recent pending event
+            // (-1 = no pending event of this type). "Pending" means not yet consumed by
+            // a Flush or Clear.
+            int lastScissor = -1;
+            int lastScissorState = -1;
+            int lastDepth = -1;
+            int lastStencil = -1;
+            int lastBlend = -1;
+            int lastBlendMask = -1;
+            int lastViewport = -1;
+            int lastShader = -1;
+            int lastFrameBuffer = -1;
+
+            for (int i = 0; i < count; i++)
+            {
+                switch (context.RenderEvents[i].Type)
+                {
+                    case RenderEventType.SetScissor:
+                        if (lastScissor >= 0)
+                        {
+                            skipFlags[lastScissor] = 1;
+                            deadCount++;
+                        }
+
+                        lastScissor = i;
+                        break;
+
+                    case RenderEventType.SetScissorState:
+                        if (lastScissorState >= 0)
+                        {
+                            skipFlags[lastScissorState] = 1;
+                            deadCount++;
+                        }
+
+                        lastScissorState = i;
+                        break;
+
+                    case RenderEventType.SetDepthInfo:
+                        if (lastDepth >= 0)
+                        {
+                            skipFlags[lastDepth] = 1;
+                            deadCount++;
+                        }
+
+                        lastDepth = i;
+                        break;
+
+                    case RenderEventType.SetStencilInfo:
+                        if (lastStencil >= 0)
+                        {
+                            skipFlags[lastStencil] = 1;
+                            deadCount++;
+                        }
+
+                        lastStencil = i;
+                        break;
+
+                    case RenderEventType.SetBlend:
+                        if (lastBlend >= 0)
+                        {
+                            skipFlags[lastBlend] = 1;
+                            deadCount++;
+                        }
+
+                        lastBlend = i;
+                        break;
+
+                    case RenderEventType.SetBlendMask:
+                        if (lastBlendMask >= 0)
+                        {
+                            skipFlags[lastBlendMask] = 1;
+                            deadCount++;
+                        }
+
+                        lastBlendMask = i;
+                        break;
+
+                    case RenderEventType.SetViewport:
+                        if (lastViewport >= 0)
+                        {
+                            skipFlags[lastViewport] = 1;
+                            deadCount++;
+                        }
+
+                        lastViewport = i;
+                        break;
+
+                    case RenderEventType.SetShader:
+                        if (lastShader >= 0)
+                        {
+                            skipFlags[lastShader] = 1;
+                            deadCount++;
+                        }
+
+                        lastShader = i;
+                        break;
+
+                    case RenderEventType.SetFrameBuffer:
+                        if (lastFrameBuffer >= 0)
+                        {
+                            skipFlags[lastFrameBuffer] = 1;
+                            deadCount++;
+                        }
+
+                        lastFrameBuffer = i;
+                        break;
+
+                    case RenderEventType.Flush:
+                    case RenderEventType.Clear:
+                        // All pending state events have been consumed — they're no longer dead.
+                        lastScissor = lastScissorState = lastDepth = lastStencil = -1;
+                        lastBlend = lastBlendMask = lastViewport = lastShader = lastFrameBuffer = -1;
+                        break;
+                }
+            }
+
+            return deadCount;
         }
 
         private void processEvent(in SetFrameBufferEvent e)

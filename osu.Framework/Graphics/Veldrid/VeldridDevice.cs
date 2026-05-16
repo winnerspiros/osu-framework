@@ -46,7 +46,16 @@ namespace osu.Framework.Graphics.Veldrid
         public bool VerticalSync
         {
             get => Device.SyncToVerticalBlank;
-            set => Device.SyncToVerticalBlank = value;
+            set
+            {
+                if (Device.SyncToVerticalBlank == value)
+                    return;
+
+                Device.SyncToVerticalBlank = value;
+
+                if (SurfaceType == GraphicsSurfaceType.Vulkan)
+                    Logger.Log($"Vulkan VSync: {!value} → {value} (AllowTearing={Device.AllowTearing}) — expected present mode: {expectedPresentModeString(value, Device.AllowTearing)}", LoggingTarget.Runtime, LogLevel.Important);
+            }
         }
 
         /// <summary>
@@ -55,7 +64,27 @@ namespace osu.Framework.Graphics.Veldrid
         public bool AllowTearing
         {
             get => Device.AllowTearing;
-            set => Device.AllowTearing = value;
+            set
+            {
+                if (Device.AllowTearing == value)
+                    return;
+
+                Device.AllowTearing = value;
+
+                if (SurfaceType == GraphicsSurfaceType.Vulkan)
+                    Logger.Log($"Vulkan AllowTearing: {!value} → {value} (VSync={Device.SyncToVerticalBlank}) — expected present mode: {expectedPresentModeString(Device.SyncToVerticalBlank, value)}", LoggingTarget.Runtime, LogLevel.Important);
+            }
+        }
+
+        private static string expectedPresentModeString(bool syncToVBlank, bool allowTearing)
+        {
+            if (syncToVBlank)
+                return "FIFO_RELAXED / FIFO";
+
+            if (allowTearing || OperatingSystem.IsAndroid())
+                return "IMMEDIATE";
+
+            return "IMMEDIATE / FIFO_RELAXED / FIFO";
         }
 
         /// <summary>

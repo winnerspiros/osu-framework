@@ -281,55 +281,91 @@ namespace osu.Framework.Graphics.Rendering.Deferred
                 switch (context.RenderEvents[i].Type)
                 {
                     case RenderEventType.SetScissor:
-                        if (lastScissor >= 0) { skipFlags[lastScissor] = 1; deadCount++; }
+                        if (lastScissor >= 0)
+                        {
+                            skipFlags[lastScissor] = 1;
+                            deadCount++;
+                        }
 
                         lastScissor = i;
                         break;
 
                     case RenderEventType.SetScissorState:
-                        if (lastScissorState >= 0) { skipFlags[lastScissorState] = 1; deadCount++; }
+                        if (lastScissorState >= 0)
+                        {
+                            skipFlags[lastScissorState] = 1;
+                            deadCount++;
+                        }
 
                         lastScissorState = i;
                         break;
 
                     case RenderEventType.SetDepthInfo:
-                        if (lastDepth >= 0) { skipFlags[lastDepth] = 1; deadCount++; }
+                        if (lastDepth >= 0)
+                        {
+                            skipFlags[lastDepth] = 1;
+                            deadCount++;
+                        }
 
                         lastDepth = i;
                         break;
 
                     case RenderEventType.SetStencilInfo:
-                        if (lastStencil >= 0) { skipFlags[lastStencil] = 1; deadCount++; }
+                        if (lastStencil >= 0)
+                        {
+                            skipFlags[lastStencil] = 1;
+                            deadCount++;
+                        }
 
                         lastStencil = i;
                         break;
 
                     case RenderEventType.SetBlend:
-                        if (lastBlend >= 0) { skipFlags[lastBlend] = 1; deadCount++; }
+                        if (lastBlend >= 0)
+                        {
+                            skipFlags[lastBlend] = 1;
+                            deadCount++;
+                        }
 
                         lastBlend = i;
                         break;
 
                     case RenderEventType.SetBlendMask:
-                        if (lastBlendMask >= 0) { skipFlags[lastBlendMask] = 1; deadCount++; }
+                        if (lastBlendMask >= 0)
+                        {
+                            skipFlags[lastBlendMask] = 1;
+                            deadCount++;
+                        }
 
                         lastBlendMask = i;
                         break;
 
                     case RenderEventType.SetViewport:
-                        if (lastViewport >= 0) { skipFlags[lastViewport] = 1; deadCount++; }
+                        if (lastViewport >= 0)
+                        {
+                            skipFlags[lastViewport] = 1;
+                            deadCount++;
+                        }
 
                         lastViewport = i;
                         break;
 
                     case RenderEventType.SetShader:
-                        if (lastShader >= 0) { skipFlags[lastShader] = 1; deadCount++; }
+                        if (lastShader >= 0)
+                        {
+                            skipFlags[lastShader] = 1;
+                            deadCount++;
+                        }
 
                         lastShader = i;
                         break;
 
                     case RenderEventType.SetFrameBuffer:
-                        if (lastFrameBuffer >= 0) { skipFlags[lastFrameBuffer] = 1; deadCount++; }
+                        if (lastFrameBuffer >= 0)
+                        {
+                            skipFlags[lastFrameBuffer] = 1;
+                            deadCount++;
+                        }
 
                         lastFrameBuffer = i;
                         break;

@@ -113,6 +113,7 @@ namespace osu.Framework.Graphics.Rendering
         protected ClearInfo CurrentClearInfo { get; private set; }
         public BlendingParameters CurrentBlendingParameters { get; private set; }
         protected BlendingMask CurrentBlendingMask { get; private set; }
+        private bool currentTextureIsPremultiplied;
 
         /// <summary>
         /// Whether scissor is currently enabled.
@@ -480,13 +481,14 @@ namespace osu.Framework.Graphics.Rendering
 
         public void SetBlend(BlendingParameters blendingParameters)
         {
-            if (CurrentBlendingParameters == blendingParameters)
+            BlendingParameters oldBlendingParameters = CurrentBlendingParameters;
+            CurrentBlendingParameters = blendingParameters;
+
+            if (CurrentBlendingParameters.EqualsExceptForAdditive(oldBlendingParameters))
                 return;
 
             FlushCurrentBatch(FlushBatchSource.SetBlend);
             SetBlendImplementation(blendingParameters);
-
-            CurrentBlendingParameters = blendingParameters;
         }
 
         public void SetBlendMask(BlendingMask blendingMask)
@@ -511,6 +513,16 @@ namespace osu.Framework.Graphics.Rendering
         /// </summary>
         /// <param name="blendingMask">The blending mask.</param>
         protected abstract void SetBlendMaskImplementation(BlendingMask blendingMask);
+
+        public void SetTextureIsPremultiplied(bool isPremultiplied)
+        {
+            if (currentTextureIsPremultiplied == isPremultiplied)
+                return;
+
+            FlushCurrentBatch(FlushBatchSource.BindTexture);
+            currentTextureIsPremultiplied = isPremultiplied;
+            globalUniformsChanged = true;
+        }
 
         #endregion
 
@@ -1112,7 +1124,8 @@ namespace osu.Framework.Graphics.Rendering
                         ? currentMaskingInfo.HollowCornerRadius
                         : globalUniformBuffer.Data.InnerCornerRadius,
                     WrapModeS = (int)CurrentWrapModeS,
-                    WrapModeT = (int)CurrentWrapModeT
+                    WrapModeT = (int)CurrentWrapModeT,
+                    TextureHasPremultipliedAlpha = currentTextureIsPremultiplied
                 };
 
                 globalUniformsChanged = false;

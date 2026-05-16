@@ -39,6 +39,10 @@ layout(std140, set = -1, binding = 0) uniform g_GlobalUniforms
     // 3 -> Repeat
     int g_WrapModeS;
     int g_WrapModeT;
+
+    // Whether the currently bound texture has premultiplied alpha.
+    // When true, the shader will unmultiply it before processing, then premultiply the output.
+    bool g_TextureHasPremultipliedAlpha;
 };
 
 #endif

@@ -57,7 +57,7 @@ namespace osu.Framework.Android
         // PerformanceHintSession state — only used on API 31+ (Android 12+).
         // Tells the Android scheduler the target and actual frame durations so it can
         // choose appropriate CPU clock frequencies without relying solely on thread priority.
-        private global::Android.OS.PerformanceHintSession? hintSession;
+        private global::Android.OS.PerformanceHintManager.Session? hintSession;
         private bool hintSessionInitialised;
         private double lastSessionTargetHz;
         private long frameWorkStartTimestamp;

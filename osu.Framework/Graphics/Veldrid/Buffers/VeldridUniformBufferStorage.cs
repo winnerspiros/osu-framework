@@ -24,12 +24,18 @@ namespace osu.Framework.Graphics.Veldrid.Buffers
             memoryLease = NativeMemoryTracker.AddMemory(this, buffer.SizeInBytes);
         }
 
+        private bool hasUploaded;
+
         public TData Data
         {
             get;
             set
             {
+                if (hasUploaded && field.Equals(value))
+                    return;
+
                 field = value;
+                hasUploaded = true;
 
                 renderer.BufferUpdateCommands.UpdateBuffer(buffer, 0, ref field);
             }

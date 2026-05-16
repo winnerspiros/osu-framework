@@ -49,7 +49,7 @@ namespace osu.Framework.Graphics.Lines
             // Definition of a leaf here is a node containing a segment
             // Since we are building a binary tree, compute the max value that is bigger than segmentCount and the power of 2.
             // That would be the bottom layer of a tree.
-            int maxLeafCount = Math.Max((int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)segmentCount), 1);
+            int maxLeafCount = Math.Max((int)BitOperations.RoundUpToPowerOf2((uint)segmentCount), 1);
             treeDepth = (int)Math.Log2(maxLeafCount);
 
             // We can avoid storing empty nodes by computing amount of all the nodes within a tree,

@@ -108,13 +108,13 @@ namespace osu.Framework.Input.Handlers.Tablet
 
         private TabletPenDeviceType lastTabletDeviceType = TabletPenDeviceType.Unknown;
 
-        void IAbsolutePointer.SetPosition(System.Numerics.Vector2 pos)
+        void IAbsolutePointer.SetPosition(Vector2 pos)
         {
             lastTabletDeviceType = TabletPenDeviceType.Unknown;
             enqueueInput(new MousePositionAbsoluteInputFromPen { Position = new Vector2(pos.X, pos.Y), DeviceType = lastTabletDeviceType });
         }
 
-        void IRelativePointer.SetPosition(System.Numerics.Vector2 delta)
+        void IRelativePointer.SetPosition(Vector2 delta)
         {
             lastTabletDeviceType = TabletPenDeviceType.Indirect;
             enqueueInput(new MousePositionRelativeInputFromPen { Delta = new Vector2(delta.X, delta.Y), DeviceType = lastTabletDeviceType });
@@ -248,7 +248,7 @@ namespace osu.Framework.Input.Handlers.Tablet
                     {
                         Width = AreaSize.Value.X,
                         Height = AreaSize.Value.Y,
-                        Position = new System.Numerics.Vector2(AreaOffset.Value.X, AreaOffset.Value.Y),
+                        Position = new Vector2(AreaOffset.Value.X, AreaOffset.Value.Y),
                         Rotation = Rotation.Value
                     };
                     break;

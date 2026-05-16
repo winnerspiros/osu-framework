@@ -348,7 +348,7 @@ namespace osu.Framework.Platform.SDL3
         private static ImmutableArray<Display> getSDLDisplays()
         {
             using var displays = SDL_GetDisplays()
-                ?? throw new InvalidOperationException($"Failed to get number of SDL displays. SDL Error: {SDL_GetError()}");
+                                 ?? throw new InvalidOperationException($"Failed to get number of SDL displays. SDL Error: {SDL_GetError()}");
 
             var builder = ImmutableArray.CreateBuilder<Display>(displays.Count);
 
@@ -684,7 +684,7 @@ namespace osu.Framework.Platform.SDL3
         private static bool tryGetDisplayIndex(SDL_DisplayID id, out int index)
         {
             using var displays = SDL_GetDisplays()
-                ?? throw new InvalidOperationException($"Failed to get SDL displays. SDL error: {SDL_GetError()}");
+                                 ?? throw new InvalidOperationException($"Failed to get SDL displays. SDL error: {SDL_GetError()}");
 
             for (int i = 0; i < displays.Count; i++)
             {
@@ -927,7 +927,7 @@ namespace osu.Framework.Platform.SDL3
             ArgumentOutOfRangeException.ThrowIfNegative(index);
 
             using var displays = SDL_GetDisplays()
-                ?? throw new InvalidOperationException($"Unable to get displays. SDL error: {SDL_GetError()}");
+                                 ?? throw new InvalidOperationException($"Unable to get displays. SDL error: {SDL_GetError()}");
 
             if (index >= displays.Count)
             {

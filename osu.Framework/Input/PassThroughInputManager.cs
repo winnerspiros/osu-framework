@@ -235,7 +235,7 @@ namespace osu.Framework.Input
             var parentState = parentInputManager.CurrentState;
             var mouseDiff = (parentState?.Mouse?.Buttons ?? new ButtonStates<MouseButton>()).EnumerateDifference(CurrentState.Mouse.Buttons);
             var keyDiff = (parentState?.Keyboard.Keys ?? new ButtonStates<Key>()).EnumerateDifference(CurrentState.Keyboard.Keys);
-            var (touchDeactivated, _) = (parentState?.Touch ?? new TouchState()).EnumerateDifference(CurrentState.Touch);
+            var touchDeactivated = (parentState?.Touch ?? new TouchState()).EnumerateDifference(CurrentState.Touch);
             var joyButtonDiff = (parentState?.Joystick?.Buttons ?? new ButtonStates<JoystickButton>()).EnumerateDifference(CurrentState.Joystick.Buttons);
             var midiDiff = (parentState?.Midi?.Keys ?? new ButtonStates<MidiKey>()).EnumerateDifference(CurrentState.Midi.Keys);
             var tabletPenDiff = (parentState?.Tablet?.PenButtons ?? new ButtonStates<TabletPenButton>()).EnumerateDifference(CurrentState.Tablet.PenButtons);

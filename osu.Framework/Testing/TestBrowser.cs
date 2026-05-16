@@ -34,7 +34,6 @@ using osu.Framework.Platform;
 using osu.Framework.Testing.Drawables;
 using osu.Framework.Testing.Drawables.Steps;
 using osu.Framework.Timing;
-using osuTK;
 using osuTK.Graphics;
 using Logger = osu.Framework.Logging.Logger;
 using Vector2 = System.Numerics.Vector2;

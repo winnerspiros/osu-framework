@@ -60,7 +60,6 @@ namespace osu.Framework.Android
         private global::Android.OS.PerformanceHintManager.Session? hintSession;
         private bool hintSessionInitialised;
         private double lastSessionTargetHz;
-        private long frameWorkStartTimestamp;
 
         protected override void DrawFrame()
         {
@@ -93,9 +92,13 @@ namespace osu.Framework.Android
                 updateHintSessionTargetIfNeeded();
             }
 
-            long workStart = Stopwatch.GetTimestamp();
-
             var surface = AndroidGameActivity.Surface;
+
+            // Capture the active session and timestamp together so that the
+            // Stopwatch.GetTimestamp() syscall is skipped on frames where no hint session
+            // is active, and so the compiler can verify the null-safety of the report call.
+            var activeSession = hintSession;
+            long workStart = activeSession != null && surface.IsSurfaceReady ? Stopwatch.GetTimestamp() : 0;
 
             if (surface.IsSurfaceReady)
             {
@@ -113,14 +116,14 @@ namespace osu.Framework.Android
             // Report actual frame work duration to the hint session so the Android scheduler
             // can tune CPU clock frequency to match the target. This is called after DrawFrame
             // so the measurement includes GPU submission but excludes VSync idle wait.
-            if (hintSession != null && surface.IsSurfaceReady)
+            if (workStart != 0)
             {
                 long workEnd = Stopwatch.GetTimestamp();
                 long actualDurationNs = (long)((workEnd - workStart) * (1_000_000_000.0 / Stopwatch.Frequency));
 
                 try
                 {
-                    hintSession.ReportActualWorkDuration(actualDurationNs);
+                    activeSession!.ReportActualWorkDuration(actualDurationNs);
                 }
                 catch (Exception ex)
                 {

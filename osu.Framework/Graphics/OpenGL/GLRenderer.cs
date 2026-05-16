@@ -171,19 +171,25 @@ namespace osu.Framework.Graphics.OpenGL
                     break;
 
                 case IUniformWithValue<Vector2> v2:
-                    osuTK.Vector2 v2tk = v2.GetValue().ToOsuTK();
-                    GL.Uniform2(uniform.Location, ref v2tk);
+                {
+                    Vector2 v = v2.GetValue();
+                    GL.Uniform2(uniform.Location, v.X, v.Y);
                     break;
+                }
 
                 case IUniformWithValue<Vector3> v3:
-                    osuTK.Vector3 v3tk = v3.GetValue().ToOsuTK();
-                    GL.Uniform3(uniform.Location, ref v3tk);
+                {
+                    Vector3 v = v3.GetValue();
+                    GL.Uniform3(uniform.Location, v.X, v.Y, v.Z);
                     break;
+                }
 
                 case IUniformWithValue<Vector4> v4:
-                    osuTK.Vector4 v4tk = v4.GetValue().ToOsuTK();
-                    GL.Uniform4(uniform.Location, ref v4tk);
+                {
+                    Vector4 v = v4.GetValue();
+                    GL.Uniform4(uniform.Location, v.X, v.Y, v.Z, v.W);
                     break;
+                }
 
                 case IUniformWithValue<Matrix2> m2:
                     GL.UniformMatrix2(uniform.Location, false, ref m2.GetValueByRef());

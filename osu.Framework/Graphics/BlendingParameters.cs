@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Graphics
@@ -159,6 +160,7 @@ namespace osu.Framework.Graphics
                 AlphaEquation = BlendingEquation.Add;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool EqualsExceptForAdditive(BlendingParameters other) =>
             other.Source == Source
             && other.Destination == Destination

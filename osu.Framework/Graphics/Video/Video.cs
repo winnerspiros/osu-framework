@@ -158,7 +158,7 @@ namespace osu.Framework.Graphics.Video
 
             while (availableFrames.Count > 0 && checkNextFrameValid(availableFrames.Peek()))
             {
-                if (lastFrame != null) decoder.ReturnFrames(new[] { lastFrame });
+                if (lastFrame != null) decoder.ReturnFrame(lastFrame);
                 lastFrame = availableFrames.Dequeue();
                 lastFrameShown = false;
             }

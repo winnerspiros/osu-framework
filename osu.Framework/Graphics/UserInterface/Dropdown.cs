@@ -285,7 +285,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         private void selectionKeyPressed(DropdownHeader.DropdownSelectionAction action)
         {
-            if (!MenuItems.Any())
+            if (itemMap.Count == 0)
                 return;
 
             var dropdownMenuItems = MenuItems.ToList();

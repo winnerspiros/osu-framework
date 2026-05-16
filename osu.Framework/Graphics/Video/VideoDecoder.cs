@@ -201,6 +201,17 @@ namespace osu.Framework.Graphics.Video
         }
 
         /// <summary>
+        /// Returns a single frame back to the decoder, allowing the decoder to reuse the texture contained in the frame to draw new frames.
+        /// Prefer this overload over <see cref="ReturnFrames"/> when only one frame is being returned to avoid allocating a temporary array.
+        /// </summary>
+        /// <param name="frame">The frame that should be returned to the decoder.</param>
+        public void ReturnFrame(DecodedFrame frame)
+        {
+            frame.Texture.FlushUploads();
+            availableTextures.Enqueue(frame.Texture);
+        }
+
+        /// <summary>
         /// Starts the decoding process. The decoding will happen asynchronously in a separate thread. The decoded frames can be retrieved by using <see cref="GetDecodedFrames"/>.
         /// </summary>
         public void StartDecoding()

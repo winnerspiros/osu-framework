@@ -28,7 +28,7 @@ namespace osu.Framework.Graphics.Veldrid.Buffers
 
         public Vector2 Size
         {
-            get => field;
+            get;
             set
             {
                 if (value == field)

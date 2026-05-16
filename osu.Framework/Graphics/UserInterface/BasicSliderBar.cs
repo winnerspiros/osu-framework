@@ -25,7 +25,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         public Color4 FocusColour
         {
-            get => field;
+            get;
             set
             {
                 field = value;

@@ -185,7 +185,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public Color4 ShadowColour
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -374,7 +374,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public Vector2 Spacing
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -391,7 +391,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public MarginPadding Padding
         {
-            get => field;
+            get;
             set
             {
                 if (field.Equals(value))

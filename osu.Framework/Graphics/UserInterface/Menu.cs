@@ -798,7 +798,7 @@ namespace osu.Framework.Graphics.UserInterface
             /// </summary>
             public Color4 BackgroundColour
             {
-                get => field;
+                get;
                 set
                 {
                     field = value;
@@ -811,7 +811,7 @@ namespace osu.Framework.Graphics.UserInterface
             /// </summary>
             public Color4 ForegroundColour
             {
-                get => field;
+                get;
                 set
                 {
                     field = value;
@@ -824,7 +824,7 @@ namespace osu.Framework.Graphics.UserInterface
             /// </summary>
             public Color4 BackgroundColourHover
             {
-                get => field;
+                get;
                 set
                 {
                     field = value;
@@ -837,7 +837,7 @@ namespace osu.Framework.Graphics.UserInterface
             /// </summary>
             public Color4 ForegroundColourHover
             {
-                get => field;
+                get;
                 set
                 {
                     field = value;

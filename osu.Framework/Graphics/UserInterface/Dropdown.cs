@@ -643,7 +643,7 @@ namespace osu.Framework.Graphics.UserInterface
 
                 public Color4 BackgroundColourSelected
                 {
-                    get => field;
+                    get;
                     set
                     {
                         field = value;
@@ -653,7 +653,7 @@ namespace osu.Framework.Graphics.UserInterface
 
                 public Color4 ForegroundColourSelected
                 {
-                    get => field;
+                    get;
                     set
                     {
                         field = value;

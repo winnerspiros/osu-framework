@@ -201,7 +201,7 @@ namespace osu.Framework.Platform.SDL3
         /// </summary>
         public virtual Size Size
         {
-            get => field;
+            get;
             protected set
             {
                 if (value.Equals(field)) return;

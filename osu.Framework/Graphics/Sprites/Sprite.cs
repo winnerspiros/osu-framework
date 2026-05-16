@@ -46,7 +46,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public RectangleF TextureRectangle
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)
@@ -119,7 +119,7 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public Vector2 EdgeSmoothness
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

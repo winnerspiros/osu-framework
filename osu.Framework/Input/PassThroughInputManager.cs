@@ -33,7 +33,7 @@ namespace osu.Framework.Input
         /// </summary>
         public virtual bool UseParentInput
         {
-            get => field;
+            get;
             set
             {
                 if (field == value) return;

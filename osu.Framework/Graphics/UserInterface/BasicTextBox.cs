@@ -23,7 +23,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         protected Color4 BackgroundFocused
         {
-            get => field;
+            get;
             set
             {
                 field = value;
@@ -34,7 +34,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         protected Color4 BackgroundUnfocused
         {
-            get => field;
+            get;
             set
             {
                 field = value;

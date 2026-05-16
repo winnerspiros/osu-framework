@@ -83,7 +83,7 @@ namespace osu.Framework.Platform.SDL3
 
         public RectangleF? CursorConfineRect
         {
-            get => field;
+            get;
             set
             {
                 field = value;

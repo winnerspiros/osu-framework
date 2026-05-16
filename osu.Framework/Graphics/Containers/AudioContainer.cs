@@ -8,7 +8,7 @@ using osu.Framework.Audio;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Graphics.Audio;
 using osu.Framework.Graphics.Effects;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Containers
 {

@@ -5,11 +5,12 @@
 
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Layout;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Sprites
 {
@@ -38,8 +39,6 @@ namespace osu.Framework.Graphics.Sprites
         /// If overriding, set in a <see cref="BackgroundDependencyLoaderAttribute"/> method or later.</remarks>
         public IShader TextureShader { get; protected set; }
 
-        private RectangleF textureRectangle = new RectangleF(0, 0, 1, 1);
-
         /// <summary>
         /// Sub-rectangle of the sprite in which the texture is positioned.
         /// Can be either relative coordinates (0 to 1) or absolute coordinates,
@@ -47,16 +46,16 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public RectangleF TextureRectangle
         {
-            get => textureRectangle;
+            get;
             set
             {
-                if (textureRectangle == value)
+                if (field == value)
                     return;
 
-                textureRectangle = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
-        }
+        } = new RectangleF(0, 0, 1, 1);
 
         /// <summary>
         /// Whether or not the <see cref="TextureRectangle"/> is in relative coordinates
@@ -111,8 +110,6 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public const int MAX_EDGE_SMOOTHNESS = 3; // See https://github.com/ppy/osu-framework/pull/3511#discussion_r421665156 for relevant discussion.
 
-        private Vector2 edgeSmoothness;
-
         /// <summary>
         /// Determines over how many pixels of width the border of the sprite is smoothed
         /// in X and Y direction respectively.
@@ -122,10 +119,10 @@ namespace osu.Framework.Graphics.Sprites
         /// </summary>
         public Vector2 EdgeSmoothness
         {
-            get => edgeSmoothness;
+            get;
             set
             {
-                if (edgeSmoothness == value)
+                if (field == value)
                     return;
 
                 if (value.X > MAX_EDGE_SMOOTHNESS || value.Y > MAX_EDGE_SMOOTHNESS)
@@ -134,7 +131,7 @@ namespace osu.Framework.Graphics.Sprites
                         $"May not smooth more than {MAX_EDGE_SMOOTHNESS} or will leak neighboring textures in atlas. Tried to smooth by ({value.X}, {value.Y}).");
                 }
 
-                edgeSmoothness = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawInfo);
             }
@@ -193,7 +190,7 @@ namespace osu.Framework.Graphics.Sprites
             if (EdgeSmoothness == Vector2.Zero)
                 return Vector2.Zero;
 
-            return DrawInfo.MatrixInverse.ExtractScale().Xy * EdgeSmoothness;
+            return DrawInfo.MatrixInverse.ExtractScale().Xy.ToSystemNumerics() * EdgeSmoothness;
         }
 
         protected override Quad ComputeScreenSpaceDrawQuad()
@@ -229,12 +226,12 @@ namespace osu.Framework.Graphics.Sprites
 
             // RectangleF texRect = RelativeDrawTextureRectangle;
             // Vector2 shrinkageAmount = Vector2.Divide(texRect.Size * (1 << IRenderer.MAX_MIPMAP_LEVELS) / 2, Texture.Size);
-            // shrinkageAmount = Vector2.ComponentMin(shrinkageAmount, texRect.Size / 2);
+            // shrinkageAmount = Vector2.Min(shrinkageAmount, texRect.Size / 2);
             // texRect = texRect.Inflate(-shrinkageAmount);
             //
             // return ToScreenSpace(texRect * DrawSize);
 
-            Vector3 scale = DrawInfo.MatrixInverse.ExtractScale();
+            var scale = DrawInfo.MatrixInverse.ExtractScale();
             RectangleF rectangle = DrawTextureRectangle;
 
             // If the texture wraps or is clamped to its edge in some direction, then the entire
@@ -252,7 +249,7 @@ namespace osu.Framework.Graphics.Sprites
                 rectangle.Height = DrawHeight;
             }
 
-            Vector2 shrinkageAmount = Vector2.ComponentMin(scale.Xy, rectangle.Size / 2);
+            Vector2 shrinkageAmount = Vector2.Min(scale.Xy.ToSystemNumerics(), rectangle.Size / 2);
 
             return ToScreenSpace(rectangle.Inflate(-shrinkageAmount));
         }

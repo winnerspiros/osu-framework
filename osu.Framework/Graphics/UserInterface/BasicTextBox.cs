@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Extensions.Color4Extensions;
@@ -6,7 +6,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
-using osuTK;
+using System.Numerics;
 using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.UserInterface
@@ -21,17 +21,12 @@ namespace osu.Framework.Graphics.UserInterface
 
         protected Color4 BackgroundCommit { get; set; } = FrameworkColour.Green;
 
-        private Color4 backgroundFocused = new Color4(100, 100, 100, 255);
-        private Color4 backgroundUnfocused = new Color4(100, 100, 100, 120);
-
-        private readonly Box background;
-
         protected Color4 BackgroundFocused
         {
-            get => backgroundFocused;
+            get;
             set
             {
-                backgroundFocused = value;
+                field = value;
                 if (HasFocus)
                     background.Colour = value;
             }
@@ -39,14 +34,16 @@ namespace osu.Framework.Graphics.UserInterface
 
         protected Color4 BackgroundUnfocused
         {
-            get => backgroundUnfocused;
+            get;
             set
             {
-                backgroundUnfocused = value;
+                field = value;
                 if (!HasFocus)
                     background.Colour = value;
             }
-        }
+        } = new Color4(100, 100, 100, 120);
+
+        private readonly Box background;
 
         protected virtual Color4 InputErrorColour => Color4.Red;
 
@@ -172,7 +169,7 @@ namespace osu.Framework.Graphics.UserInterface
                 }
                 else
                 {
-                    this.MoveTo(new Vector2(position.X - CaretWidth / 2, position.Y), 60, Easing.Out);
+                    this.MoveTo(position with { X = position.X - CaretWidth / 2 }, 60, Easing.Out);
                     this.ResizeWidthTo(CaretWidth, caret_move_time, Easing.Out);
                     this
                         .FadeColour(Color4.White, 200, Easing.Out)

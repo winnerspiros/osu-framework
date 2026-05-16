@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -14,6 +14,7 @@ using osu.Framework.Logging;
 using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
 using osuTK;
+using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Graphics.Video
 {
@@ -158,7 +159,7 @@ namespace osu.Framework.Graphics.Video
 
             while (availableFrames.Count > 0 && checkNextFrameValid(availableFrames.Peek()))
             {
-                if (lastFrame != null) decoder.ReturnFrames(new[] { lastFrame });
+                if (lastFrame != null) decoder.ReturnFrame(lastFrame);
                 lastFrame = availableFrames.Dequeue();
                 lastFrameShown = false;
             }

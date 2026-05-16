@@ -5,7 +5,7 @@
 
 using System;
 using osu.Framework.Input.Events;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Containers
 {

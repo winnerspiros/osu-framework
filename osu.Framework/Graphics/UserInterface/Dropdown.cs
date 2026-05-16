@@ -285,7 +285,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         private void selectionKeyPressed(DropdownHeader.DropdownSelectionAction action)
         {
-            if (!MenuItems.Any())
+            if (itemMap.Count == 0)
                 return;
 
             var dropdownMenuItems = MenuItems.ToList();
@@ -641,29 +641,25 @@ namespace osu.Framework.Graphics.UserInterface
                     }
                 }
 
-                private Color4 backgroundColourSelected = Color4.SlateGray;
-
                 public Color4 BackgroundColourSelected
                 {
-                    get => backgroundColourSelected;
+                    get;
                     set
                     {
-                        backgroundColourSelected = value;
+                        field = value;
                         Scheduler.AddOnce(UpdateBackgroundColour);
                     }
-                }
-
-                private Color4 foregroundColourSelected = Color4.White;
+                } = Color4.SlateGray;
 
                 public Color4 ForegroundColourSelected
                 {
-                    get => foregroundColourSelected;
+                    get;
                     set
                     {
-                        foregroundColourSelected = value;
+                        field = value;
                         Scheduler.AddOnce(UpdateForegroundColour);
                     }
-                }
+                } = Color4.White;
 
                 protected virtual void OnSelectChange()
                 {

@@ -1,14 +1,15 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using osu.Framework.Extensions;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
-using osuTK;
+using System.Numerics;
 using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Sprites
@@ -96,7 +97,7 @@ namespace osu.Framework.Graphics.Sprites
                     parts.EnsureCapacity(partCount);
                 }
 
-                Vector2 inflationAmount = DrawInfo.MatrixInverse.ExtractScale().Xy;
+                Vector2 inflationAmount = DrawInfo.MatrixInverse.ExtractScale().Xy.ToSystemNumerics();
 
                 foreach (var character in Source.characters)
                 {

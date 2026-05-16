@@ -4,7 +4,7 @@
 using System;
 using BenchmarkDotNet.Attributes;
 using osu.Framework.Graphics.Primitives;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Benchmarks
 {

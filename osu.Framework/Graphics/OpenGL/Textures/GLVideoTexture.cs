@@ -96,7 +96,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
                 for (int i = 0; i < ids.Length; i++)
                 {
                     if (ids[i] >= 0)
-                        GL.DeleteTextures(1, new[] { ids[i] });
+                        GL.DeleteTextures(1, ref ids[i]);
                 }
             }, this);
         }

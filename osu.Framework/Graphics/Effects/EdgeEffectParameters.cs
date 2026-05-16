@@ -4,7 +4,7 @@
 using System;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Effects
 {

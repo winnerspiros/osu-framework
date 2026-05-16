@@ -43,7 +43,7 @@ using osu.Framework.Logging;
 using osu.Framework.Statistics;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
-using osuTK;
+using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Rectangle = System.Drawing.Rectangle;
@@ -488,7 +488,7 @@ namespace osu.Framework.Platform
                 Root.Size = new Vector2(Window.ClientSize.Width, Window.ClientSize.Height);
 
             // Ensure we maintain a valid size for any children immediately scaling by the window size
-            Root.Size = Vector2.ComponentMax(Vector2.One, Root.Size);
+            Root.Size = Vector2.Max(Vector2.One, Root.Size);
 
             TypePerformanceMonitor.NewFrame();
 
@@ -1167,7 +1167,7 @@ namespace osu.Framework.Platform
 
         private void populateInputHandlers()
         {
-            AvailableInputHandlers = CreateAvailableInputHandlers().ToImmutableArray();
+            AvailableInputHandlers = [.. CreateAvailableInputHandlers()];
         }
 
         private void initialiseInputHandlers()

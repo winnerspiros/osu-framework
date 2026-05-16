@@ -13,6 +13,7 @@ using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osuTK;
+using Vector2 = System.Numerics.Vector2;
 using SDL;
 using static SDL.SDL3;
 
@@ -195,22 +196,20 @@ namespace osu.Framework.Platform.SDL3
             }
         } = true;
 
-        private Size size = new Size(default_width, default_height);
-
         /// <summary>
         /// Returns or sets the window's internal size, before scaling.
         /// </summary>
         public virtual Size Size
         {
-            get => size;
+            get;
             protected set
             {
-                if (value.Equals(size)) return;
+                if (value.Equals(field)) return;
 
-                size = value;
+                field = value;
                 Resized?.Invoke();
             }
-        }
+        } = new Size(default_width, default_height);
 
         public Size MinSize
         {
@@ -347,7 +346,7 @@ namespace osu.Framework.Platform.SDL3
         private static ImmutableArray<Display> getSDLDisplays()
         {
             using var displays = SDL_GetDisplays()
-                ?? throw new InvalidOperationException($"Failed to get number of SDL displays. SDL Error: {SDL_GetError()}");
+                                 ?? throw new InvalidOperationException($"Failed to get number of SDL displays. SDL Error: {SDL_GetError()}");
 
             var builder = ImmutableArray.CreateBuilder<Display>(displays.Count);
 
@@ -683,7 +682,7 @@ namespace osu.Framework.Platform.SDL3
         private static bool tryGetDisplayIndex(SDL_DisplayID id, out int index)
         {
             using var displays = SDL_GetDisplays()
-                ?? throw new InvalidOperationException($"Failed to get SDL displays. SDL error: {SDL_GetError()}");
+                                 ?? throw new InvalidOperationException($"Failed to get SDL displays. SDL error: {SDL_GetError()}");
 
             for (int i = 0; i < displays.Count; i++)
             {
@@ -926,7 +925,7 @@ namespace osu.Framework.Platform.SDL3
             ArgumentOutOfRangeException.ThrowIfNegative(index);
 
             using var displays = SDL_GetDisplays()
-                ?? throw new InvalidOperationException($"Unable to get displays. SDL error: {SDL_GetError()}");
+                                 ?? throw new InvalidOperationException($"Unable to get displays. SDL error: {SDL_GetError()}");
 
             if (index >= displays.Count)
             {

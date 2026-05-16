@@ -10,7 +10,7 @@ using osu.Framework.Input;
 using osu.Framework.Input.Handlers.Mouse;
 using osu.Framework.Platform.SDL2;
 using osu.Framework.Platform.Windows.Native;
-using osuTK;
+using System.Numerics;
 using osuTK.Input;
 using static SDL2.SDL;
 using Icon = osu.Framework.Platform.Windows.Native.Icon;

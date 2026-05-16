@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Runtime.InteropServices;
+using osu.Framework.Extensions;
 using osuTK;
 
 namespace osu.Framework.Graphics.Shaders.Types
@@ -18,16 +19,16 @@ namespace osu.Framework.Graphics.Shaders.Types
 
         public static implicit operator Matrix3(UniformMatrix3 matrix) => new Matrix3
         {
-            Row0 = matrix.Row0,
-            Row1 = matrix.Row1,
-            Row2 = matrix.Row2
+            Row0 = ((System.Numerics.Vector3)matrix.Row0).ToOsuTK(),
+            Row1 = ((System.Numerics.Vector3)matrix.Row1).ToOsuTK(),
+            Row2 = ((System.Numerics.Vector3)matrix.Row2).ToOsuTK()
         };
 
         public static implicit operator UniformMatrix3(Matrix3 matrix) => new UniformMatrix3
         {
-            Row0 = matrix.Row0,
-            Row1 = matrix.Row1,
-            Row2 = matrix.Row2
+            Row0 = matrix.Row0.ToSystemNumerics(),
+            Row1 = matrix.Row1.ToSystemNumerics(),
+            Row2 = matrix.Row2.ToSystemNumerics()
         };
     }
 }

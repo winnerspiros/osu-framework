@@ -2,7 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Input.States
 {
@@ -46,26 +46,17 @@ namespace osu.Framework.Input.States
         public bool IsActive(TouchSource source) => ActiveSources.IsPressed(source);
 
         /// <summary>
-        /// Enumerates the difference between this state and a <param ref="previous"/> state.
+        /// Enumerates the deactivated touches between this state and a <param ref="previous"/> state.
         /// </summary>
         /// <param name="previous">The previous state.</param>
-        public (Touch[] deactivated, Touch[] activated) EnumerateDifference(TouchState previous)
+        public Touch[] EnumerateDifference(TouchState previous)
         {
             var diff = ActiveSources.EnumerateDifference(previous.ActiveSources);
 
-            int pressedCount = diff.Pressed.Length;
             int releasedCount = diff.Released.Length;
 
-            if (pressedCount == 0 && releasedCount == 0)
-                return (Array.Empty<Touch>(), Array.Empty<Touch>());
-
-            Touch[] pressedTouches = new Touch[pressedCount];
-
-            for (int i = 0; i < pressedCount; i++)
-            {
-                var s = diff.Pressed[i];
-                pressedTouches[i] = new Touch(s, TouchPositions[(int)s]);
-            }
+            if (releasedCount == 0)
+                return Array.Empty<Touch>();
 
             Touch[] releasedTouches = new Touch[releasedCount];
 
@@ -75,7 +66,7 @@ namespace osu.Framework.Input.States
                 releasedTouches[i] = new Touch(s, previous.TouchPositions[(int)s]);
             }
 
-            return (releasedTouches, pressedTouches);
+            return releasedTouches;
         }
     }
 }

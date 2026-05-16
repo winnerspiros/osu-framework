@@ -34,9 +34,9 @@ using osu.Framework.Platform;
 using osu.Framework.Testing.Drawables;
 using osu.Framework.Testing.Drawables.Steps;
 using osu.Framework.Timing;
-using osuTK;
 using osuTK.Graphics;
 using Logger = osu.Framework.Logging.Logger;
+using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Testing
 {
@@ -451,7 +451,7 @@ namespace osu.Framework.Testing
                             foreach (var p in methodWrapper.GetParameters())
                             {
                                 var valueAttrib = p.GetCustomAttributes<ValuesAttribute>(false).SingleOrDefault()
-                                    ?? throw new ArgumentException($"Parameter is present on a {nameof(TestAttribute)} method without values specification.", p.ParameterInfo.Name);
+                                                  ?? throw new ArgumentException($"Parameter is present on a {nameof(TestAttribute)} method without values specification.", p.ParameterInfo.Name);
 
                                 List<object> choices = new List<object>();
 

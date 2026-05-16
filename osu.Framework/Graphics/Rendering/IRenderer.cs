@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using osuTK;
+using Vector2 = System.Numerics.Vector2;
 using osuTK.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -127,6 +128,11 @@ namespace osu.Framework.Graphics.Rendering
         /// The current stencil parameters.
         /// </summary>
         StencilInfo CurrentStencilInfo { get; }
+
+        /// <summary>
+        /// The current blending parameters.
+        /// </summary>
+        BlendingParameters CurrentBlendingParameters { get; }
 
         /// <summary>
         /// The current horizontal texture wrap mode.
@@ -253,6 +259,13 @@ namespace osu.Framework.Graphics.Rendering
         /// </summary>
         /// <param name="blendingMask">The blending mask.</param>
         void SetBlendMask(BlendingMask blendingMask);
+
+        /// <summary>
+        /// Sets whether the currently bound texture has premultiplied alpha.
+        /// When true, the shader will unmultiply it before processing and premultiply the output.
+        /// </summary>
+        /// <param name="isPremultiplied">Whether the texture has premultiplied alpha.</param>
+        void SetTextureIsPremultiplied(bool isPremultiplied);
 
         /// <summary>
         /// Applies a new viewport rectangle.

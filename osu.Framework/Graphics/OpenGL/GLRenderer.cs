@@ -19,6 +19,9 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Statistics;
 using osuTK;
+using Vector2 = System.Numerics.Vector2;
+using Vector3 = System.Numerics.Vector3;
+using Vector4 = System.Numerics.Vector4;
 using osuTK.Graphics;
 using osuTK.Graphics.ES30;
 using SixLabors.ImageSharp;
@@ -167,16 +170,25 @@ namespace osu.Framework.Graphics.OpenGL
                     break;
 
                 case IUniformWithValue<Vector2> v2:
-                    GL.Uniform2(uniform.Location, ref v2.GetValueByRef());
+                {
+                    Vector2 v = v2.GetValue();
+                    GL.Uniform2(uniform.Location, v.X, v.Y);
                     break;
+                }
 
                 case IUniformWithValue<Vector3> v3:
-                    GL.Uniform3(uniform.Location, ref v3.GetValueByRef());
+                {
+                    Vector3 v = v3.GetValue();
+                    GL.Uniform3(uniform.Location, v.X, v.Y, v.Z);
                     break;
+                }
 
                 case IUniformWithValue<Vector4> v4:
-                    GL.Uniform4(uniform.Location, ref v4.GetValueByRef());
+                {
+                    Vector4 v = v4.GetValue();
+                    GL.Uniform4(uniform.Location, v.X, v.Y, v.Z, v.W);
                     break;
+                }
 
                 case IUniformWithValue<Matrix2> m2:
                     GL.UniformMatrix2(uniform.Location, false, ref m2.GetValueByRef());

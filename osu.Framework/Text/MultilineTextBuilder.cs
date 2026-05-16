@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using osu.Framework.Graphics.Sprites;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Text
 {

@@ -13,6 +13,7 @@ using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osuTK;
+using Vector2 = System.Numerics.Vector2;
 using static SDL2.SDL;
 
 namespace osu.Framework.Platform.SDL2
@@ -181,22 +182,20 @@ namespace osu.Framework.Platform.SDL2
             }
         } = true;
 
-        private Size size = new Size(default_width, default_height);
-
         /// <summary>
         /// Returns or sets the window's internal size, before scaling.
         /// </summary>
         public virtual Size Size
         {
-            get => size;
+            get;
             protected set
             {
-                if (value.Equals(size)) return;
+                if (value.Equals(field)) return;
 
-                size = value;
+                field = value;
                 Resized?.Invoke();
             }
-        }
+        } = new Size(default_width, default_height);
 
         public Size MinSize
         {

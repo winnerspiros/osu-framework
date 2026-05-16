@@ -11,7 +11,7 @@ using osu.Framework.Audio;
 using osu.Framework.Audio.Mixing;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics.Containers;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Visualisation.Audio
 {

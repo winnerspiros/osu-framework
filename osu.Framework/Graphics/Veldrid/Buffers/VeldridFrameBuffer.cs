@@ -7,7 +7,7 @@ using System.Linq;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Veldrid.Textures;
-using osuTK;
+using System.Numerics;
 using Veldrid;
 using Texture = Veldrid.Texture;
 
@@ -26,26 +26,24 @@ namespace osu.Framework.Graphics.Veldrid.Buffers
         private readonly int mipLevel;
         private Texture? depthTarget;
 
-        private Vector2 size = Vector2.One;
-
         public Vector2 Size
         {
-            get => size;
+            get;
             set
             {
-                if (value == size)
+                if (value == field)
                     return;
 
-                size = value;
+                field = value;
 
-                colourTarget.Width = (int)Math.Ceiling(size.X);
-                colourTarget.Height = (int)Math.Ceiling(size.Y);
+                colourTarget.Width = (int)Math.Ceiling(value.X);
+                colourTarget.Height = (int)Math.Ceiling(value.Y);
                 colourTarget.SetData(new TextureUpload());
                 colourTarget.Upload();
 
                 recreateResources();
             }
-        }
+        } = Vector2.One;
 
         public VeldridFrameBuffer(VeldridRenderer renderer, PixelFormat[]? formats = null, SamplerFilter filteringMode = SamplerFilter.MinLinearMagLinearMipLinear)
         {

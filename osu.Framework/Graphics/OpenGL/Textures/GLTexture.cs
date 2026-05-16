@@ -124,7 +124,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
                 if (disposableId <= 0)
                     return;
 
-                GL.DeleteTextures(1, new[] { disposableId });
+                GL.DeleteTextures(1, ref disposableId);
 
                 texture.memoryLease?.Dispose();
 
@@ -273,10 +273,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
                 // We only need to generate a new texture if we don't have one already. Otherwise just re-use the current one.
                 if (textureId <= 0)
                 {
-                    int[] textures = new int[1];
-                    GL.GenTextures(1, textures);
-
-                    textureId = textures[0];
+                    GL.GenTextures(1, out textureId);
 
                     Renderer.BindTexture(this);
 

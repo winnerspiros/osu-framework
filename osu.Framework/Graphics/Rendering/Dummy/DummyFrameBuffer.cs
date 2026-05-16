@@ -3,7 +3,7 @@
 
 using System;
 using osu.Framework.Graphics.Textures;
-using osuTK;
+using System.Numerics;
 
 namespace osu.Framework.Graphics.Rendering.Dummy
 {

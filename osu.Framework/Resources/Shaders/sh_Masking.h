@@ -63,10 +63,19 @@ lowp vec4 getBorderColour()
 
 lowp vec4 getRoundedColor(lowp vec4 texel, mediump vec2 texCoord)
 {
-	if (!g_IsMasking && v_BlendRange == vec2(0.0))
+	// The rest of the shader assumes non-premultiplied alpha for the texel.
+	// Unmultiply if the texture already has premultiplied alpha (e.g. a framebuffer).
+	if (g_TextureHasPremultipliedAlpha)
 	{
-		return v_Colour * texel;
+		texel.a = max(texel.a, 1.0 / 1024.0);
+		texel.rgb /= texel.a;
 	}
+
+	bool isEmissive = v_Colour.a < 0.0;
+	vec4 colour = abs(v_Colour);
+
+	if (!g_IsMasking && v_BlendRange == vec2(0.0))
+		return toEmissive(toPremultipliedAlpha(colour * texel), isEmissive);
 
 	highp float dist = distanceFromRoundedRect(vec2(0.0), g_CornerRadius);
 	lowp float alphaFactor = 1.0;
@@ -98,14 +107,10 @@ lowp vec4 getRoundedColor(lowp vec4 texel, mediump vec2 texCoord)
 	alphaFactor *= min(fadeStart - dist, 1.0);
 
 	if (v_BlendRange.x > 0.0 || v_BlendRange.y > 0.0)
-	{
 		alphaFactor *= clamp(1.0 - distanceFromDrawingRect(texCoord), 0.0, 1.0);
-	}
 
 	if (alphaFactor <= 0.0)
-	{
 		return vec4(0.0);
-	}
 
 	// This ends up softening glow without negatively affecting edge smoothness much.
 	alphaFactor = pow(alphaFactor, g_AlphaExponent);
@@ -113,19 +118,20 @@ lowp vec4 getRoundedColor(lowp vec4 texel, mediump vec2 texCoord)
 	highp float borderStart = 1.0 + fadeStart - g_BorderThickness;
 	lowp float colourWeight = min(borderStart - dist, 1.0);
 
-	lowp vec4 contentColour = v_Colour * texel;
+	lowp vec4 contentColour = colour * texel;
 
 	if (colourWeight == 1.0)
-		return vec4(contentColour.rgb, contentColour.a * alphaFactor);
+		return toEmissive(toPremultipliedAlpha(vec4(contentColour.rgb, contentColour.a * alphaFactor)), isEmissive);
 
 	lowp vec4 borderColour = getBorderColour();
 
 	if (colourWeight <= 0.0)
-		return vec4(borderColour.rgb, borderColour.a * alphaFactor);
+		return toEmissive(toPremultipliedAlpha(vec4(borderColour.rgb, borderColour.a * alphaFactor)), isEmissive);
 
 	contentColour.a *= alphaFactor;
 	borderColour.a *= 1.0 - colourWeight;
-	return blend(borderColour, contentColour);
+
+	return toEmissive(blend(toPremultipliedAlpha(borderColour), toPremultipliedAlpha(contentColour)), isEmissive);
 }
 
 #endif

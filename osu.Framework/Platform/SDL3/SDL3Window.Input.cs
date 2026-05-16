@@ -14,7 +14,7 @@ using osu.Framework.Input;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Input.States;
 using osu.Framework.Logging;
-using osuTK;
+using System.Numerics;
 using osuTK.Input;
 using SDL;
 using static SDL.SDL3;
@@ -81,14 +81,12 @@ namespace osu.Framework.Platform.SDL3
             set => CursorStateBindable.Value = value;
         }
 
-        private RectangleF? cursorConfineRect;
-
         public RectangleF? CursorConfineRect
         {
-            get => cursorConfineRect;
+            get;
             set
             {
-                cursorConfineRect = value;
+                field = value;
                 updateCursorConfinement();
             }
         }

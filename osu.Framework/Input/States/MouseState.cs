@@ -5,7 +5,7 @@
 
 using osu.Framework.Extensions.TypeExtensions;
 using osu.Framework.Input.StateChanges;
-using osuTK;
+using System.Numerics;
 using osuTK.Input;
 
 namespace osu.Framework.Input.States

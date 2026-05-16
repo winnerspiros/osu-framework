@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -18,7 +18,7 @@ using osu.Framework.Layout;
 using osu.Framework.Localisation;
 using osu.Framework.Threading;
 using osu.Framework.Utils;
-using osuTK;
+using System.Numerics;
 using osuTK.Graphics;
 using osuTK.Input;
 
@@ -793,65 +793,57 @@ namespace osu.Framework.Graphics.UserInterface
                 AutoSizeAxes = direction == Direction.Horizontal ? Axes.X : Axes.Y;
             }
 
-            private Color4 backgroundColour = Color4.DarkSlateGray;
-
             /// <summary>
             /// Gets or sets the default background colour.
             /// </summary>
             public Color4 BackgroundColour
             {
-                get => backgroundColour;
+                get;
                 set
                 {
-                    backgroundColour = value;
+                    field = value;
                     Scheduler.AddOnce(UpdateBackgroundColour);
                 }
-            }
-
-            private Color4 foregroundColour = Color4.White;
+            } = Color4.DarkSlateGray;
 
             /// <summary>
             /// Gets or sets the default foreground colour.
             /// </summary>
             public Color4 ForegroundColour
             {
-                get => foregroundColour;
+                get;
                 set
                 {
-                    foregroundColour = value;
+                    field = value;
                     Scheduler.AddOnce(UpdateForegroundColour);
                 }
-            }
-
-            private Color4 backgroundColourHover = Color4.DarkGray;
+            } = Color4.White;
 
             /// <summary>
             /// Gets or sets the background colour when this <see cref="DrawableMenuItem"/> is hovered.
             /// </summary>
             public Color4 BackgroundColourHover
             {
-                get => backgroundColourHover;
+                get;
                 set
                 {
-                    backgroundColourHover = value;
+                    field = value;
                     Scheduler.AddOnce(UpdateBackgroundColour);
                 }
-            }
-
-            private Color4 foregroundColourHover = Color4.White;
+            } = Color4.DarkGray;
 
             /// <summary>
             /// Gets or sets the foreground colour when this <see cref="DrawableMenuItem"/> is hovered.
             /// </summary>
             public Color4 ForegroundColourHover
             {
-                get => foregroundColourHover;
+                get;
                 set
                 {
-                    foregroundColourHover = value;
+                    field = value;
                     Scheduler.AddOnce(UpdateForegroundColour);
                 }
-            }
+            } = Color4.White;
 
             public MenuItemState State
             {

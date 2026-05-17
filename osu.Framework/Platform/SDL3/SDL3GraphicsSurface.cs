@@ -2,13 +2,10 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using osu.Framework.Graphics.OpenGL;
 using osu.Framework.Logging;
 using SDL;
 using static SDL.SDL3;
@@ -156,43 +153,7 @@ namespace osu.Framework.Platform.SDL3
 
         private void loadBindings()
         {
-            loadEntryPoints(new osuTK.Graphics.OpenGL.GL());
-            loadEntryPoints(new osuTK.Graphics.OpenGL4.GL());
-            loadEntryPoints(new osuTK.Graphics.ES11.GL());
-            loadEntryPoints(new osuTK.Graphics.ES20.GL());
-            loadEntryPoints(new GL());
-        }
-
-        [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "OpenGL binding entry points are always available at runtime.")]
-        private void loadEntryPoints(GraphicsBindingsBase bindings)
-        {
-            var type = bindings.GetType();
-            var pointsInfo = type.GetRuntimeFields().First(x => x.Name == "_EntryPointsInstance");
-            var namesInfo = type.GetRuntimeFields().First(x => x.Name == "_EntryPointNamesInstance");
-            var offsetsInfo = type.GetRuntimeFields().First(x => x.Name == "_EntryPointNameOffsetsInstance");
-
-            IntPtr[]? entryPointsInstance = (IntPtr[]?)pointsInfo.GetValue(bindings);
-            byte[]? entryPointNamesInstance = (byte[]?)namesInfo.GetValue(bindings);
-            int[]? entryPointNameOffsetsInstance = (int[]?)offsetsInfo.GetValue(bindings);
-
-            Debug.Assert(entryPointsInstance != null);
-            Debug.Assert(entryPointNameOffsetsInstance != null);
-            Debug.Assert(entryPointNamesInstance != null);
-
-            for (int i = 0; i < entryPointsInstance.Length; i++)
-            {
-                // Pin the specific byte in the names array directly (bounds-checked by the runtime).
-                // This avoids unvalidated pointer arithmetic from an untrusted reflection-derived offset.
-                fixed (byte* ptr = &entryPointNamesInstance[entryPointNameOffsetsInstance[i]])
-                {
-                    string? str = Marshal.PtrToStringAnsi(new IntPtr(ptr));
-
-                    Debug.Assert(str != null);
-                    entryPointsInstance[i] = SDL_GL_GetProcAddress(str);
-                }
-            }
-
-            pointsInfo.SetValue(bindings, entryPointsInstance);
+            GL.Initialise(this);
         }
 
         int? IOpenGLGraphicsSurface.BackbufferFramebuffer

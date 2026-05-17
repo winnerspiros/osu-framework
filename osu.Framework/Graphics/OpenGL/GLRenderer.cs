@@ -24,9 +24,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using GL4 = osuTK.Graphics.OpenGL;
 using Image = SixLabors.ImageSharp.Image;
-using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Graphics.OpenGL
 {
@@ -71,6 +69,7 @@ namespace osu.Framework.Graphics.OpenGL
 
             openGLSurface = (IOpenGLGraphicsSurface)graphicsSurface;
             openGLSurface.MakeCurrent(openGLSurface.WindowContext);
+            GL.Initialise(openGLSurface);
 
             backbufferFramebuffer = openGLSurface.BackbufferFramebuffer ?? 0;
 
@@ -318,9 +317,9 @@ namespace osu.Framework.Graphics.OpenGL
 
                 lastBlendingEnabledState = true;
 
-                GL.BlendEquationSeparate((osuTK.Graphics.ES30.BlendEquationMode)blendingParameters.RGBEquationMode, (osuTK.Graphics.ES30.BlendEquationMode)blendingParameters.AlphaEquationMode);
-                GL.BlendFuncSeparate((osuTK.Graphics.ES30.BlendingFactorSrc)blendingParameters.SourceBlendingFactor, (osuTK.Graphics.ES30.BlendingFactorDest)blendingParameters.DestinationBlendingFactor,
-                    (osuTK.Graphics.ES30.BlendingFactorSrc)blendingParameters.SourceAlphaBlendingFactor, (osuTK.Graphics.ES30.BlendingFactorDest)blendingParameters.DestinationAlphaBlendingFactor);
+                GL.BlendEquationSeparate((BlendEquationMode)blendingParameters.RGBEquationMode, (BlendEquationMode)blendingParameters.AlphaEquationMode);
+                GL.BlendFuncSeparate((BlendingFactorSrc)blendingParameters.SourceBlendingFactor, (BlendingFactorDest)blendingParameters.DestinationBlendingFactor,
+                    (BlendingFactorSrc)blendingParameters.SourceAlphaBlendingFactor, (BlendingFactorDest)blendingParameters.DestinationAlphaBlendingFactor);
             }
         }
 

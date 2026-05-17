@@ -2,12 +2,9 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
+using osu.Framework.Graphics.OpenGL;
 using static SDL2.SDL;
 
 namespace osu.Framework.Platform.SDL2
@@ -94,59 +91,7 @@ namespace osu.Framework.Platform.SDL2
 
         private void loadBindings()
         {
-            loadEntryPoints(new osuTK.Graphics.OpenGL.GL());
-            loadEntryPoints(new osuTK.Graphics.OpenGL4.GL());
-            loadEntryPoints(new osuTK.Graphics.ES11.GL());
-            loadEntryPoints(new osuTK.Graphics.ES20.GL());
-            loadEntryPoints(new GL());
-        }
-
-        [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "OpenGL binding entry points are always available at runtime.")]
-        private unsafe void loadEntryPoints(GraphicsBindingsBase bindings)
-        {
-            var type = bindings.GetType();
-            var pointsInfo = type.GetRuntimeFields().First(x => x.Name == "_EntryPointsInstance");
-            var namesInfo = type.GetRuntimeFields().First(x => x.Name == "_EntryPointNamesInstance");
-            var offsetsInfo = type.GetRuntimeFields().First(x => x.Name == "_EntryPointNameOffsetsInstance");
-
-            IntPtr[]? entryPointsInstance = (IntPtr[]?)pointsInfo.GetValue(bindings);
-            byte[]? entryPointNamesInstance = (byte[]?)namesInfo.GetValue(bindings);
-            int[]? entryPointNameOffsetsInstance = (int[]?)offsetsInfo.GetValue(bindings);
-
-            Debug.Assert(entryPointsInstance != null);
-            Debug.Assert(entryPointNameOffsetsInstance != null);
-            Debug.Assert(entryPointNamesInstance != null);
-
-            for (int i = 0; i < entryPointsInstance.Length; i++)
-            {
-                // Pin the specific byte in the names array directly (bounds-checked by the runtime).
-                // This avoids unvalidated pointer arithmetic from an untrusted reflection-derived offset.
-                fixed (byte* ptr = &entryPointNamesInstance[entryPointNameOffsetsInstance[i]])
-                {
-                    string? str = Marshal.PtrToStringAnsi(new IntPtr(ptr));
-
-                    Debug.Assert(str != null);
-                    entryPointsInstance[i] = getProcAddress(str);
-                }
-            }
-
-            pointsInfo.SetValue(bindings, entryPointsInstance);
-        }
-
-        private IntPtr getProcAddress(string symbol)
-        {
-            const int error_category = (int)SDL_LogCategory.SDL_LOG_CATEGORY_ERROR;
-            SDL_LogPriority oldPriority = SDL_LogGetPriority(error_category);
-
-            // Prevent logging calls to SDL_GL_GetProcAddress() that fail on systems which don't have the requested symbol (typically macOS).
-            SDL_LogSetPriority(error_category, SDL_LogPriority.SDL_LOG_PRIORITY_INFO);
-
-            IntPtr ret = SDL_GL_GetProcAddress(symbol);
-
-            // Reset the logging behaviour.
-            SDL_LogSetPriority(error_category, oldPriority);
-
-            return ret;
+            GL.Initialise(this);
         }
 
         int? IOpenGLGraphicsSurface.BackbufferFramebuffer
@@ -199,7 +144,21 @@ namespace osu.Framework.Platform.SDL2
         void IOpenGLGraphicsSurface.DeleteContext(IntPtr context) => SDL_GL_DeleteContext(context);
         void IOpenGLGraphicsSurface.MakeCurrent(IntPtr context) => SDL_GL_MakeCurrent(window.SDLWindowHandle, context);
         void IOpenGLGraphicsSurface.ClearCurrent() => SDL_GL_MakeCurrent(window.SDLWindowHandle, IntPtr.Zero);
-        IntPtr IOpenGLGraphicsSurface.GetProcAddress(string symbol) => getProcAddress(symbol);
+        IntPtr IOpenGLGraphicsSurface.GetProcAddress(string symbol)
+        {
+            const int error_category = (int)SDL_LogCategory.SDL_LOG_CATEGORY_ERROR;
+            SDL_LogPriority oldPriority = SDL_LogGetPriority(error_category);
+
+            // Prevent logging calls to SDL_GL_GetProcAddress() that fail on systems which don't have the requested symbol (typically macOS).
+            SDL_LogSetPriority(error_category, SDL_LogPriority.SDL_LOG_PRIORITY_INFO);
+
+            IntPtr ret = SDL_GL_GetProcAddress(symbol);
+
+            // Reset the logging behaviour.
+            SDL_LogSetPriority(error_category, oldPriority);
+
+            return ret;
+        }
 
         #endregion
 

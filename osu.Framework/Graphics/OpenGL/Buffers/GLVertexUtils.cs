@@ -8,8 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using osu.Framework.Graphics.Rendering.Vertices;
-using osuTK.Graphics.ES30;
-using VertexAttribPointerType = osu.Framework.Graphics.Rendering.Vertices.VertexAttribPointerType;
+using RenderingVertexAttribPointerType = osu.Framework.Graphics.Rendering.Vertices.VertexAttribPointerType;
 
 namespace osu.Framework.Graphics.OpenGL.Buffers
 {
@@ -67,30 +66,30 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
                 if (isIntegerType(attributes[i].Type) && !attributes[i].Normalized)
                     GL.VertexAttribIPointer(i, attributes[i].Count, convertIntegerType(attributes[i].Type), STRIDE, attributes[i].Offset);
                 else
-                    GL.VertexAttribPointer(i, attributes[i].Count, (osuTK.Graphics.ES30.VertexAttribPointerType)attributes[i].Type, attributes[i].Normalized, STRIDE, attributes[i].Offset);
+                    GL.VertexAttribPointer(i, attributes[i].Count, (VertexAttribPointerType)attributes[i].Type, attributes[i].Normalized, STRIDE, attributes[i].Offset);
             }
         }
 
-        private static bool isIntegerType(VertexAttribPointerType type)
+        private static bool isIntegerType(RenderingVertexAttribPointerType type)
         {
             switch (type)
             {
-                case VertexAttribPointerType.Int:
+                case RenderingVertexAttribPointerType.Int:
                     return true;
 
-                case VertexAttribPointerType.UnsignedInt:
+                case RenderingVertexAttribPointerType.UnsignedInt:
                     return true;
 
-                case VertexAttribPointerType.Byte:
+                case RenderingVertexAttribPointerType.Byte:
                     return true;
 
-                case VertexAttribPointerType.UnsignedByte:
+                case RenderingVertexAttribPointerType.UnsignedByte:
                     return true;
 
-                case VertexAttribPointerType.Short:
+                case RenderingVertexAttribPointerType.Short:
                     return true;
 
-                case VertexAttribPointerType.UnsignedShort:
+                case RenderingVertexAttribPointerType.UnsignedShort:
                     return true;
 
                 default:
@@ -98,16 +97,16 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
             }
         }
 
-        private static VertexAttribIntegerType convertIntegerType(VertexAttribPointerType type)
+        private static VertexAttribIntegerType convertIntegerType(RenderingVertexAttribPointerType type)
         {
             switch (type)
             {
-                case VertexAttribPointerType.Int:
-                case VertexAttribPointerType.UnsignedInt:
-                case VertexAttribPointerType.Byte:
-                case VertexAttribPointerType.UnsignedByte:
-                case VertexAttribPointerType.Short:
-                case VertexAttribPointerType.UnsignedShort:
+                case RenderingVertexAttribPointerType.Int:
+                case RenderingVertexAttribPointerType.UnsignedInt:
+                case RenderingVertexAttribPointerType.Byte:
+                case RenderingVertexAttribPointerType.UnsignedByte:
+                case RenderingVertexAttribPointerType.Short:
+                case RenderingVertexAttribPointerType.UnsignedShort:
                     // These appear to be 1-1 conversions.
                     return (VertexAttribIntegerType)(int)type;
 

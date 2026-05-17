@@ -10,9 +10,6 @@ using osu.Framework.Threading;
 using Veldrid;
 using Veldrid.SPIRV;
 using static osu.Framework.Threading.ScheduledDelegate;
-using GL4 = osuTK.Graphics.OpenGL;
-using ProgramInterface = osuTK.Graphics.OpenGL.ProgramInterface;
-using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Graphics.OpenGL.Shaders
 {

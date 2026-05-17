@@ -3,7 +3,6 @@
 
 using System;
 using osu.Framework.Graphics.Rendering;
-using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Graphics.OpenGL
 {

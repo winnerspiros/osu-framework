@@ -167,6 +167,9 @@ namespace osu.Framework.Input
 
             foreach (var button in Enum.GetValues<MouseButton>())
             {
+                if (mouseButtonEventManagers.ContainsKey(button))
+                    continue;
+
                 var manager = CreateButtonEventManagerFor(button);
 
                 manager.InputManager = this;

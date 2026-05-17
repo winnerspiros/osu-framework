@@ -50,7 +50,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
                 for (int i = 0; i < amountVertices; i++)
                     indices[i] = (ushort)i;
 
-                GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(amountVertices * sizeof(ushort)), indices, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, amountVertices * sizeof(ushort), indices, BufferUsageHint.StaticDraw);
 
                 GLLinearIndexData.MaxAmountIndices = amountVertices;
             }

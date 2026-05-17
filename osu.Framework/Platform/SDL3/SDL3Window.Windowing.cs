@@ -12,9 +12,9 @@ using osu.Framework.Bindables;
 using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
-using Vector2 = System.Numerics.Vector2;
 using SDL;
 using static SDL.SDL3;
+using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Platform.SDL3
 {

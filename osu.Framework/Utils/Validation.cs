@@ -3,10 +3,10 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using System.Numerics;
 
 namespace osu.Framework.Utils
 {

@@ -284,10 +284,10 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
                         manualMipmaps
-                            ? (int)(filteringMode == TextureFilteringMode.Linear ? 0x2601 : 0x2600) // GL_LINEAR / GL_NEAREST
-                            : (int)(filteringMode == TextureFilteringMode.Linear ? 0x2703 : 0x2600)); // GL_LINEAR_MIPMAP_LINEAR / GL_NEAREST
+                            ? (filteringMode == TextureFilteringMode.Linear ? 0x2601 : 0x2600) // GL_LINEAR / GL_NEAREST
+                            : (filteringMode == TextureFilteringMode.Linear ? 0x2703 : 0x2600)); // GL_LINEAR_MIPMAP_LINEAR / GL_NEAREST
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
-                        (int)(filteringMode == TextureFilteringMode.Linear ? 0x2601 : 0x2600)); // GL_LINEAR / GL_NEAREST
+                        filteringMode == TextureFilteringMode.Linear ? 0x2601 : 0x2600); // GL_LINEAR / GL_NEAREST
 
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);

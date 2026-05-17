@@ -4,8 +4,8 @@
 #nullable disable
 
 using System;
-using osu.Framework.Platform;
 using System.Numerics;
+using osu.Framework.Platform;
 
 namespace osu.Framework.Graphics.OpenGL.Buffers
 {

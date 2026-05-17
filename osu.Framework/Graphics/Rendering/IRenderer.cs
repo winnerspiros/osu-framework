@@ -9,9 +9,9 @@ using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
-using Vector2 = System.Numerics.Vector2;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Graphics.Rendering
 {

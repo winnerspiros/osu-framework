@@ -52,7 +52,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
                     indices[j + 5] = (ushort)(i + 1);
                 }
 
-                GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(amountIndices * sizeof(ushort)), indices, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, amountIndices * sizeof(ushort), indices, BufferUsageHint.StaticDraw);
 
                 GLQuadIndexData.MaxAmountIndices = amountIndices;
             }

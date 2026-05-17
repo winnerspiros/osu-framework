@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Primitives;
@@ -14,7 +15,6 @@ using osu.Framework.Input;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
-using System.Numerics;
 
 namespace osu.Framework.Graphics.Cursor
 {

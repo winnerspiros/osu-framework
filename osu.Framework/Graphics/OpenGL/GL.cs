@@ -369,11 +369,11 @@ namespace osu.Framework.Graphics.OpenGL
     {
         internal static OpenGLProcTable Table;
 
-        private static delegate* unmanaged<uint, uint, byte*> _getStringi;
-        private static delegate* unmanaged<int, void> _clearStencil;
-        private static delegate* unmanaged<int, float, float, void> _uniform2f;
-        private static delegate* unmanaged<int, float, float, float, void> _uniform3f;
-        private static delegate* unmanaged<int, float, float, float, float, void> _uniform4f;
+        private static delegate* unmanaged<uint, uint, byte*> getStringiPtr;
+        private static delegate* unmanaged<int, void> clearStencilPtr;
+        private static delegate* unmanaged<int, float, float, void> uniform2fPtr;
+        private static delegate* unmanaged<int, float, float, float, void> uniform3fPtr;
+        private static delegate* unmanaged<int, float, float, float, float, void> uniform4fPtr;
 
         internal static void Initialise(IOpenGLGraphicsSurface surface)
         {
@@ -456,11 +456,11 @@ namespace osu.Framework.Graphics.OpenGL
                 Finish = (delegate* unmanaged<void>)(void*)surface.GetProcAddress("glFinish"),
             };
 
-            _getStringi = (delegate* unmanaged<uint, uint, byte*>)(void*)surface.GetProcAddress("glGetStringi");
-            _clearStencil = (delegate* unmanaged<int, void>)(void*)surface.GetProcAddress("glClearStencil");
-            _uniform2f = (delegate* unmanaged<int, float, float, void>)(void*)surface.GetProcAddress("glUniform2f");
-            _uniform3f = (delegate* unmanaged<int, float, float, float, void>)(void*)surface.GetProcAddress("glUniform3f");
-            _uniform4f = (delegate* unmanaged<int, float, float, float, float, void>)(void*)surface.GetProcAddress("glUniform4f");
+            getStringiPtr = (delegate* unmanaged<uint, uint, byte*>)(void*)surface.GetProcAddress("glGetStringi");
+            clearStencilPtr = (delegate* unmanaged<int, void>)(void*)surface.GetProcAddress("glClearStencil");
+            uniform2fPtr = (delegate* unmanaged<int, float, float, void>)(void*)surface.GetProcAddress("glUniform2f");
+            uniform3fPtr = (delegate* unmanaged<int, float, float, float, void>)(void*)surface.GetProcAddress("glUniform3f");
+            uniform4fPtr = (delegate* unmanaged<int, float, float, float, float, void>)(void*)surface.GetProcAddress("glUniform4f");
         }
 
         public static string GetString(StringName name)
@@ -471,7 +471,7 @@ namespace osu.Framework.Graphics.OpenGL
 
         public static string GetString(StringNameIndexed name, int index)
         {
-            byte* ptr = _getStringi((uint)name, (uint)index);
+            byte* ptr = getStringiPtr((uint)name, (uint)index);
             return ptr == null ? string.Empty : Marshal.PtrToStringAnsi((IntPtr)ptr) ?? string.Empty;
         }
 
@@ -518,7 +518,7 @@ namespace osu.Framework.Graphics.OpenGL
 
         public static void ClearDepth(float depth) => Table.ClearDepthF(depth);
 
-        public static void ClearStencil(int s) => _clearStencil(s);
+        public static void ClearStencil(int s) => clearStencilPtr(s);
 
         public static void Viewport(int x, int y, int width, int height) => Table.Viewport(x, y, width, height);
         public static void Scissor(int x, int y, int width, int height) => Table.Scissor(x, y, width, height);
@@ -578,7 +578,7 @@ namespace osu.Framework.Graphics.OpenGL
         public static void BufferSubData<T>(BufferTarget target, nint offset, nint size, ref T data) where T : unmanaged
         {
             fixed (T* p = &data)
-                Table.BufferSubData((uint)target, (IntPtr)offset, (UIntPtr)size, p);
+                Table.BufferSubData((uint)target, offset, (UIntPtr)size, p);
         }
 
         public static void BindBufferBase(BufferRangeTarget target, int index, int buffer)
@@ -781,9 +781,9 @@ namespace osu.Framework.Graphics.OpenGL
 
         public static void Uniform1(int location, int v0) => Table.Uniform1i(location, v0);
         public static void Uniform1(int location, float v0) => Table.Uniform1f(location, v0);
-        public static void Uniform2(int location, float v0, float v1) => _uniform2f(location, v0, v1);
-        public static void Uniform3(int location, float v0, float v1, float v2) => _uniform3f(location, v0, v1, v2);
-        public static void Uniform4(int location, float v0, float v1, float v2, float v3) => _uniform4f(location, v0, v1, v2, v3);
+        public static void Uniform2(int location, float v0, float v1) => uniform2fPtr(location, v0, v1);
+        public static void Uniform3(int location, float v0, float v1, float v2) => uniform3fPtr(location, v0, v1, v2);
+        public static void Uniform4(int location, float v0, float v1, float v2, float v3) => uniform4fPtr(location, v0, v1, v2, v3);
 
         public static void UniformMatrix3(int location, int count, bool transpose, ref float value)
         {

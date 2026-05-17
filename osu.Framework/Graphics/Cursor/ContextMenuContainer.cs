@@ -6,11 +6,11 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input;
 using osu.Framework.Input.Events;
-using System.Numerics;
 
 namespace osu.Framework.Graphics.Cursor
 {

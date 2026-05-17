@@ -3,11 +3,11 @@
 
 #nullable disable
 
+using System.Numerics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Transforms;
-using System.Numerics;
 
 namespace osu.Framework.Graphics.Visualisation
 {

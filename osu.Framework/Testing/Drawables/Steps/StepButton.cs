@@ -69,17 +69,15 @@ namespace osu.Framework.Testing.Drawables.Steps
             set => SpriteText.Text = value;
         }
 
-        private Colour4 lightColour = Colour4.BlueViolet;
-
         public Colour4 LightColour
         {
-            get => lightColour;
+            get;
             set
             {
-                lightColour = value;
+                field = value;
                 if (IsLoaded) Reset();
             }
-        }
+        } = Colour4.BlueViolet;
 
         protected override void LoadComplete()
         {
@@ -107,7 +105,7 @@ namespace osu.Framework.Testing.Drawables.Steps
         public virtual void Reset()
         {
             Background.DelayUntilTransformsFinished().FadeColour(IdleColour, 1000, Easing.OutQuint);
-            Light.FadeColour(lightColour);
+            Light.FadeColour(LightColour);
         }
 
         public virtual void PerformStep(bool userTriggered = false)

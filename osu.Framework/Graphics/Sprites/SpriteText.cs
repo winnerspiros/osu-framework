@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Development;
@@ -17,7 +18,6 @@ using osu.Framework.Layout;
 using osu.Framework.Localisation;
 using osu.Framework.Text;
 using osu.Framework.Utils;
-using System.Numerics;
 
 namespace osu.Framework.Graphics.Sprites
 {

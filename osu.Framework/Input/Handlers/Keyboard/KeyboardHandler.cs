@@ -4,7 +4,6 @@
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Platform;
 using osu.Framework.Statistics;
-using osu.Framework.Input;
 
 namespace osu.Framework.Input.Handlers.Keyboard
 {

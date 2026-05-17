@@ -3,7 +3,6 @@
 
 using System;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using osu.Framework.Graphics.OpenGL;
 using static SDL2.SDL;
 

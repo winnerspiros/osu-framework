@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Containers;
@@ -17,7 +18,6 @@ using osu.Framework.Input;
 using osu.Framework.Input.Events;
 using osu.Framework.Platform;
 using osu.Framework.Utils;
-using System.Numerics;
 
 namespace osu.Framework.Graphics.Visualisation
 {

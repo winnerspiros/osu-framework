@@ -2,8 +2,8 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Collections.Generic;
-using osu.Framework.Graphics.Sprites;
 using System.Numerics;
+using osu.Framework.Graphics.Sprites;
 
 namespace osu.Framework.Text
 {

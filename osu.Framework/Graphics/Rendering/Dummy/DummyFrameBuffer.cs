@@ -2,8 +2,8 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using osu.Framework.Graphics.Textures;
 using System.Numerics;
+using osu.Framework.Graphics.Textures;
 
 namespace osu.Framework.Graphics.Rendering.Dummy
 {

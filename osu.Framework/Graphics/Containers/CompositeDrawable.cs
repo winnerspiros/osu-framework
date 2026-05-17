@@ -8,10 +8,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 using osu.Framework.Allocation;
 using osu.Framework.Development;
 using osu.Framework.Extensions.EnumExtensions;
@@ -29,7 +29,7 @@ using osu.Framework.Statistics;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using osu.Framework.Utils;
-using System.Numerics;
+using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 
 namespace osu.Framework.Graphics.Containers
 {

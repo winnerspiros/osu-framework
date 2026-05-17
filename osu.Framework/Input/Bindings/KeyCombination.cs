@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using osu.Framework.Extensions;
 using osu.Framework.Input.States;
-using System.Numerics;
 
 namespace osu.Framework.Input.Bindings
 {

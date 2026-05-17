@@ -3,9 +3,9 @@
 
 #nullable disable
 
+using System.Numerics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
-using System.Numerics;
 
 namespace osu.Framework.Graphics.Animations
 {

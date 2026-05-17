@@ -153,23 +153,21 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
-        private Colour4 backgroundColour = new Colour4(0, 0, 0, 0);
-
         /// <summary>
         /// The background colour of the framebuffer. Transparent black by default.
         /// </summary>
         public Colour4 BackgroundColour
         {
-            get => backgroundColour;
+            get;
             set
             {
-                if (backgroundColour == value)
+                if (field == value)
                     return;
 
-                backgroundColour = value;
+                field = value;
                 ForceRedraw();
             }
-        }
+        } = new Colour4(0, 0, 0, 0);
 
         private Vector2 frameBufferScale = Vector2.One;
 

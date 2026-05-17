@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Numerics;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Primitives;
@@ -9,7 +10,6 @@ using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.IO.Stores;
-using System.Numerics;
 
 namespace osu.Framework.Graphics.Sprites
 {
@@ -67,23 +67,21 @@ namespace osu.Framework.Graphics.Sprites
             }
         }
 
-        private Colour4 shadowColour = new Colour4(0f, 0f, 0f, 0.2f);
-
         /// <summary>
         /// The colour of the shadow displayed around the icon. A shadow will only be displayed if the <see cref="Shadow"/> property is set to true.
         /// </summary>
         public Colour4 ShadowColour
         {
-            get => shadowColour;
+            get;
             set
             {
-                if (shadowColour == value)
+                if (field == value)
                     return;
 
-                shadowColour = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
-        }
+        } = new Colour4(0f, 0f, 0f, 0.2f);
 
         private Vector2 shadowOffset = new Vector2(0, 2f);
 
@@ -160,7 +158,7 @@ namespace osu.Framework.Graphics.Sprites
                 offsetRect.Location += Source.shadowOffset;
                 shadowDrawQuad = Source.ToScreenSpace(offsetRect);
 
-                ColourInfo shadowCol = Source.shadowColour;
+                ColourInfo shadowCol = Source.ShadowColour;
 
                 //adjust shadow alpha based on highest component intensity to avoid muddy display of darker text.
                 //squared result for quadratic fall-off seems to give the best result.

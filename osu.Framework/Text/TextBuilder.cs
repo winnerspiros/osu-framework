@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using osu.Framework.Caching;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Sprites;
-using System.Numerics;
 
 namespace osu.Framework.Text
 {

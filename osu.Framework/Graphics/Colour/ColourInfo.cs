@@ -4,8 +4,8 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using osu.Framework.Graphics.Primitives;
 using System.Numerics;
+using osu.Framework.Graphics.Primitives;
 
 namespace osu.Framework.Graphics.Colour
 {

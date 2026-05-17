@@ -32,29 +32,25 @@ namespace osu.Framework.Graphics.UserInterface
 
         public Bindable<string> SearchTerm => SearchBar.SearchTerm;
 
-        private Colour4 backgroundColour = Colour4.DarkGray;
-
         protected Colour4 BackgroundColour
         {
-            get => backgroundColour;
+            get;
             set
             {
-                backgroundColour = value;
+                field = value;
                 updateState();
             }
-        }
-
-        private Colour4 disabledColour = Colour4.Gray;
+        } = Colour4.DarkGray;
 
         protected Colour4 DisabledColour
         {
-            get => disabledColour;
+            get;
             set
             {
-                disabledColour = value;
+                field = value;
                 updateState();
             }
-        }
+        } = Colour4.Gray;
 
         protected Colour4 BackgroundColourHover { get; set; } = Colour4.Gray;
 

@@ -11,7 +11,6 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
 using NUnit.Framework.Interfaces;
@@ -30,6 +29,7 @@ using osu.Framework.Platform;
 using osu.Framework.Testing.Drawables.Steps;
 using osu.Framework.Threading;
 using Logger = osu.Framework.Logging.Logger;
+using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Testing

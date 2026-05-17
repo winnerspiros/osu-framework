@@ -3,9 +3,9 @@
 
 #nullable disable
 
+using System.Numerics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Primitives;
-using System.Numerics;
 
 namespace osu.Framework.Graphics.Visualisation
 {

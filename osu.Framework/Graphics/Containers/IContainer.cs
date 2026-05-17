@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using osu.Framework.Graphics.Effects;
 using System.Numerics;
+using osu.Framework.Graphics.Effects;
 
 namespace osu.Framework.Graphics.Containers
 {

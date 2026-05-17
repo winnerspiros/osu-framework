@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Audio.Track;
-using osu.Framework.Extensions;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
@@ -72,27 +71,23 @@ namespace osu.Framework.Graphics.Audio
             }
         }
 
-        private Colour4 baseColour = Colour4.White;
-
         /// <summary>
         /// The base colour of the graph for frequencies that don't fall into the predefined low/mid/high buckets.
         /// Also serves as the default value of <see cref="LowColour"/>, <see cref="MidColour"/>, and <see cref="HighColour"/>.
         /// </summary>
         public Colour4 BaseColour
         {
-            get => baseColour;
+            get;
             set
             {
-                if (baseColour == value)
+                if (field == value)
                     return;
 
-                baseColour = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
-        }
-
-        private Colour4? lowColour;
+        } = Colour4.White;
 
         /// <summary>
         /// The colour which low-range frequencies should be colourised with.
@@ -100,19 +95,17 @@ namespace osu.Framework.Graphics.Audio
         /// </summary>
         public Colour4? LowColour
         {
-            get => lowColour;
+            get;
             set
             {
-                if (lowColour == value)
+                if (field == value)
                     return;
 
-                lowColour = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
         }
-
-        private Colour4? midColour;
 
         /// <summary>
         /// The colour which mid-range frequencies should be colourised with.
@@ -120,19 +113,17 @@ namespace osu.Framework.Graphics.Audio
         /// </summary>
         public Colour4? MidColour
         {
-            get => midColour;
+            get;
             set
             {
-                if (midColour == value)
+                if (field == value)
                     return;
 
-                midColour = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
         }
-
-        private Colour4? highColour;
 
         /// <summary>
         /// The colour which high-range frequencies should be colourised with.
@@ -140,13 +131,13 @@ namespace osu.Framework.Graphics.Audio
         /// </summary>
         public Colour4? HighColour
         {
-            get => highColour;
+            get;
             set
             {
-                if (highColour == value)
+                if (field == value)
                     return;
 
-                highColour = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
@@ -283,11 +274,11 @@ namespace osu.Framework.Graphics.Audio
                 texture = Source.texture;
                 drawSize = Source.DrawSize;
 
-                baseColour = Source.baseColour;
+                baseColour = Source.BaseColour;
 
-                lowColour = Source.lowColour ?? baseColour;
-                midColour = Source.midColour ?? baseColour;
-                highColour = Source.highColour ?? baseColour;
+                lowColour = Source.LowColour ?? baseColour;
+                midColour = Source.MidColour ?? baseColour;
+                highColour = Source.HighColour ?? baseColour;
 
                 if (Source.resampledVersion != version)
                 {

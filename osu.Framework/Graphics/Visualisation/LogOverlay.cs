@@ -3,6 +3,7 @@
 
 #nullable disable
 
+using System.Numerics;
 using System.Threading;
 using osu.Framework.Development;
 using osu.Framework.Graphics.Containers;
@@ -12,7 +13,6 @@ using osu.Framework.Input;
 using osu.Framework.Input.Events;
 using osu.Framework.Logging;
 using osu.Framework.Timing;
-using System.Numerics;
 
 namespace osu.Framework.Graphics.Visualisation
 {

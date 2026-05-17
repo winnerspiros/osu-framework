@@ -2,7 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
@@ -44,23 +43,21 @@ namespace osu.Framework.Graphics.UserInterface
             set => Hover.FadeColour(value);
         }
 
-        private Colour4 disabledColour = Colour4.Gray;
-
         /// <summary>
         /// The additive colour that is applied to this button when disabled.
         /// </summary>
         public Colour4 DisabledColour
         {
-            get => disabledColour;
+            get;
             set
             {
-                if (disabledColour == value)
+                if (field == value)
                     return;
 
-                disabledColour = value;
+                field = value;
                 Enabled.TriggerChange();
             }
-        }
+        } = Colour4.Gray;
 
         /// <summary>
         /// The duration of the transition when hovering.

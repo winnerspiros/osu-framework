@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
@@ -33,7 +34,6 @@ using osu.Framework.Statistics;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using osu.Framework.Utils;
-using System.Numerics;
 using Container = osu.Framework.Graphics.Containers.Container;
 
 namespace osu.Framework.Graphics

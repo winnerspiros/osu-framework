@@ -11,8 +11,8 @@ using osu.Framework.Allocation;
 using osu.Framework.Configuration;
 using osu.Framework.Graphics.Animations;
 using osu.Framework.Graphics.Shaders.Types;
-using osu.Framework.Logging;
 using osu.Framework.IO.Stores;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 using Vector2 = System.Numerics.Vector2;
 

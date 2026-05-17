@@ -212,7 +212,7 @@ namespace osu.Framework.Graphics.OpenGL
 
                     for (int i = 0; i < glVideo.TextureIds.Length; i++)
                     {
-                        GL.ActiveTexture(TextureUnit.Texture0 + unit + i);
+                        GL.ActiveTexture((TextureUnit)((int)TextureUnit.Texture0 + unit + i));
                         GL.BindTexture(TextureTarget.Texture2D, glVideo.TextureIds[i]);
                     }
 

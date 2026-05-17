@@ -3,6 +3,7 @@
 
 #nullable disable
 
+using osu.Framework.Input;
 using osu.Framework.Input.Events;
 
 namespace osu.Framework.Graphics.Containers

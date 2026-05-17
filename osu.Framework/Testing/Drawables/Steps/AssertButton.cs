@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using NUnit.Framework;
+using osu.Framework.Graphics;
 
 namespace osu.Framework.Testing.Drawables.Steps
 {

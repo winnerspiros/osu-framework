@@ -19,8 +19,10 @@ using Vortice.Direct3D11;
 using Vortice.DXGI;
 using Vortice.Vulkan;
 using GraphicsBackend = Veldrid.GraphicsBackend;
+using PixelFormat = Veldrid.PixelFormat;
 using PrimitiveTopology = Veldrid.PrimitiveTopology;
 using StencilOperation = Veldrid.StencilOperation;
+using VertexAttribPointerType = osu.Framework.Graphics.Rendering.Vertices.VertexAttribPointerType;
 
 namespace osu.Framework.Graphics.Veldrid
 {

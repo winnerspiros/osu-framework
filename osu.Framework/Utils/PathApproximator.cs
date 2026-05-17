@@ -688,7 +688,7 @@ namespace osu.Framework.Utils
 
             for (int i = 0; i < numTestPoints; i++)
             {
-                prevOrder[i, (int)MathHelper.Clamp(x[i] * (numControlPoints - degree), 0, numControlPoints - degree - 1)] = 1;
+                prevOrder[i, (int)Math.Clamp(x[i] * (numControlPoints - degree), 0, numControlPoints - degree - 1)] = 1;
             }
 
             // Calculate the higher order basis

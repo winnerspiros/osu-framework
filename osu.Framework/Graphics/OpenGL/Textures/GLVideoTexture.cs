@@ -49,7 +49,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
                     textureSize += width * height;
 
-                    GL.ActiveTexture(TextureUnit.Texture0 + (int)i);
+                    GL.ActiveTexture((TextureUnit)((int)TextureUnit.Texture0 + (int)i));
 
                     GL.TexImage2D(TextureTarget2d.Texture2D, 0, TextureComponentCount.R8, width, height,
                         0, PixelFormat.Red, PixelType.UnsignedByte, IntPtr.Zero);
@@ -66,7 +66,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
             for (uint i = 0; i < TextureIds.Length; i++)
             {
-                GL.ActiveTexture(TextureUnit.Texture0 + (int)i);
+                GL.ActiveTexture((TextureUnit)((int)TextureUnit.Texture0 + (int)i));
 
                 GL.PixelStore(PixelStoreParameter.UnpackRowLength, videoUpload.Frame->linesize[i]);
 

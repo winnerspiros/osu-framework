@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Veldrid.Buffers;
 using osu.Framework.Graphics.Veldrid.Textures;
 using System.Numerics;
+using PixelFormat = Veldrid.PixelFormat;
 using Veldrid;
 using Texture = osu.Framework.Graphics.Textures.Texture;
 

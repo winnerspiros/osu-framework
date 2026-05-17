@@ -203,7 +203,7 @@ namespace osu.Framework.Extensions.Color4Extensions
         /// <returns>The hex code representing the colour.</returns>
         public static string ToHex(this Colour4 colour, bool alwaysOutputAlpha = false)
         {
-            int argb = colour.ToArgb();
+            int argb = (int)colour.ToARGB();
             byte a = (byte)(argb >> 24);
             byte r = (byte)(argb >> 16);
             byte g = (byte)(argb >> 8);

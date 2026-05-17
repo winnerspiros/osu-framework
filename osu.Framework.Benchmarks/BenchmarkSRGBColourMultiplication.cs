@@ -2,8 +2,8 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using BenchmarkDotNet.Attributes;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
-using osuTK.Graphics;
 
 namespace osu.Framework.Benchmarks
 {
@@ -11,22 +11,22 @@ namespace osu.Framework.Benchmarks
     {
         private static readonly SRGBColour white = new SRGBColour
         {
-            SRGB = new Color4(1f, 1f, 1f, 1f)
+            SRGB = new Colour4(1f, 1f, 1f, 1f)
         };
 
         private static readonly SRGBColour white_with_opacity = new SRGBColour
         {
-            SRGB = new Color4(1f, 1f, 1f, 0.5f)
+            SRGB = new Colour4(1f, 1f, 1f, 0.5f)
         };
 
         private static readonly SRGBColour gray = new SRGBColour
         {
-            SRGB = Color4.Gray
+            SRGB = Colour4.Gray
         };
 
         private static readonly SRGBColour gray_light = new SRGBColour
         {
-            SRGB = Color4.LightGray
+            SRGB = Colour4.LightGray
         };
 
         [Benchmark]

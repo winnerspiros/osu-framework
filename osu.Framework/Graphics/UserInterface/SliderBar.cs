@@ -5,6 +5,7 @@ using System;
 using System.Numerics;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Input;
 using osu.Framework.Input.Events;
 
 namespace osu.Framework.Graphics.UserInterface

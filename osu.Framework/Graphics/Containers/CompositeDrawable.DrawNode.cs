@@ -77,8 +77,8 @@ namespace osu.Framework.Graphics.Containers
                 if (!Source.Masking && (Source.BorderThickness != 0.0f || Source.EdgeEffect.Type != EdgeEffectType.None))
                     throw new InvalidOperationException("Can not have border effects/edge effects if masking is disabled.");
 
-                var _inv = DrawInfo.MatrixInverse;
-                var scale = new Vector2(new Vector2(_inv.M11, _inv.M12).Length(), new Vector2(_inv.M21, _inv.M22).Length());
+                var inv = DrawInfo.MatrixInverse;
+                var scale = new Vector2(new Vector2(inv.M11, inv.M12).Length(), new Vector2(inv.M21, inv.M22).Length());
                 float blendRange = Source.MaskingSmoothness * (scale.X + scale.Y) / 2;
 
                 // Calculate a shrunk rectangle which is free from corner radius/smoothing/border effects

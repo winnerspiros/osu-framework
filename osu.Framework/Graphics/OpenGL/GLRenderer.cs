@@ -432,7 +432,7 @@ namespace osu.Framework.Graphics.OpenGL
                             break;
 
                         case RenderBufferFormat.D32:
-                            glFormats[i] = RenderbufferInternalFormat.DepthComponent32f;
+                            glFormats[i] = RenderbufferInternalFormat.DepthComponent32F;
                             break;
 
                         case RenderBufferFormat.D24S8:
@@ -440,7 +440,7 @@ namespace osu.Framework.Graphics.OpenGL
                             break;
 
                         case RenderBufferFormat.D32S8:
-                            glFormats[i] = RenderbufferInternalFormat.Depth32fStencil8;
+                            glFormats[i] = RenderbufferInternalFormat.Depth32FStencil8;
                             break;
 
                         default:

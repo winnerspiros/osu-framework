@@ -55,12 +55,12 @@ namespace osu.Framework.Graphics.OpenGL
         Texture2D = 0x0DE1,
     }
 
-    public enum TextureTarget2d : uint
+    public enum TextureTarget2D : uint
     {
         Texture2D = 0x0DE1,
     }
 
-    public enum TextureComponentCount : int
+    public enum TextureComponentCount
     {
         R8 = 0x8229,
         Rg8 = 0x822B,
@@ -80,7 +80,7 @@ namespace osu.Framework.Graphics.OpenGL
         TextureMaxLod = 0x813B,
     }
 
-    public enum TextureWrapMode : int
+    public enum TextureWrapMode
     {
         Repeat = 0x2901,
         ClampToEdge = 0x812F,
@@ -148,58 +148,58 @@ namespace osu.Framework.Graphics.OpenGL
     {
         R8 = 0x8229,
         R8Snorm = 0x8F94,
-        R16f = 0x822D,
-        R32f = 0x822E,
-        R8ui = 0x8232,
-        R8i = 0x8231,
-        R16ui = 0x8234,
-        R16i = 0x8233,
-        R32ui = 0x8236,
-        R32i = 0x8235,
+        R16F = 0x822D,
+        R32F = 0x822E,
+        R8UI = 0x8232,
+        R8I = 0x8231,
+        R16UI = 0x8234,
+        R16I = 0x8233,
+        R32UI = 0x8236,
+        R32I = 0x8235,
         Rg8 = 0x822B,
         Rg8Snorm = 0x8F95,
-        Rg16f = 0x822F,
-        Rg32f = 0x8230,
-        Rg8ui = 0x8238,
-        Rg8i = 0x8237,
-        Rg16ui = 0x823A,
-        Rg16i = 0x8239,
-        Rg32ui = 0x823C,
-        Rg32i = 0x823B,
+        Rg16F = 0x822F,
+        Rg32F = 0x8230,
+        Rg8UI = 0x8238,
+        Rg8I = 0x8237,
+        Rg16UI = 0x823A,
+        Rg16I = 0x8239,
+        Rg32UI = 0x823C,
+        Rg32I = 0x823B,
         Rgb8 = 0x8051,
         Srgb8 = 0x8C41,
         Rgb565 = 0x8D62,
         Rgb8Snorm = 0x8F96,
-        R11fG11fB10f = 0x8C3A,
+        R11FG11FB10F = 0x8C3A,
         Rgb9E5 = 0x8C3D,
-        Rgb16f = 0x881B,
-        Rgb32f = 0x8815,
-        Rgb8ui = 0x8D7D,
-        Rgb8i = 0x8D8F,
-        Rgb16ui = 0x8D77,
-        Rgb16i = 0x8D89,
-        Rgb32ui = 0x8D71,
-        Rgb32i = 0x8D83,
+        Rgb16F = 0x881B,
+        Rgb32F = 0x8815,
+        Rgb8UI = 0x8D7D,
+        Rgb8I = 0x8D8F,
+        Rgb16UI = 0x8D77,
+        Rgb16I = 0x8D89,
+        Rgb32UI = 0x8D71,
+        Rgb32I = 0x8D83,
         Rgba8 = 0x8058,
         Srgb8Alpha8 = 0x8C43,
         Rgba8Snorm = 0x8F97,
         Rgb5A1 = 0x8057,
         Rgba4 = 0x8056,
         Rgb10A2 = 0x8059,
-        Rgba16f = 0x881A,
-        Rgba32f = 0x8814,
-        Rgba8i = 0x8D8E,
-        Rgba8ui = 0x8D7C,
-        Rgb10A2ui = 0x906F,
-        Rgba16i = 0x8D88,
-        Rgba16ui = 0x8D76,
-        Rgba32i = 0x8D82,
-        Rgba32ui = 0x8D70,
+        Rgba16F = 0x881A,
+        Rgba32F = 0x8814,
+        Rgba8I = 0x8D8E,
+        Rgba8UI = 0x8D7C,
+        Rgb10A2UI = 0x906F,
+        Rgba16I = 0x8D88,
+        Rgba16UI = 0x8D76,
+        Rgba32I = 0x8D82,
+        Rgba32UI = 0x8D70,
         DepthComponent16 = 0x81A5,
         DepthComponent24 = 0x81A6,
-        DepthComponent32f = 0x8CAC,
+        DepthComponent32F = 0x8CAC,
         Depth24Stencil8 = 0x88F0,
-        Depth32fStencil8 = 0x8CAD,
+        Depth32FStencil8 = 0x8CAD,
         StencilIndex8 = 0x8D48,
     }
 
@@ -371,9 +371,9 @@ namespace osu.Framework.Graphics.OpenGL
 
         private static delegate* unmanaged<uint, uint, byte*> getStringiPtr;
         private static delegate* unmanaged<int, void> clearStencilPtr;
-        private static delegate* unmanaged<int, float, float, void> uniform2fPtr;
-        private static delegate* unmanaged<int, float, float, float, void> uniform3fPtr;
-        private static delegate* unmanaged<int, float, float, float, float, void> uniform4fPtr;
+        private static delegate* unmanaged<int, float, float, void> uniform2FPtr;
+        private static delegate* unmanaged<int, float, float, float, void> uniform3FPtr;
+        private static delegate* unmanaged<int, float, float, float, float, void> uniform4FPtr;
 
         internal static void Initialise(IOpenGLGraphicsSurface surface)
         {
@@ -458,9 +458,9 @@ namespace osu.Framework.Graphics.OpenGL
 
             getStringiPtr = (delegate* unmanaged<uint, uint, byte*>)(void*)surface.GetProcAddress("glGetStringi");
             clearStencilPtr = (delegate* unmanaged<int, void>)(void*)surface.GetProcAddress("glClearStencil");
-            uniform2fPtr = (delegate* unmanaged<int, float, float, void>)(void*)surface.GetProcAddress("glUniform2f");
-            uniform3fPtr = (delegate* unmanaged<int, float, float, float, void>)(void*)surface.GetProcAddress("glUniform3f");
-            uniform4fPtr = (delegate* unmanaged<int, float, float, float, float, void>)(void*)surface.GetProcAddress("glUniform4f");
+            uniform2FPtr = (delegate* unmanaged<int, float, float, void>)(void*)surface.GetProcAddress("glUniform2f");
+            uniform3FPtr = (delegate* unmanaged<int, float, float, float, void>)(void*)surface.GetProcAddress("glUniform3f");
+            uniform4FPtr = (delegate* unmanaged<int, float, float, float, float, void>)(void*)surface.GetProcAddress("glUniform4f");
         }
 
         public static string GetString(StringName name)
@@ -610,16 +610,16 @@ namespace osu.Framework.Graphics.OpenGL
                 Table.DeleteTextures(n, (uint*)p);
         }
 
-        public static void TexImage2D(TextureTarget2d target, int level, TextureComponentCount internalformat, int width, int height, int border, PixelFormat format, PixelType type, IntPtr pixels)
+        public static void TexImage2D(TextureTarget2D target, int level, TextureComponentCount internalformat, int width, int height, int border, PixelFormat format, PixelType type, IntPtr pixels)
             => Table.TexImage2D((uint)target, level, (int)internalformat, width, height, border, (uint)format, (uint)type, (void*)pixels);
 
-        public static void TexImage2D<T>(TextureTarget2d target, int level, TextureComponentCount internalformat, int width, int height, int border, PixelFormat format, PixelType type, ref T pixels) where T : unmanaged
+        public static void TexImage2D<T>(TextureTarget2D target, int level, TextureComponentCount internalformat, int width, int height, int border, PixelFormat format, PixelType type, ref T pixels) where T : unmanaged
         {
             fixed (T* p = &pixels)
                 Table.TexImage2D((uint)target, level, (int)internalformat, width, height, border, (uint)format, (uint)type, p);
         }
 
-        public static void TexSubImage2D(TextureTarget2d target, int level, int xoffset, int yoffset, int width, int height, PixelFormat format, PixelType type, IntPtr pixels)
+        public static void TexSubImage2D(TextureTarget2D target, int level, int xoffset, int yoffset, int width, int height, PixelFormat format, PixelType type, IntPtr pixels)
             => Table.TexSubImage2D((uint)target, level, xoffset, yoffset, width, height, (uint)format, (uint)type, (void*)pixels);
 
         public static void TexParameter(TextureTarget target, TextureParameterName pname, int param)
@@ -652,7 +652,7 @@ namespace osu.Framework.Graphics.OpenGL
 
         public static void BindFramebuffer(FramebufferTarget target, int framebuffer) => Table.BindFramebuffer((uint)target, (uint)framebuffer);
 
-        public static void FramebufferTexture2D(FramebufferTarget target, FramebufferAttachment attachment, TextureTarget2d textarget, int texture, int level)
+        public static void FramebufferTexture2D(FramebufferTarget target, FramebufferAttachment attachment, TextureTarget2D textarget, int texture, int level)
             => Table.FramebufferTexture2D((uint)target, (uint)attachment, (uint)textarget, (uint)texture, level);
 
         public static void FramebufferRenderbuffer(FramebufferTarget target, FramebufferAttachment attachment, RenderbufferTarget renderbuffertarget, int renderbuffer)
@@ -691,6 +691,7 @@ namespace osu.Framework.Graphics.OpenGL
         {
             byte[] bytes = Encoding.UTF8.GetBytes(source);
             int length = bytes.Length;
+
             fixed (byte* p = bytes)
             {
                 byte* pSource = p;
@@ -716,6 +717,7 @@ namespace osu.Framework.Graphics.OpenGL
                 return string.Empty;
 
             byte[] buf = new byte[length];
+
             fixed (byte* p = buf)
             {
                 int actual;
@@ -750,6 +752,7 @@ namespace osu.Framework.Graphics.OpenGL
                 return string.Empty;
 
             byte[] buf = new byte[length];
+
             fixed (byte* p = buf)
             {
                 int actual;
@@ -781,9 +784,9 @@ namespace osu.Framework.Graphics.OpenGL
 
         public static void Uniform1(int location, int v0) => Table.Uniform1i(location, v0);
         public static void Uniform1(int location, float v0) => Table.Uniform1f(location, v0);
-        public static void Uniform2(int location, float v0, float v1) => uniform2fPtr(location, v0, v1);
-        public static void Uniform3(int location, float v0, float v1, float v2) => uniform3fPtr(location, v0, v1, v2);
-        public static void Uniform4(int location, float v0, float v1, float v2, float v3) => uniform4fPtr(location, v0, v1, v2, v3);
+        public static void Uniform2(int location, float v0, float v1) => uniform2FPtr(location, v0, v1);
+        public static void Uniform3(int location, float v0, float v1, float v2) => uniform3FPtr(location, v0, v1, v2);
+        public static void Uniform4(int location, float v0, float v1, float v2, float v3) => uniform4FPtr(location, v0, v1, v2, v3);
 
         public static void UniformMatrix3(int location, int count, bool transpose, ref float value)
         {
@@ -818,6 +821,7 @@ namespace osu.Framework.Graphics.OpenGL
 
             public static void ShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding)
             {
+                // ReSharper disable once UseNullPropagation — delegate* unmanaged does not support ?.
                 if (OpenGL.GL.Table.ShaderStorageBlockBinding != null)
                     OpenGL.GL.Table.ShaderStorageBlockBinding((uint)program, (uint)storageBlockIndex, (uint)storageBlockBinding);
             }

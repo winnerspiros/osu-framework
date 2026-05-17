@@ -97,24 +97,22 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
-        private ColourInfo effectColour = Colour4.White;
-
         /// <summary>
         /// The multiplicative colour of drawn buffered object after applying all effects (e.g. blur). Default is <see cref="Colour4.White"/>.
         /// Does not affect the original which is drawn when <see cref="DrawOriginal"/> is true.
         /// </summary>
         public ColourInfo EffectColour
         {
-            get => effectColour;
+            get => field;
             set
             {
-                if (effectColour.Equals(value))
+                if (field.Equals(value))
                     return;
 
-                effectColour = value;
+                field = value;
                 ForceRedraw();
             }
-        }
+        } = Colour4.White;
 
         private BlendingParameters effectBlending = BlendingParameters.Inherit;
 

@@ -135,17 +135,15 @@ namespace osu.Framework.Testing.Drawables
             }
         }
 
-        private bool current;
-
         public virtual bool Current
         {
-            get => current;
+            get => field;
             set
             {
-                if (current == value)
+                if (field == value)
                     return;
 
-                current = value;
+                field = value;
 
                 text.FadeColour(value ? Colour4.Black : Colour4.White, TRANSITION_DURATION);
                 updateVisibility();

@@ -6,7 +6,7 @@ namespace osu.Framework.Platform
     /// <summary>
     /// Identifies a display device.
     /// </summary>
-    public enum DisplayIndex : int
+    public enum DisplayIndex
     {
         /// <summary>The default display.</summary>
         Default = -1,

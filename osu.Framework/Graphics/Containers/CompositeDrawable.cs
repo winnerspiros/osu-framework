@@ -1588,24 +1588,22 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
-        private ColourInfo borderColour = Colour4.Black;
-
         /// <summary>
         /// Determines the color of the border controlled by <see cref="BorderThickness"/>.
         /// Only has an effect when <see cref="Masking"/> is true.
         /// </summary>
         public ColourInfo BorderColour
         {
-            get => borderColour;
+            get => field;
             protected set
             {
-                if (borderColour.Equals(value))
+                if (field.Equals(value))
                     return;
 
-                borderColour = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
-        }
+        } = Colour4.Black;
 
         private EdgeEffectParameters edgeEffect;
 

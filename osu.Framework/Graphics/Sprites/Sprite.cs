@@ -189,8 +189,8 @@ namespace osu.Framework.Graphics.Sprites
             if (EdgeSmoothness == Vector2.Zero)
                 return Vector2.Zero;
 
-            var _inv = DrawInfo.MatrixInverse;
-            return new Vector2(new Vector2(_inv.M11, _inv.M12).Length(), new Vector2(_inv.M21, _inv.M22).Length()) * EdgeSmoothness;
+            var inv = DrawInfo.MatrixInverse;
+            return new Vector2(new Vector2(inv.M11, inv.M12).Length(), new Vector2(inv.M21, inv.M22).Length()) * EdgeSmoothness;
         }
 
         protected override Quad ComputeScreenSpaceDrawQuad()
@@ -231,8 +231,8 @@ namespace osu.Framework.Graphics.Sprites
             //
             // return ToScreenSpace(texRect * DrawSize);
 
-            var _invS = DrawInfo.MatrixInverse;
-            var scale = new Vector2(new Vector2(_invS.M11, _invS.M12).Length(), new Vector2(_invS.M21, _invS.M22).Length());
+            var invS = DrawInfo.MatrixInverse;
+            var scale = new Vector2(new Vector2(invS.M11, invS.M12).Length(), new Vector2(invS.M21, invS.M22).Length());
             RectangleF rectangle = DrawTextureRectangle;
 
             // If the texture wraps or is clamped to its edge in some direction, then the entire

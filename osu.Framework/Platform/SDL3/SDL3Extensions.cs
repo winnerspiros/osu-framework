@@ -348,7 +348,7 @@ namespace osu.Framework.Platform.SDL3
                     return numLockOn ? Key.KeypadPeriod : Key.Delete;
 
                 case SDL_Scancode.SDL_SCANCODE_NONUSBACKSLASH:
-                    return Key.NonUSBackSlash;
+                    return Key.NonUsBackSlash;
 
                 case SDL_Scancode.SDL_SCANCODE_F13:
                     return Key.F13;

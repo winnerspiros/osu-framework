@@ -95,8 +95,8 @@ namespace osu.Framework.Graphics.Sprites
                     parts.EnsureCapacity(partCount);
                 }
 
-                var _inv = DrawInfo.MatrixInverse;
-                Vector2 inflationAmount = new Vector2(new Vector2(_inv.M11, _inv.M12).Length(), new Vector2(_inv.M21, _inv.M22).Length());
+                var inv = DrawInfo.MatrixInverse;
+                Vector2 inflationAmount = new Vector2(new Vector2(inv.M11, inv.M12).Length(), new Vector2(inv.M21, inv.M22).Length());
 
                 foreach (var character in Source.characters)
                 {

@@ -230,7 +230,7 @@ namespace osu.Framework.Graphics.Veldrid
 
             bool supportsEnhancedBarriers = info.SupportsEnhancedBarriers;
             bool supportsMeshShaders = info.SupportsMeshShaders;
-            bool supportsVRS = info.SupportsVariableRateShading;
+            bool supportsVrs = info.SupportsVariableRateShading;
             bool supportsRaytracing = info.SupportsRaytracing;
 
             Logger.Log($@"Direct3D 12 Initialized
@@ -240,7 +240,7 @@ namespace osu.Framework.Graphics.Veldrid
                         Direct3D 12 Shared System Memory:    {sharedSystemMemory} MB
                         Direct3D 12 Enhanced Barriers:       {supportsEnhancedBarriers}
                         Direct3D 12 Mesh Shaders:            {supportsMeshShaders}
-                        Direct3D 12 Variable Rate Shading:   {supportsVRS}
+                        Direct3D 12 Variable Rate Shading:   {supportsVrs}
                         Direct3D 12 Raytracing:              {supportsRaytracing}");
         }
 

@@ -143,6 +143,7 @@ namespace osu.Framework.Platform.SDL2
         void IOpenGLGraphicsSurface.DeleteContext(IntPtr context) => SDL_GL_DeleteContext(context);
         void IOpenGLGraphicsSurface.MakeCurrent(IntPtr context) => SDL_GL_MakeCurrent(window.SDLWindowHandle, context);
         void IOpenGLGraphicsSurface.ClearCurrent() => SDL_GL_MakeCurrent(window.SDLWindowHandle, IntPtr.Zero);
+
         IntPtr IOpenGLGraphicsSurface.GetProcAddress(string symbol)
         {
             const int error_category = (int)SDL_LogCategory.SDL_LOG_CATEGORY_ERROR;

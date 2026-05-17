@@ -298,13 +298,13 @@ namespace osu.Framework.Graphics.OpenGL.Textures
                 if ((Width == upload.Bounds.Width && Height == upload.Bounds.Height) || dataPointer == IntPtr.Zero)
                 {
                     updateMemoryUsage(upload.Level, (long)Width * Height * 4);
-                    GL.TexImage2D(TextureTarget2d.Texture2D, upload.Level, TextureComponentCount.Rgba8, Width, Height, 0, (PixelFormat)upload.Format, PixelType.UnsignedByte, dataPointer);
+                    GL.TexImage2D(TextureTarget2D.Texture2D, upload.Level, TextureComponentCount.Rgba8, Width, Height, 0, (PixelFormat)upload.Format, PixelType.UnsignedByte, dataPointer);
                 }
                 else
                 {
                     initializeLevel(upload.Level, Width, Height);
 
-                    GL.TexSubImage2D(TextureTarget2d.Texture2D, upload.Level, upload.Bounds.X, upload.Bounds.Y, upload.Bounds.Width, upload.Bounds.Height, (PixelFormat)upload.Format,
+                    GL.TexSubImage2D(TextureTarget2D.Texture2D, upload.Level, upload.Bounds.X, upload.Bounds.Y, upload.Bounds.Width, upload.Bounds.Height, (PixelFormat)upload.Format,
                         PixelType.UnsignedByte, dataPointer);
                 }
             }
@@ -331,7 +331,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
                 int div = (int)Math.Pow(2, upload.Level);
 
-                GL.TexSubImage2D(TextureTarget2d.Texture2D, upload.Level, upload.Bounds.X / div, upload.Bounds.Y / div, upload.Bounds.Width / div, upload.Bounds.Height / div,
+                GL.TexSubImage2D(TextureTarget2D.Texture2D, upload.Level, upload.Bounds.X / div, upload.Bounds.Y / div, upload.Bounds.Width / div, upload.Bounds.Height / div,
                     (PixelFormat)upload.Format, PixelType.UnsignedByte, dataPointer);
             }
         }
@@ -349,7 +349,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
                 // For transparent black, pass a null data pointer to let the driver zero the memory.
                 // This avoids a CPU-side image allocation and memcpy, which is significant on mobile.
                 updateMemoryUsage(level, (long)width * height * 4);
-                GL.TexImage2D(TextureTarget2d.Texture2D, level, TextureComponentCount.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+                GL.TexImage2D(TextureTarget2D.Texture2D, level, TextureComponentCount.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
                 return;
             }
 
@@ -360,7 +360,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
             using (var pixels = image.CreateReadOnlyPixelSpan())
             {
                 updateMemoryUsage(level, (long)width * height * 4);
-                GL.TexImage2D(TextureTarget2d.Texture2D, level, TextureComponentCount.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte,
+                GL.TexImage2D(TextureTarget2D.Texture2D, level, TextureComponentCount.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte,
                     ref MemoryMarshal.GetReference(pixels.Span));
             }
         }

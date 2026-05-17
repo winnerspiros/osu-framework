@@ -137,7 +137,7 @@ namespace osu.Framework.Input
         BackSlash = 138,
         BracketRight = 139,
         Tilde = 140,
-        NonUSBackSlash = 141,
+        NonUsBackSlash = 141,
 
         // Keypad
         Keypad0 = 150,

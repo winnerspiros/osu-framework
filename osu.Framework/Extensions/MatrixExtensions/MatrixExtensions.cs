@@ -73,7 +73,7 @@ namespace osu.Framework.Extensions.MatrixExtensions
         /// <summary>
         /// Apply shearing in X and Y direction from the left hand side.
         /// Since shearing is non-commutative it is important to note that we
-        /// first shear in the X direction, and then in the Y direction.
+        /// first shear in the Y direction, and then in the X direction.
         /// </summary>
         /// <param name="m">The matrix to apply the shearing operation to.</param>
         /// <param name="v">The X and Y amounts of shearing.</param>
@@ -90,7 +90,7 @@ namespace osu.Framework.Extensions.MatrixExtensions
         /// <summary>
         /// Apply shearing in X and Y direction from the right hand side.
         /// Since shearing is non-commutative it is important to note that we
-        /// first shear in the Y direction, and then in the X direction.
+        /// first shear in the X direction, and then in the Y direction.
         /// </summary>
         /// <param name="m">The matrix to apply the shearing operation to.</param>
         /// <param name="v">The X and Y amounts of shearing.</param>

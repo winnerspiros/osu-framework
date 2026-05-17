@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using osu.Framework.Graphics.Rendering.Vertices;
 using osuTK.Graphics.ES30;
+using VertexAttribPointerType = osu.Framework.Graphics.Rendering.Vertices.VertexAttribPointerType;
 
 namespace osu.Framework.Graphics.OpenGL.Buffers
 {
@@ -66,7 +67,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
                 if (isIntegerType(attributes[i].Type) && !attributes[i].Normalized)
                     GL.VertexAttribIPointer(i, attributes[i].Count, convertIntegerType(attributes[i].Type), STRIDE, attributes[i].Offset);
                 else
-                    GL.VertexAttribPointer(i, attributes[i].Count, attributes[i].Type, attributes[i].Normalized, STRIDE, attributes[i].Offset);
+                    GL.VertexAttribPointer(i, attributes[i].Count, (osuTK.Graphics.ES30.VertexAttribPointerType)attributes[i].Type, attributes[i].Normalized, STRIDE, attributes[i].Offset);
             }
         }
 
@@ -108,7 +109,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
                 case VertexAttribPointerType.Short:
                 case VertexAttribPointerType.UnsignedShort:
                     // These appear to be 1-1 conversions.
-                    return (VertexAttribIntegerType)type;
+                    return (VertexAttribIntegerType)(int)type;
 
                 default:
                     throw new ArgumentException($"\"{type}\" is not an integer type.", nameof(type));

@@ -4,7 +4,6 @@
 #nullable disable
 
 using osu.Framework.Graphics.Sprites;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.UserInterface
 {
@@ -34,10 +33,10 @@ namespace osu.Framework.Graphics.UserInterface
             }
 
             protected override void OnActivated()
-                => text.Colour = Color4.MediumPurple;
+                => text.Colour = Colour4.MediumPurple;
 
             protected override void OnDeactivated()
-                => text.Colour = Color4.White;
+                => text.Colour = Colour4.White;
         }
 
         public partial class BasicTabControlDropdown : BasicDropdown<T>

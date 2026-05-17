@@ -6,7 +6,6 @@ using osu.Framework.Graphics.Lines;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -77,7 +76,7 @@ namespace osu.Framework.Tests.Visual.Drawables
         {
             Text = text,
             Font = new FontUsage(size: 20),
-            Colour = Color4.White,
+            Colour = Colour4.White,
         };
 
         private static Path createPath(Vector2[] points) => new Path

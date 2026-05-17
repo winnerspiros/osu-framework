@@ -3,7 +3,6 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Shapes;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Containers.Markdown
 {
@@ -31,7 +30,7 @@ namespace osu.Framework.Graphics.Containers.Markdown
         {
             RelativeSizeAxes = Axes.X,
             Height = 1,
-            Colour = Color4.Gray,
+            Colour = Colour4.Gray,
         };
     }
 }

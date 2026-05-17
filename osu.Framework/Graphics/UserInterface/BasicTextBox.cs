@@ -7,7 +7,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.UserInterface
 {
@@ -17,11 +16,11 @@ namespace osu.Framework.Graphics.UserInterface
 
         private const float caret_move_time = 60;
 
-        protected virtual Color4 SelectionColour => FrameworkColour.YellowGreen;
+        protected virtual Colour4 SelectionColour => FrameworkColour.YellowGreen;
 
-        protected Color4 BackgroundCommit { get; set; } = FrameworkColour.Green;
+        protected Colour4 BackgroundCommit { get; set; } = FrameworkColour.Green;
 
-        protected Color4 BackgroundFocused
+        protected Colour4 BackgroundFocused
         {
             get;
             set
@@ -32,7 +31,7 @@ namespace osu.Framework.Graphics.UserInterface
             }
         }
 
-        protected Color4 BackgroundUnfocused
+        protected Colour4 BackgroundUnfocused
         {
             get;
             set
@@ -41,11 +40,11 @@ namespace osu.Framework.Graphics.UserInterface
                 if (!HasFocus)
                     background.Colour = value;
             }
-        } = new Color4(100, 100, 100, 120);
+        } = new Colour4(100, 100, 100, 120);
 
         private readonly Box background;
 
-        protected virtual Color4 InputErrorColour => Color4.Red;
+        protected virtual Colour4 InputErrorColour => Colour4.Red;
 
         public BasicTextBox()
         {
@@ -109,7 +108,7 @@ namespace osu.Framework.Graphics.UserInterface
         {
             public override void Show()
             {
-                var col = (Color4)Colour;
+                var col = (Colour4)Colour;
                 this.FadeColour(col.Opacity(0)).FadeColour(col, caret_move_time * 2, Easing.Out);
             }
 
@@ -137,7 +136,7 @@ namespace osu.Framework.Graphics.UserInterface
         {
             public BasicCaret()
             {
-                Colour = Color4.Transparent;
+                Colour = Colour4.Transparent;
 
                 InternalChild = new Container
                 {
@@ -155,7 +154,7 @@ namespace osu.Framework.Graphics.UserInterface
 
             public float CaretWidth { get; set; }
 
-            public Color4 SelectionColour { get; set; }
+            public Colour4 SelectionColour { get; set; }
 
             public override void DisplayAt(Vector2 position, float? selectionWidth)
             {
@@ -172,7 +171,7 @@ namespace osu.Framework.Graphics.UserInterface
                     this.MoveTo(position with { X = position.X - CaretWidth / 2 }, 60, Easing.Out);
                     this.ResizeWidthTo(CaretWidth, caret_move_time, Easing.Out);
                     this
-                        .FadeColour(Color4.White, 200, Easing.Out)
+                        .FadeColour(Colour4.White, 200, Easing.Out)
                         .Loop(c => c.FadeTo(0.7f).FadeTo(0.4f, 500, Easing.InOutSine));
                 }
             }

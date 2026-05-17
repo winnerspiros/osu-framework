@@ -12,7 +12,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
 using osu.Framework.Tests.Visual;
 using osu.Framework.Utils;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Sprites
 {
@@ -40,7 +39,7 @@ namespace osu.Framework.Tests.Sprites
                         new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = Color4.Red.Opacity(0.3f)
+                            Colour = Colour4.Red.Opacity(0.3f)
                         },
                         text = new SpriteText
                         {
@@ -79,7 +78,7 @@ namespace osu.Framework.Tests.Sprites
                         new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = Color4.Red.Opacity(0.3f)
+                            Colour = Colour4.Red.Opacity(0.3f)
                         },
                         text = new AlwaysPresentSpriteText
                         {

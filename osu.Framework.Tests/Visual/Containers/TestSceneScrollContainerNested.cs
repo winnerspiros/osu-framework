@@ -8,7 +8,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Testing;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Input;
+using osu.Framework.Input;
 
 namespace osu.Framework.Tests.Visual.Containers
 {

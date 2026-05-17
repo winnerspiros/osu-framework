@@ -10,7 +10,6 @@ using osu.Framework.Input;
 using osu.Framework.Input.Events;
 using osu.Framework.Input.States;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Input
 {
@@ -70,7 +69,7 @@ namespace osu.Framework.Tests.Visual.Input
                     background = new Container
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.DarkGreen,
+                        Colour = Colour4.DarkGreen,
                         Alpha = 0,
                         Child = new Box { RelativeSizeAxes = Axes.Both }
                     },
@@ -125,7 +124,7 @@ namespace osu.Framework.Tests.Visual.Input
                     upBox = new Container
                     {
                         RelativeSizeAxes = Axes.X,
-                        Colour = Color4.DarkGreen,
+                        Colour = Colour4.DarkGreen,
                         Height = 10,
                         Alpha = 0,
                         Child = new Box { RelativeSizeAxes = Axes.Both }
@@ -135,7 +134,7 @@ namespace osu.Framework.Tests.Visual.Input
                         Anchor = Anchor.BottomLeft,
                         Origin = Anchor.BottomLeft,
                         RelativeSizeAxes = Axes.X,
-                        Colour = Color4.DarkGreen,
+                        Colour = Colour4.DarkGreen,
                         Height = 10,
                         Alpha = 0,
                         Child = new Box { RelativeSizeAxes = Axes.Both }
@@ -143,7 +142,7 @@ namespace osu.Framework.Tests.Visual.Input
                     leftBox = new Container
                     {
                         RelativeSizeAxes = Axes.Y,
-                        Colour = Color4.DarkGreen,
+                        Colour = Colour4.DarkGreen,
                         Width = 10,
                         Alpha = 0,
                         Child = new Box { RelativeSizeAxes = Axes.Both }
@@ -153,7 +152,7 @@ namespace osu.Framework.Tests.Visual.Input
                         Anchor = Anchor.TopRight,
                         Origin = Anchor.TopRight,
                         RelativeSizeAxes = Axes.Y,
-                        Colour = Color4.DarkGreen,
+                        Colour = Colour4.DarkGreen,
                         Width = 10,
                         Alpha = 0,
                         Child = new Box { RelativeSizeAxes = Axes.Both }
@@ -225,14 +224,14 @@ namespace osu.Framework.Tests.Visual.Input
                         Origin = Anchor.CentreLeft,
                         RelativeSizeAxes = Axes.Both,
                         Width = 0,
-                        Colour = Color4.SkyBlue,
+                        Colour = Colour4.SkyBlue,
                     },
                     background = new Container
                     {
                         RelativeSizeAxes = Axes.Both,
                         Masking = true,
                         BorderThickness = 3,
-                        Child = new Box { RelativeSizeAxes = Axes.Both, Colour = Color4.Transparent },
+                        Child = new Box { RelativeSizeAxes = Axes.Both, Colour = Colour4.Transparent },
                     },
                     new SpriteText
                     {
@@ -252,9 +251,9 @@ namespace osu.Framework.Tests.Visual.Input
             protected override bool OnJoystickPress(JoystickPressEvent e)
             {
                 if (e.Button == positiveAxisButton)
-                    background.BorderColour = Color4.DarkGreen;
+                    background.BorderColour = Colour4.DarkGreen;
                 else if (e.Button == negativeAxisButton)
-                    background.BorderColour = Color4.DarkRed;
+                    background.BorderColour = Colour4.DarkRed;
 
                 return base.OnJoystickPress(e);
             }
@@ -262,7 +261,7 @@ namespace osu.Framework.Tests.Visual.Input
             protected override void OnJoystickRelease(JoystickReleaseEvent e)
             {
                 if (e.Button == positiveAxisButton || e.Button == negativeAxisButton)
-                    background.BorderColour = Color4.Transparent;
+                    background.BorderColour = Colour4.Transparent;
                 else
                     base.OnJoystickRelease(e);
             }

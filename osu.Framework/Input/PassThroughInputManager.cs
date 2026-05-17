@@ -10,7 +10,6 @@ using osu.Framework.Input.Events;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Input.States;
 using System.Numerics;
-using osuTK.Input;
 using JoystickState = osu.Framework.Input.States.JoystickState;
 
 namespace osu.Framework.Input

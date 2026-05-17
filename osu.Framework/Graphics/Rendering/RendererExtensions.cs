@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics.Colour;
@@ -11,7 +12,6 @@ using osu.Framework.Graphics.Rendering.Vertices;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Statistics;
 using osu.Framework.Utils;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
 using Vector4 = System.Numerics.Vector4;
 
@@ -255,7 +255,7 @@ namespace osu.Framework.Graphics.Rendering
         /// <param name="ortho">The rectangle to create the orthographic projection from.</param>
         public static void PushOrtho(this IRenderer renderer, RectangleF ortho)
         {
-            renderer.PushProjectionMatrix(Matrix4.CreateOrthographicOffCenter(ortho.Left, ortho.Right, ortho.Bottom, ortho.Top, -1, 1));
+            renderer.PushProjectionMatrix(Matrix4x4.CreateOrthographicOffCenter(ortho.Left, ortho.Right, ortho.Bottom, ortho.Top, -1, 1));
         }
 
         /// <summary>
@@ -272,18 +272,18 @@ namespace osu.Framework.Graphics.Rendering
         /// </remarks>
         /// <param name="renderer">The renderer.</param>
         /// <param name="matrix">The matrix.</param>
-        public static void PushLocalMatrix(this IRenderer renderer, Matrix4 matrix)
+        public static void PushLocalMatrix(this IRenderer renderer, Matrix4x4 matrix)
         {
             var currentMasking = renderer.CurrentMaskingInfo;
             // normally toMaskingSpace is fed vertices already in screen space coordinates,
             // but since we are modifying the matrix the vertices are in local space
-            currentMasking.ToMaskingSpace = new System.Numerics.Matrix3x2(matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.M31, matrix.M32) * currentMasking.ToMaskingSpace;
+            currentMasking.ToMaskingSpace = new Matrix3x2(matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.M31, matrix.M32) * currentMasking.ToMaskingSpace;
             renderer.PushMaskingInfo(currentMasking, true);
             renderer.PushProjectionMatrix(matrix * renderer.ProjectionMatrix);
         }
 
-        /// <inheritdoc cref="PushLocalMatrix(IRenderer, Matrix4)"/>
-        public static void PushLocalMatrix(this IRenderer renderer, System.Numerics.Matrix3x2 matrix)
+        /// <inheritdoc cref="PushLocalMatrix(IRenderer, Matrix4x4)"/>
+        public static void PushLocalMatrix(this IRenderer renderer, Matrix3x2 matrix)
         {
             var currentMasking = renderer.CurrentMaskingInfo;
             // normally toMaskingSpace is fed vertices already in screen space coordinates,
@@ -292,7 +292,7 @@ namespace osu.Framework.Graphics.Rendering
             renderer.PushMaskingInfo(currentMasking, true);
 
             // this makes sure it also works for 3D vertices like the ones path uses
-            Matrix4 mat = new Matrix4(
+            Matrix4x4 mat = new Matrix4x4(
                 matrix.M11, matrix.M12, 0, 0,
                 matrix.M21, matrix.M22, 0, 0,
                 0, 0, 1, 0,
@@ -301,7 +301,7 @@ namespace osu.Framework.Graphics.Rendering
         }
 
         /// <summary>
-        /// Restores the last projection matrix after a call to <see cref="PushLocalMatrix(IRenderer, Matrix4)"/>.
+        /// Restores the last projection matrix after a call to <see cref="PushLocalMatrix(IRenderer, Matrix4x4)"/>.
         /// </summary>
         /// <param name="renderer">The renderer.</param>
         public static void PopLocalMatrix(this IRenderer renderer)

@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Testing.Drawables.Sections
 {
@@ -52,7 +51,7 @@ namespace osu.Framework.Testing.Drawables.Sections
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
                                 Icon = FontAwesome.Solid.Circle,
-                                Colour = Color4.Red,
+                                Colour = Colour4.Red,
                                 Size = new Vector2(20),
                             },
                             currentFrame = new SpriteText

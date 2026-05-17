@@ -10,10 +10,10 @@ using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Configuration;
 using osu.Framework.Graphics.Animations;
+using osu.Framework.Graphics.Shaders.Types;
 using osu.Framework.Logging;
 using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Graphics.Video
@@ -82,7 +82,7 @@ namespace osu.Framework.Graphics.Video
         /// <summary>
         /// YUV->RGB conversion matrix based on the video colorspace
         /// </summary>
-        public Matrix3 ConversionMatrix => decoder.GetConversionMatrix();
+        public UniformMatrix3 ConversionMatrix => decoder.GetConversionMatrix();
 
         /// <summary>
         /// Creates a new <see cref="Video"/>.

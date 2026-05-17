@@ -8,7 +8,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Sprites
 {
@@ -62,7 +61,7 @@ namespace osu.Framework.Tests.Visual.Sprites
                     {
                         RelativeSizeAxes = Axes.Both,
                         Masking = true,
-                        BorderColour = Color4.OrangeRed,
+                        BorderColour = Colour4.OrangeRed,
                         BorderThickness = 2,
                         Children = new[]
                         {

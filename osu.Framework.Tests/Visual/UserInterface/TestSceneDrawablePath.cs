@@ -14,7 +14,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -155,7 +154,7 @@ namespace osu.Framework.Tests.Visual.UserInterface
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Colour = Color4.Red,
+                        Colour = Colour4.Red,
                         Vertices = new List<Vector2>
                         {
                             new Vector2(50, 50),

@@ -2,15 +2,14 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Numerics;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering.Vertices;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
-using osuTK.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -117,7 +116,7 @@ namespace osu.Framework.Graphics.Rendering
         /// <summary>
         /// The current projection matrix.
         /// </summary>
-        Matrix4 ProjectionMatrix { get; }
+        Matrix4x4 ProjectionMatrix { get; }
 
         /// <summary>
         /// The current depth parameters.
@@ -304,7 +303,7 @@ namespace osu.Framework.Graphics.Rendering
         /// Applies a new projection matrix.
         /// </summary>
         /// <param name="matrix">The matrix.</param>
-        void PushProjectionMatrix(Matrix4 matrix);
+        void PushProjectionMatrix(Matrix4x4 matrix);
 
         /// <summary>
         /// Restores the last projection matrix.
@@ -406,7 +405,7 @@ namespace osu.Framework.Graphics.Rendering
         /// <param name="wrapModeT">The texture's vertex wrap mode.</param>
         /// <returns>The <see cref="Texture"/>.</returns>
         Texture CreateTexture(int width, int height, bool manualMipmaps = false, TextureFilteringMode filteringMode = TextureFilteringMode.Linear, WrapMode wrapModeS = WrapMode.None,
-                              WrapMode wrapModeT = WrapMode.None, Color4? initialisationColour = null);
+                              WrapMode wrapModeT = WrapMode.None, Colour4? initialisationColour = null);
 
         /// <summary>
         /// Creates a new video texture.

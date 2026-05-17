@@ -4,26 +4,25 @@
 using System.Numerics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.UserInterface
 {
     public partial class BasicSliderBar<T> : SliderBar<T>
         where T : struct, INumber<T>, IMinMaxValue<T>
     {
-        public Color4 BackgroundColour
+        public Colour4 BackgroundColour
         {
             get => Box.Colour;
             set => Box.Colour = value;
         }
 
-        public Color4 SelectionColour
+        public Colour4 SelectionColour
         {
             get => SelectionBox.Colour;
             set => SelectionBox.Colour = value;
         }
 
-        public Color4 FocusColour
+        public Colour4 FocusColour
         {
             get;
             set

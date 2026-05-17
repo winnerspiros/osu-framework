@@ -6,7 +6,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Sprites
 {
@@ -89,7 +88,7 @@ namespace osu.Framework.Tests.Visual.Sprites
                 {
                     new Box
                     {
-                        Colour = Color4.DarkMagenta,
+                        Colour = Colour4.DarkMagenta,
                         RelativeSizeAxes = Axes.Both,
                     },
                     new CustomEllipsisSpriteText(ellipsisString, runtimeChange, useFullGlyphHeight)

@@ -6,7 +6,6 @@
 using System;
 using System.Buffers;
 using osu.Framework.Graphics.Primitives;
-using osuTK.Graphics.ES30;
 using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 

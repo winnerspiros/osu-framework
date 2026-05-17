@@ -23,7 +23,6 @@ using osu.Framework.Platform;
 using osu.Framework.Statistics;
 using osu.Framework.Threading;
 using System.Numerics;
-using osuTK.Input;
 using JoystickState = osu.Framework.Input.States.JoystickState;
 using KeyboardState = osu.Framework.Input.States.KeyboardState;
 using MouseState = osu.Framework.Input.States.MouseState;

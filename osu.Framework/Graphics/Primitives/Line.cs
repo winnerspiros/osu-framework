@@ -2,9 +2,10 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Numerics;
 using osu.Framework.Utils;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Graphics.Primitives
@@ -159,12 +160,12 @@ namespace osu.Framework.Graphics.Primitives
             return pB;
         }
 
-        public Matrix4 WorldMatrix() => Matrix4.CreateRotationZ(Theta) * Matrix4.CreateTranslation(StartPoint.X, StartPoint.Y, 0);
+        public Matrix4x4 WorldMatrix() => Matrix4x4.CreateRotationZ(Theta) * Matrix4x4.CreateTranslation(StartPoint.X, StartPoint.Y, 0);
 
         /// <summary>
         /// It's the end of the world as we know it
         /// </summary>
-        public Matrix4 EndWorldMatrix() => Matrix4.CreateRotationZ(Theta) * Matrix4.CreateTranslation(EndPoint.X, EndPoint.Y, 0);
+        public Matrix4x4 EndWorldMatrix() => Matrix4x4.CreateRotationZ(Theta) * Matrix4x4.CreateTranslation(EndPoint.X, EndPoint.Y, 0);
 
         public override string ToString() => $"{StartPoint} -> {EndPoint}";
     }

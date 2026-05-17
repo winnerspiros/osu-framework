@@ -9,7 +9,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Containers
 {
@@ -59,7 +58,7 @@ namespace osu.Framework.Tests.Visual.Containers
         {
             Add(new Box
             {
-                Colour = Color4.Black,
+                Colour = Colour4.Black,
                 Size = new Vector2(22, 4),
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre
@@ -67,7 +66,7 @@ namespace osu.Framework.Tests.Visual.Containers
 
             Add(new Box
             {
-                Colour = Color4.Black,
+                Colour = Colour4.Black,
                 Size = new Vector2(4, 22),
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre
@@ -75,7 +74,7 @@ namespace osu.Framework.Tests.Visual.Containers
 
             Add(new Box
             {
-                Colour = Color4.WhiteSmoke,
+                Colour = Colour4.WhiteSmoke,
                 Size = new Vector2(20, 2),
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre
@@ -83,7 +82,7 @@ namespace osu.Framework.Tests.Visual.Containers
 
             Add(new Box
             {
-                Colour = Color4.WhiteSmoke,
+                Colour = Colour4.WhiteSmoke,
                 Size = new Vector2(2, 20),
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre
@@ -107,13 +106,13 @@ namespace osu.Framework.Tests.Visual.Containers
                         Masking = true,
                         CornerRadius = 100,
                         CornerExponent = TestCornerExponent,
-                        BorderColour = Color4.Aquamarine,
+                        BorderColour = Colour4.Aquamarine,
                         BorderThickness = 3,
                         EdgeEffect = new EdgeEffectParameters
                         {
                             Type = EdgeEffectType.Shadow,
                             Radius = 100,
-                            Colour = new Color4(0, 50, 100, 200),
+                            Colour = new Colour4(0, 50, 100, 200),
                         },
                     });
 
@@ -123,7 +122,7 @@ namespace osu.Framework.Tests.Visual.Containers
                         Alpha = 0.5f,
                         Origin = Anchor.Centre,
                         Anchor = Anchor.Centre,
-                        Colour = Color4.DarkSeaGreen,
+                        Colour = Colour4.DarkSeaGreen,
                     });
 
                     box.OnUpdate += delegate { box.Rotation += 0.05f; };
@@ -148,7 +147,7 @@ namespace osu.Framework.Tests.Visual.Containers
                                 Alpha = 0.5f,
                                 Origin = Anchor.Centre,
                                 Anchor = Anchor.Centre,
-                                Colour = Color4.DarkSeaGreen,
+                                Colour = Colour4.DarkSeaGreen,
                             }
                         }
                     });
@@ -181,7 +180,7 @@ namespace osu.Framework.Tests.Visual.Containers
                                 Alpha = 0.5f,
                                 Origin = Anchor.Centre,
                                 Anchor = Anchor.Centre,
-                                Colour = Color4.DarkSeaGreen,
+                                Colour = Colour4.DarkSeaGreen,
                             }
                         }
                     });
@@ -192,7 +191,7 @@ namespace osu.Framework.Tests.Visual.Containers
 
                 case 3:
                 {
-                    Color4 glowColour = Color4.Aquamarine;
+                    Colour4 glowColour = Colour4.Aquamarine;
                     glowColour.A = 0.5f;
 
                     Container box1;
@@ -209,7 +208,7 @@ namespace osu.Framework.Tests.Visual.Containers
                             Roundness = 50,
                             Colour = glowColour,
                         },
-                        BorderColour = Color4.Aquamarine,
+                        BorderColour = Colour4.Aquamarine,
                         BorderThickness = 3,
                         Children = new[]
                         {
@@ -222,7 +221,7 @@ namespace osu.Framework.Tests.Visual.Containers
                                 Alpha = 0.5f,
                                 Origin = Anchor.Centre,
                                 Anchor = Anchor.Centre,
-                                Colour = Color4.DarkSeaGreen,
+                                Colour = Colour4.DarkSeaGreen,
                                 Children = new[]
                                 {
                                     box2 = new InfofulBox
@@ -235,7 +234,7 @@ namespace osu.Framework.Tests.Visual.Containers
                                         Alpha = 0.5f,
                                         Origin = Anchor.Centre,
                                         Anchor = Anchor.Centre,
-                                        Colour = Color4.Blue,
+                                        Colour = Colour4.Blue,
                                     }
                                 }
                             }
@@ -258,7 +257,7 @@ namespace osu.Framework.Tests.Visual.Containers
                             CornerRadius = 25 / scale,
                             CornerExponent = testCornerExponent,
                             BorderThickness = 12.5f / scale,
-                            BorderColour = Color4.Red,
+                            BorderColour = Colour4.Red,
                             Size = new Vector2(size),
                             Scale = new Vector2(scale),
                             Anchor = Anchor.Centre,
@@ -268,7 +267,7 @@ namespace osu.Framework.Tests.Visual.Containers
                                 new Box
                                 {
                                     RelativeSizeAxes = Axes.Both,
-                                    Colour = Color4.White,
+                                    Colour = Colour4.White,
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                 },
@@ -276,7 +275,7 @@ namespace osu.Framework.Tests.Visual.Containers
                                 {
                                     Text = @"Size: " + size + ", Scale: " + scale,
                                     Font = new FontUsage(size: 20 / scale),
-                                    Colour = Color4.Blue,
+                                    Colour = Colour4.Blue,
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                 },
@@ -338,7 +337,7 @@ namespace osu.Framework.Tests.Visual.Containers
                                 CornerRadius = 100f,
                                 CornerExponent = TestCornerExponent,
                                 BorderThickness = 50f,
-                                BorderColour = Color4.Red,
+                                BorderColour = Colour4.Red,
                                 RelativeSizeAxes = Axes.Both,
                                 Size = new Vector2(1.5f),
                                 Anchor = Anchor.BottomRight,
@@ -348,7 +347,7 @@ namespace osu.Framework.Tests.Visual.Containers
                                     new Box
                                     {
                                         RelativeSizeAxes = Axes.Both,
-                                        Colour = Color4.White,
+                                        Colour = Colour4.White,
                                     },
                                 }
                             }
@@ -389,12 +388,12 @@ namespace osu.Framework.Tests.Visual.Containers
                                             new Box
                                             {
                                                 RelativeSizeAxes = Axes.Both,
-                                                Colour = Color4.Red
+                                                Colour = Colour4.Red
                                             },
                                             new CircularContainer
                                             {
                                                 RelativeSizeAxes = Axes.Both,
-                                                Colour = Color4.White,
+                                                Colour = Colour4.White,
                                                 Masking = true,
                                                 Children = new[]
                                                 {
@@ -428,12 +427,12 @@ namespace osu.Framework.Tests.Visual.Containers
                                             new Box
                                             {
                                                 RelativeSizeAxes = Axes.Both,
-                                                Colour = Color4.Red
+                                                Colour = Colour4.Red
                                             },
                                             new CircularContainer
                                             {
                                                 RelativeSizeAxes = Axes.Both,
-                                                Colour = Color4.White,
+                                                Colour = Colour4.White,
                                                 Masking = true,
                                                 Children = new[]
                                                 {
@@ -470,7 +469,7 @@ namespace osu.Framework.Tests.Visual.Containers
                             Hollow = true,
                             Radius = 50,
                             Roundness = 50,
-                            Colour = new Color4(0, 255, 255, 255),
+                            Colour = new Colour4(0, 255, 255, 255),
                         },
                     });
 
@@ -479,7 +478,7 @@ namespace osu.Framework.Tests.Visual.Containers
                         Size = new Vector2(250, 250),
                         Origin = Anchor.Centre,
                         Anchor = Anchor.Centre,
-                        Colour = Color4.DarkSeaGreen,
+                        Colour = Colour4.DarkSeaGreen,
                     });
 
                     box.OnUpdate += delegate { box.Rotation += 0.05f; };
@@ -497,7 +496,7 @@ namespace osu.Framework.Tests.Visual.Containers
                             new Box
                             {
                                 RelativeSizeAxes = Axes.Both,
-                                Colour = Color4.Gray,
+                                Colour = Colour4.Gray,
                             },
                             new InfofulBox
                             {
@@ -505,14 +504,14 @@ namespace osu.Framework.Tests.Visual.Containers
                                 Masking = true,
                                 CornerRadius = 50,
                                 CornerExponent = TestCornerExponent,
-                                BorderColour = Color4.Red,
+                                BorderColour = Colour4.Red,
                                 BorderThickness = 10,
                                 EdgeEffect = new EdgeEffectParameters
                                 {
                                     Type = EdgeEffectType.Glow,
                                     Radius = 100,
                                     Roundness = 50,
-                                    Colour = Color4.Blue,
+                                    Colour = Colour4.Blue,
                                 },
                             }
                         }

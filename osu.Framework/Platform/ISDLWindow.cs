@@ -5,7 +5,6 @@ using System;
 using osu.Framework.Bindables;
 using osu.Framework.Input;
 using System.Numerics;
-using osuTK.Input;
 using RectangleF = osu.Framework.Graphics.Primitives.RectangleF;
 
 namespace osu.Framework.Platform

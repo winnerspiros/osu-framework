@@ -7,9 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Lines;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -67,7 +65,7 @@ namespace osu.Framework.Tests.Visual.Drawables
         private static SpriteText createLabel() => new SpriteText
         {
             Font = new FontUsage(size: 20),
-            Colour = Color4.White,
+            Colour = Colour4.White,
         };
     }
 }

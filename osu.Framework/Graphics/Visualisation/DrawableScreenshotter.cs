@@ -8,7 +8,6 @@ using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Platform;
 using System.Numerics;
-using osuTK.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -44,11 +43,11 @@ namespace osu.Framework.Graphics.Visualisation
         public override bool IsPresent => true;
 
         IShader ITexturedShaderDrawable.TextureShader => textureShader;
-        Color4 IBufferedDrawable.BackgroundColour => new Color4(0, 0, 0, 0);
-        DrawColourInfo? IBufferedDrawable.FrameBufferDrawColour => new DrawColourInfo(Color4.White);
+        Colour4 IBufferedDrawable.BackgroundColour => new Colour4(0, 0, 0, 0);
+        DrawColourInfo? IBufferedDrawable.FrameBufferDrawColour => new DrawColourInfo(Colour4.White);
         Vector2 IBufferedDrawable.FrameBufferScale => Vector2.One;
 
-        public override DrawColourInfo DrawColourInfo => new DrawColourInfo(Color4.White);
+        public override DrawColourInfo DrawColourInfo => new DrawColourInfo(Colour4.White);
 
         public override DrawInfo DrawInfo => Target.DrawInfo;
 

@@ -5,7 +5,7 @@ using System;
 using NUnit.Framework;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.States;
-using osuTK.Input;
+using osu.Framework.Input;
 
 namespace osu.Framework.Tests.Input
 {

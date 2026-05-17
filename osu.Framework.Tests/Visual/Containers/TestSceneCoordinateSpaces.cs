@@ -7,7 +7,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Containers
 {
@@ -143,7 +142,7 @@ namespace osu.Framework.Tests.Visual.Containers
                     new Box
                     {
                         Name = "Left marker",
-                        Colour = Color4.Gray,
+                        Colour = Colour4.Gray,
                         RelativeSizeAxes = Axes.Y,
                     },
                     Left = new SpriteText
@@ -157,7 +156,7 @@ namespace osu.Framework.Tests.Visual.Containers
                         Name = "Centre line",
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
-                        Colour = Color4.Gray,
+                        Colour = Colour4.Gray,
                         RelativeSizeAxes = Axes.X
                     },
                     innerContainer = new Container
@@ -169,7 +168,7 @@ namespace osu.Framework.Tests.Visual.Containers
                         Name = "Right marker",
                         Anchor = Anchor.TopRight,
                         Origin = Anchor.TopRight,
-                        Colour = Color4.Gray,
+                        Colour = Colour4.Gray,
                         RelativeSizeAxes = Axes.Y
                     },
                     Right = new SpriteText
@@ -190,7 +189,7 @@ namespace osu.Framework.Tests.Visual.Containers
                     RelativePositionAxes = Axes.Both,
                     AutoSizeAxes = Axes.Both,
                     X = x,
-                    Colour = Color4.Yellow,
+                    Colour = Colour4.Yellow,
                     Children = new Drawable[]
                     {
                         new Box

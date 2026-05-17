@@ -8,7 +8,6 @@ using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -72,7 +71,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                                             RelativeSizeAxes = Axes.Both,
                                             RelativePositionAxes = Axes.Both,
                                             Masking = true,
-                                            BorderColour = Color4.Yellow,
+                                            BorderColour = Colour4.Yellow,
                                             BorderThickness = 3f,
                                             Child = new Box
                                             {
@@ -129,7 +128,7 @@ namespace osu.Framework.Tests.Visual.Drawables
             });
             AddStep("Single", () =>
             {
-                sourceBox.Colour = Color4.Red;
+                sourceBox.Colour = Colour4.Red;
                 updateState();
             });
 
@@ -167,7 +166,7 @@ namespace osu.Framework.Tests.Visual.Drawables
             resultBox.Colour = result;
         }
 
-        private static readonly ColourInfo vertical = ColourInfo.GradientVertical(Color4.Red, Color4.Blue);
-        private static readonly ColourInfo horizontal = ColourInfo.GradientHorizontal(Color4.Red, Color4.Blue);
+        private static readonly ColourInfo vertical = ColourInfo.GradientVertical(Colour4.Red, Colour4.Blue);
+        private static readonly ColourInfo horizontal = ColourInfo.GradientHorizontal(Colour4.Red, Colour4.Blue);
     }
 }

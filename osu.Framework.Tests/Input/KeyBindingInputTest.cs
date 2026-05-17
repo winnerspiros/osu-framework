@@ -12,7 +12,6 @@ using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.Testing;
 using System.Numerics;
-using osuTK.Input;
 
 namespace osu.Framework.Tests.Input
 {

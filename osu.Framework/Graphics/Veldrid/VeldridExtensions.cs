@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics.Rendering;
+using osu.Framework.Graphics.Rendering.Vertices;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
-using osuTK.Graphics;
 using SharpGen.Runtime;
 using Veldrid;
 using Veldrid.MetalBindings;
@@ -21,13 +21,12 @@ using Vortice.Vulkan;
 using GraphicsBackend = Veldrid.GraphicsBackend;
 using PrimitiveTopology = Veldrid.PrimitiveTopology;
 using StencilOperation = Veldrid.StencilOperation;
-using VertexAttribPointerType = osuTK.Graphics.ES30.VertexAttribPointerType;
 
 namespace osu.Framework.Graphics.Veldrid
 {
     internal static class VeldridExtensions
     {
-        public static RgbaFloat ToRgbaFloat(this Color4 colour) => new RgbaFloat(colour.R, colour.G, colour.B, colour.A);
+        public static RgbaFloat ToRgbaFloat(this Colour4 colour) => new RgbaFloat(colour.R, colour.G, colour.B, colour.A);
 
         public static BlendFactor ToBlendFactor(this BlendingType type) => type switch
         {

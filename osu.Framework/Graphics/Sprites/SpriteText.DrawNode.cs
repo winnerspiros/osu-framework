@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Sprites
 {
@@ -53,7 +52,7 @@ namespace osu.Framework.Graphics.Sprites
 
                 BindTextureShader(renderer);
 
-                var avgColour = (Color4)DrawColourInfo.Colour.AverageColour;
+                var avgColour = (Colour4)DrawColourInfo.Colour.AverageColour;
                 float shadowAlpha = MathF.Pow(Math.Max(Math.Max(avgColour.R, avgColour.G), avgColour.B), 2);
 
                 //adjust shadow alpha based on highest component intensity to avoid muddy display of darker text.
@@ -97,7 +96,8 @@ namespace osu.Framework.Graphics.Sprites
                     parts.EnsureCapacity(partCount);
                 }
 
-                Vector2 inflationAmount = DrawInfo.MatrixInverse.ExtractScale().Xy.ToSystemNumerics();
+                var _inv = DrawInfo.MatrixInverse;
+                Vector2 inflationAmount = new Vector2(new Vector2(_inv.M11, _inv.M12).Length(), new Vector2(_inv.M21, _inv.M22).Length());
 
                 foreach (var character in Source.characters)
                 {

@@ -15,7 +15,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Lists;
 using osu.Framework.Threading;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -511,7 +510,7 @@ namespace osu.Framework.Tests.Visual.Drawables
 
                 Child = new SpriteText
                 {
-                    Colour = Color4.Yellow,
+                    Colour = Colour4.Yellow,
                     Text = @"loaded",
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,

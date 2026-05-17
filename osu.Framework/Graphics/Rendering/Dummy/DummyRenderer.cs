@@ -5,7 +5,6 @@ using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Platform;
-using osuTK.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -47,7 +46,7 @@ namespace osu.Framework.Graphics.Rendering.Dummy
             => base.CreateTexture(width, height, manualMipmaps, filteringMode, wrapModeS, wrapModeS, null);
 
         protected override INativeTexture CreateNativeTexture(int width, int height, bool manualMipmaps = false, TextureFilteringMode filteringMode = TextureFilteringMode.Linear,
-                                                              Color4? initialisationColour = null)
+                                                              Colour4? initialisationColour = null)
             => new DummyNativeTexture(this, width, height);
 
         protected override INativeTexture CreateNativeVideoTexture(int width, int height)

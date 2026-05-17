@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics.Tensors;
 using osu.Framework.Graphics.Primitives;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Utils

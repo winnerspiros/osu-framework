@@ -12,8 +12,6 @@ using osu.Framework.Input;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
-using osuTK.Graphics;
-using osuTK.Input;
 
 namespace osu.Framework.Graphics.UserInterface
 {
@@ -34,9 +32,9 @@ namespace osu.Framework.Graphics.UserInterface
 
         public Bindable<string> SearchTerm => SearchBar.SearchTerm;
 
-        private Color4 backgroundColour = Color4.DarkGray;
+        private Colour4 backgroundColour = Colour4.DarkGray;
 
-        protected Color4 BackgroundColour
+        protected Colour4 BackgroundColour
         {
             get => backgroundColour;
             set
@@ -46,9 +44,9 @@ namespace osu.Framework.Graphics.UserInterface
             }
         }
 
-        private Color4 disabledColour = Color4.Gray;
+        private Colour4 disabledColour = Colour4.Gray;
 
-        protected Color4 DisabledColour
+        protected Colour4 DisabledColour
         {
             get => disabledColour;
             set
@@ -58,7 +56,7 @@ namespace osu.Framework.Graphics.UserInterface
             }
         }
 
-        protected Color4 BackgroundColourHover { get; set; } = Color4.Gray;
+        protected Colour4 BackgroundColourHover { get; set; } = Colour4.Gray;
 
         protected override Container<Drawable> Content => Foreground;
 
@@ -83,11 +81,11 @@ namespace osu.Framework.Graphics.UserInterface
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
                     RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.DarkGray,
+                    Colour = Colour4.DarkGray,
                     Child = new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.White,
+                        Colour = Colour4.White,
                     },
                 },
                 Foreground = new Container
@@ -130,7 +128,7 @@ namespace osu.Framework.Graphics.UserInterface
 
         private void updateState()
         {
-            Colour = Enabled.Value ? Color4.White : DisabledColour;
+            Colour = Enabled.Value ? Colour4.White : DisabledColour;
             Background.Colour = IsHovered && Enabled.Value ? BackgroundColourHover : BackgroundColour;
         }
 

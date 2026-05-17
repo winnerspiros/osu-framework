@@ -8,8 +8,6 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using osuTK.Graphics;
-using osuTK.Graphics.ES30;
 using static SDL2.SDL;
 
 namespace osu.Framework.Platform.SDL2

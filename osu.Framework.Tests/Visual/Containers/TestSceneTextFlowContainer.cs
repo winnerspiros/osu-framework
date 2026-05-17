@@ -12,7 +12,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
 using osu.Framework.Threading;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Containers
 {
@@ -37,7 +36,7 @@ namespace osu.Framework.Tests.Visual.Containers
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.White.Opacity(0.1f)
+                        Colour = Colour4.White.Opacity(0.1f)
                     },
                     textContainer = new TextFlowContainer
                     {

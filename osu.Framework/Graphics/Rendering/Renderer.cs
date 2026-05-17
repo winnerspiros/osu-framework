@@ -23,11 +23,9 @@ using osu.Framework.Platform;
 using osu.Framework.Statistics;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
-using osuTK;
 using System.Numerics;
 using Vector2 = System.Numerics.Vector2;
 using Vector4 = System.Numerics.Vector4;
-using osuTK.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using RectangleF = osu.Framework.Graphics.Primitives.RectangleF;
@@ -101,7 +99,7 @@ namespace osu.Framework.Graphics.Rendering
         public RectangleI Viewport { get; private set; }
         public RectangleI Scissor { get; private set; }
         public Vector2I ScissorOffset { get; private set; }
-        public Matrix4 ProjectionMatrix { get; private set; }
+        public Matrix4x4 ProjectionMatrix { get; private set; }
         public DepthInfo CurrentDepthInfo { get; private set; }
         public StencilInfo CurrentStencilInfo { get; private set; }
         public WrapMode CurrentWrapModeS { get; private set; }
@@ -171,7 +169,7 @@ namespace osu.Framework.Graphics.Rendering
         private readonly List<IVertexBuffer> vertexBuffersInUse = new List<IVertexBuffer>();
         private readonly List<IVertexBatch> batchResetList = new List<IVertexBatch>();
         private readonly Stack<RectangleI> viewportStack = new Stack<RectangleI>();
-        private readonly Stack<Matrix4> projectionMatrixStack = new Stack<Matrix4>();
+        private readonly Stack<Matrix4x4> projectionMatrixStack = new Stack<Matrix4x4>();
         private readonly Stack<MaskingInfo> maskingStack = new Stack<MaskingInfo>();
         private readonly Stack<RectangleI> scissorRectStack = new Stack<RectangleI>();
         private readonly Stack<DepthInfo> depthStack = new Stack<DepthInfo>();
@@ -311,7 +309,7 @@ namespace osu.Framework.Graphics.Rendering
             Scissor = RectangleI.Empty;
             ScissorOffset = Vector2I.Zero;
             Viewport = RectangleI.Empty;
-            ProjectionMatrix = Matrix4.Identity;
+            ProjectionMatrix = Matrix4x4.Identity;
 
             PushScissorState(true);
             PushViewport(new RectangleI(0, 0, (int)windowSize.X, (int)windowSize.Y));
@@ -330,7 +328,7 @@ namespace osu.Framework.Graphics.Rendering
             PushDepthInfo(DepthInfo.Default);
             PushStencilInfo(StencilInfo.Default);
 
-            Clear(new ClearInfo(Color4.Black));
+            Clear(new ClearInfo(Colour4.Black));
 
             freeUnusedVertexBuffers();
             vboInUse.Value = vertexBuffersInUse.Count;
@@ -689,7 +687,7 @@ namespace osu.Framework.Graphics.Rendering
 
         #region Projection Matrix
 
-        public void PushProjectionMatrix(Matrix4 matrix)
+        public void PushProjectionMatrix(Matrix4x4 matrix)
         {
             projectionMatrixStack.Push(matrix);
             setProjectionMatrix(matrix);
@@ -703,7 +701,7 @@ namespace osu.Framework.Graphics.Rendering
             setProjectionMatrix(projectionMatrixStack.Peek());
         }
 
-        private void setProjectionMatrix(Matrix4 matrix)
+        private void setProjectionMatrix(Matrix4x4 matrix)
         {
             if (ProjectionMatrix == matrix)
                 return;
@@ -1097,7 +1095,7 @@ namespace osu.Framework.Graphics.Rendering
                         currentMaskingInfo.MaskingRect.Bottom),
                     BorderThickness = currentMaskingInfo.BorderThickness / currentMaskingInfo.BlendRange,
                     BorderColour = currentMaskingInfo.BorderThickness > 0
-                        ? new Matrix4(
+                        ? new Matrix4x4(
                             // TopLeft
                             currentMaskingInfo.BorderColour.TopLeft.SRGB.R,
                             currentMaskingInfo.BorderColour.TopLeft.SRGB.G,
@@ -1276,7 +1274,7 @@ namespace osu.Framework.Graphics.Rendering
         /// <param name="initialisationColour">The colour to initialise texture levels with (in the case of sub region initial uploads). If null, no initialisation is provided out-of-the-box.</param>
         /// <returns>The <see cref="INativeTexture"/>.</returns>
         protected abstract INativeTexture CreateNativeTexture(int width, int height, bool manualMipmaps = false, TextureFilteringMode filteringMode = TextureFilteringMode.Linear,
-                                                              Color4? initialisationColour = null);
+                                                              Colour4? initialisationColour = null);
 
         /// <summary>
         /// Creates a new <see cref="INativeTexture"/> for video sprites.
@@ -1286,7 +1284,7 @@ namespace osu.Framework.Graphics.Rendering
         /// <returns>The video <see cref="INativeTexture"/>.</returns>
         protected abstract INativeTexture CreateNativeVideoTexture(int width, int height);
 
-        public Texture CreateTexture(int width, int height, bool manualMipmaps, TextureFilteringMode filteringMode, WrapMode wrapModeS, WrapMode wrapModeT, Color4? initialisationColour)
+        public Texture CreateTexture(int width, int height, bool manualMipmaps, TextureFilteringMode filteringMode, WrapMode wrapModeS, WrapMode wrapModeT, Colour4? initialisationColour)
             => CreateTexture(CreateNativeTexture(width, height, manualMipmaps, filteringMode, initialisationColour), wrapModeS, wrapModeT);
 
         public Texture CreateVideoTexture(int width, int height) => CreateTexture(CreateNativeVideoTexture(width, height));

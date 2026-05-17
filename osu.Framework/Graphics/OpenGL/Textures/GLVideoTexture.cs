@@ -53,7 +53,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
                     GL.ActiveTexture(TextureUnit.Texture0 + (int)i);
 
                     GL.TexImage2D(TextureTarget2d.Texture2D, 0, TextureComponentCount.R8, width, height,
-                        0, PixelFormat.Red, PixelType.UnsignedByte, IntPtr.Zero);
+                        0, osuTK.Graphics.ES30.PixelFormat.Red, PixelType.UnsignedByte, IntPtr.Zero);
 
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Linear);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Linear);
@@ -72,7 +72,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
                 GL.PixelStore(PixelStoreParameter.UnpackRowLength, videoUpload.Frame->linesize[i]);
 
                 GL.TexSubImage2D(TextureTarget2d.Texture2D, 0, 0, 0, videoUpload.GetPlaneWidth(i), videoUpload.GetPlaneHeight(i),
-                    PixelFormat.Red, PixelType.UnsignedByte, (IntPtr)videoUpload.Frame->data[i]);
+                    osuTK.Graphics.ES30.PixelFormat.Red, PixelType.UnsignedByte, (IntPtr)videoUpload.Frame->data[i]);
 
                 GL.PixelStore(PixelStoreParameter.UnpackRowLength, 0);
             }

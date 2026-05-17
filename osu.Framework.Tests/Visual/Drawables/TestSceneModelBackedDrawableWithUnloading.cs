@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Transforms;
 using osu.Framework.Testing;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -145,7 +144,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = Color4.Gray,
+                            Colour = Colour4.Gray,
                         },
                         new SpriteText
                         {

@@ -7,12 +7,12 @@ using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Threading;
-using osuTK.Graphics.ES30;
 using Veldrid;
 using Veldrid.SPIRV;
 using static osu.Framework.Threading.ScheduledDelegate;
 using GL4 = osuTK.Graphics.OpenGL;
 using ProgramInterface = osuTK.Graphics.OpenGL.ProgramInterface;
+using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Graphics.OpenGL.Shaders
 {

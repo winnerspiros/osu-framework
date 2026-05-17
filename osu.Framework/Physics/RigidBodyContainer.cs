@@ -9,7 +9,6 @@ using System.Numerics;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Primitives;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Physics

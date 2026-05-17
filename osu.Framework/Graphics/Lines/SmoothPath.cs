@@ -6,7 +6,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Caching;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
-using osuTK.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -89,6 +88,6 @@ namespace osu.Framework.Graphics.Lines
         /// Retrieves the colour from a position in the texture of the <see cref="Path"/>.
         /// </summary>
         /// <param name="position">The position within the texture. 0 indicates the outermost-point of the path, 1 indicates the centre of the path.</param>
-        protected virtual Color4 ColourAt(float position) => Color4.White;
+        protected virtual Colour4 ColourAt(float position) => Colour4.White;
     }
 }

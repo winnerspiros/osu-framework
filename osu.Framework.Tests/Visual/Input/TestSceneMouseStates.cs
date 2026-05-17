@@ -14,8 +14,7 @@ using osu.Framework.Input.Events;
 using osu.Framework.Testing;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Input;
+using osu.Framework.Input;
 
 namespace osu.Framework.Tests.Visual.Input
 {
@@ -55,7 +54,7 @@ namespace osu.Framework.Tests.Visual.Input
                         new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = new Color4(1, 1, 1, 0.2f),
+                            Colour = new Colour4(1, 1, 1, 0.2f),
                         },
                         s1 = new StateTracker(1),
                         new Container
@@ -69,7 +68,7 @@ namespace osu.Framework.Tests.Visual.Input
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     Size = new Vector2(0.9f),
-                                    Colour = Color4.SkyBlue.Opacity(0.1f),
+                                    Colour = Colour4.SkyBlue.Opacity(0.1f),
                                 },
                                 actionContainer = new Container
                                 {
@@ -82,7 +81,7 @@ namespace osu.Framework.Tests.Visual.Input
                                         new Box
                                         {
                                             RelativeSizeAxes = Axes.Both,
-                                            Colour = new Color4(1, 1, 1, 0.2f),
+                                            Colour = new Colour4(1, 1, 1, 0.2f),
                                         },
                                         marginBox = new Box
                                         {
@@ -90,7 +89,7 @@ namespace osu.Framework.Tests.Visual.Input
                                             Anchor = Anchor.Centre,
                                             Origin = Anchor.Centre,
                                             Size = new Vector2(0.8f),
-                                            Colour = Color4.SkyBlue.Opacity(0.1f),
+                                            Colour = Colour4.SkyBlue.Opacity(0.1f),
                                         },
                                         s2 = new DraggableStateTracker(2),
                                     }
@@ -657,7 +656,7 @@ namespace osu.Framework.Tests.Visual.Input
 
                 private void adjustForMouseDown(MouseEvent e)
                 {
-                    circle.FadeColour(e.HasAnyButtonPressed ? Color4.Green.Lighten((e.PressedButtons.Count() - 1) * 0.3f) : Color4.White, 50);
+                    circle.FadeColour(e.HasAnyButtonPressed ? Colour4.Green.Lighten((e.PressedButtons.Count() - 1) * 0.3f) : Colour4.White, 50);
                 }
             }
         }

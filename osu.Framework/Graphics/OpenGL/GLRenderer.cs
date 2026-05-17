@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using osu.Framework.Extensions.EnumExtensions;
@@ -18,18 +20,13 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Statistics;
-using osuTK;
-using Vector2 = System.Numerics.Vector2;
-using Vector3 = System.Numerics.Vector3;
-using Vector4 = System.Numerics.Vector4;
-using osuTK.Graphics;
-using osuTK.Graphics.ES30;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using GL4 = osuTK.Graphics.OpenGL;
 using Image = SixLabors.ImageSharp.Image;
+using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Graphics.OpenGL
 {
@@ -190,16 +187,8 @@ namespace osu.Framework.Graphics.OpenGL
                     break;
                 }
 
-                case IUniformWithValue<Matrix2> m2:
-                    GL.UniformMatrix2(uniform.Location, false, ref m2.GetValueByRef());
-                    break;
-
-                case IUniformWithValue<Matrix3> m3:
-                    GL.UniformMatrix3(uniform.Location, false, ref m3.GetValueByRef());
-                    break;
-
-                case IUniformWithValue<Matrix4> m4:
-                    GL.UniformMatrix4(uniform.Location, false, ref m4.GetValueByRef());
+                case IUniformWithValue<Matrix4x4> m4:
+                    GL.UniformMatrix4(uniform.Location, 1, false, ref Unsafe.As<Matrix4x4, float>(ref m4.GetValueByRef()));
                     break;
             }
         }
@@ -265,7 +254,7 @@ namespace osu.Framework.Graphics.OpenGL
                 {
                     // Older desktop platforms don't support glClearDepthf, so standard GL's double version is used instead
                     // See: https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glClearDepth.xhtml
-                    osuTK.Graphics.OpenGL.GL.ClearDepth(clearInfo.Depth);
+                    GL4.GL.ClearDepth(clearInfo.Depth);
                 }
             }
 
@@ -329,9 +318,9 @@ namespace osu.Framework.Graphics.OpenGL
 
                 lastBlendingEnabledState = true;
 
-                GL.BlendEquationSeparate(blendingParameters.RGBEquationMode, blendingParameters.AlphaEquationMode);
-                GL.BlendFuncSeparate(blendingParameters.SourceBlendingFactor, blendingParameters.DestinationBlendingFactor,
-                    blendingParameters.SourceAlphaBlendingFactor, blendingParameters.DestinationAlphaBlendingFactor);
+                GL.BlendEquationSeparate((osuTK.Graphics.ES30.BlendEquationMode)blendingParameters.RGBEquationMode, (osuTK.Graphics.ES30.BlendEquationMode)blendingParameters.AlphaEquationMode);
+                GL.BlendFuncSeparate((osuTK.Graphics.ES30.BlendingFactorSrc)blendingParameters.SourceBlendingFactor, (osuTK.Graphics.ES30.BlendingFactorDest)blendingParameters.DestinationBlendingFactor,
+                    (osuTK.Graphics.ES30.BlendingFactorSrc)blendingParameters.SourceAlphaBlendingFactor, (osuTK.Graphics.ES30.BlendingFactorDest)blendingParameters.DestinationAlphaBlendingFactor);
             }
         }
 
@@ -486,7 +475,7 @@ namespace osu.Framework.Graphics.OpenGL
             => new GLShaderStorageBufferObject<TData>(this, uboSize, ssboSize);
 
         protected override INativeTexture CreateNativeTexture(int width, int height, bool manualMipmaps = false, TextureFilteringMode filteringMode = TextureFilteringMode.Linear,
-                                                              Color4? initialisationColour = null)
+                                                              Colour4? initialisationColour = null)
         {
             All glFilteringMode;
 

@@ -12,7 +12,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -74,7 +73,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         {
                             Width = 1f,
                             RelativeSizeAxes = Axes.Y,
-                            Colour = Interpolation.ValueAt(i, Color4.Red, Color4.Blue, 0, 750),
+                            Colour = Interpolation.ValueAt(i, Colour4.Red, Colour4.Blue, 0, 750),
                         }),
                     },
                     new SpriteText
@@ -110,7 +109,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         Size = new Vector2(750f, 50f),
-                        Colour = ColourInfo.GradientHorizontal(Color4.Red, Color4.Blue),
+                        Colour = ColourInfo.GradientHorizontal(Colour4.Red, Colour4.Blue),
                     },
                     new SpriteText
                     {
@@ -136,13 +135,13 @@ namespace osu.Framework.Tests.Visual.Drawables
                             new Box
                             {
                                 RelativeSizeAxes = Axes.Both,
-                                Colour = Color4.Red
+                                Colour = Colour4.Red
                             },
                             new Box
                             {
                                 RelativeSizeAxes = Axes.Both,
                                 Width = 0.5f,
-                                Colour = Color4.Black,
+                                Colour = Colour4.Black,
                                 Alpha = 0.5f
                             }
                         }
@@ -164,13 +163,13 @@ namespace osu.Framework.Tests.Visual.Drawables
                             new Box
                             {
                                 RelativeSizeAxes = Axes.Both,
-                                Colour = Color4.Red
+                                Colour = Colour4.Red
                             },
                             new Box
                             {
                                 RelativeSizeAxes = Axes.Both,
                                 Width = 0.5f,
-                                Colour = Color4.Black,
+                                Colour = Colour4.Black,
                                 Alpha = 0.5f
                             }
                         }
@@ -185,7 +184,7 @@ namespace osu.Framework.Tests.Visual.Drawables
             AddAssert("interpolation in linear space", () =>
             {
                 var middle = interpolatingLines.Children[interpolatingLines.Children.Count / 2];
-                return middle.Colour.AverageColour.Linear == new Color4(0.5f, 0f, 0.5f, 1f);
+                return middle.Colour.AverageColour.Linear == new Colour4(0.5f, 0f, 0.5f, 1f);
             });
         }
 

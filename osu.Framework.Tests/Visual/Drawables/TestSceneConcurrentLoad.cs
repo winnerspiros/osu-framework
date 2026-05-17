@@ -12,7 +12,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -72,7 +71,7 @@ namespace osu.Framework.Tests.Visual.Drawables
             public DelayedTestBox()
             {
                 Size = new Vector2(50);
-                Colour = Color4.Blue;
+                Colour = Colour4.Blue;
             }
 
             [BackgroundDependencyLoader]
@@ -87,7 +86,7 @@ namespace osu.Framework.Tests.Visual.Drawables
             public DelayedTestBoxAsync()
             {
                 Size = new Vector2(50);
-                Colour = Color4.Green;
+                Colour = Colour4.Green;
             }
 
             [BackgroundDependencyLoader]

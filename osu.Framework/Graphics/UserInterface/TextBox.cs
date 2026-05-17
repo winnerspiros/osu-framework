@@ -26,7 +26,6 @@ using osu.Framework.Localisation;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using System.Numerics;
-using osuTK.Input;
 
 namespace osu.Framework.Graphics.UserInterface
 {

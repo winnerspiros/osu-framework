@@ -7,7 +7,6 @@ using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Containers.Markdown
 {
@@ -71,7 +70,7 @@ namespace osu.Framework.Graphics.Containers.Markdown
         public virtual SpriteText CreateSpriteText()
         {
             var spriteText = parentTextComponent.CreateSpriteText();
-            spriteText.Colour = Color4.DodgerBlue;
+            spriteText.Colour = Colour4.DodgerBlue;
             return spriteText;
         }
     }

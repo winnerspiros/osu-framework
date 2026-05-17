@@ -17,7 +17,6 @@ using osu.Framework.Graphics.Veldrid.Textures;
 using osu.Framework.Graphics.Veldrid.Vertices;
 using osu.Framework.Platform;
 using System.Numerics;
-using osuTK.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Veldrid;
@@ -340,7 +339,7 @@ namespace osu.Framework.Graphics.Veldrid
             => new VeldridShaderStorageBufferObject<TData>(this, uboSize, ssboSize);
 
         protected override INativeTexture CreateNativeTexture(int width, int height, bool manualMipmaps = false, TextureFilteringMode filteringMode = TextureFilteringMode.Linear,
-                                                              Color4? initialisationColour = null)
+                                                              Colour4? initialisationColour = null)
             => new VeldridTexture(this, width, height, manualMipmaps, filteringMode.ToSamplerFilter(), initialisationColour);
 
         protected override INativeTexture CreateNativeVideoTexture(int width, int height)

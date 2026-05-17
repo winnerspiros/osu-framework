@@ -18,8 +18,6 @@ using osu.Framework.Input.StateChanges;
 using osu.Framework.Input.States;
 using osu.Framework.Testing;
 using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Input;
 
 namespace osu.Framework.Tests.Visual.Input
 {
@@ -44,7 +42,7 @@ namespace osu.Framework.Tests.Visual.Input
                         new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = Color4.Gray.Darken(2f),
+                            Colour = Colour4.Gray.Darken(2f),
                         },
                         new SpriteText
                         {
@@ -62,7 +60,7 @@ namespace osu.Framework.Tests.Visual.Input
                     {
                         RelativePositionAxes = Axes.Both,
                         RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.Gray.Lighten((float)s / TouchState.MAX_TOUCH_COUNT),
+                        Colour = Colour4.Gray.Lighten((float)s / TouchState.MAX_TOUCH_COUNT),
                         X = (float)s / TouchState.MAX_TOUCH_COUNT,
                     })
                 },
@@ -657,7 +655,7 @@ namespace osu.Framework.Tests.Visual.Input
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         Text = source.ToString(),
-                        Colour = Color4.Black,
+                        Colour = Colour4.Black,
                     },
                     content = new Container
                     {

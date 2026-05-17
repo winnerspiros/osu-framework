@@ -30,7 +30,6 @@ using osu.Framework.Threading;
 using osu.Framework.Timing;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Containers
 {
@@ -1389,7 +1388,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         protected TransformSequence<CompositeDrawable> FadeEdgeEffectTo(float newAlpha, double duration = 0, Easing easing = Easing.None)
         {
-            Color4 targetColour = EdgeEffect.Colour;
+            Colour4 targetColour = EdgeEffect.Colour;
             targetColour.A = newAlpha;
             return FadeEdgeEffectTo(targetColour, duration, easing);
         }
@@ -1397,7 +1396,7 @@ namespace osu.Framework.Graphics.Containers
         /// <summary>
         /// Helper function for creating and adding a <see cref="Transform{TValue, T}"/> that fades the current <see cref="EdgeEffect"/>.
         /// </summary>
-        protected TransformSequence<CompositeDrawable> FadeEdgeEffectTo(Color4 newColour, double duration = 0, Easing easing = Easing.None)
+        protected TransformSequence<CompositeDrawable> FadeEdgeEffectTo(Colour4 newColour, double duration = 0, Easing easing = Easing.None)
         {
             var effect = EdgeEffect;
             effect.Colour = newColour;
@@ -1590,7 +1589,7 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
-        private ColourInfo borderColour = Color4.Black;
+        private ColourInfo borderColour = Colour4.Black;
 
         /// <summary>
         /// Determines the color of the border controlled by <see cref="BorderThickness"/>.

@@ -14,7 +14,6 @@ using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using osuTK.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Veldrid;
@@ -57,7 +56,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
         private readonly List<RectangleI> uploadedRegions = new List<RectangleI>();
 
         private readonly SamplerFilter filteringMode;
-        private readonly Color4? initialisationColour;
+        private readonly Colour4? initialisationColour;
 
         public ulong BindCount { get; protected set; }
 
@@ -88,7 +87,7 @@ namespace osu.Framework.Graphics.Veldrid.Textures
         /// <param name="filteringMode">The filtering mode.</param>
         /// <param name="initialisationColour">The colour to initialise texture levels with (in the case of sub region initial uploads). If null, no initialisation is provided out-of-the-box.</param>
         public VeldridTexture(IVeldridRenderer renderer, int width, int height, bool manualMipmaps = false, SamplerFilter filteringMode = SamplerFilter.MinLinearMagLinearMipLinear,
-                              Color4? initialisationColour = null)
+                              Colour4? initialisationColour = null)
         {
             this.manualMipmaps = manualMipmaps;
             this.filteringMode = filteringMode;

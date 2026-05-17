@@ -15,7 +15,6 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
 using System.Numerics;
-using osuTK.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -53,7 +52,7 @@ namespace osu.Framework.Tests.Visual.Graphics
                                 new Box
                                 {
                                     Size = new Vector2(256, 128),
-                                    Colour = Color4.Blue,
+                                    Colour = Colour4.Blue,
                                 },
                                 new Sprite
                                 {

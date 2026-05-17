@@ -12,9 +12,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Lines;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Utils;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -38,11 +36,11 @@ namespace osu.Framework.Tests.Visual.Drawables
                     boundingBox = new Box
                     {
                         RelativeSizeAxes = Axes.None,
-                        Colour = Color4.Red
+                        Colour = Colour4.Red
                     },
                     path = new SmoothPath
                     {
-                        Colour = Color4.White,
+                        Colour = Colour4.White,
                         PathRadius = 2
                     }
                 }

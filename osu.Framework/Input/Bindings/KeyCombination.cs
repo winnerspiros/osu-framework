@@ -10,7 +10,6 @@ using System.Runtime.CompilerServices;
 using osu.Framework.Extensions;
 using osu.Framework.Input.States;
 using System.Numerics;
-using osuTK.Input;
 
 namespace osu.Framework.Input.Bindings
 {

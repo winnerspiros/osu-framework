@@ -18,7 +18,6 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Testing;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Exceptions
 {
@@ -301,7 +300,7 @@ namespace osu.Framework.Tests.Exceptions
             {
                 this.throws = throws;
                 Size = new Vector2(50);
-                Colour = Color4.Green;
+                Colour = Colour4.Green;
             }
 
             [BackgroundDependencyLoader]

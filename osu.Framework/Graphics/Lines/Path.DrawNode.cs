@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Rendering.Vertices;
 using osu.Framework.Graphics.Shaders;
 using System.Numerics;
-using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Graphics.Lines
 {

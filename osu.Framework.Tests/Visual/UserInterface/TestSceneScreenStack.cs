@@ -20,8 +20,7 @@ using osu.Framework.Testing;
 using osu.Framework.Testing.Input;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Input;
+using osu.Framework.Input;
 
 namespace osu.Framework.Tests.Visual.UserInterface
 {
@@ -1050,7 +1049,7 @@ namespace osu.Framework.Tests.Visual.UserInterface
                         Size = new Vector2(1),
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Colour = new Color4(
+                        Colour = new Colour4(
                             Math.Max(0.5f, RNG.NextSingle()),
                             Math.Max(0.5f, RNG.NextSingle()),
                             Math.Max(0.5f, RNG.NextSingle()),
@@ -1070,7 +1069,7 @@ namespace osu.Framework.Tests.Visual.UserInterface
                         Size = new Vector2(0.1f),
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
-                        BackgroundColour = Color4.Red,
+                        BackgroundColour = Colour4.Red,
                         Alpha = 0,
                         Action = this.Exit
                     },
@@ -1081,7 +1080,7 @@ namespace osu.Framework.Tests.Visual.UserInterface
                         Size = new Vector2(0.1f),
                         Anchor = Anchor.TopRight,
                         Origin = Anchor.TopRight,
-                        BackgroundColour = Color4.YellowGreen,
+                        BackgroundColour = Colour4.YellowGreen,
                         Action = delegate
                         {
                             this.Push(new TestScreen
@@ -1093,7 +1092,7 @@ namespace osu.Framework.Tests.Visual.UserInterface
                     }
                 };
 
-                BorderColour = Color4.Red;
+                BorderColour = Colour4.Red;
                 Masking = true;
             }
 

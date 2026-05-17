@@ -7,7 +7,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Platform;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Platform
 {
@@ -40,7 +39,7 @@ namespace osu.Framework.Tests.Visual.Platform
             private void load(GameHost host)
             {
                 allowSuspension.BindTo(host.AllowScreenSuspension.Result);
-                allowSuspension.BindValueChanged(v => Colour = v.NewValue ? Color4.Green : Color4.Red, true);
+                allowSuspension.BindValueChanged(v => Colour = v.NewValue ? Colour4.Green : Colour4.Red, true);
             }
         }
     }

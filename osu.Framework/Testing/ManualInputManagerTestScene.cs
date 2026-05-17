@@ -11,7 +11,6 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input;
 using osu.Framework.Testing.Input;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Testing
 {
@@ -55,7 +54,7 @@ namespace osu.Framework.Testing
                     {
                         new Box
                         {
-                            Colour = Color4.Black,
+                            Colour = Colour4.Black,
                             RelativeSizeAxes = Axes.Both,
                             Alpha = 0.5f,
                         },

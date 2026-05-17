@@ -3,7 +3,6 @@
 
 using osu.Framework.Input.States;
 using System.Numerics;
-using osuTK.Input;
 
 namespace osu.Framework.Input.Events
 {

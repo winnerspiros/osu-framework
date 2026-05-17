@@ -9,7 +9,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Containers
 {
@@ -102,7 +101,7 @@ namespace osu.Framework.Tests.Visual.Containers
                     AddInternal(new SortableBox
                     {
                         Id = i,
-                        Colour = new Color4(i / 255f, i / 255f, i / 255f, 1.0f),
+                        Colour = new Colour4(i / 255f, i / 255f, i / 255f, 1.0f),
                         Position = new Vector2(3 * i),
                         Size = new Vector2(50)
                     });

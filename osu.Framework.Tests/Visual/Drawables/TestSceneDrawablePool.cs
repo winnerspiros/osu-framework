@@ -14,7 +14,6 @@ using osu.Framework.Testing;
 using osu.Framework.Timing;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -396,7 +395,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                 {
                     new Box
                     {
-                        Colour = Color4.Green,
+                        Colour = Colour4.Green,
                         RelativeSizeAxes = Axes.Both,
                     },
                     text = new SpriteText

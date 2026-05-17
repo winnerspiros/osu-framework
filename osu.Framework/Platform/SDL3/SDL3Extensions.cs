@@ -10,7 +10,6 @@ using osu.Framework.Input;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Logging;
-using osuTK.Input;
 using SDL;
 using static SDL.SDL3;
 

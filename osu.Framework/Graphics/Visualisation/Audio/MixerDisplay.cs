@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Visualisation.Audio
 {
@@ -38,7 +37,7 @@ namespace osu.Framework.Graphics.Visualisation.Audio
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.Black.Opacity(0.2f)
+                        Colour = Colour4.Black.Opacity(0.2f)
                     },
                     new SpriteText
                     {

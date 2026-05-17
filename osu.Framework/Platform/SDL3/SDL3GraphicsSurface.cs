@@ -10,8 +10,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using osu.Framework.Logging;
-using osuTK.Graphics;
-using osuTK.Graphics.ES30;
 using SDL;
 using static SDL.SDL3;
 

@@ -15,7 +15,6 @@ using osu.Framework.Input.StateChanges;
 using osu.Framework.Input.States;
 using osu.Framework.Logging;
 using System.Numerics;
-using osuTK.Input;
 using SDL;
 using static SDL.SDL3;
 using RectangleF = osu.Framework.Graphics.Primitives.RectangleF;

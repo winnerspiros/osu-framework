@@ -9,8 +9,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Input;
+using osu.Framework.Input;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -33,17 +32,17 @@ namespace osu.Framework.Tests.Visual.Drawables
                 {
                     rawDrawnPath = new Path
                     {
-                        Colour = Color4.DeepPink,
+                        Colour = Colour4.DeepPink,
                         PathRadius = 5,
                     },
                     approximatedDrawnPath = new Path
                     {
-                        Colour = Color4.Blue,
+                        Colour = Colour4.Blue,
                         PathRadius = 3,
                     },
                     controlPointPath = new Path
                     {
-                        Colour = Color4.LightGreen,
+                        Colour = Colour4.LightGreen,
                         PathRadius = 1,
                         Alpha = 0.5f,
                     },
@@ -91,7 +90,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         Origin = Anchor.Centre,
                         Size = new Vector2(10),
                         Position = cp,
-                        Colour = Color4.LightGreen,
+                        Colour = Colour4.LightGreen,
                     });
                 }
             }

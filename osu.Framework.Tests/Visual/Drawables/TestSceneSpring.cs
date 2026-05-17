@@ -14,7 +14,6 @@ using osu.Framework.Input.Events;
 using osu.Framework.Layout;
 using osu.Framework.Testing;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -168,7 +167,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         Origin = Anchor.CentreLeft,
                         Margin = new MarginPadding { Left = 5 },
                         Font = new FontUsage(size: 15f),
-                        Colour = Color4.Black
+                        Colour = Colour4.Black
                     },
                 ];
             }

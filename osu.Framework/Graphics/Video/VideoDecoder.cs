@@ -23,7 +23,7 @@ using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Platform.Linux.Native;
-using osuTK;
+using osu.Framework.Graphics.Shaders.Types;
 
 namespace osu.Framework.Graphics.Video
 {
@@ -275,10 +275,10 @@ namespace osu.Framework.Graphics.Video
         }
 
         // https://en.wikipedia.org/wiki/YCbCr
-        public Matrix3 GetConversionMatrix()
+        public UniformMatrix3 GetConversionMatrix()
         {
             if (codecContext == null)
-                return Matrix3.Zero;
+                return default;
 
             // this matches QuickTime Player's choice of colour spaces:
             // - any video with width < 704 and height < 576 uses the SDTV colorspace.
@@ -290,15 +290,21 @@ namespace osu.Framework.Graphics.Video
                 || (codecContext->colorspace == AVColorSpace.AVCOL_SPC_UNSPECIFIED && unspecifiedUsesHDTV))
             {
                 // matrix coefficients for HDTV / Rec. 709 colorspace.
-                return new Matrix3(1.164f, 1.164f, 1.164f,
-                    0.000f, -0.213f, 2.112f,
-                    1.793f, -0.533f, 0.000f);
+                return new UniformMatrix3
+                {
+                    Row0 = new System.Numerics.Vector3(1.164f, 1.164f, 1.164f),
+                    Row1 = new System.Numerics.Vector3(0.000f, -0.213f, 2.112f),
+                    Row2 = new System.Numerics.Vector3(1.793f, -0.533f, 0.000f)
+                };
             }
 
             // matrix coefficients for SDTV / Rec. 601 colorspace.
-            return new Matrix3(1.164f, 1.164f, 1.164f,
-                0.000f, -0.392f, 2.017f,
-                1.596f, -0.813f, 0.000f);
+            return new UniformMatrix3
+            {
+                Row0 = new System.Numerics.Vector3(1.164f, 1.164f, 1.164f),
+                Row1 = new System.Numerics.Vector3(0.000f, -0.392f, 2.017f),
+                Row2 = new System.Numerics.Vector3(1.596f, -0.813f, 0.000f)
+            };
         }
 
         [MonoPInvokeCallback(typeof(avio_alloc_context_read_packet))]

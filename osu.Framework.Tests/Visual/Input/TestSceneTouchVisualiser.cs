@@ -12,7 +12,6 @@ using osu.Framework.Input.Events;
 using osu.Framework.Input.States;
 using osu.Framework.Testing;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Input
 {
@@ -80,9 +79,9 @@ namespace osu.Framework.Tests.Visual.Input
                 drawableTouches[(int)e.Touch.Source] = null;
             }
 
-            private Color4 colourFor(TouchSource source)
+            private Colour4 colourFor(TouchSource source)
             {
-                return Color4.FromHsv(new osuTK.Vector4((float)source / TouchState.MAX_TOUCH_COUNT, 1f, 1f, 1f));
+                return Colour4.FromHsv(new osuTK.Vector4((float)source / TouchState.MAX_TOUCH_COUNT, 1f, 1f, 1f));
             }
 
             private partial class FadingCircle : Circle

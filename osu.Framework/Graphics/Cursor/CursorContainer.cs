@@ -10,7 +10,6 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input;
 using osu.Framework.Input.Events;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Cursor
 {
@@ -103,13 +102,13 @@ namespace osu.Framework.Graphics.Cursor
                 Origin = Anchor.Centre;
 
                 BorderThickness = 2;
-                BorderColour = new Color4(247, 99, 164, 255);
+                BorderColour = new Colour4(247, 99, 164, 255);
 
                 Masking = true;
                 EdgeEffect = new EdgeEffectParameters
                 {
                     Type = EdgeEffectType.Glow,
-                    Colour = new Color4(247, 99, 164, 6),
+                    Colour = new Colour4(247, 99, 164, 6),
                     Radius = 50
                 };
 
@@ -145,7 +144,7 @@ namespace osu.Framework.Graphics.Cursor
                 {
                     this.FadeInFromZero();
 
-                    progress.FadeColour(Color4.SkyBlue)
+                    progress.FadeColour(Colour4.SkyBlue)
                             .TransformTo(nameof(progress.InnerRadius), 0.2f)
                             .TransformTo(nameof(progress.InnerRadius), 0.3f, 150, Easing.OutQuint)
                             .ProgressTo(0)
@@ -155,7 +154,7 @@ namespace osu.Framework.Graphics.Cursor
                     {
                         this.FadeOut(500, Easing.OutQuint);
 
-                        progress.FadeColour(Color4.White, 800, Easing.OutQuint)
+                        progress.FadeColour(Colour4.White, 800, Easing.OutQuint)
                                 .TransformTo(nameof(progress.InnerRadius), 0.6f, 500, Easing.OutQuint);
                     }
                 }

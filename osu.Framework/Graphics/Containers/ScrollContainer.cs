@@ -14,7 +14,6 @@ using osu.Framework.Input.Events;
 using osu.Framework.Layout;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Input;
 
 namespace osu.Framework.Graphics.Containers
 {

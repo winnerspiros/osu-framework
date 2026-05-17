@@ -9,8 +9,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Testing;
 using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Input;
+using osu.Framework.Input;
 
 namespace osu.Framework.Tests.Visual.Input
 {
@@ -133,7 +132,7 @@ namespace osu.Framework.Tests.Visual.Input
                     Clicked = true;
                     Text = "Ouch!";
                     this.ScaleTo(0.95f).Then().ScaleTo(1, 1000, Easing.In);
-                    this.FlashColour(Color4.Red, 1000, Easing.InQuint);
+                    this.FlashColour(Colour4.Red, 1000, Easing.InQuint);
                 };
 
                 RelativeSizeAxes = Axes.X;

@@ -19,8 +19,6 @@ using osu.Framework.Localisation;
 using osu.Framework.Threading;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Input;
 
 namespace osu.Framework.Graphics.UserInterface
 {
@@ -112,7 +110,7 @@ namespace osu.Framework.Graphics.UserInterface
                         background = new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = Color4.Black
+                            Colour = Colour4.Black
                         },
                         ContentContainer = CreateScrollContainer(direction).With(d =>
                         {
@@ -168,7 +166,7 @@ namespace osu.Framework.Graphics.UserInterface
         /// <summary>
         /// Gets or sets the background colour of this <see cref="Menu"/>.
         /// </summary>
-        public Color4 BackgroundColour
+        public Colour4 BackgroundColour
         {
             get => background.Colour;
             set => background.Colour = value;
@@ -796,7 +794,7 @@ namespace osu.Framework.Graphics.UserInterface
             /// <summary>
             /// Gets or sets the default background colour.
             /// </summary>
-            public Color4 BackgroundColour
+            public Colour4 BackgroundColour
             {
                 get;
                 set
@@ -804,12 +802,12 @@ namespace osu.Framework.Graphics.UserInterface
                     field = value;
                     Scheduler.AddOnce(UpdateBackgroundColour);
                 }
-            } = Color4.DarkSlateGray;
+            } = Colour4.DarkSlateGray;
 
             /// <summary>
             /// Gets or sets the default foreground colour.
             /// </summary>
-            public Color4 ForegroundColour
+            public Colour4 ForegroundColour
             {
                 get;
                 set
@@ -817,12 +815,12 @@ namespace osu.Framework.Graphics.UserInterface
                     field = value;
                     Scheduler.AddOnce(UpdateForegroundColour);
                 }
-            } = Color4.White;
+            } = Colour4.White;
 
             /// <summary>
             /// Gets or sets the background colour when this <see cref="DrawableMenuItem"/> is hovered.
             /// </summary>
-            public Color4 BackgroundColourHover
+            public Colour4 BackgroundColourHover
             {
                 get;
                 set
@@ -830,12 +828,12 @@ namespace osu.Framework.Graphics.UserInterface
                     field = value;
                     Scheduler.AddOnce(UpdateBackgroundColour);
                 }
-            } = Color4.DarkGray;
+            } = Colour4.DarkGray;
 
             /// <summary>
             /// Gets or sets the foreground colour when this <see cref="DrawableMenuItem"/> is hovered.
             /// </summary>
-            public Color4 ForegroundColourHover
+            public Colour4 ForegroundColourHover
             {
                 get;
                 set
@@ -843,7 +841,7 @@ namespace osu.Framework.Graphics.UserInterface
                     field = value;
                     Scheduler.AddOnce(UpdateForegroundColour);
                 }
-            } = Color4.White;
+            } = Colour4.White;
 
             public MenuItemState State
             {

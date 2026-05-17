@@ -52,7 +52,7 @@ namespace osu.Framework.Graphics.Primitives
                 Vector2.Transform(r.BottomLeft, m),
                 Vector2.Transform(r.BottomRight, m));
 
-        public Matrix2 BasisTransform
+        public Matrix3x2 BasisTransform
         {
             get
             {
@@ -65,9 +65,10 @@ namespace osu.Framework.Graphics.Primitives
                 if (row1 != Vector2.Zero)
                     row1 /= row1.LengthSquared();
 
-                return new Matrix2(
+                return new Matrix3x2(
                     row0.X, row0.Y,
-                    row1.X, row1.Y);
+                    row1.X, row1.Y,
+                    0, 0);
             }
         }
 

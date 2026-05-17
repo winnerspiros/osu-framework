@@ -22,7 +22,6 @@ using osu.Framework.Statistics;
 using osu.Framework.Threading;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using WindowState = osu.Framework.Platform.WindowState;
@@ -45,7 +44,7 @@ namespace osu.Framework.Graphics.Performance
 
         private readonly TimeBar[] timeBars;
 
-        private static readonly Color4[] garbage_collect_colors = { Color4.Green, Color4.Yellow, Color4.Red };
+        private static readonly Colour4[] garbage_collect_colors = { Colour4.Green, Colour4.Yellow, Colour4.Red };
         private readonly PerformanceMonitor monitor;
 
         private int currentX;
@@ -427,62 +426,62 @@ namespace osu.Framework.Graphics.Performance
             }
         }
 
-        private Color4 getColour(PerformanceCollectionType type)
+        private Colour4 getColour(PerformanceCollectionType type)
         {
             switch (type)
             {
                 default:
-                    return Color4.YellowGreen;
+                    return Colour4.YellowGreen;
 
                 case PerformanceCollectionType.GC:
-                    return Color4.Orange;
+                    return Colour4.Orange;
 
                 case PerformanceCollectionType.SwapBuffer:
-                    return Color4.Red;
+                    return Colour4.Red;
 #if DEBUG
                 case PerformanceCollectionType.Debug:
-                    return Color4.Yellow;
+                    return Colour4.Yellow;
 #endif
                 case PerformanceCollectionType.Sleep:
-                    return Color4.DarkBlue;
+                    return Colour4.DarkBlue;
 
                 case PerformanceCollectionType.Scheduler:
-                    return Color4.HotPink;
+                    return Colour4.HotPink;
 
                 case PerformanceCollectionType.WndProc:
-                    return Color4.GhostWhite;
+                    return Colour4.GhostWhite;
 
                 case PerformanceCollectionType.DrawReset:
-                    return Color4.Cyan;
+                    return Colour4.Cyan;
             }
         }
 
-        private Color4 getColour(int index)
+        private Colour4 getColour(int index)
         {
             const int colour_count = 7;
 
             switch (index % colour_count)
             {
                 default:
-                    return Color4.BlueViolet;
+                    return Colour4.BlueViolet;
 
                 case 1:
-                    return Color4.YellowGreen;
+                    return Colour4.YellowGreen;
 
                 case 2:
-                    return Color4.HotPink;
+                    return Colour4.HotPink;
 
                 case 3:
-                    return Color4.Red;
+                    return Colour4.Red;
 
                 case 4:
-                    return Color4.Cyan;
+                    return Colour4.Cyan;
 
                 case 5:
-                    return Color4.Yellow;
+                    return Colour4.Yellow;
 
                 case 6:
-                    return Color4.SkyBlue;
+                    return Colour4.SkyBlue;
             }
         }
 
@@ -503,7 +502,7 @@ namespace osu.Framework.Graphics.Performance
                 drawHeight = (int)(elapsedMilliseconds * scale);
             }
 
-            Color4 col = frameTimeType.HasValue ? getColour(frameTimeType.Value) : new Color4(0.1f, 0.1f, 0.1f, 1);
+            Colour4 col = frameTimeType.HasValue ? getColour(frameTimeType.Value) : new Colour4(0.1f, 0.1f, 0.1f, 1);
 
             for (int i = currentHeight - 1; i >= 0; --i)
             {
@@ -653,7 +652,7 @@ namespace osu.Framework.Graphics.Performance
                 {
                     new Box
                     {
-                        Colour = Color4.White,
+                        Colour = Colour4.White,
                         RelativeSizeAxes = Axes.Both,
                     },
                 };

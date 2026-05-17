@@ -5,7 +5,6 @@ using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Effects
 {
@@ -30,9 +29,9 @@ namespace osu.Framework.Graphics.Effects
         public float Rotation;
 
         /// <summary>
-        /// The colour of the blur. Default is <see cref="Color4.White"/>.
+        /// The colour of the blur. Default is <see cref="Colour4.White"/>.
         /// </summary>
-        public ColourInfo Colour = Color4.White;
+        public ColourInfo Colour = Colour4.White;
 
         /// <summary>
         /// The blending mode of the blur. Default is inheriting from the target drawable.

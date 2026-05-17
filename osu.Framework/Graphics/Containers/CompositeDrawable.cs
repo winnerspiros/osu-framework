@@ -1594,7 +1594,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public ColourInfo BorderColour
         {
-            get => field;
+            get;
             protected set
             {
                 if (field.Equals(value))

@@ -137,7 +137,7 @@ namespace osu.Framework.Testing.Drawables
 
         public virtual bool Current
         {
-            get => field;
+            get;
             set
             {
                 if (field == value)

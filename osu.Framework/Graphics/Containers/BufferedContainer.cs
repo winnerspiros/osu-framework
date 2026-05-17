@@ -103,7 +103,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         public ColourInfo EffectColour
         {
-            get => field;
+            get;
             set
             {
                 if (field.Equals(value))

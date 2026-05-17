@@ -35,7 +35,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
                 case RenderbufferInternalFormat.Srgb8:
                 case RenderbufferInternalFormat.Rgb565:
                 case RenderbufferInternalFormat.Rgb8Snorm:
-                case RenderbufferInternalFormat.R11FG11FB10F:
+                case RenderbufferInternalFormat.R11Fg11Fb10F:
                 case RenderbufferInternalFormat.Rgb9E5:
                 case RenderbufferInternalFormat.Rgb16F:
                 case RenderbufferInternalFormat.Rgb32F:
@@ -143,7 +143,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
                 case RenderbufferInternalFormat.Rgb8Snorm:
                     return 3;
 
-                case RenderbufferInternalFormat.R11FG11FB10F:
+                case RenderbufferInternalFormat.R11Fg11Fb10F:
                 case RenderbufferInternalFormat.Rgb9E5:
                     return 4;
 

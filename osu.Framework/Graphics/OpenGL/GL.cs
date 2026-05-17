@@ -170,7 +170,7 @@ namespace osu.Framework.Graphics.OpenGL
         Srgb8 = 0x8C41,
         Rgb565 = 0x8D62,
         Rgb8Snorm = 0x8F96,
-        R11FG11FB10F = 0x8C3A,
+        R11Fg11Fb10F = 0x8C3A,
         Rgb9E5 = 0x8C3D,
         Rgb16F = 0x881B,
         Rgb32F = 0x8815,

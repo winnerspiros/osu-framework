@@ -369,7 +369,15 @@ namespace osu.Framework.Input.Bindings
                 case Key.KeypadPlus: return InputKey.KeypadPlus;
                 case Key.KeypadEnter: return InputKey.KeypadEnter;
 
+                case Key.Menu: return InputKey.Menu;
+
                 case Key.Mute: return InputKey.Mute;
+                case Key.VolumeDown: return InputKey.VolumeDown;
+                case Key.VolumeUp: return InputKey.VolumeUp;
+                case Key.TrackNext: return InputKey.TrackNext;
+                case Key.TrackPrevious: return InputKey.TrackPrevious;
+                case Key.Stop: return InputKey.Stop;
+                case Key.PlayPause: return InputKey.PlayPause;
                 case Key.Sleep: return InputKey.Sleep;
             }
 

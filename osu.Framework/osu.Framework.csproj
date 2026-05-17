@@ -73,7 +73,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="OpenTabletDriver" Version="0.6.7" />
     <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
-    <PackageReference Include="ppy.osuTK.NS20" Version="1.0.211" />
     <PackageReference Include="StbiSharp" Version="1.2.1" />
     <PackageReference Include="ppy.SDL2-CS" Version="1.0.741-alpha" />
     <!-- Updated to SDL 3.5.0-main (linux-x64 rebuilt from commit f6a1eb9ba96e; bindings extended with new text input props).

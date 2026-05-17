@@ -330,8 +330,10 @@ namespace osu.Framework.Graphics.Containers
 
                 if (!RedrawOnScale)
                 {
-                    Matrix3 scaleMatrix = Matrix3.CreateScale(DrawInfo.MatrixInverse.ExtractScale());
-                    Vector2Extensions.Transform(ref drawSize, ref scaleMatrix, out drawSize);
+                    var inv = DrawInfo.MatrixInverse;
+                    drawSize *= new Vector2(
+                        new Vector2(inv.M11, inv.M12).Length(),
+                        new Vector2(inv.M21, inv.M22).Length());
                 }
 
                 if (!Precision.AlmostEquals(lastScreenSpaceSize, drawSize))

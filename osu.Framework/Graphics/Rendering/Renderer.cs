@@ -24,6 +24,7 @@ using osu.Framework.Statistics;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using osuTK;
+using System.Numerics;
 using Vector2 = System.Numerics.Vector2;
 using Vector4 = System.Numerics.Vector4;
 using osuTK.Graphics;
@@ -320,7 +321,7 @@ namespace osu.Framework.Graphics.Rendering
             {
                 ScreenSpaceAABB = new RectangleI(0, 0, (int)windowSize.X, (int)windowSize.Y),
                 MaskingRect = new RectangleF(0, 0, windowSize.X, windowSize.Y),
-                ToMaskingSpace = Matrix3.Identity,
+                ToMaskingSpace = Matrix3x2.Identity,
                 BlendRange = 1,
                 AlphaExponent = 1,
                 CornerExponent = 2.5f,

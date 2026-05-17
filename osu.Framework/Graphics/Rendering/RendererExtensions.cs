@@ -277,13 +277,13 @@ namespace osu.Framework.Graphics.Rendering
             var currentMasking = renderer.CurrentMaskingInfo;
             // normally toMaskingSpace is fed vertices already in screen space coordinates,
             // but since we are modifying the matrix the vertices are in local space
-            currentMasking.ToMaskingSpace = new Matrix3(matrix) * currentMasking.ToMaskingSpace;
+            currentMasking.ToMaskingSpace = new System.Numerics.Matrix3x2(matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.M31, matrix.M32) * currentMasking.ToMaskingSpace;
             renderer.PushMaskingInfo(currentMasking, true);
             renderer.PushProjectionMatrix(matrix * renderer.ProjectionMatrix);
         }
 
         /// <inheritdoc cref="PushLocalMatrix(IRenderer, Matrix4)"/>
-        public static void PushLocalMatrix(this IRenderer renderer, Matrix3 matrix)
+        public static void PushLocalMatrix(this IRenderer renderer, System.Numerics.Matrix3x2 matrix)
         {
             var currentMasking = renderer.CurrentMaskingInfo;
             // normally toMaskingSpace is fed vertices already in screen space coordinates,
@@ -292,11 +292,11 @@ namespace osu.Framework.Graphics.Rendering
             renderer.PushMaskingInfo(currentMasking, true);
 
             // this makes sure it also works for 3D vertices like the ones path uses
-            Matrix4 mat = new Matrix4(matrix);
-            mat.Row3.X = mat.Row2.X;
-            mat.Row2.X = 0;
-            mat.Row3.Y = mat.Row2.Y;
-            mat.Row2.Y = 0;
+            Matrix4 mat = new Matrix4(
+                matrix.M11, matrix.M12, 0, 0,
+                matrix.M21, matrix.M22, 0, 0,
+                0, 0, 1, 0,
+                matrix.M31, matrix.M32, 0, 1);
             renderer.PushProjectionMatrix(mat * renderer.ProjectionMatrix);
         }
 

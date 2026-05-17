@@ -2,10 +2,9 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Numerics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Primitives;
-using osuTK;
-using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Graphics.Rendering
 {
@@ -21,7 +20,7 @@ namespace osu.Framework.Graphics.Rendering
         /// space of the container doing the masking).
         /// It is used by a shader to determine which pixels to discard.
         /// </summary>
-        public Matrix3 ToMaskingSpace;
+        public Matrix3x2 ToMaskingSpace;
 
         public float CornerRadius;
         public float CornerExponent;

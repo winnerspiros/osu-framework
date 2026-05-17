@@ -4,12 +4,12 @@
 #nullable disable
 
 using System;
+using System.Numerics;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Statistics;
 using osuTK;
-using Vector2 = System.Numerics.Vector2;
 using osuTK.Graphics;
 
 namespace osu.Framework.Graphics
@@ -166,7 +166,7 @@ namespace osu.Framework.Graphics
             {
                 ScreenSpaceAABB = screenSpaceMaskingRect,
                 MaskingRect = screenSpaceDrawRectangle,
-                ToMaskingSpace = Matrix3.Identity,
+                ToMaskingSpace = Matrix3x2.Identity,
                 BlendRange = 1,
                 AlphaExponent = 1,
             }, true);

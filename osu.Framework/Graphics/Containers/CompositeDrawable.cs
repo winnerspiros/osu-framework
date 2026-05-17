@@ -1388,7 +1388,7 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         protected TransformSequence<CompositeDrawable> FadeEdgeEffectTo(float newAlpha, double duration = 0, Easing easing = Easing.None)
         {
-            Colour4 targetColour = EdgeEffect.Colour.Opacity(newAlpha);
+            Colour4 targetColour = ((Colour4)EdgeEffect.Colour).Opacity(newAlpha);
             return FadeEdgeEffectTo(targetColour, duration, easing);
         }
 

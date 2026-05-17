@@ -12,7 +12,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
     {
         static GLLinearIndexData()
         {
-            GL.GenBuffers(1, out EBO_ID);
+            EBO_ID = GL.GenBuffer();
         }
 
         public static readonly int EBO_ID;

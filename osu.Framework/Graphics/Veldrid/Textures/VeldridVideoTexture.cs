@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Video;
 using osu.Framework.Platform;
 using Veldrid;
+using PixelFormat = Veldrid.PixelFormat;
 
 namespace osu.Framework.Graphics.Veldrid.Textures
 {

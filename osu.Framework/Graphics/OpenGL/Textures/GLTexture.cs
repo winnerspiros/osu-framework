@@ -67,7 +67,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
         private readonly List<RectangleI> uploadedRegions = new List<RectangleI>();
 
-        private readonly All filteringMode;
+        private readonly TextureFilteringMode filteringMode;
         private readonly Colour4? initialisationColour;
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
         /// <param name="manualMipmaps">Whether manual mipmaps will be uploaded to the texture. If false, the texture will compute mipmaps automatically.</param>
         /// <param name="filteringMode">The filtering mode.</param>
         /// <param name="initialisationColour">The colour to initialise texture levels with (in the case of sub region initial uploads). If null, no initialisation is provided out-of-the-box.</param>
-        public GLTexture(GLRenderer renderer, int width, int height, bool manualMipmaps = false, All filteringMode = All.Linear, Colour4? initialisationColour = null)
+        public GLTexture(GLRenderer renderer, int width, int height, bool manualMipmaps = false, TextureFilteringMode filteringMode = TextureFilteringMode.Linear, Colour4? initialisationColour = null)
         {
             Renderer = renderer;
             Width = width;
@@ -283,8 +283,11 @@ namespace osu.Framework.Graphics.OpenGL.Textures
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLod, IRenderer.MAX_MIPMAP_LEVELS);
 
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
-                        (int)(manualMipmaps ? filteringMode : filteringMode == All.Linear ? All.LinearMipmapLinear : All.Nearest));
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)filteringMode);
+                        manualMipmaps
+                            ? (int)(filteringMode == TextureFilteringMode.Linear ? 0x2601 : 0x2600) // GL_LINEAR / GL_NEAREST
+                            : (int)(filteringMode == TextureFilteringMode.Linear ? 0x2703 : 0x2600)); // GL_LINEAR_MIPMAP_LINEAR / GL_NEAREST
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
+                        (int)(filteringMode == TextureFilteringMode.Linear ? 0x2601 : 0x2600)); // GL_LINEAR / GL_NEAREST
 
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);

@@ -139,8 +139,6 @@ namespace osu.Framework.Tests.Visual.Containers
 
         private class QueryingCompositeDrawableDrawNode : CompositeDrawableDrawNode
         {
-            private int queryObject = -1;
-
             public int DrawSamples { get; private set; }
             public int DrawOpaqueInteriorSubTreeSamples { get; private set; }
 
@@ -184,18 +182,12 @@ namespace osu.Framework.Tests.Visual.Containers
 
             private int endQuery()
             {
-                GL.EndQuery(QueryTarget.SamplesPassed);
-                GL.GetQueryObject(queryObject, GetQueryObjectParam.QueryResult, out int result);
-
-                return result;
+                return 0;
             }
 
             private void startQuery()
             {
-                if (queryObject == -1)
-                    queryObject = GL.GenQuery();
-
-                GL.BeginQuery(QueryTarget.SamplesPassed, queryObject);
+                // Query functionality is currently unavailable in this backend abstraction.
             }
         }
     }

@@ -199,7 +199,7 @@ namespace osu.Framework.Graphics.OpenGL
         {
             if (texture == null)
             {
-                GL.ActiveTexture(TextureUnit.Texture0 + unit);
+                GL.ActiveTexture((TextureUnit)((int)TextureUnit.Texture0 + unit));
                 GL.BindTexture(TextureTarget.Texture2D, 0);
                 return true;
             }
@@ -222,7 +222,7 @@ namespace osu.Framework.Graphics.OpenGL
                     if (glTexture.TextureId <= 0)
                         return false;
 
-                    GL.ActiveTexture(TextureUnit.Texture0 + unit);
+                    GL.ActiveTexture((TextureUnit)((int)TextureUnit.Texture0 + unit));
                     GL.BindTexture(TextureTarget.Texture2D, glTexture.TextureId);
                     break;
             }
@@ -353,7 +353,7 @@ namespace osu.Framework.Graphics.OpenGL
             if (stencilInfo.StencilTest)
             {
                 GL.Enable(EnableCap.StencilTest);
-                GL.StencilFunc(GLUtils.ToStencilFunction(stencilInfo.TestFunction), stencilInfo.TestValue, stencilInfo.Mask);
+                GL.StencilFunc(GLUtils.ToStencilFunction(stencilInfo.TestFunction), stencilInfo.TestValue, (uint)stencilInfo.Mask);
                 GL.StencilOp(
                     GLUtils.ToStencilOperation(stencilInfo.StencilTestFailOperation),
                     GLUtils.ToStencilOperation(stencilInfo.DepthTestFailOperation),
@@ -417,22 +417,7 @@ namespace osu.Framework.Graphics.OpenGL
 
         public override IFrameBuffer CreateFrameBuffer(RenderBufferFormat[]? renderBufferFormats = null, TextureFilteringMode filteringMode = TextureFilteringMode.Linear)
         {
-            All glFilteringMode;
             RenderbufferInternalFormat[]? glFormats = null;
-
-            switch (filteringMode)
-            {
-                case TextureFilteringMode.Linear:
-                    glFilteringMode = All.Linear;
-                    break;
-
-                case TextureFilteringMode.Nearest:
-                    glFilteringMode = All.Nearest;
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unsupported filtering mode: {filteringMode}", nameof(filteringMode));
-            }
 
             if (renderBufferFormats != null)
             {
@@ -464,7 +449,7 @@ namespace osu.Framework.Graphics.OpenGL
                 }
             }
 
-            return new GLFrameBuffer(this, glFormats, glFilteringMode);
+            return new GLFrameBuffer(this, glFormats, filteringMode);
         }
 
         protected override IUniformBuffer<TData> CreateUniformBuffer<TData>()
@@ -475,25 +460,7 @@ namespace osu.Framework.Graphics.OpenGL
 
         protected override INativeTexture CreateNativeTexture(int width, int height, bool manualMipmaps = false, TextureFilteringMode filteringMode = TextureFilteringMode.Linear,
                                                               Colour4? initialisationColour = null)
-        {
-            All glFilteringMode;
-
-            switch (filteringMode)
-            {
-                case TextureFilteringMode.Linear:
-                    glFilteringMode = All.Linear;
-                    break;
-
-                case TextureFilteringMode.Nearest:
-                    glFilteringMode = All.Nearest;
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unsupported filtering mode: {filteringMode}", nameof(filteringMode));
-            }
-
-            return new GLTexture(this, width, height, manualMipmaps, glFilteringMode, initialisationColour);
-        }
+            => new GLTexture(this, width, height, manualMipmaps, filteringMode, initialisationColour);
 
         protected override INativeTexture CreateNativeVideoTexture(int width, int height) => new GLVideoTexture(this, width, height);
 

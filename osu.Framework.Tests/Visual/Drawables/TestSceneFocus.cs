@@ -4,8 +4,8 @@
 #nullable disable
 
 using System;
+using System.Numerics;
 using NUnit.Framework;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -14,7 +14,6 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input;
 using osu.Framework.Input.Events;
 using osu.Framework.Testing;
-using System.Numerics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {

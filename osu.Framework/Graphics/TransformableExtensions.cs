@@ -754,7 +754,7 @@ namespace osu.Framework.Graphics
             where T : class, IContainer
             where TEasing : IEasingFunction
         {
-            Colour4 targetColour = container.EdgeEffect.Colour.Opacity(newAlpha);
+            Colour4 targetColour = ((Colour4)container.EdgeEffect.Colour).Opacity(newAlpha);
             return container.FadeEdgeEffectTo(targetColour, duration, easing);
         }
 

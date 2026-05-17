@@ -4,7 +4,6 @@
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Numerics;
 using osu.Framework.Utils;
 using Vector2 = System.Numerics.Vector2;
 

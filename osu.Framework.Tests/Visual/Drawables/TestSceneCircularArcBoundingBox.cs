@@ -107,8 +107,8 @@ namespace osu.Framework.Tests.Visual.Drawables
 
             static Vector2 polarToCartesian(float r, float theta) =>
                 new Vector2(
-                    r * MathF.Cos(MathHelper.DegreesToRadians(theta)),
-                    r * MathF.Sin(MathHelper.DegreesToRadians(theta)));
+                    r * MathF.Cos(float.DegreesToRadians(theta)),
+                    r * MathF.Sin(float.DegreesToRadians(theta)));
 
             controlPoints.Clear();
             controlPoints.AddRange(new[]

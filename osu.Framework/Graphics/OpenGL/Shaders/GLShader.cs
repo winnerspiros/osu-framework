@@ -196,7 +196,7 @@ namespace osu.Framework.Graphics.OpenGL.Shaders
 
                         case ResourceKind.StructuredBufferReadOnly:
                         case ResourceKind.StructuredBufferReadWrite:
-                            uniformBlocks[layout.Elements[0].Name] = GL4.GL.GetProgramResourceIndex(this, ProgramInterface.ShaderStorageBlock, layout.Elements[0].Name);
+                            uniformBlocks[layout.Elements[0].Name] = (int)GL4.GL.GetProgramResourceIndex(this, ProgramInterface.ShaderStorageBlock, layout.Elements[0].Name);
                             break;
                     }
                 }

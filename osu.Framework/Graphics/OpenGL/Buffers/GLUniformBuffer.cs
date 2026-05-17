@@ -27,7 +27,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
 
             size = Marshal.SizeOf(default(TData));
 
-            GL.GenBuffers(1, out uboId);
+            uboId = GL.GenBuffer();
 
             // Initialise the buffer with the default data.
             setData(ref data);

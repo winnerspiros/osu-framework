@@ -7,7 +7,6 @@ using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Input.Events;
 using osu.Framework.Input.States;
-using osuTK.Input;
 
 namespace osu.Framework.Input
 {

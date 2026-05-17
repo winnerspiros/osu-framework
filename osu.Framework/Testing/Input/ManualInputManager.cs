@@ -3,15 +3,16 @@
 
 using System;
 using System.Linq;
+using System.Numerics;
+using FrameworkKey = osu.Framework.Input.Key;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input;
+using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.Input.Handlers;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Platform;
-using System.Numerics;
-using osuTK.Input;
 
 namespace osu.Framework.Testing.Input
 {
@@ -111,10 +112,42 @@ namespace osu.Framework.Testing.Input
             var binding = Host.PlatformKeyBindings.First(b => (PlatformAction)b.Action == action);
 
             foreach (var k in binding.KeyCombination.Keys)
-                PressKey((Key)k);
+                PressKey(toKey(k));
 
             foreach (var k in binding.KeyCombination.Keys)
-                ReleaseKey((Key)k);
+                ReleaseKey(toKey(k));
+        }
+
+        private static FrameworkKey toKey(InputKey key)
+        {
+            switch (key)
+            {
+                case InputKey.Shift:
+                    return FrameworkKey.LShift;
+
+                case InputKey.Control:
+                    return FrameworkKey.LControl;
+
+                case InputKey.Alt:
+                    return FrameworkKey.LAlt;
+
+                case InputKey.Super:
+                    return FrameworkKey.LWin;
+            }
+
+            string name = key switch
+            {
+                InputKey.LSuper => nameof(FrameworkKey.LWin),
+                InputKey.RSuper => nameof(FrameworkKey.RWin),
+                InputKey.KeypadSubtract => nameof(FrameworkKey.KeypadMinus),
+                InputKey.KeypadAdd => nameof(FrameworkKey.KeypadPlus),
+                InputKey.NonUSBackSlash => nameof(FrameworkKey.NonUsBackSlash),
+                _ => key.ToString()
+            };
+
+            return Enum.TryParse<FrameworkKey>(name, out var converted)
+                ? converted
+                : FrameworkKey.Unknown;
         }
 
         public void ScrollBy(Vector2 delta, bool isPrecise = false) => Input(new MouseScrollRelativeInput { Delta = delta, IsPrecise = isPrecise });

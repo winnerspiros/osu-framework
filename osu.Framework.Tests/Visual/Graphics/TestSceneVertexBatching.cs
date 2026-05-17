@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Graphics
 {
@@ -39,7 +38,7 @@ namespace osu.Framework.Tests.Visual.Graphics
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Colour = new Color4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
+                        Colour = new Colour4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
                         Size = new Vector2(50f),
                     })
                 });
@@ -64,7 +63,7 @@ namespace osu.Framework.Tests.Visual.Graphics
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Colour = new Color4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
+                        Colour = new Colour4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
                         Size = new Vector2(50f),
                     })
                 });

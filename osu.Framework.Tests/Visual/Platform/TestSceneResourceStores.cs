@@ -18,7 +18,6 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Platform
 {
@@ -116,7 +115,7 @@ namespace osu.Framework.Tests.Visual.Platform
                             {
                                 new Box
                                 {
-                                    Colour = Color4.Navy,
+                                    Colour = Colour4.Navy,
                                     RelativeSizeAxes = Axes.Both,
                                 },
                                 createDisplay(resource),

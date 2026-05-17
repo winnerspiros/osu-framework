@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Development;
@@ -17,8 +18,6 @@ using osu.Framework.Layout;
 using osu.Framework.Localisation;
 using osu.Framework.Text;
 using osu.Framework.Utils;
-using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Sprites
 {
@@ -183,7 +182,7 @@ namespace osu.Framework.Graphics.Sprites
         /// <summary>
         /// The colour of the shadow displayed around the text. A shadow will only be displayed if the <see cref="Shadow"/> property is set to true.
         /// </summary>
-        public Color4 ShadowColour
+        public Colour4 ShadowColour
         {
             get;
             set
@@ -195,7 +194,7 @@ namespace osu.Framework.Graphics.Sprites
 
                 Invalidate(Invalidation.DrawNode);
             }
-        } = new Color4(0, 0, 0, 0.2f);
+        } = new Colour4(0, 0, 0, 0.2f);
 
         private Vector2 shadowOffset = new Vector2(0, 0.06f);
 

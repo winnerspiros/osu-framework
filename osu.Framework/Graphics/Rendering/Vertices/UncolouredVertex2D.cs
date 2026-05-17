@@ -2,9 +2,8 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using System.Runtime.InteropServices;
 using System.Numerics;
-using osuTK.Graphics.ES30;
+using System.Runtime.InteropServices;
 
 namespace osu.Framework.Graphics.Rendering.Vertices
 {

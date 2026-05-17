@@ -11,9 +11,7 @@ using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Layout;
 using osu.Framework.Utils;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Containers
 {
@@ -99,24 +97,22 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
-        private ColourInfo effectColour = Color4.White;
-
         /// <summary>
-        /// The multiplicative colour of drawn buffered object after applying all effects (e.g. blur). Default is <see cref="Color4.White"/>.
+        /// The multiplicative colour of drawn buffered object after applying all effects (e.g. blur). Default is <see cref="Colour4.White"/>.
         /// Does not affect the original which is drawn when <see cref="DrawOriginal"/> is true.
         /// </summary>
         public ColourInfo EffectColour
         {
-            get => effectColour;
+            get;
             set
             {
-                if (effectColour.Equals(value))
+                if (field.Equals(value))
                     return;
 
-                effectColour = value;
+                field = value;
                 ForceRedraw();
             }
-        }
+        } = Colour4.White;
 
         private BlendingParameters effectBlending = BlendingParameters.Inherit;
 
@@ -155,23 +151,21 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
-        private Color4 backgroundColour = new Color4(0, 0, 0, 0);
-
         /// <summary>
         /// The background colour of the framebuffer. Transparent black by default.
         /// </summary>
-        public Color4 BackgroundColour
+        public Colour4 BackgroundColour
         {
-            get => backgroundColour;
+            get;
             set
             {
-                if (backgroundColour == value)
+                if (field == value)
                     return;
 
-                backgroundColour = value;
+                field = value;
                 ForceRedraw();
             }
-        }
+        } = new Colour4(0, 0, 0, 0);
 
         private Vector2 frameBufferScale = Vector2.One;
 
@@ -330,8 +324,10 @@ namespace osu.Framework.Graphics.Containers
 
                 if (!RedrawOnScale)
                 {
-                    Matrix3 scaleMatrix = Matrix3.CreateScale(DrawInfo.MatrixInverse.ExtractScale());
-                    Vector2Extensions.Transform(ref drawSize, ref scaleMatrix, out drawSize);
+                    var inv = DrawInfo.MatrixInverse;
+                    drawSize *= new Vector2(
+                        new Vector2(inv.M11, inv.M12).Length(),
+                        new Vector2(inv.M21, inv.M22).Length());
                 }
 
                 if (!Precision.AlmostEquals(lastScreenSpaceSize, drawSize))
@@ -377,7 +373,7 @@ namespace osu.Framework.Graphics.Containers
                 var blending = Blending;
                 blending.ApplyDefaultToInherited();
 
-                return new DrawColourInfo(Color4.White, blending);
+                return new DrawColourInfo(Colour4.White, blending);
             }
         }
 

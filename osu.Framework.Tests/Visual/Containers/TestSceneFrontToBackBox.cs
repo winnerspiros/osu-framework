@@ -13,7 +13,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Containers
 {
@@ -122,7 +121,7 @@ namespace osu.Framework.Tests.Visual.Containers
                             new Box
                             {
                                 RelativeSizeAxes = Axes.Both,
-                                Colour = Color4.Green
+                                Colour = Colour4.Green
                             },
                             new Container
                             {
@@ -136,7 +135,7 @@ namespace osu.Framework.Tests.Visual.Containers
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    Colour = Color4.Green
+                                    Colour = Colour4.Green
                                 }
                             }
                         }
@@ -169,7 +168,7 @@ namespace osu.Framework.Tests.Visual.Containers
                             new Box
                             {
                                 RelativeSizeAxes = Axes.Both,
-                                Colour = Color4.Green
+                                Colour = Colour4.Green
                             },
                             new Container
                             {
@@ -184,7 +183,7 @@ namespace osu.Framework.Tests.Visual.Containers
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    Colour = Color4.Green
+                                    Colour = Colour4.Green
                                 }
                             }
                         }
@@ -205,14 +204,14 @@ namespace osu.Framework.Tests.Visual.Containers
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = new Color4(50, 50, 50, 255)
+                        Colour = new Colour4(50, 50, 50, 255)
                     },
                     blendedBox = new TestBox
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        Colour = new Color4(100, 100, 100, 255),
+                        Colour = new Colour4(100, 100, 100, 255),
                         Size = new Vector2(0.5f),
                     }
                 }

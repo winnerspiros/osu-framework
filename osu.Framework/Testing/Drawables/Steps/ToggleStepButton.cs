@@ -3,14 +3,13 @@
 
 using System;
 using osu.Framework.Graphics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Testing.Drawables.Steps
 {
     public partial class ToggleStepButton : StepButton
     {
-        private static readonly Color4 off_colour = Color4.Red;
-        private static readonly Color4 on_colour = Color4.YellowGreen;
+        private static readonly Colour4 off_colour = Colour4.Red;
+        private static readonly Colour4 on_colour = Colour4.YellowGreen;
 
         public new required Action<bool> Action { get; init; }
 

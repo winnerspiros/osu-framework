@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Audio.Track;
-using osu.Framework.Extensions;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
@@ -17,7 +16,6 @@ using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using osu.Framework.Utils;
-using osuTK.Graphics;
 using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Graphics.Audio
@@ -73,81 +71,73 @@ namespace osu.Framework.Graphics.Audio
             }
         }
 
-        private Color4 baseColour = Color4.White;
-
         /// <summary>
         /// The base colour of the graph for frequencies that don't fall into the predefined low/mid/high buckets.
         /// Also serves as the default value of <see cref="LowColour"/>, <see cref="MidColour"/>, and <see cref="HighColour"/>.
         /// </summary>
-        public Color4 BaseColour
+        public Colour4 BaseColour
         {
-            get => baseColour;
+            get;
             set
             {
-                if (baseColour == value)
+                if (field == value)
                     return;
 
-                baseColour = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
-        }
-
-        private Color4? lowColour;
+        } = Colour4.White;
 
         /// <summary>
         /// The colour which low-range frequencies should be colourised with.
         /// May be null for this frequency range to not be colourised.
         /// </summary>
-        public Color4? LowColour
+        public Colour4? LowColour
         {
-            get => lowColour;
+            get;
             set
             {
-                if (lowColour == value)
+                if (field == value)
                     return;
 
-                lowColour = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
         }
-
-        private Color4? midColour;
 
         /// <summary>
         /// The colour which mid-range frequencies should be colourised with.
         /// May be null for this frequency range to not be colourised.
         /// </summary>
-        public Color4? MidColour
+        public Colour4? MidColour
         {
-            get => midColour;
+            get;
             set
             {
-                if (midColour == value)
+                if (field == value)
                     return;
 
-                midColour = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
         }
 
-        private Color4? highColour;
-
         /// <summary>
         /// The colour which high-range frequencies should be colourised with.
         /// May be null for this frequency range to not be colourised.
         /// </summary>
-        public Color4? HighColour
+        public Colour4? HighColour
         {
-            get => highColour;
+            get;
             set
             {
-                if (highColour == value)
+                if (field == value)
                     return;
 
-                highColour = value;
+                field = value;
 
                 Invalidate(Invalidation.DrawNode);
             }
@@ -260,10 +250,10 @@ namespace osu.Framework.Graphics.Audio
 
             private long version;
 
-            private Color4 baseColour;
-            private Color4 lowColour;
-            private Color4 midColour;
-            private Color4 highColour;
+            private Colour4 baseColour;
+            private Colour4 lowColour;
+            private Colour4 midColour;
+            private Colour4 highColour;
 
             private double highMax;
             private double midMax;
@@ -284,11 +274,11 @@ namespace osu.Framework.Graphics.Audio
                 texture = Source.texture;
                 drawSize = Source.DrawSize;
 
-                baseColour = Source.baseColour;
+                baseColour = Source.BaseColour;
 
-                lowColour = Source.lowColour ?? baseColour;
-                midColour = Source.midColour ?? baseColour;
-                highColour = Source.highColour ?? baseColour;
+                lowColour = Source.LowColour ?? baseColour;
+                midColour = Source.MidColour ?? baseColour;
+                highColour = Source.HighColour ?? baseColour;
 
                 if (Source.resampledVersion != version)
                 {
@@ -325,7 +315,7 @@ namespace osu.Framework.Graphics.Audio
                 shader.Bind();
                 texture.Bind();
 
-                Vector2 localInflationAmount = new Vector2(0, 1) * DrawInfo.MatrixInverse.ExtractScale().Xy.ToSystemNumerics();
+                Vector2 localInflationAmount = new Vector2(0, 1) * new Vector2(new Vector2(DrawInfo.MatrixInverse.M21, DrawInfo.MatrixInverse.M22).Length());
 
                 // We're dealing with a _large_ number of points, so we need to optimise the quadToDraw * drawInfo.Matrix multiplications below
                 // for points that are going to be masked out anyway. This allows for higher resolution graphs at larger scales with virtually no performance loss.
@@ -344,7 +334,7 @@ namespace osu.Framework.Graphics.Audio
                     float leftX = i * separation;
                     float rightX = (i + 1) * separation;
 
-                    Color4 frequencyColour = baseColour;
+                    Colour4 frequencyColour = baseColour;
 
                     // colouring is applied in the order of interest to a viewer.
                     frequencyColour = Interpolation.ValueAt(points[i].MidIntensity / midMax, frequencyColour, midColour, 0, 1);

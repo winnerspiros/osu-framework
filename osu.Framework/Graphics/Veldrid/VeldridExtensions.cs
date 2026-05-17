@@ -10,7 +10,6 @@ using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
-using osuTK.Graphics;
 using SharpGen.Runtime;
 using Veldrid;
 using Veldrid.MetalBindings;
@@ -19,15 +18,16 @@ using Vortice.Direct3D11;
 using Vortice.DXGI;
 using Vortice.Vulkan;
 using GraphicsBackend = Veldrid.GraphicsBackend;
+using PixelFormat = Veldrid.PixelFormat;
 using PrimitiveTopology = Veldrid.PrimitiveTopology;
 using StencilOperation = Veldrid.StencilOperation;
-using VertexAttribPointerType = osuTK.Graphics.ES30.VertexAttribPointerType;
+using VertexAttribPointerType = osu.Framework.Graphics.Rendering.Vertices.VertexAttribPointerType;
 
 namespace osu.Framework.Graphics.Veldrid
 {
     internal static class VeldridExtensions
     {
-        public static RgbaFloat ToRgbaFloat(this Color4 colour) => new RgbaFloat(colour.R, colour.G, colour.B, colour.A);
+        public static RgbaFloat ToRgbaFloat(this Colour4 colour) => new RgbaFloat(colour.R, colour.G, colour.B, colour.A);
 
         public static BlendFactor ToBlendFactor(this BlendingType type) => type switch
         {
@@ -230,7 +230,7 @@ namespace osu.Framework.Graphics.Veldrid
 
             bool supportsEnhancedBarriers = info.SupportsEnhancedBarriers;
             bool supportsMeshShaders = info.SupportsMeshShaders;
-            bool supportsVRS = info.SupportsVariableRateShading;
+            bool supportsVrs = info.SupportsVariableRateShading;
             bool supportsRaytracing = info.SupportsRaytracing;
 
             Logger.Log($@"Direct3D 12 Initialized
@@ -240,7 +240,7 @@ namespace osu.Framework.Graphics.Veldrid
                         Direct3D 12 Shared System Memory:    {sharedSystemMemory} MB
                         Direct3D 12 Enhanced Barriers:       {supportsEnhancedBarriers}
                         Direct3D 12 Mesh Shaders:            {supportsMeshShaders}
-                        Direct3D 12 Variable Rate Shading:   {supportsVRS}
+                        Direct3D 12 Variable Rate Shading:   {supportsVrs}
                         Direct3D 12 Raytracing:              {supportsRaytracing}");
         }
 

@@ -20,8 +20,6 @@ using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.Layout;
 using osu.Framework.Localisation;
-using osuTK.Graphics;
-using osuTK.Input;
 
 namespace osu.Framework.Graphics.UserInterface
 {
@@ -641,7 +639,7 @@ namespace osu.Framework.Graphics.UserInterface
                     }
                 }
 
-                public Color4 BackgroundColourSelected
+                public Colour4 BackgroundColourSelected
                 {
                     get;
                     set
@@ -649,9 +647,9 @@ namespace osu.Framework.Graphics.UserInterface
                         field = value;
                         Scheduler.AddOnce(UpdateBackgroundColour);
                     }
-                } = Color4.SlateGray;
+                } = Colour4.SlateGray;
 
-                public Color4 ForegroundColourSelected
+                public Colour4 ForegroundColourSelected
                 {
                     get;
                     set
@@ -659,7 +657,7 @@ namespace osu.Framework.Graphics.UserInterface
                         field = value;
                         Scheduler.AddOnce(UpdateForegroundColour);
                     }
-                } = Color4.White;
+                } = Colour4.White;
 
                 protected virtual void OnSelectChange()
                 {

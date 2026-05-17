@@ -2,15 +2,13 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Linq;
+using System.Numerics;
 using ManagedBass.Mix;
 using osu.Framework.Audio.Mixing;
 using osu.Framework.Audio.Mixing.Bass;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Visualisation.Audio
 {
@@ -38,7 +36,7 @@ namespace osu.Framework.Graphics.Visualisation.Audio
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.Black.Opacity(0.2f)
+                        Colour = Colour4.Black.Opacity(0.2f)
                     },
                     new SpriteText
                     {

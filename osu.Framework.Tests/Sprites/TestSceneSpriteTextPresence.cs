@@ -4,7 +4,6 @@
 #nullable disable
 
 using NUnit.Framework;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -12,7 +11,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
 using osu.Framework.Tests.Visual;
 using osu.Framework.Utils;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Sprites
 {
@@ -40,7 +38,7 @@ namespace osu.Framework.Tests.Sprites
                         new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = Color4.Red.Opacity(0.3f)
+                            Colour = Colour4.Red.Opacity(0.3f)
                         },
                         text = new SpriteText
                         {
@@ -79,7 +77,7 @@ namespace osu.Framework.Tests.Sprites
                         new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = Color4.Red.Opacity(0.3f)
+                            Colour = Colour4.Red.Opacity(0.3f)
                         },
                         text = new AlwaysPresentSpriteText
                         {

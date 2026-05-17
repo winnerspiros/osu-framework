@@ -2,9 +2,9 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Numerics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
-using System.Numerics;
 
 namespace osu.Framework.Graphics.Effects
 {

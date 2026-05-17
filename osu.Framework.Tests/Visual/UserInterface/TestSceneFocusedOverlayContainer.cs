@@ -10,8 +10,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osu.Framework.Testing;
 using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Input;
+using osu.Framework.Input;
 
 namespace osu.Framework.Tests.Visual.UserInterface
 {
@@ -176,7 +175,7 @@ namespace osu.Framework.Tests.Visual.UserInterface
                 {
                     new Box
                     {
-                        Colour = Color4.Cyan,
+                        Colour = Colour4.Cyan,
                         RelativeSizeAxes = Axes.Both,
                     },
                 };

@@ -9,7 +9,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Containers
 {
@@ -141,11 +140,11 @@ namespace osu.Framework.Tests.Visual.Containers
                         RelativeSizeAxes = Axes.Both,
                         Origin = Anchor.Centre,
                         Anchor = Anchor.Centre,
-                        Colour = Color4.NavajoWhite,
+                        Colour = Colour4.NavajoWhite,
                     },
                     count = new SpriteText
                     {
-                        Colour = Color4.Black,
+                        Colour = Colour4.Black,
                         Origin = Anchor.Centre,
                         Anchor = Anchor.Centre,
                         Font = new FontUsage(size: 80),

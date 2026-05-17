@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using osu.Framework.Development;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Statistics;
-using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Graphics.OpenGL.Buffers
 {
@@ -18,7 +17,6 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
         private readonly int size;
 
         private TData data;
-        private int uboId;
 
         public GLUniformBuffer(GLRenderer renderer)
         {
@@ -28,7 +26,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
 
             size = Marshal.SizeOf(default(TData));
 
-            GL.GenBuffers(1, out uboId);
+            Id = GL.GenBuffer();
 
             // Initialise the buffer with the default data.
             setData(ref data);
@@ -50,7 +48,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
         {
             this.data = data;
 
-            GL.BindBuffer(BufferTarget.UniformBuffer, uboId);
+            GL.BindBuffer(BufferTarget.UniformBuffer, Id);
             GL.BufferData(BufferTarget.UniformBuffer, size, ref data, BufferUsageHint.DynamicDraw);
             // Intentionally not unbinding — avoids GL state thrashing.
             // The next BindBuffer call will rebind whatever is needed.
@@ -73,16 +71,16 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
 
         protected virtual void Dispose(bool disposing)
         {
-            if (uboId == -1)
+            if (Id == -1)
                 return;
 
-            GL.DeleteBuffer(uboId);
-            uboId = -1;
+            GL.DeleteBuffer(Id);
+            Id = -1;
         }
 
         #endregion
 
-        public int Id => uboId;
+        public int Id { get; private set; }
 
         public void Flush()
         {

@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Utils;
+using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 
 namespace osu.Framework.Platform
 {

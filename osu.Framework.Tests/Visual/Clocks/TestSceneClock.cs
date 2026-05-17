@@ -10,7 +10,6 @@ using osu.Framework.Input.Events;
 using osu.Framework.Testing;
 using osu.Framework.Timing;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Clocks
 {
@@ -73,14 +72,14 @@ namespace osu.Framework.Tests.Visual.Clocks
                 CornerRadius = width / 2;
                 Masking = true;
 
-                BorderColour = Color4.White;
+                BorderColour = Colour4.White;
                 BorderThickness = 5;
 
                 InternalChildren = new Drawable[]
                 {
                     bg = new Box
                     {
-                        Colour = trackingClock is IAdjustableClock ? Color4.Tomato : Color4.Navy,
+                        Colour = trackingClock is IAdjustableClock ? Colour4.Tomato : Colour4.Navy,
                         RelativeSizeAxes = Axes.Both,
                     },
                     new SpriteText
@@ -112,7 +111,7 @@ namespace osu.Framework.Tests.Visual.Clocks
                     },
                     hand = new Box
                     {
-                        Colour = Color4.White,
+                        Colour = Colour4.White,
                         Anchor = Anchor.Centre,
                         Origin = Anchor.BottomCentre,
                         Size = new Vector2(2, width / 2)
@@ -158,9 +157,9 @@ namespace osu.Framework.Tests.Visual.Clocks
                 rate.Text = $"{TrackingClock.Rate:N2}x";
 
                 if (TrackingClock.CurrentTime != lastTime)
-                    BorderColour = TrackingClock.CurrentTime >= lastTime ? Color4.White : Color4.Red;
+                    BorderColour = TrackingClock.CurrentTime >= lastTime ? Colour4.White : Colour4.Red;
 
-                Colour = TrackingClock.IsRunning ? Color4.White : Color4.Gray;
+                Colour = TrackingClock.IsRunning ? Colour4.White : Colour4.Gray;
 
                 hand.Rotation = (float)(TrackingClock.CurrentTime / 1000) * 360 % 360;
 
@@ -169,7 +168,7 @@ namespace osu.Framework.Tests.Visual.Clocks
                     if (!zeroed)
                     {
                         zeroed = true;
-                        bg.FlashColour(Color4.White, 500, Easing.OutQuint);
+                        bg.FlashColour(Colour4.White, 500, Easing.OutQuint);
                     }
                 }
                 else

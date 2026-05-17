@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using NUnit.Framework;
-using osuTK.Graphics;
+using osu.Framework.Graphics;
 
 namespace osu.Framework.Testing.Drawables.Steps
 {
@@ -21,7 +21,7 @@ namespace osu.Framework.Testing.Drawables.Steps
         public AssertButton()
         {
             Action += checkAssert;
-            LightColour = Color4.OrangeRed;
+            LightColour = Colour4.OrangeRed;
         }
 
         private void checkAssert()

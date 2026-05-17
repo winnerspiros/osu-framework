@@ -3,7 +3,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
-using osuTK.Graphics;
 
 namespace TemplateGame.Game
 {
@@ -16,7 +15,7 @@ namespace TemplateGame.Game
             {
                 new Box
                 {
-                    Colour = Color4.Violet,
+                    Colour = Colour4.Violet,
                     RelativeSizeAxes = Axes.Both,
                 },
                 new SpriteText

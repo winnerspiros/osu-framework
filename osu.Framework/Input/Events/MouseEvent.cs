@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using osu.Framework.Input.States;
-using osuTK.Input;
 
 namespace osu.Framework.Input.Events
 {

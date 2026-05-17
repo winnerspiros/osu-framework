@@ -2,14 +2,12 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using osu.Framework.Extensions.Color4Extensions;
+using System.Numerics;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Transforms;
-using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Utils
 {
@@ -149,9 +147,6 @@ namespace osu.Framework.Utils
         public static SRGBColour ValueAt(double time, SRGBColour startColour, SRGBColour endColour, double startTime, double endTime, Easing easing = Easing.None)
             => ValueAt(time, startColour, endColour, startTime, endTime, new DefaultEasingFunction(easing));
 
-        public static Color4 ValueAt(double time, Color4 startColour, Color4 endColour, double startTime, double endTime, Easing easing = Easing.None)
-            => ValueAt(time, startColour, endColour, startTime, endTime, new DefaultEasingFunction(easing));
-
         public static Colour4 ValueAt(double time, Colour4 startColour, Colour4 endColour, double startTime, double endTime, Easing easing = Easing.None)
             => ValueAt(time, startColour, endColour, startTime, endTime, new DefaultEasingFunction(easing));
 
@@ -224,14 +219,14 @@ namespace osu.Framework.Utils
             public static ColourInfo ValueAt(double time, ColourInfo startColour, ColourInfo endColour, double startTime, double endTime, in TEasing easing)
             {
                 if (startColour.HasSingleColour && endColour.HasSingleColour)
-                    return ValueAt(time, (Color4)startColour, (Color4)endColour, startTime, endTime, easing);
+                    return ValueAt(time, (Colour4)startColour, (Colour4)endColour, startTime, endTime, easing);
 
                 return new ColourInfo
                 {
-                    TopLeft = ValueAt(time, (Color4)startColour.TopLeft, (Color4)endColour.TopLeft, startTime, endTime, easing),
-                    BottomLeft = ValueAt(time, (Color4)startColour.BottomLeft, (Color4)endColour.BottomLeft, startTime, endTime, easing),
-                    TopRight = ValueAt(time, (Color4)startColour.TopRight, (Color4)endColour.TopRight, startTime, endTime, easing),
-                    BottomRight = ValueAt(time, (Color4)startColour.BottomRight, (Color4)endColour.BottomRight, startTime, endTime, easing),
+                    TopLeft = ValueAt(time, (Colour4)startColour.TopLeft, (Colour4)endColour.TopLeft, startTime, endTime, easing),
+                    BottomLeft = ValueAt(time, (Colour4)startColour.BottomLeft, (Colour4)endColour.BottomLeft, startTime, endTime, easing),
+                    TopRight = ValueAt(time, (Colour4)startColour.TopRight, (Colour4)endColour.TopRight, startTime, endTime, easing),
+                    BottomRight = ValueAt(time, (Colour4)startColour.BottomRight, (Colour4)endColour.BottomRight, startTime, endTime, easing),
                 };
             }
 
@@ -247,37 +242,14 @@ namespace osu.Framework.Utils
                 };
 
             public static SRGBColour ValueAt(double time, SRGBColour startColour, SRGBColour endColour, double startTime, double endTime, in TEasing easing)
-                => ValueAt(time, (Color4)startColour, (Color4)endColour, startTime, endTime, easing);
+                => ValueAt(time, (Colour4)startColour, (Colour4)endColour, startTime, endTime, easing);
 
             /// <summary>
-            /// Interpolates between two sRGB <see cref="Color4"/>s in a linear (gamma-correct) RGB space.
+            /// Interpolates between two sRGB <see cref="Colour4"/>s in a linear (gamma-correct) RGB space.
             /// </summary>
             /// <remarks>
             /// For more information regarding linear interpolation, see https://blog.johnnovak.net/2016/09/21/what-every-coder-should-know-about-gamma/#gradients.
             /// </remarks>
-            public static Color4 ValueAt(double time, Color4 startColour, Color4 endColour, double startTime, double endTime, in TEasing easing)
-            {
-                if (startColour == endColour)
-                    return startColour;
-
-                double current = time - startTime;
-                double duration = endTime - startTime;
-
-                if (duration == 0 || current == 0)
-                    return startColour;
-
-                var startLinear = startColour.ToLinear();
-                var endLinear = endColour.ToLinear();
-
-                float t = Math.Max(0, Math.Min(1, (float)easing.ApplyEasing(current / duration)));
-
-                return new Color4(
-                    startLinear.R + t * (endLinear.R - startLinear.R),
-                    startLinear.G + t * (endLinear.G - startLinear.G),
-                    startLinear.B + t * (endLinear.B - startLinear.B),
-                    startLinear.A + t * (endLinear.A - startLinear.A)).ToSRGB();
-            }
-
             public static Colour4 ValueAt(double time, Colour4 startColour, Colour4 endColour, double startTime, double endTime, in TEasing easing)
             {
                 if (startColour == endColour)
@@ -403,8 +375,8 @@ namespace osu.Framework.Utils
                     FUNCTION = (InterpolationFunc<TValue, TEasing>)(object)(InterpolationFunc<EdgeEffectParameters, TEasing>)GenericInterpolation<TEasing>.ValueAt;
                 else if (typeof(TValue) == typeof(SRGBColour))
                     FUNCTION = (InterpolationFunc<TValue, TEasing>)(object)(InterpolationFunc<SRGBColour, TEasing>)GenericInterpolation<TEasing>.ValueAt;
-                else if (typeof(TValue) == typeof(Color4))
-                    FUNCTION = (InterpolationFunc<TValue, TEasing>)(object)(InterpolationFunc<Color4, TEasing>)GenericInterpolation<TEasing>.ValueAt;
+                else if (typeof(TValue) == typeof(Colour4))
+                    FUNCTION = (InterpolationFunc<TValue, TEasing>)(object)(InterpolationFunc<Colour4, TEasing>)GenericInterpolation<TEasing>.ValueAt;
                 else if (typeof(TValue) == typeof(Colour4))
                     FUNCTION = (InterpolationFunc<TValue, TEasing>)(object)(InterpolationFunc<Colour4, TEasing>)GenericInterpolation<TEasing>.ValueAt;
                 else if (typeof(TValue) == typeof(byte))

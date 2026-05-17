@@ -12,7 +12,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.UserInterface;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Graphics
 {
@@ -203,7 +202,7 @@ namespace osu.Framework.Tests.Visual.Graphics
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.Black
+                        Colour = Colour4.Black
                     },
                     new SpriteText
                     {

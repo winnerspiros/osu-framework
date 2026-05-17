@@ -15,8 +15,7 @@ using osu.Framework.Input.Events;
 using osu.Framework.Testing;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Input;
+using osu.Framework.Input;
 
 namespace osu.Framework.Tests.Visual.UserInterface
 {
@@ -57,9 +56,9 @@ namespace osu.Framework.Tests.Visual.UserInterface
                     sliderBar = new TestSliderBar
                     {
                         Size = new Vector2(200, 50),
-                        BackgroundColour = Color4.White,
-                        SelectionColour = Color4.Pink,
-                        FocusColour = Color4.OrangeRed,
+                        BackgroundColour = Colour4.White,
+                        SelectionColour = Colour4.Pink,
+                        FocusColour = Colour4.OrangeRed,
                         KeyboardStep = 1,
                         Current = sliderBarValue
                     },
@@ -71,9 +70,9 @@ namespace osu.Framework.Tests.Visual.UserInterface
                     {
                         Size = new Vector2(200, 10),
                         RangePadding = 20,
-                        BackgroundColour = Color4.White,
-                        SelectionColour = Color4.Pink,
-                        FocusColour = Color4.OrangeRed,
+                        BackgroundColour = Colour4.White,
+                        SelectionColour = Colour4.Pink,
+                        FocusColour = Colour4.OrangeRed,
                         KeyboardStep = 1,
                         Current = sliderBarValue
                     },
@@ -85,9 +84,9 @@ namespace osu.Framework.Tests.Visual.UserInterface
                     {
                         TransferValueOnCommit = true,
                         Size = new Vector2(200, 10),
-                        BackgroundColour = Color4.White,
-                        SelectionColour = Color4.Pink,
-                        FocusColour = Color4.OrangeRed,
+                        BackgroundColour = Colour4.White,
+                        SelectionColour = Colour4.Pink,
+                        FocusColour = Colour4.OrangeRed,
                         KeyboardStep = 1,
                         Current = sliderBarValue
                     },
@@ -98,9 +97,9 @@ namespace osu.Framework.Tests.Visual.UserInterface
                     sliderBarWithNub = new TestSliderBarWithNub
                     {
                         Size = new Vector2(200, 10),
-                        BackgroundColour = Color4.White,
-                        SelectionColour = Color4.Pink,
-                        FocusColour = Color4.OrangeRed,
+                        BackgroundColour = Colour4.White,
+                        SelectionColour = Colour4.Pink,
+                        FocusColour = Colour4.OrangeRed,
                         KeyboardStep = 1,
                         Current = sliderBarValue
                     },
@@ -350,7 +349,7 @@ namespace osu.Framework.Tests.Visual.UserInterface
             {
                 Add(nub = new Box
                 {
-                    Colour = Color4.Blue,
+                    Colour = Colour4.Blue,
                     Origin = Anchor.Centre,
                     Anchor = Anchor.CentreLeft,
                     RelativeSizeAxes = Axes.Y,

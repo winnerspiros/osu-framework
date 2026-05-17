@@ -12,7 +12,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Input
 {
@@ -146,7 +145,7 @@ namespace osu.Framework.Tests.Visual.Input
                 Origin = Anchor.Centre;
 
                 Size = new Vector2(5);
-                Colour = Color4.Red;
+                Colour = Colour4.Red;
                 Masking = true;
 
                 InternalChild = new Box { RelativeSizeAxes = Axes.Both };
@@ -157,13 +156,13 @@ namespace osu.Framework.Tests.Visual.Input
         {
             protected override bool OnHover(HoverEvent e)
             {
-                Colour = Color4.Green;
+                Colour = Colour4.Green;
                 return true;
             }
 
             protected override void OnHoverLost(HoverLostEvent e)
             {
-                Colour = Color4.White;
+                Colour = Colour4.White;
             }
         }
     }

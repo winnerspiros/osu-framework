@@ -5,8 +5,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Lines;
@@ -15,8 +15,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Transforms;
 using osu.Framework.Input.Events;
 using osu.Framework.Utils;
-using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -56,7 +54,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                     {
                         RelativeSizeAxes = Axes.Both,
                         Masking = true,
-                        BorderColour = Color4.White,
+                        BorderColour = Colour4.White,
                         BorderThickness = 2,
                         Child = new Box
                         {
@@ -78,7 +76,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         RelativePositionAxes = Axes.Y,
                         Size = new Vector2(10),
                         X = 2,
-                        Colour = Color4.SkyBlue,
+                        Colour = Colour4.SkyBlue,
                         Rotation = 90,
                         Icon = FontAwesome.Solid.MapMarker,
                     },
@@ -88,7 +86,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         RelativeSizeAxes = Axes.X,
                         RelativePositionAxes = Axes.Y,
                         Height = 1,
-                        Colour = Color4.SkyBlue
+                        Colour = Colour4.SkyBlue
                     },
                     horizontalTracker = new Box
                     {
@@ -96,7 +94,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         RelativeSizeAxes = Axes.Y,
                         RelativePositionAxes = Axes.X,
                         Width = 1,
-                        Colour = Color4.SkyBlue
+                        Colour = Colour4.SkyBlue
                     }
                 };
 
@@ -109,7 +107,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         RelativePositionAxes = Axes.Y,
                         Height = 2,
                         Y = 0.1f * i,
-                        Colour = Color4.White.Opacity(0.1f)
+                        Colour = Colour4.White.Opacity(0.1f)
                     });
 
                     gridContainer.Add(new Box
@@ -119,7 +117,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         RelativePositionAxes = Axes.X,
                         Width = 2,
                         X = 0.1f * i,
-                        Colour = Color4.White.Opacity(0.1f)
+                        Colour = Colour4.White.Opacity(0.1f)
                     });
                 }
 
@@ -202,7 +200,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                     path = new SmoothPath
                     {
                         PathRadius = 1,
-                        Colour = Color4.Yellow.Opacity(0.5f)
+                        Colour = Colour4.Yellow.Opacity(0.5f)
                     },
                     new PointHandle
                     {
@@ -236,7 +234,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                 Origin = Anchor.Centre;
                 Size = new Vector2(10);
 
-                Colour = Color4.Yellow;
+                Colour = Colour4.Yellow;
                 Alpha = 0.5f;
             }
 

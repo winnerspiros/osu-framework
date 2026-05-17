@@ -2,10 +2,9 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using osuTK;
-using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Graphics.Primitives
 {
@@ -25,11 +24,11 @@ namespace osu.Framework.Graphics.Primitives
             P2 = p2;
         }
 
-        public static Triangle operator *(Triangle t, Matrix3 m) =>
+        public static Triangle operator *(Triangle t, Matrix3x2 m) =>
             new Triangle(
-                Vector2Extensions.Transform(t.P0, m),
-                Vector2Extensions.Transform(t.P1, m),
-                Vector2Extensions.Transform(t.P2, m));
+                Vector2.Transform(t.P0, m),
+                Vector2.Transform(t.P1, m),
+                Vector2.Transform(t.P2, m));
 
         public ReadOnlySpan<Vector2> GetAxisVertices() => GetVertices();
 

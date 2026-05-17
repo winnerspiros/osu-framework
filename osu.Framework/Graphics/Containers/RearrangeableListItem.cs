@@ -4,8 +4,8 @@
 #nullable disable
 
 using System;
-using osu.Framework.Input.Events;
 using System.Numerics;
+using osu.Framework.Input.Events;
 
 namespace osu.Framework.Graphics.Containers
 {

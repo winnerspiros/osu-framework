@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.UserInterface;
 using System.Numerics;
-using osuTK.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -150,40 +149,40 @@ namespace osu.Framework.Tests.Visual.UserInterface
             switch (colourMode)
             {
                 case 0:
-                    blob.Colour = new Color4(255, 255, 255, 255);
+                    blob.Colour = new Colour4(255, 255, 255, 255);
                     break;
 
                 case 1:
-                    blob.Colour = new Color4(255, 88, 88, 255);
+                    blob.Colour = new Colour4(255, 88, 88, 255);
                     break;
 
                 case 2:
                     blob.Colour = new ColourInfo
                     {
-                        TopLeft = new Color4(255, 128, 128, 255),
-                        TopRight = new Color4(128, 255, 128, 255),
-                        BottomLeft = new Color4(255, 128, 128, 255),
-                        BottomRight = new Color4(128, 255, 128, 255),
+                        TopLeft = new Colour4(255, 128, 128, 255),
+                        TopRight = new Colour4(128, 255, 128, 255),
+                        BottomLeft = new Colour4(255, 128, 128, 255),
+                        BottomRight = new Colour4(128, 255, 128, 255),
                     };
                     break;
 
                 case 3:
                     blob.Colour = new ColourInfo
                     {
-                        TopLeft = new Color4(255, 128, 128, 255),
-                        TopRight = new Color4(255, 128, 128, 255),
-                        BottomLeft = new Color4(128, 255, 128, 255),
-                        BottomRight = new Color4(128, 255, 128, 255),
+                        TopLeft = new Colour4(255, 128, 128, 255),
+                        TopRight = new Colour4(255, 128, 128, 255),
+                        BottomLeft = new Colour4(128, 255, 128, 255),
+                        BottomRight = new Colour4(128, 255, 128, 255),
                     };
                     break;
 
                 case 4:
                     blob.Colour = new ColourInfo
                     {
-                        TopLeft = new Color4(255, 128, 128, 255),
-                        TopRight = new Color4(128, 255, 128, 255),
-                        BottomLeft = new Color4(128, 128, 255, 255),
-                        BottomRight = new Color4(255, 255, 255, 255),
+                        TopLeft = new Colour4(255, 128, 128, 255),
+                        TopRight = new Colour4(128, 255, 128, 255),
+                        BottomLeft = new Colour4(128, 128, 255, 255),
+                        BottomRight = new Colour4(255, 255, 255, 255),
                     };
                     break;
             }

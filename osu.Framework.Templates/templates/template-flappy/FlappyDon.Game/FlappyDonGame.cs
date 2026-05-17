@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
+using System.Numerics;
 using FlappyDon.Game.Elements;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Audio;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Input;
 using osu.Framework.Input.Events;
-using System.Numerics;
-using osuTK.Input;
 
 namespace FlappyDon.Game
 {

@@ -6,7 +6,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Graphics
 {
@@ -41,7 +40,7 @@ namespace osu.Framework.Tests.Visual.Graphics
                     Name = "Overlays",
                     RelativeSizeAxes = Axes.Both,
                     Masking = true,
-                    BorderColour = Color4.Red,
+                    BorderColour = Colour4.Red,
                     BorderThickness = 4,
                     Children = new Drawable[]
                     {
@@ -56,7 +55,7 @@ namespace osu.Framework.Tests.Visual.Graphics
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             Text = "Invisible Area",
-                            Colour = Color4.Red,
+                            Colour = Colour4.Red,
                             Font = FontUsage.Default.With(size: 36)
                         },
                         new Container
@@ -66,7 +65,7 @@ namespace osu.Framework.Tests.Visual.Graphics
                             RelativeSizeAxes = Axes.Both,
                             Size = new Vector2(0.5f),
                             Masking = true,
-                            BorderColour = Color4.Green,
+                            BorderColour = Colour4.Green,
                             BorderThickness = 4,
                             Children = new Drawable[]
                             {
@@ -81,7 +80,7 @@ namespace osu.Framework.Tests.Visual.Graphics
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
                                     Text = "Visible Area",
-                                    Colour = Color4.Green,
+                                    Colour = Colour4.Green,
                                     Font = FontUsage.Default.With(size: 36)
                                 }
                             }

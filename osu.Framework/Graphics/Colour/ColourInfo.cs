@@ -4,9 +4,8 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using osu.Framework.Graphics.Primitives;
 using System.Numerics;
-using osuTK.Graphics;
+using osu.Framework.Graphics.Primitives;
 
 namespace osu.Framework.Graphics.Colour
 {
@@ -269,9 +268,6 @@ namespace osu.Framework.Graphics.Colour
             [DoesNotReturn]
             static void throwConversionFromMultiColourToSingleColourException() => throw new InvalidOperationException("Attempted to read single colour from multi-colour ColourInfo.");
         }
-
-        public static implicit operator ColourInfo(Color4 colour) => (SRGBColour)colour;
-        public static implicit operator Color4(ColourInfo colour) => (SRGBColour)colour;
 
         public static implicit operator ColourInfo(Colour4 colour) => (SRGBColour)colour;
         public static implicit operator Colour4(ColourInfo colour) => (SRGBColour)colour;

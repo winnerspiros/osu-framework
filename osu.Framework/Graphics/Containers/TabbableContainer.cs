@@ -3,8 +3,8 @@
 
 #nullable disable
 
+using osu.Framework.Input;
 using osu.Framework.Input.Events;
-using osuTK.Input;
 
 namespace osu.Framework.Graphics.Containers
 {

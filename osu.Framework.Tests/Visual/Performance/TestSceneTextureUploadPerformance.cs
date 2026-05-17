@@ -11,8 +11,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
-using osuTK.Graphics;
-using osuTK.Graphics.ES30;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace osu.Framework.Tests.Visual.Performance
@@ -52,7 +50,7 @@ namespace osu.Framework.Tests.Visual.Performance
 
         protected override Drawable CreateDrawable() => new Sprite
         {
-            Texture = renderer.CreateTexture(512, 512, manualMipmaps: !Mipmaps.Value, initialisationColour: Color4.Black),
+            Texture = renderer.CreateTexture(512, 512, manualMipmaps: !Mipmaps.Value, initialisationColour: Colour4.Black),
         };
 
         private ulong lastUploadedFrame;

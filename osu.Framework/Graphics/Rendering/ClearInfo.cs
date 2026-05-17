@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Rendering
 {
@@ -18,7 +17,7 @@ namespace osu.Framework.Graphics.Rendering
         /// <summary>
         /// The colour to write to the frame buffer.
         /// </summary>
-        public readonly Color4 Colour;
+        public readonly Colour4 Colour;
 
         /// <summary>
         /// The depth to write to the frame buffer.
@@ -30,7 +29,7 @@ namespace osu.Framework.Graphics.Rendering
         /// </summary>
         public readonly int Stencil;
 
-        public ClearInfo(Color4 colour = default, double depth = 1f, int stencil = 0)
+        public ClearInfo(Colour4 colour = default, double depth = 1f, int stencil = 0)
         {
             Colour = colour;
             Depth = depth;

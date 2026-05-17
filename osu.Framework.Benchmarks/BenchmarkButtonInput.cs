@@ -6,7 +6,7 @@ using BenchmarkDotNet.Attributes;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Input.StateChanges.Events;
 using osu.Framework.Input.States;
-using osuTK.Input;
+using osu.Framework.Input;
 
 namespace osu.Framework.Benchmarks
 {

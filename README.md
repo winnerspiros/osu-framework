@@ -55,6 +55,39 @@ Note that while we already have certain standards in place, nothing is set in st
 
 Our team believes in **human contributions**. Any contribution – be it an issue report or a pull request – which is created by, documented by, or aided by AI/LLM usage will typically be **closed and locked without further discussion**.
 
+## Migration: osuTK / OpenTK → System.Numerics + custom GL
+
+> **This fork has fully removed the [osuTK](https://github.com/ppy/osuTK) / OpenTK dependency.** All math types, the GL binding layer, and the `Key` enum have been replaced with standard .NET / custom equivalents. There are **zero** remaining `osuTK` or `OpenTK` references in the framework source.
+
+### Math types
+
+| osuTK type | Replacement |
+|---|---|
+| `osuTK.Vector2` | `System.Numerics.Vector2` |
+| `osuTK.Vector3` | `System.Numerics.Vector3` |
+| `osuTK.Vector4` | `System.Numerics.Vector4` |
+| `osuTK.Matrix3` | `System.Numerics.Matrix3x2` |
+| `osuTK.Matrix4` | `System.Numerics.Matrix4x4` |
+| `osuTK.Quaternion` | `System.Numerics.Quaternion` |
+| `osuTK.Color4` | `osu.Framework.Graphics.Colour4` (unchanged) |
+| `osuTK.MathHelper` | `MathF` / `float.DegreesToRadians` / `float.RadiansToDegrees` |
+
+All osuTK-era extension methods (`Normalized()`, `PerpendicularLeft()`, `PerpendicularRight()`, `NormalizeFast()`, `PerpDot()`) are preserved as extension methods in `osu.Framework.Graphics.Vector2Extensions`. Matrix operations (`TranslateFromLeft/Right`, `RotateFromLeft/Right`, `ScaleFromLeft/Right`, `ShearFromLeft/Right`) are in `osu.Framework.Extensions.MatrixExtensions`.
+
+**Convention unchanged:** row-vector convention (`v * M`) is used throughout, matching the System.Numerics and GLSL behaviour.
+
+### GL binding layer
+
+osuTK's `OpenTK.Graphics.OpenGL4.GL.*` static methods have been replaced with a custom **function-pointer table** in `osu.Framework.Graphics.OpenGL.GL`. On first use the table is populated via Veldrid's `OpenGLProcTable` (which resolves function addresses from the active GL context using `SDL_GL_GetProcAddress`). This eliminates the osuTK interop overhead and the dependency on the osuTK NuGet package entirely.
+
+All GL enums used by the renderer (`TextureTarget`, `RenderbufferInternalFormat`, `BufferUsageHint`, etc.) are now defined directly in `osu.Framework.Graphics.OpenGL.GL` — no third-party GL bindings needed.
+
+### Key enum
+
+The `osu.Framework.Input.Key` enum retains its value layout (aligned to SDL scancode order) but is now entirely independent of osuTK. Because `Key` and `InputKey` (the key-binding layer enum) have **different numeric values**, `KeyCombination.FromKey()` contains a full explicit switch mapping every `Key` value to its `InputKey` counterpart — including all letter/digit/navigation/function/media keys. The fallback is `InputKey.None` (unknown key) rather than an unsafe cast.
+
+---
+
 ## Changes from upstream [ppy/osu-framework](https://github.com/ppy/osu-framework)
 
 This fork ([winnerspiros/osu-framework](https://github.com/winnerspiros/osu-framework)) layers the following on top of upstream. Items are grouped by area; each section lists the **what** and the **why**.

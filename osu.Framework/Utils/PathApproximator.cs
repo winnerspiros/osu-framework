@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics.Tensors;
 using osu.Framework.Graphics.Primitives;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Utils
@@ -689,7 +688,7 @@ namespace osu.Framework.Utils
 
             for (int i = 0; i < numTestPoints; i++)
             {
-                prevOrder[i, (int)MathHelper.Clamp(x[i] * (numControlPoints - degree), 0, numControlPoints - degree - 1)] = 1;
+                prevOrder[i, (int)Math.Clamp(x[i] * (numControlPoints - degree), 0, numControlPoints - degree - 1)] = 1;
             }
 
             // Calculate the higher order basis

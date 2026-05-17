@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Primitives;
@@ -12,8 +13,6 @@ using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Shaders.Types;
 using osu.Framework.Utils;
-using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Containers
 {
@@ -124,7 +123,7 @@ namespace osu.Framework.Graphics.Containers
 
                     blurShader.BindUniformBlock("m_BlurParameters", blurParametersBuffer);
                     blurShader.Bind();
-                    renderer.DrawFrameBuffer(current, new RectangleF(0, 0, current.Texture.Width, current.Texture.Height), ColourInfo.SingleColour(Color4.White));
+                    renderer.DrawFrameBuffer(current, new RectangleF(0, 0, current.Texture.Width, current.Texture.Height), ColourInfo.SingleColour(Colour4.White));
                     blurShader.Unbind();
                 }
             }
@@ -147,7 +146,7 @@ namespace osu.Framework.Graphics.Containers
 
                     grayscaleShader.BindUniformBlock("m_GrayscaleParameters", grayscaleParametersBuffer);
                     grayscaleShader.Bind();
-                    renderer.DrawFrameBuffer(current, new RectangleF(0, 0, current.Texture.Width, current.Texture.Height), ColourInfo.SingleColour(Color4.White));
+                    renderer.DrawFrameBuffer(current, new RectangleF(0, 0, current.Texture.Width, current.Texture.Height), ColourInfo.SingleColour(Colour4.White));
                     grayscaleShader.Unbind();
                 }
             }

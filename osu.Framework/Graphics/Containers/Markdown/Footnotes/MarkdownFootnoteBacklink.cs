@@ -1,11 +1,10 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System.Numerics;
 using Markdig.Extensions.Footnotes;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Sprites;
-using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Containers.Markdown.Footnotes
 {
@@ -33,7 +32,7 @@ namespace osu.Framework.Graphics.Containers.Markdown.Footnotes
                 Margin = new MarginPadding { Left = 5 },
                 Size = new Vector2(fontSize / 2),
                 Icon = FontAwesome.Solid.ArrowUp,
-                Colour = Color4.DodgerBlue
+                Colour = Colour4.DodgerBlue
             };
         }
     }

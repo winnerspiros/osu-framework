@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Numerics;
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.ListExtensions;
@@ -22,8 +23,6 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Statistics;
 using osu.Framework.Threading;
-using System.Numerics;
-using osuTK.Input;
 using JoystickState = osu.Framework.Input.States.JoystickState;
 using KeyboardState = osu.Framework.Input.States.KeyboardState;
 using MouseState = osu.Framework.Input.States.MouseState;
@@ -168,6 +167,9 @@ namespace osu.Framework.Input
 
             foreach (var button in Enum.GetValues<MouseButton>())
             {
+                if (mouseButtonEventManagers.ContainsKey(button))
+                    continue;
+
                 var manager = CreateButtonEventManagerFor(button);
 
                 manager.InputManager = this;

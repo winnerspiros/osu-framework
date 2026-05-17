@@ -14,7 +14,6 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Sprites
 {
@@ -54,7 +53,7 @@ namespace osu.Framework.Tests.Visual.Sprites
             {
                 Texture = sampleTexture,
                 TextureInset = new MarginPadding(100),
-                Colour = ColourInfo.GradientVertical(Color4.White, Color4.Black)
+                Colour = ColourInfo.GradientVertical(Colour4.White, Colour4.Black)
             });
         }
 

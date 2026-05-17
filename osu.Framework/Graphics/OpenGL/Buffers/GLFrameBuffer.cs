@@ -4,11 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics;
 using osu.Framework.Graphics.OpenGL.Textures;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
-using System.Numerics;
-using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Graphics.OpenGL.Buffers
 {
@@ -24,7 +23,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
 
         private readonly bool externalTexture;
 
-        public GLFrameBuffer(GLRenderer renderer, RenderbufferInternalFormat[]? renderBufferFormats = null, All filteringMode = All.Linear)
+        public GLFrameBuffer(GLRenderer renderer, RenderbufferInternalFormat[]? renderBufferFormats = null, TextureFilteringMode filteringMode = TextureFilteringMode.Linear)
         {
             this.renderer = renderer;
             FrameBuffer = GL.GenFramebuffer();
@@ -35,7 +34,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
 
             Debug.Assert(glTexture.TextureId != 0);
 
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget2d.Texture2D, glTexture.TextureId, 0);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget2D.Texture2D, glTexture.TextureId, 0);
             renderer.UnbindTexture();
 
             if (renderBufferFormats != null)
@@ -59,7 +58,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
 
             renderer.BindFrameBuffer(this);
 
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget2d.Texture2D, glTexture.TextureId, level);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget2D.Texture2D, glTexture.TextureId, level);
 
             renderer.UnbindFrameBuffer(this);
         }
@@ -147,7 +146,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
 
         private class FrameBufferTexture : GLTexture
         {
-            public FrameBufferTexture(GLRenderer renderer, All filteringMode = All.Linear)
+            public FrameBufferTexture(GLRenderer renderer, TextureFilteringMode filteringMode = TextureFilteringMode.Linear)
                 : base(renderer, 1, 1, true, filteringMode)
             {
                 BypassTextureUploadQueueing = true;

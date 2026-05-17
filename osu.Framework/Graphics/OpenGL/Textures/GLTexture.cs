@@ -15,8 +15,6 @@ using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using osuTK.Graphics;
-using osuTK.Graphics.ES30;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -69,8 +67,8 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
         private readonly List<RectangleI> uploadedRegions = new List<RectangleI>();
 
-        private readonly All filteringMode;
-        private readonly Color4? initialisationColour;
+        private readonly TextureFilteringMode filteringMode;
+        private readonly Colour4? initialisationColour;
 
         /// <summary>
         /// Creates a new <see cref="GLTexture"/>.
@@ -81,7 +79,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
         /// <param name="manualMipmaps">Whether manual mipmaps will be uploaded to the texture. If false, the texture will compute mipmaps automatically.</param>
         /// <param name="filteringMode">The filtering mode.</param>
         /// <param name="initialisationColour">The colour to initialise texture levels with (in the case of sub region initial uploads). If null, no initialisation is provided out-of-the-box.</param>
-        public GLTexture(GLRenderer renderer, int width, int height, bool manualMipmaps = false, All filteringMode = All.Linear, Color4? initialisationColour = null)
+        public GLTexture(GLRenderer renderer, int width, int height, bool manualMipmaps = false, TextureFilteringMode filteringMode = TextureFilteringMode.Linear, Colour4? initialisationColour = null)
         {
             Renderer = renderer;
             Width = width;
@@ -285,8 +283,11 @@ namespace osu.Framework.Graphics.OpenGL.Textures
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLod, IRenderer.MAX_MIPMAP_LEVELS);
 
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
-                        (int)(manualMipmaps ? filteringMode : filteringMode == All.Linear ? All.LinearMipmapLinear : All.Nearest));
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)filteringMode);
+                        manualMipmaps
+                            ? (filteringMode == TextureFilteringMode.Linear ? 0x2601 : 0x2600) // GL_LINEAR / GL_NEAREST
+                            : (filteringMode == TextureFilteringMode.Linear ? 0x2703 : 0x2600)); // GL_LINEAR_MIPMAP_LINEAR / GL_NEAREST
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
+                        filteringMode == TextureFilteringMode.Linear ? 0x2601 : 0x2600); // GL_LINEAR / GL_NEAREST
 
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
@@ -297,13 +298,13 @@ namespace osu.Framework.Graphics.OpenGL.Textures
                 if ((Width == upload.Bounds.Width && Height == upload.Bounds.Height) || dataPointer == IntPtr.Zero)
                 {
                     updateMemoryUsage(upload.Level, (long)Width * Height * 4);
-                    GL.TexImage2D(TextureTarget2d.Texture2D, upload.Level, TextureComponentCount.Rgba8, Width, Height, 0, upload.Format, PixelType.UnsignedByte, dataPointer);
+                    GL.TexImage2D(TextureTarget2D.Texture2D, upload.Level, TextureComponentCount.Rgba8, Width, Height, 0, (PixelFormat)upload.Format, PixelType.UnsignedByte, dataPointer);
                 }
                 else
                 {
                     initializeLevel(upload.Level, Width, Height);
 
-                    GL.TexSubImage2D(TextureTarget2d.Texture2D, upload.Level, upload.Bounds.X, upload.Bounds.Y, upload.Bounds.Width, upload.Bounds.Height, upload.Format,
+                    GL.TexSubImage2D(TextureTarget2D.Texture2D, upload.Level, upload.Bounds.X, upload.Bounds.Y, upload.Bounds.Width, upload.Bounds.Height, (PixelFormat)upload.Format,
                         PixelType.UnsignedByte, dataPointer);
                 }
             }
@@ -330,8 +331,8 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
                 int div = (int)Math.Pow(2, upload.Level);
 
-                GL.TexSubImage2D(TextureTarget2d.Texture2D, upload.Level, upload.Bounds.X / div, upload.Bounds.Y / div, upload.Bounds.Width / div, upload.Bounds.Height / div,
-                    upload.Format, PixelType.UnsignedByte, dataPointer);
+                GL.TexSubImage2D(TextureTarget2D.Texture2D, upload.Level, upload.Bounds.X / div, upload.Bounds.Y / div, upload.Bounds.Width / div, upload.Bounds.Height / div,
+                    (PixelFormat)upload.Format, PixelType.UnsignedByte, dataPointer);
             }
         }
 
@@ -348,7 +349,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
                 // For transparent black, pass a null data pointer to let the driver zero the memory.
                 // This avoids a CPU-side image allocation and memcpy, which is significant on mobile.
                 updateMemoryUsage(level, (long)width * height * 4);
-                GL.TexImage2D(TextureTarget2d.Texture2D, level, TextureComponentCount.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+                GL.TexImage2D(TextureTarget2D.Texture2D, level, TextureComponentCount.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
                 return;
             }
 
@@ -359,7 +360,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
             using (var pixels = image.CreateReadOnlyPixelSpan())
             {
                 updateMemoryUsage(level, (long)width * height * 4);
-                GL.TexImage2D(TextureTarget2d.Texture2D, level, TextureComponentCount.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte,
+                GL.TexImage2D(TextureTarget2D.Texture2D, level, TextureComponentCount.Rgba8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte,
                     ref MemoryMarshal.GetReference(pixels.Span));
             }
         }

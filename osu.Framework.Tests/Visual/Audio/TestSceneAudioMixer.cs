@@ -13,7 +13,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Audio
 {
@@ -28,7 +27,7 @@ namespace osu.Framework.Tests.Visual.Audio
         {
             AddRange(new Drawable[]
             {
-                noEffectContainer = new ContainerWithEffect("no effect", Color4.Black, null)
+                noEffectContainer = new ContainerWithEffect("no effect", Colour4.Black, null)
                 {
                     RelativeSizeAxes = Axes.Both,
                     Size = new Vector2(1),
@@ -53,7 +52,7 @@ namespace osu.Framework.Tests.Visual.Audio
             {
                 float centre = 150 + 50 * i;
 
-                effectContainers.Add(new ContainerWithEffect($"<{centre}Hz", Color4.Blue, new BQFParameters
+                effectContainers.Add(new ContainerWithEffect($"<{centre}Hz", Colour4.Blue, new BQFParameters
                 {
                     lFilter = BQFType.LowPass,
                     fCenter = centre
@@ -112,7 +111,7 @@ namespace osu.Framework.Tests.Visual.Audio
                         new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = Color4.HotPink,
+                            Colour = Colour4.HotPink,
                         },
                         new SpriteIcon
                         {
@@ -138,7 +137,7 @@ namespace osu.Framework.Tests.Visual.Audio
             private readonly Container content;
             private readonly Drawable background;
 
-            public ContainerWithEffect(string name, Color4 colour, IEffectParameter? effect)
+            public ContainerWithEffect(string name, Colour4 colour, IEffectParameter? effect)
             {
                 Anchor = Anchor.Centre;
                 Origin = Anchor.Centre;

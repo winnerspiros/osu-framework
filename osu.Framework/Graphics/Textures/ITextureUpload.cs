@@ -3,7 +3,6 @@
 
 using System;
 using osu.Framework.Graphics.Primitives;
-using osuTK.Graphics.ES30;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace osu.Framework.Graphics.Textures

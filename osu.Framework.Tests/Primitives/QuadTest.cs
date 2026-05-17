@@ -2,12 +2,11 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Collections;
+using System.Numerics;
 using NUnit.Framework;
 using osu.Framework.Extensions.MatrixExtensions;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Utils;
-using osuTK;
-using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Tests.Primitives
 {
@@ -144,10 +143,10 @@ namespace osu.Framework.Tests.Primitives
         public void TestFlippedQuad()
         {
             var quad = new Quad(-5, -5, 10, 10);
-            quad *= new Matrix3(
-                -1, 0, 0,
-                0, 1, 0,
-                0, 0, 1);
+            quad *= new Matrix3x2(
+                -1, 0,
+                0, 1,
+                0, 0);
 
             Assert.That(quad.Contains(new Vector2(0, 0)), Is.True);
 
@@ -204,7 +203,7 @@ namespace osu.Framework.Tests.Primitives
 
             private static Quad shear(Quad quad, Vector2 amount)
             {
-                var matrix = Matrix3.Identity;
+                var matrix = Matrix3x2.Identity;
                 MatrixExtensions.ShearFromLeft(ref matrix, Vector2.Divide(amount, quad.Size));
 
                 return quad * matrix;

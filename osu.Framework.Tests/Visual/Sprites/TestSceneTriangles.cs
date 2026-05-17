@@ -7,7 +7,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osu.Framework.Tests.Visual.Containers;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Sprites
 {
@@ -38,7 +37,7 @@ namespace osu.Framework.Tests.Visual.Sprites
         {
             Add(new Box
             {
-                Colour = Color4.Black,
+                Colour = Colour4.Black,
                 Size = new Vector2(22, 4),
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre
@@ -46,7 +45,7 @@ namespace osu.Framework.Tests.Visual.Sprites
 
             Add(new Box
             {
-                Colour = Color4.Black,
+                Colour = Colour4.Black,
                 Size = new Vector2(4, 22),
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre
@@ -54,7 +53,7 @@ namespace osu.Framework.Tests.Visual.Sprites
 
             Add(new Box
             {
-                Colour = Color4.WhiteSmoke,
+                Colour = Colour4.WhiteSmoke,
                 Size = new Vector2(20, 2),
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre
@@ -62,7 +61,7 @@ namespace osu.Framework.Tests.Visual.Sprites
 
             Add(new Box
             {
-                Colour = Color4.WhiteSmoke,
+                Colour = Colour4.WhiteSmoke,
                 Size = new Vector2(2, 20),
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre
@@ -97,7 +96,7 @@ namespace osu.Framework.Tests.Visual.Sprites
                             Size = new Vector2(25, 25),
                             Origin = Anchor.Centre,
                             Anchor = Anchor.Centre,
-                            Colour = Color4.Blue,
+                            Colour = Colour4.Blue,
                         },
                         triangle = new DraggableTriangle
                         {
@@ -105,7 +104,7 @@ namespace osu.Framework.Tests.Visual.Sprites
                             Alpha = 0.5f,
                             Origin = Anchor.Centre,
                             Anchor = Anchor.Centre,
-                            Colour = Color4.DarkSeaGreen,
+                            Colour = Colour4.DarkSeaGreen,
                         }
                     });
 
@@ -119,7 +118,7 @@ namespace osu.Framework.Tests.Visual.Sprites
 #endif
         }
 
-        private void addCornerMarkers(Container box, int size = 50, Color4? colour = null)
+        private void addCornerMarkers(Container box, int size = 50, Colour4? colour = null)
         {
             box.Add(new DraggableTriangle
             {
@@ -129,7 +128,7 @@ namespace osu.Framework.Tests.Visual.Sprites
                 Anchor = Anchor.TopLeft,
                 AllowDrag = false,
                 Depth = -2,
-                Colour = colour ?? Color4.Red,
+                Colour = colour ?? Colour4.Red,
             });
 
             box.Add(new DraggableTriangle
@@ -140,7 +139,7 @@ namespace osu.Framework.Tests.Visual.Sprites
                 Anchor = Anchor.TopRight,
                 AllowDrag = false,
                 Depth = -2,
-                Colour = colour ?? Color4.Red,
+                Colour = colour ?? Colour4.Red,
             });
 
             box.Add(new DraggableTriangle
@@ -151,7 +150,7 @@ namespace osu.Framework.Tests.Visual.Sprites
                 Anchor = Anchor.BottomLeft,
                 AllowDrag = false,
                 Depth = -2,
-                Colour = colour ?? Color4.Red,
+                Colour = colour ?? Colour4.Red,
             });
 
             box.Add(new DraggableTriangle
@@ -162,7 +161,7 @@ namespace osu.Framework.Tests.Visual.Sprites
                 Anchor = Anchor.BottomRight,
                 AllowDrag = false,
                 Depth = -2,
-                Colour = colour ?? Color4.Red,
+                Colour = colour ?? Colour4.Red,
             });
         }
     }

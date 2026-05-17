@@ -11,7 +11,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Testing;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Containers
 {
@@ -43,7 +42,7 @@ namespace osu.Framework.Tests.Visual.Containers
                 {
                     scrollContainer.Add(new BoxWithDouble
                     {
-                        Colour = new Color4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
+                        Colour = new Colour4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
                         RelativeSizeAxes = Axes.X,
                         Height = item_height,
                         Y = i * item_height,
@@ -73,7 +72,7 @@ namespace osu.Framework.Tests.Visual.Containers
                 {
                     scrollContainer.Add(new BoxWithDouble
                     {
-                        Colour = new Color4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
+                        Colour = new Colour4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
                         RelativeSizeAxes = Axes.X,
                         Height = item_height,
                         DoubleLocation = i * item_height,

@@ -2,7 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Graphics.Rendering.Vertices
 {
@@ -11,15 +10,14 @@ namespace osu.Framework.Graphics.Rendering.Vertices
     {
         /// <summary>
         /// The number of components of <see cref="Type"/> represented by this vertex attribute member.
-        /// E.g. a <see cref="osuTK.Vector2"/> is represented by **2** <see cref="VertexAttribPointerType.Float"/> components.
+        /// E.g. a <see cref="System.Numerics.Vector2"/> is represented by **2** <see cref="VertexAttribPointerType.Float"/> components.
         /// </summary>
         public int Count { get; private set; }
 
         /// <summary>
         /// The type of each component of this vertex attribute member.
-        /// E.g. a <see cref="osuTK.Vector2"/> is represented by 2 **<see cref="VertexAttribPointerType.Float"/>** components.
+        /// E.g. a <see cref="System.Numerics.Vector2"/> is represented by 2 **<see cref="VertexAttribPointerType.Float"/>** components.
         /// </summary>
-        // todo: this should be replaced by an enum defined in o!f.
         public VertexAttribPointerType Type { get; private set; }
 
         /// <summary>

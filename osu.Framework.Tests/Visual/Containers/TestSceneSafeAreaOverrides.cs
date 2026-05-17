@@ -6,7 +6,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Containers
 {
@@ -76,7 +75,7 @@ namespace osu.Framework.Tests.Visual.Containers
                 {
                     new Box
                     {
-                        Colour = Color4.Blue,
+                        Colour = Colour4.Blue,
                         RelativeSizeAxes = Axes.Both,
                     },
                     SafeAreaContainer = new SafeAreaContainer
@@ -86,7 +85,7 @@ namespace osu.Framework.Tests.Visual.Containers
                         Size = Size - new Vector2(inset * 2),
                         Child = new Box
                         {
-                            Colour = Color4.Green,
+                            Colour = Colour4.Green,
                             RelativeSizeAxes = Axes.Both
                         }
                     }

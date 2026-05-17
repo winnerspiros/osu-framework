@@ -15,7 +15,6 @@ using osu.Framework.Input.States;
 using osu.Framework.Testing;
 using osu.Framework.Testing.Input;
 using System.Numerics;
-using osuTK.Input;
 
 namespace osu.Framework.Tests.Visual.Input
 {

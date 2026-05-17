@@ -7,7 +7,6 @@ using osu.Framework.Development;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Rendering.Vertices;
 using osu.Framework.Statistics;
-using osuTK.Graphics.ES30;
 using SixLabors.ImageSharp.Memory;
 
 namespace osu.Framework.Graphics.OpenGL.Buffers
@@ -67,7 +66,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
 
             vboId = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vboId);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, ref getMemory().Span[0], usage);
+            GL.BufferData(BufferTarget.ArrayBuffer, size, ref getMemory().Span[0], usage);
 
             GLVertexUtils<T>.SetAttributes();
         }
@@ -142,7 +141,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
             int countVertices = endIndex - startIndex;
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, vboId);
-            GL.BufferSubData(BufferTarget.ArrayBuffer, startIndex * STRIDE, (IntPtr)(countVertices * STRIDE), ref getMemory().Span[startIndex]);
+            GL.BufferSubData(BufferTarget.ArrayBuffer, startIndex * STRIDE, countVertices * STRIDE, ref getMemory().Span[startIndex]);
 
             FrameStatistics.Add(StatisticsCounterType.VerticesUpl, countVertices);
         }

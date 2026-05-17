@@ -9,7 +9,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -47,7 +46,7 @@ namespace osu.Framework.Tests.Visual.Drawables
         {
             Text = text,
             Font = new FontUsage(size: 20),
-            Colour = Color4.White,
+            Colour = Colour4.White,
         };
 
         public delegate List<Vector2> ApproximatorFunc(ReadOnlySpan<Vector2> controlPoints);
@@ -67,7 +66,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                 RelativeSizeAxes = Axes.Both;
                 PathRadius = 2;
                 Vertices = approximator(points);
-                Colour = Color4.White;
+                Colour = Colour4.White;
             }
         }
     }

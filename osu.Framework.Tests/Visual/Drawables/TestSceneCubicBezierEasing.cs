@@ -4,7 +4,6 @@
 using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Lines;
@@ -15,7 +14,6 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Framework.Platform;
 using osu.Framework.Testing;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Tests.Visual.Drawables
@@ -176,10 +174,10 @@ namespace osu.Framework.Tests.Visual.Drawables
                 path.OriginPosition = path.PositionInBoundingBox(new Vector2());
 
                 line1.Width = p1.Value.Length();
-                line1.Rotation = -MathHelper.RadiansToDegrees(MathF.Atan2(p1.Value.Y, p1.Value.X));
+                line1.Rotation = -float.RadiansToDegrees(MathF.Atan2(p1.Value.Y, p1.Value.X));
 
                 line2.Width = Vector2.Distance(p2.Value, Vector2.One);
-                line2.Rotation = -MathHelper.RadiansToDegrees(MathF.Atan2(1 - p2.Value.Y, 1 - p2.Value.X));
+                line2.Rotation = -float.RadiansToDegrees(MathF.Atan2(1 - p2.Value.Y, 1 - p2.Value.X));
             }
         }
 

@@ -1,8 +1,8 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using Markdig.Extensions.Footnotes;
 using System.Numerics;
+using Markdig.Extensions.Footnotes;
 
 namespace osu.Framework.Graphics.Containers.Markdown.Footnotes
 {

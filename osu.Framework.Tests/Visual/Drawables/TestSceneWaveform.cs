@@ -16,7 +16,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Framework.Testing;
-using osuTK.Graphics;
 using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Tests.Visual.Drawables
@@ -57,7 +56,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                             {
                                 Text = "Start",
                                 Size = new Vector2(100, 50),
-                                BackgroundColour = Color4.DarkSlateGray,
+                                BackgroundColour = Colour4.DarkSlateGray,
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
                                 Action = startStop
@@ -218,10 +217,10 @@ namespace osu.Framework.Tests.Visual.Drawables
                     {
                         RelativeSizeAxes = Axes.Both,
                         Resolution = resolution,
-                        BaseColour = new Color4(232, 78, 6, 255),
-                        LowColour = new Color4(255, 232, 100, 255),
-                        MidColour = new Color4(255, 153, 19, 255),
-                        HighColour = new Color4(255, 46, 7, 255),
+                        BaseColour = new Colour4(232, 78, 6, 255),
+                        LowColour = new Colour4(255, 232, 100, 255),
+                        MidColour = new Colour4(255, 153, 19, 255),
+                        HighColour = new Colour4(255, 46, 7, 255),
                     },
                     new Container
                     {
@@ -233,7 +232,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                             new Box
                             {
                                 RelativeSizeAxes = Axes.Both,
-                                Colour = Color4.Black,
+                                Colour = Colour4.Black,
                                 Alpha = 0.75f
                             },
                             new SpriteText
@@ -250,7 +249,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         RelativeSizeAxes = Axes.Y,
                         RelativePositionAxes = Axes.X,
                         Width = 2,
-                        Colour = Color4.Blue
+                        Colour = Colour4.Blue
                     },
                 };
             }

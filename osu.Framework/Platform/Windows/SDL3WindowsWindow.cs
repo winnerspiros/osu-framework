@@ -3,13 +3,13 @@
 
 using System;
 using System.Drawing;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using osu.Framework.Input;
 using osu.Framework.Input.Handlers.Mouse;
 using osu.Framework.Platform.SDL3;
 using osu.Framework.Platform.Windows.Native;
-using System.Numerics;
 using SDL;
 using static SDL.SDL3;
 using Icon = osu.Framework.Platform.Windows.Native.Icon;

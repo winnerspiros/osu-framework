@@ -2,28 +2,26 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using osu.Framework.Extensions.Color4Extensions;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Colour
 {
     /// <summary>
-    /// A wrapper struct around Color4 that takes care of converting between sRGB and linear colour spaces.
+    /// A wrapper struct around Colour4 that takes care of converting between sRGB and linear colour spaces.
     /// Internally this struct stores the colour in sRGB space, which is exposed by the <see cref="SRGB"/> member.
     /// This struct converts to linear space by using the <see cref="Linear"/> member.
     /// </summary>
     public struct SRGBColour : IEquatable<SRGBColour>
     {
         /// <summary>
-        /// A <see cref="Color4"/> representation of this colour in the sRGB space.
+        /// A <see cref="Colour4"/> representation of this colour in the sRGB space.
         /// </summary>
-        public Color4 SRGB;
+        public Colour4 SRGB;
 
         /// <summary>
-        /// A <see cref="Color4"/> representation of this colour in the linear space.
+        /// A <see cref="Colour4"/> representation of this colour in the linear space.
         /// </summary>
-        public Color4 Linear => SRGB.ToLinear();
+        public Colour4 Linear => SRGB.ToLinear();
 
         /// <summary>
         /// The alpha component of this colour.
@@ -31,9 +29,6 @@ namespace osu.Framework.Graphics.Colour
         public float Alpha => SRGB.A;
 
         // todo: these implicit operators should be replaced with explicit static methods (https://github.com/ppy/osu-framework/issues/5714).
-        public static implicit operator SRGBColour(Color4 value) => new SRGBColour { SRGB = value };
-        public static implicit operator Color4(SRGBColour value) => value.SRGB;
-
         public static implicit operator SRGBColour(Colour4 value) => new SRGBColour { SRGB = value };
         public static implicit operator Colour4(SRGBColour value) => value.SRGB;
 
@@ -46,7 +41,7 @@ namespace osu.Framework.Graphics.Colour
 
                 return new SRGBColour
                 {
-                    SRGB = new Color4(
+                    SRGB = new Colour4(
                         second.SRGB.R,
                         second.SRGB.G,
                         second.SRGB.B,
@@ -61,7 +56,7 @@ namespace osu.Framework.Graphics.Colour
 
                 return new SRGBColour
                 {
-                    SRGB = new Color4(
+                    SRGB = new Colour4(
                         first.SRGB.R,
                         first.SRGB.G,
                         first.SRGB.B,
@@ -74,7 +69,7 @@ namespace osu.Framework.Graphics.Colour
 
             return new SRGBColour
             {
-                SRGB = new Color4(
+                SRGB = new Colour4(
                     firstLinear.R * secondLinear.R,
                     firstLinear.G * secondLinear.G,
                     firstLinear.B * secondLinear.B,
@@ -91,7 +86,7 @@ namespace osu.Framework.Graphics.Colour
 
             return new SRGBColour
             {
-                SRGB = new Color4(
+                SRGB = new Colour4(
                     firstLinear.R * second,
                     firstLinear.G * second,
                     firstLinear.B * second,
@@ -108,7 +103,7 @@ namespace osu.Framework.Graphics.Colour
 
             return new SRGBColour
             {
-                SRGB = new Color4(
+                SRGB = new Colour4(
                     firstLinear.R + secondLinear.R,
                     firstLinear.G + secondLinear.G,
                     firstLinear.B + secondLinear.B,
@@ -117,13 +112,13 @@ namespace osu.Framework.Graphics.Colour
         }
 
         public readonly Vector4 ToVector() => new Vector4(SRGB.R, SRGB.G, SRGB.B, SRGB.A);
-        public static SRGBColour FromVector(Vector4 v) => new SRGBColour { SRGB = new Color4(v.X, v.Y, v.Z, v.W) };
+        public static SRGBColour FromVector(Vector4 v) => new SRGBColour { SRGB = new Colour4(v.X, v.Y, v.Z, v.W) };
 
         /// <summary>
         /// Multiplies the alpha value of this colour by the given alpha factor.
         /// </summary>
         /// <param name="alpha">The alpha factor to multiply with.</param>
-        public void MultiplyAlpha(float alpha) => SRGB.A *= alpha;
+        public void MultiplyAlpha(float alpha) => SRGB = new Colour4(SRGB.R, SRGB.G, SRGB.B, SRGB.A * alpha);
 
         private static bool isWhite(SRGBColour colour) => colour.SRGB.R == 1 && colour.SRGB.G == 1 && colour.SRGB.B == 1;
 

@@ -2,23 +2,22 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Numerics;
 using osu.Framework.Extensions.MatrixExtensions;
 using osu.Framework.Extensions.TypeExtensions;
 using osu.Framework.Utils;
-using osuTK;
-using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Graphics
 {
     public struct DrawInfo : IEquatable<DrawInfo>
     {
-        public Matrix3 Matrix;
-        public Matrix3 MatrixInverse;
+        public Matrix3x2 Matrix;
+        public Matrix3x2 MatrixInverse;
 
-        public DrawInfo(Matrix3? matrix = null, Matrix3? matrixInverse = null)
+        public DrawInfo(Matrix3x2? matrix = null, Matrix3x2? matrixInverse = null)
         {
-            Matrix = matrix ?? Matrix3.Identity;
-            MatrixInverse = matrixInverse ?? Matrix3.Identity;
+            Matrix = matrix ?? Matrix3x2.Identity;
+            MatrixInverse = matrixInverse ?? Matrix3x2.Identity;
         }
 
         /// <summary>

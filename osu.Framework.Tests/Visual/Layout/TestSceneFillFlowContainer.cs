@@ -16,7 +16,6 @@ using osu.Framework.Localisation;
 using osu.Framework.Threading;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Layout
 {
@@ -157,7 +156,7 @@ namespace osu.Framework.Tests.Visual.Layout
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Y,
                         Size = new Vector2(3, 1),
-                        Colour = Color4.HotPink,
+                        Colour = Colour4.HotPink,
                     },
                     new Box
                     {
@@ -165,7 +164,7 @@ namespace osu.Framework.Tests.Visual.Layout
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Y,
                         Size = new Vector2(3, 1),
-                        Colour = Color4.HotPink,
+                        Colour = Colour4.HotPink,
                     },
                     new Box
                     {
@@ -173,7 +172,7 @@ namespace osu.Framework.Tests.Visual.Layout
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.X,
                         Size = new Vector2(1, 3),
-                        Colour = Color4.HotPink,
+                        Colour = Colour4.HotPink,
                     },
                     new Box
                     {
@@ -181,7 +180,7 @@ namespace osu.Framework.Tests.Visual.Layout
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.X,
                         Size = new Vector2(1, 3),
-                        Colour = Color4.HotPink,
+                        Colour = Colour4.HotPink,
                     }
                 }
             });
@@ -338,11 +337,11 @@ namespace osu.Framework.Tests.Visual.Layout
                                 {
                                     Width = 50,
                                     Height = 50,
-                                    Colour = Color4.White
+                                    Colour = Colour4.White
                                 },
                                 new SpriteText
                                 {
-                                    Colour = Color4.Black,
+                                    Colour = Colour4.Black,
                                     RelativePositionAxes = Axes.Both,
                                     Position = new Vector2(0.5f, 0.5f),
                                     Origin = Anchor.Centre,
@@ -391,8 +390,8 @@ namespace osu.Framework.Tests.Visual.Layout
             public TestSceneDropdownHeader()
             {
                 Foreground.Padding = new MarginPadding(4);
-                BackgroundColour = new Color4(100, 100, 100, 255);
-                BackgroundColourHover = Color4.HotPink;
+                BackgroundColour = new Colour4(100, 100, 100, 255);
+                BackgroundColourHover = Colour4.HotPink;
                 Children = new[]
                 {
                     label = new SpriteText(),

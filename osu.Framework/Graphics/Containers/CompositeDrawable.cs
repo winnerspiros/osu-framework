@@ -8,10 +8,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 using osu.Framework.Allocation;
 using osu.Framework.Development;
 using osu.Framework.Extensions.EnumExtensions;
@@ -29,8 +29,7 @@ using osu.Framework.Statistics;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using osu.Framework.Utils;
-using System.Numerics;
-using osuTK.Graphics;
+using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
 
 namespace osu.Framework.Graphics.Containers
 {
@@ -1389,15 +1388,14 @@ namespace osu.Framework.Graphics.Containers
         /// </summary>
         protected TransformSequence<CompositeDrawable> FadeEdgeEffectTo(float newAlpha, double duration = 0, Easing easing = Easing.None)
         {
-            Color4 targetColour = EdgeEffect.Colour;
-            targetColour.A = newAlpha;
+            Colour4 targetColour = ((Colour4)EdgeEffect.Colour).Opacity(newAlpha);
             return FadeEdgeEffectTo(targetColour, duration, easing);
         }
 
         /// <summary>
         /// Helper function for creating and adding a <see cref="Transform{TValue, T}"/> that fades the current <see cref="EdgeEffect"/>.
         /// </summary>
-        protected TransformSequence<CompositeDrawable> FadeEdgeEffectTo(Color4 newColour, double duration = 0, Easing easing = Easing.None)
+        protected TransformSequence<CompositeDrawable> FadeEdgeEffectTo(Colour4 newColour, double duration = 0, Easing easing = Easing.None)
         {
             var effect = EdgeEffect;
             effect.Colour = newColour;
@@ -1590,24 +1588,22 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
-        private ColourInfo borderColour = Color4.Black;
-
         /// <summary>
         /// Determines the color of the border controlled by <see cref="BorderThickness"/>.
         /// Only has an effect when <see cref="Masking"/> is true.
         /// </summary>
         public ColourInfo BorderColour
         {
-            get => borderColour;
+            get;
             protected set
             {
-                if (borderColour.Equals(value))
+                if (field.Equals(value))
                     return;
 
-                borderColour = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
-        }
+        } = Colour4.Black;
 
         private EdgeEffectParameters edgeEffect;
 

@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics.OpenGL;
 using osu.Framework.Logging;
-using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Platform.Windows
 {

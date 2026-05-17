@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using osu.Framework.Graphics;
 using System.Numerics;
+using osu.Framework.Graphics;
 
 namespace osu.Framework.Physics
 {

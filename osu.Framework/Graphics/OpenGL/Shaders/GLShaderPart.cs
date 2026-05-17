@@ -9,7 +9,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Shaders;
-using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Graphics.OpenGL.Shaders
 {

@@ -4,8 +4,8 @@
 #nullable disable
 
 using System;
+using System.Numerics;
 using NUnit.Framework;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -14,9 +14,6 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input;
 using osu.Framework.Input.Events;
 using osu.Framework.Testing;
-using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Input;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -346,7 +343,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.Gray.Opacity(0.5f),
+                        Colour = Colour4.Gray.Opacity(0.5f),
                     },
                     box = new Box
                     {
@@ -354,7 +351,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         Size = new Vector2(0.4f),
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Colour = Color4.Blue,
+                        Colour = Colour4.Blue,
                     },
                     new SpriteText
                     {
@@ -415,7 +412,7 @@ namespace osu.Framework.Tests.Visual.Drawables
 
             public RequestingFocusBox()
             {
-                Box.Colour = Color4.Green;
+                Box.Colour = Colour4.Green;
 
                 AddInternal(new SpriteText
                 {
@@ -437,7 +434,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                 {
                     RelativeSizeAxes = Axes.Both,
                     Alpha = 0.5f,
-                    Colour = Color4.Red
+                    Colour = Colour4.Red
                 });
 
                 RelativeSizeAxes = Axes.Both;
@@ -496,7 +493,7 @@ namespace osu.Framework.Tests.Visual.Drawables
         {
             public NoFocusChangeBox()
             {
-                Box.Colour = Color4.Green;
+                Box.Colour = Colour4.Green;
 
                 AddInternal(new SpriteText
                 {

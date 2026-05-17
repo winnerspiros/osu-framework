@@ -4,9 +4,9 @@
 #nullable disable
 
 using System;
+using System.Numerics;
 using osu.Framework.Platform.Apple.Native;
 using osu.Framework.Platform.SDL3;
-using System.Numerics;
 using Selector = osu.Framework.Platform.Apple.Native.Selector;
 
 namespace osu.Framework.Platform.MacOS
@@ -59,7 +59,7 @@ namespace osu.Framework.Platform.MacOS
                 return;
             }
 
-            // according to osuTK, 0.1f is the scaling factor expected to be returned by CGEventSourceGetPixelsPerLine
+            // 0.1f is the scaling factor expected to be returned by CGEventSourceGetPixelsPerLine
             // this is additionally scaled down by a factor of 8 so that a precise scroll of 1.0 is roughly equivalent to one notch on a traditional scroll wheel.
             const float scale_factor = 0.1f / 8;
 

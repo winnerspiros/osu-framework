@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Primitives;
@@ -14,8 +15,6 @@ using osu.Framework.Input;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
-using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Cursor
 {
@@ -388,7 +387,7 @@ namespace osu.Framework.Graphics.Cursor
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.Gray,
+                        Colour = Colour4.Gray,
                     },
                     text = new SpriteText
                     {

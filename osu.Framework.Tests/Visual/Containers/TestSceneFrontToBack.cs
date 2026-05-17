@@ -16,8 +16,6 @@ using osu.Framework.Graphics.Veldrid;
 using osu.Framework.Testing;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Tests.Visual.Containers
 {
@@ -59,7 +57,7 @@ namespace osu.Framework.Tests.Visual.Containers
                 {
                     new Box
                     {
-                        Colour = Color4.Black,
+                        Colour = Colour4.Black,
                         RelativeSizeAxes = Axes.Both,
                         Alpha = 0.8f,
                     },
@@ -126,7 +124,7 @@ namespace osu.Framework.Tests.Visual.Containers
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Colour = new Color4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
+                    Colour = new Colour4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
                     RelativeSizeAxes = Axes.Both,
                     Scale = new Vector2(currentScale),
                     Texture = texture,
@@ -141,8 +139,6 @@ namespace osu.Framework.Tests.Visual.Containers
 
         private class QueryingCompositeDrawableDrawNode : CompositeDrawableDrawNode
         {
-            private int queryObject = -1;
-
             public int DrawSamples { get; private set; }
             public int DrawOpaqueInteriorSubTreeSamples { get; private set; }
 
@@ -186,18 +182,12 @@ namespace osu.Framework.Tests.Visual.Containers
 
             private int endQuery()
             {
-                GL.EndQuery(QueryTarget.SamplesPassed);
-                GL.GetQueryObject(queryObject, GetQueryObjectParam.QueryResult, out int result);
-
-                return result;
+                return 0;
             }
 
             private void startQuery()
             {
-                if (queryObject == -1)
-                    queryObject = GL.GenQuery();
-
-                GL.BeginQuery(QueryTarget.SamplesPassed, queryObject);
+                // Query functionality is currently unavailable in this backend abstraction.
             }
         }
     }

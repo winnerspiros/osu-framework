@@ -10,9 +10,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.IO.Stores;
-using ImageSharpConfiguration = SixLabors.ImageSharp.Configuration;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using ImageSharpConfiguration = SixLabors.ImageSharp.Configuration;
 
 namespace osu.Framework.Graphics.Textures
 {

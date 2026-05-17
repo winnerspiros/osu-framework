@@ -12,7 +12,6 @@ using osu.Framework.Graphics.Rendering.LowLatency;
 using osu.Framework.Graphics.Video;
 using osu.Framework.Input;
 using osu.Framework.Platform;
-using osuTK;
 
 namespace osu.Framework.Configuration
 {

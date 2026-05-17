@@ -4,13 +4,11 @@
 #nullable disable
 
 using System;
+using System.Numerics;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Statistics;
-using osuTK;
-using Vector2 = System.Numerics.Vector2;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics
 {
@@ -35,7 +33,7 @@ namespace osu.Framework.Graphics
 
         protected RectangleF DrawRectangle { get; private set; }
 
-        private Color4 backgroundColour;
+        private Colour4 backgroundColour;
         private RectangleF screenSpaceDrawRectangle;
         private Vector2 frameBufferScale;
         private Vector2 frameBufferSize;
@@ -54,7 +52,7 @@ namespace osu.Framework.Graphics
 
             backgroundColour = Source.BackgroundColour;
             screenSpaceDrawRectangle = Source.ScreenSpaceDrawQuad.AABBFloat;
-            DrawColourInfo = Source.FrameBufferDrawColour ?? new DrawColourInfo(Color4.White, base.DrawColourInfo.Blending);
+            DrawColourInfo = Source.FrameBufferDrawColour ?? new DrawColourInfo(Colour4.White, base.DrawColourInfo.Blending);
             frameBufferScale = Source.FrameBufferScale;
 
             clipDrawRectangle();
@@ -166,7 +164,7 @@ namespace osu.Framework.Graphics
             {
                 ScreenSpaceAABB = screenSpaceMaskingRect,
                 MaskingRect = screenSpaceDrawRectangle,
-                ToMaskingSpace = Matrix3.Identity,
+                ToMaskingSpace = Matrix3x2.Identity,
                 BlendRange = 1,
                 AlphaExponent = 1,
             }, true);

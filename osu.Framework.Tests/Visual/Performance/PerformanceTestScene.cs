@@ -9,7 +9,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Performance
 {
@@ -74,13 +73,13 @@ namespace osu.Framework.Tests.Visual.Performance
 
             if (cycleColour)
             {
-                var col = Interpolation.ValueAt((MathF.Sin((float)Time.Current / 1000) + 1) / 2, Color4.Red, Color4.SkyBlue, 0f, 1f);
+                var col = Interpolation.ValueAt((MathF.Sin((float)Time.Current / 1000) + 1) / 2, Colour4.Red, Colour4.SkyBlue, 0f, 1f);
 
                 content.Colour = col;
             }
             else
             {
-                content.Colour = Color4.White;
+                content.Colour = Colour4.White;
             }
         }
     }

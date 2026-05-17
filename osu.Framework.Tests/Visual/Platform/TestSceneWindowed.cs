@@ -12,7 +12,6 @@ using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
 using WindowState = osu.Framework.Platform.WindowState;
 

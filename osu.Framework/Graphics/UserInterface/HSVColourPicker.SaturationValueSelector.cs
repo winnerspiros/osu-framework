@@ -4,6 +4,7 @@
 #nullable disable
 
 using System;
+using System.Numerics;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics.Colour;
@@ -12,8 +13,6 @@ using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osu.Framework.Utils;
-using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.UserInterface
 {
@@ -60,7 +59,7 @@ namespace osu.Framework.Graphics.UserInterface
                         RelativeSizeAxes = Axes.Both,
                         Child = box = new SaturationBox
                         {
-                            Colour = ColourInfo.GradientHorizontal(Color4.White, Color4.Red)
+                            Colour = ColourInfo.GradientHorizontal(Colour4.White, Colour4.Red)
                         }
                     },
                     marker = CreateMarker().With(d =>
@@ -149,7 +148,7 @@ namespace osu.Framework.Graphics.UserInterface
 
             private void hueChanged()
             {
-                box.Colour = ColourInfo.GradientHorizontal(Color4.White, Colour4.FromHSV(Hue.Value, 1f, 1f));
+                box.Colour = ColourInfo.GradientHorizontal(Colour4.White, Colour4.FromHSV(Hue.Value, 1f, 1f));
                 updateCurrent();
             }
 

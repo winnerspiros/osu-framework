@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Configuration;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -15,8 +15,6 @@ using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
-using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Platform
 {
@@ -31,14 +29,14 @@ namespace osu.Framework.Tests.Visual.Platform
         private readonly Container? borderContainer;
         private Vector2 screenContainerOffset;
 
-        private static readonly Color4 active_fill = new Color4(255, 138, 104, 255);
-        private static readonly Color4 active_stroke = new Color4(244, 74, 25, 255);
-        private static readonly Color4 screen_fill = new Color4(255, 181, 104, 255);
-        private static readonly Color4 screen_stroke = new Color4(244, 137, 25, 255);
-        private static readonly Color4 window_fill = new Color4(95, 113, 197, 255);
-        private static readonly Color4 window_stroke = new Color4(36, 59, 166, 255);
-        private static readonly Color4 window_border_fill = new Color4(85, 207, 89, 200);
-        private static readonly Color4 window_border_stroke = new Color4(50, 122, 53, 255);
+        private static readonly Colour4 active_fill = new Colour4(255, 138, 104, 255);
+        private static readonly Colour4 active_stroke = new Colour4(244, 74, 25, 255);
+        private static readonly Colour4 screen_fill = new Colour4(255, 181, 104, 255);
+        private static readonly Colour4 screen_stroke = new Colour4(244, 137, 25, 255);
+        private static readonly Colour4 window_fill = new Colour4(95, 113, 197, 255);
+        private static readonly Colour4 window_stroke = new Colour4(36, 59, 166, 255);
+        private static readonly Colour4 window_border_fill = new Colour4(85, 207, 89, 200);
+        private static readonly Colour4 window_border_stroke = new Colour4(50, 122, 53, 255);
 
         private IWindow? window;
         private readonly Bindable<WindowMode> windowMode = new Bindable<WindowMode>();
@@ -77,7 +75,7 @@ namespace osu.Framework.Tests.Visual.Platform
                                 windowCaption = new TextFlowContainer(sprite =>
                                 {
                                     sprite.Font = sprite.Font.With(size: FONT_SIZE);
-                                    sprite.Colour = Color4.White;
+                                    sprite.Colour = Colour4.White;
                                 })
                                 {
                                     Anchor = Anchor.BottomLeft,
@@ -85,7 +83,7 @@ namespace osu.Framework.Tests.Visual.Platform
                                     RelativeSizeAxes = Axes.X,
                                     AutoSizeAxes = Axes.Y,
                                     Padding = new MarginPadding(50),
-                                    Colour = Color4.White
+                                    Colour = Colour4.White
                                 }
                             }
                         }
@@ -178,7 +176,7 @@ namespace osu.Framework.Tests.Visual.Platform
                     new TextFlowContainer(sprite =>
                     {
                         sprite.Font = new FontUsage(size: FONT_SIZE);
-                        sprite.Colour = Color4.Black;
+                        sprite.Colour = Colour4.Black;
                     })
                     {
                         RelativeSizeAxes = Axes.Both,
@@ -199,7 +197,7 @@ namespace osu.Framework.Tests.Visual.Platform
                     Width = display.UsableBounds.Width,
                     Height = display.UsableBounds.Height,
 
-                    BorderColour = isActive ? Color4.MediumPurple : Color4.Green,
+                    BorderColour = isActive ? Colour4.MediumPurple : Colour4.Green,
                     BorderThickness = 20,
                     Masking = true,
 
@@ -208,7 +206,7 @@ namespace osu.Framework.Tests.Visual.Platform
                         new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = (isActive ? Color4.MediumPurple : Color4.Green).Opacity(0.2f)
+                            Colour = (isActive ? Colour4.MediumPurple : Colour4.Green).Opacity(0.2f)
                         },
                     }
                 };

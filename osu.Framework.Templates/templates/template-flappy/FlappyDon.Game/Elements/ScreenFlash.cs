@@ -1,6 +1,5 @@
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
-using osuTK.Graphics;
 
 namespace FlappyDon.Game.Elements
 {
@@ -11,7 +10,7 @@ namespace FlappyDon.Game.Elements
     {
         public ScreenFlash()
         {
-            Colour = Color4.White;
+            Colour = Colour4.White;
             RelativeSizeAxes = Axes.Both;
             Alpha = 0.0f;
         }

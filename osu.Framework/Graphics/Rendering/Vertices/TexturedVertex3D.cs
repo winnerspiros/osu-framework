@@ -2,10 +2,8 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using System.Runtime.InteropServices;
 using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Graphics.ES30;
+using System.Runtime.InteropServices;
 
 namespace osu.Framework.Graphics.Rendering.Vertices
 {
@@ -16,7 +14,7 @@ namespace osu.Framework.Graphics.Rendering.Vertices
         public Vector3 Position;
 
         [VertexMember(4, VertexAttribPointerType.Float)]
-        public Color4 Colour;
+        public Colour4 Colour;
 
         [VertexMember(2, VertexAttribPointerType.Float)]
         public Vector2 TexturePosition;

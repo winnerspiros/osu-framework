@@ -2,7 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
@@ -10,7 +9,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Testing.Drawables.Sections;
 using osu.Framework.Utils;
-using osuTK.Graphics;
 
 namespace osu.Framework.Testing.Drawables
 {
@@ -97,10 +95,10 @@ namespace osu.Framework.Testing.Drawables
                                         Action = () => browser.CurrentTest.ChangeBackgroundColour(
                                             new ColourInfo
                                             {
-                                                TopLeft = new Color4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
-                                                TopRight = new Color4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
-                                                BottomLeft = new Color4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
-                                                BottomRight = new Color4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1)
+                                                TopLeft = new Colour4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
+                                                TopRight = new Colour4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
+                                                BottomLeft = new Colour4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1),
+                                                BottomRight = new Colour4(RNG.NextSingle(1), RNG.NextSingle(1), RNG.NextSingle(1), 1)
                                             }
                                         )
                                     },

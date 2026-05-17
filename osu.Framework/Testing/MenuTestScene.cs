@@ -10,7 +10,7 @@ using System.Linq;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.UserInterface;
-using osuTK.Input;
+using osu.Framework.Input;
 
 namespace osu.Framework.Testing
 {

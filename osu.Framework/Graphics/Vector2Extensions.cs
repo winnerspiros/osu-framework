@@ -2,10 +2,9 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using osu.Framework.Graphics.Primitives;
-using osuTK;
-using Vector2 = System.Numerics.Vector2;
 
 namespace osu.Framework.Graphics
 {
@@ -16,22 +15,16 @@ namespace osu.Framework.Graphics
         /// <param name="mat">The desired transformation</param>
         /// <returns>The transformed position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector2 Transform(Vector2 pos, Matrix3 mat)
-        {
-            Transform(ref pos, ref mat, out Vector2 result);
-            return result;
-        }
+        public static Vector2 Transform(Vector2 pos, Matrix3x2 mat) => Vector2.Transform(pos, mat);
 
         /// <summary>Transform a Position by the given Matrix</summary>
         /// <param name="pos">The position to transform</param>
         /// <param name="mat">The desired transformation</param>
         /// <param name="result">The transformed vector</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Transform(ref Vector2 pos, ref Matrix3 mat, out Vector2 result)
+        public static void Transform(ref Vector2 pos, ref Matrix3x2 mat, out Vector2 result)
         {
-            result = new Vector2(
-                mat.Row0.X * pos.X + mat.Row1.X * pos.Y + mat.Row2.X,
-                mat.Row0.Y * pos.X + mat.Row1.Y * pos.Y + mat.Row2.Y);
+            result = Vector2.Transform(pos, mat);
         }
 
         /// <summary>

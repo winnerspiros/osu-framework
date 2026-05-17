@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Rendering.Vertices;
-using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Graphics.OpenGL.Buffers
 {
@@ -13,7 +12,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
     {
         static GLQuadIndexData()
         {
-            GL.GenBuffers(1, out EBO_ID);
+            EBO_ID = GL.GenBuffer();
         }
 
         public static readonly int EBO_ID;
@@ -53,7 +52,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
                     indices[j + 5] = (ushort)(i + 1);
                 }
 
-                GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(amountIndices * sizeof(ushort)), indices, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, amountIndices * sizeof(ushort), indices, BufferUsageHint.StaticDraw);
 
                 GLQuadIndexData.MaxAmountIndices = amountIndices;
             }

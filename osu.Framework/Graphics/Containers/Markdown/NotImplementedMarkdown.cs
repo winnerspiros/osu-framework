@@ -4,7 +4,6 @@
 using Markdig.Syntax;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Sprites;
-using osuTK.Graphics;
 
 namespace osu.Framework.Graphics.Containers.Markdown
 {
@@ -34,7 +33,7 @@ namespace osu.Framework.Graphics.Containers.Markdown
         public SpriteText CreateSpriteText()
         {
             var text = parentTextComponent.CreateSpriteText();
-            text.Colour = new Color4(255, 0, 0, 255);
+            text.Colour = new Colour4(255, 0, 0, 255);
             text.Font = text.Font.With(size: 21);
             text.Text = markdownObject.GetType() + " Not implemented.";
             return text;

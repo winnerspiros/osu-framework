@@ -15,8 +15,7 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Testing;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Input;
+using osu.Framework.Input;
 
 namespace osu.Framework.Tests.Visual.UserInterface
 {
@@ -113,7 +112,7 @@ namespace osu.Framework.Tests.Visual.UserInterface
                 box1 = b.With(d =>
                 {
                     d.X = -100;
-                    d.Colour = Color4.Green;
+                    d.Colour = Colour4.Green;
                 });
             }, 1);
             addBoxStep(b =>
@@ -121,7 +120,7 @@ namespace osu.Framework.Tests.Visual.UserInterface
                 box2 = b.With(d =>
                 {
                     d.X = 100;
-                    d.Colour = Color4.Red;
+                    d.Colour = Colour4.Red;
                 });
             }, 1);
 

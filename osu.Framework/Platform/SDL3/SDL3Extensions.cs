@@ -10,7 +10,6 @@ using osu.Framework.Input;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Logging;
-using osuTK.Input;
 using SDL;
 using static SDL.SDL3;
 
@@ -349,7 +348,7 @@ namespace osu.Framework.Platform.SDL3
                     return numLockOn ? Key.KeypadPeriod : Key.Delete;
 
                 case SDL_Scancode.SDL_SCANCODE_NONUSBACKSLASH:
-                    return Key.NonUSBackSlash;
+                    return Key.NonUsBackSlash;
 
                 case SDL_Scancode.SDL_SCANCODE_F13:
                     return Key.F13;

@@ -34,7 +34,6 @@ using osu.Framework.Platform;
 using osu.Framework.Testing.Drawables;
 using osu.Framework.Testing.Drawables.Steps;
 using osu.Framework.Timing;
-using osuTK.Graphics;
 using Logger = osu.Framework.Logging.Logger;
 using Vector2 = System.Numerics.Vector2;
 
@@ -133,13 +132,13 @@ namespace osu.Framework.Testing
                                     Depth = float.MinValue,
                                     CornerRadius = 5,
                                     AutoSizeAxes = Axes.Both,
-                                    Colour = Color4.YellowGreen,
+                                    Colour = Colour4.YellowGreen,
                                     Children = new Drawable[]
                                     {
                                         new Box
                                         {
                                             RelativeSizeAxes = Axes.Both,
-                                            Colour = Color4.Black,
+                                            Colour = Colour4.Black,
                                         },
                                         new SpriteText
                                         {
@@ -263,7 +262,7 @@ namespace osu.Framework.Testing
                 hotReloadNotice
                     .FadeIn(100).Then()
                     .FadeOutFromOne(500, Easing.InQuint);
-                hotReloadNotice.FadeColour(Color4.YellowGreen, 100);
+                hotReloadNotice.FadeColour(Colour4.YellowGreen, 100);
             }
             catch (Exception e)
             {
@@ -278,7 +277,7 @@ namespace osu.Framework.Testing
             hotReloadNotice
                 .FadeIn(100).Then()
                 .FadeOutFromOne(500, Easing.InQuint);
-            hotReloadNotice.FadeColour(Color4.Red, 100);
+            hotReloadNotice.FadeColour(Colour4.Red, 100);
         });
 
         protected override void LoadComplete()
@@ -516,7 +515,7 @@ namespace osu.Framework.Testing
                     {
                         Text = "[SetUp]",
                         IsSetupStep = true,
-                        LightColour = Color4.Teal,
+                        LightColour = Colour4.Teal,
                         Action = () => setUpMethods.ForEach(s => s.Invoke(CurrentTest, null))
                     });
                 }

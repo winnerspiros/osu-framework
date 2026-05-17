@@ -4,7 +4,7 @@
 using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using osuTK.Graphics;
+using osu.Framework.Graphics;
 
 namespace osu.Framework.Extensions.Color4Extensions
 {
@@ -48,51 +48,51 @@ namespace osu.Framework.Extensions.Color4Extensions
             return color < 0.0031308f ? 12.92f * color : 1.055f * MathF.Pow(color, 1.0f / (float)GAMMA) - 0.055f;
         }
 
-        public static Color4 Opacity(this Color4 color, float a) => new Color4(color.R, color.G, color.B, a);
+        public static Colour4 Opacity(this Colour4 color, float a) => new Colour4(color.R, color.G, color.B, a);
 
-        public static Color4 Opacity(this Color4 color, byte a) => new Color4(color.R, color.G, color.B, a / 255f);
+        public static Colour4 Opacity(this Colour4 color, byte a) => new Colour4(color.R, color.G, color.B, a / 255f);
 
-        public static Color4 ToLinear(this Color4 colour) =>
-            new Color4(
+        public static Colour4 ToLinear(this Colour4 colour) =>
+            new Colour4(
                 ToLinear(colour.R),
                 ToLinear(colour.G),
                 ToLinear(colour.B),
                 colour.A);
 
-        public static Color4 ToSRGB(this Color4 colour) =>
-            new Color4(
+        public static Colour4 ToSRGB(this Colour4 colour) =>
+            new Colour4(
                 ToSRGB(colour.R),
                 ToSRGB(colour.G),
                 ToSRGB(colour.B),
                 colour.A);
 
-        public static Color4 MultiplySRGB(Color4 first, Color4 second)
+        public static Colour4 MultiplySRGB(Colour4 first, Colour4 second)
         {
-            if (first.Equals(Color4.White))
+            if (first.Equals(Colour4.White))
                 return second;
 
-            if (second.Equals(Color4.White))
+            if (second.Equals(Colour4.White))
                 return first;
 
             first = first.ToLinear();
             second = second.ToLinear();
 
-            return new Color4(
+            return new Colour4(
                 first.R * second.R,
                 first.G * second.G,
                 first.B * second.B,
                 first.A * second.A).ToSRGB();
         }
 
-        public static Color4 Multiply(Color4 first, Color4 second)
+        public static Colour4 Multiply(Colour4 first, Colour4 second)
         {
-            if (first.Equals(Color4.White))
+            if (first.Equals(Colour4.White))
                 return second;
 
-            if (second.Equals(Color4.White))
+            if (second.Equals(Colour4.White))
                 return first;
 
-            return new Color4(
+            return new Colour4(
                 first.R * second.R,
                 first.G * second.G,
                 first.B * second.B,
@@ -106,33 +106,33 @@ namespace osu.Framework.Extensions.Color4Extensions
         /// <param name="colour">Original colour</param>
         /// <param name="negateAlpha">Negates alpha if true</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Color4 NegateAlphaIfTrue(this Color4 colour, bool negateAlpha) =>
-            new Color4(colour.R, colour.G, colour.B, negateAlpha ? -colour.A : colour.A);
+        public static Colour4 NegateAlphaIfTrue(this Colour4 colour, bool negateAlpha) =>
+            new Colour4(colour.R, colour.G, colour.B, negateAlpha ? -colour.A : colour.A);
 
         /// <summary>
         /// Returns a lightened version of the colour.
         /// </summary>
         /// <param name="colour">Original colour</param>
         /// <param name="amount">Decimal light addition</param>
-        public static Color4 Lighten(this Color4 colour, float amount) => Multiply(colour, 1 + amount);
+        public static Colour4 Lighten(this Colour4 colour, float amount) => Multiply(colour, 1 + amount);
 
         /// <summary>
         /// Returns a darkened version of the colour.
         /// </summary>
         /// <param name="colour">Original colour</param>
         /// <param name="amount">Percentage light reduction</param>
-        public static Color4 Darken(this Color4 colour, float amount) => Multiply(colour, 1 / (1 + amount));
+        public static Colour4 Darken(this Colour4 colour, float amount) => Multiply(colour, 1 / (1 + amount));
 
         /// <summary>
         /// Multiply the RGB coordinates by a scalar.
         /// </summary>
         /// <param name="colour">Original colour</param>
         /// <param name="scalar">A scalar to multiply with</param>
-        public static Color4 Multiply(this Color4 colour, float scalar)
+        public static Colour4 Multiply(this Colour4 colour, float scalar)
         {
             ArgumentOutOfRangeException.ThrowIfNegative(scalar);
 
-            return new Color4(
+            return new Colour4(
                 Math.Min(1, colour.R * scalar),
                 Math.Min(1, colour.G * scalar),
                 Math.Min(1, colour.B * scalar),
@@ -140,7 +140,7 @@ namespace osu.Framework.Extensions.Color4Extensions
         }
 
         /// <summary>
-        /// Converts an RGB or RGBA-formatted hex colour code into a <see cref="Color4"/>.
+        /// Converts an RGB or RGBA-formatted hex colour code into a <see cref="Colour4"/>.
         /// Supported colour code formats:
         /// <list type="bullet">
         /// <item><description>RGB</description></item>
@@ -154,9 +154,9 @@ namespace osu.Framework.Extensions.Color4Extensions
         /// </list>
         /// </summary>
         /// <param name="hex">The hex code.</param>
-        /// <returns>The <see cref="Color4"/> representing the colour.</returns>
+        /// <returns>The <see cref="Colour4"/> representing the colour.</returns>
         /// <exception cref="ArgumentException">If <paramref name="hex"/> is not a supported colour code.</exception>
-        public static Color4 FromHex(string hex)
+        public static Colour4 FromHex(string hex)
         {
             var hexSpan = hex[0] == '#' ? hex.AsSpan()[1..] : hex.AsSpan();
 
@@ -166,28 +166,28 @@ namespace osu.Framework.Extensions.Color4Extensions
                     throw new ArgumentException(@"Invalid hex string length!");
 
                 case 3:
-                    return new Color4(
+                    return new Colour4(
                         (byte)(byte.Parse(hexSpan[..1], NumberStyles.HexNumber) * 17),
                         (byte)(byte.Parse(hexSpan[1..2], NumberStyles.HexNumber) * 17),
                         (byte)(byte.Parse(hexSpan[2..3], NumberStyles.HexNumber) * 17),
                         255);
 
                 case 6:
-                    return new Color4(
+                    return new Colour4(
                         byte.Parse(hexSpan[..2], NumberStyles.HexNumber),
                         byte.Parse(hexSpan[2..4], NumberStyles.HexNumber),
                         byte.Parse(hexSpan[4..6], NumberStyles.HexNumber),
                         255);
 
                 case 4:
-                    return new Color4(
+                    return new Colour4(
                         (byte)(byte.Parse(hexSpan[..1], NumberStyles.HexNumber) * 17),
                         (byte)(byte.Parse(hexSpan[1..2], NumberStyles.HexNumber) * 17),
                         (byte)(byte.Parse(hexSpan[2..3], NumberStyles.HexNumber) * 17),
                         (byte)(byte.Parse(hexSpan[3..4], NumberStyles.HexNumber) * 17));
 
                 case 8:
-                    return new Color4(
+                    return new Colour4(
                         byte.Parse(hexSpan[..2], NumberStyles.HexNumber),
                         byte.Parse(hexSpan[2..4], NumberStyles.HexNumber),
                         byte.Parse(hexSpan[4..6], NumberStyles.HexNumber),
@@ -196,14 +196,14 @@ namespace osu.Framework.Extensions.Color4Extensions
         }
 
         /// <summary>
-        /// Converts a <see cref="Color4"/> into a hex colour code.
+        /// Converts a <see cref="Colour4"/> into a hex colour code.
         /// </summary>
-        /// <param name="colour">The <see cref="Color4"/> to convert.</param>
+        /// <param name="colour">The <see cref="Colour4"/> to convert.</param>
         /// <param name="alwaysOutputAlpha">Whether the alpha channel should always be output. If <c>false</c>, the alpha channel is only output if <paramref name="colour"/> is translucent.</param>
         /// <returns>The hex code representing the colour.</returns>
-        public static string ToHex(this Color4 colour, bool alwaysOutputAlpha = false)
+        public static string ToHex(this Colour4 colour, bool alwaysOutputAlpha = false)
         {
-            int argb = colour.ToArgb();
+            int argb = (int)colour.ToARGB();
             byte a = (byte)(argb >> 24);
             byte r = (byte)(argb >> 16);
             byte g = (byte)(argb >> 8);
@@ -216,12 +216,12 @@ namespace osu.Framework.Extensions.Color4Extensions
         }
 
         /// <summary>
-        /// Converts an HSV colour to a <see cref="Color4"/>.
+        /// Converts an HSV colour to a <see cref="Colour4"/>.
         /// </summary>
         /// <param name="h">The hue, between 0 and 360.</param>
         /// <param name="s">The saturation, between 0 and 1.</param>
         /// <param name="v">The value, between 0 and 1.</param>
-        public static Color4 FromHSV(float h, float s, float v)
+        public static Colour4 FromHSV(float h, float s, float v)
         {
             if (h < 0 || h > 360)
                 throw new ArgumentOutOfRangeException(nameof(h), "Hue must be between 0 and 360.");
@@ -256,21 +256,21 @@ namespace osu.Framework.Extensions.Color4Extensions
                     throw new ArgumentOutOfRangeException(nameof(h), "Hue is out of range.");
             }
 
-            static Color4 toColor4(float fr, float fg, float fb)
+            static Colour4 toColor4(float fr, float fg, float fb)
             {
                 byte r = (byte)Math.Clamp(fr * 255, 0, 255);
                 byte g = (byte)Math.Clamp(fg * 255, 0, 255);
                 byte b = (byte)Math.Clamp(fb * 255, 0, 255);
-                return new Color4(r, g, b, 255);
+                return new Colour4(r, g, b, 255);
             }
         }
 
         /// <summary>
-        /// Converts a <see cref="Color4"/> to an HSV colour.
+        /// Converts a <see cref="Colour4"/> to an HSV colour.
         /// </summary>
-        /// <param name="colour">The <see cref="Color4"/> to convert.</param>
+        /// <param name="colour">The <see cref="Colour4"/> to convert.</param>
         /// <returns>The HSV colour.</returns>
-        public static (float h, float s, float v) ToHSV(this Color4 colour)
+        public static (float h, float s, float v) ToHSV(this Colour4 colour)
         {
             float h;
             float s;

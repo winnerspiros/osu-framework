@@ -7,9 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Lines;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
-using osuTK;
 using Vector2 = System.Numerics.Vector2;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -49,11 +47,11 @@ namespace osu.Framework.Tests.Visual.Drawables
         {
             base.Update();
 
-            float innerAngle = MathHelper.TwoPi * innerStep / max_inner_steps;
-            float outerAngle = MathHelper.TwoPi * outerStep / max_outer_steps;
+            float innerAngle = MathF.Tau * innerStep / max_inner_steps;
+            float outerAngle = MathF.Tau * outerStep / max_outer_steps;
 
-            innerText.Text = "Inner angle: " + MathHelper.RadiansToDegrees(innerAngle).ToString("000.000");
-            outerText.Text = "Outer angle: " + MathHelper.RadiansToDegrees(outerAngle).ToString("000.000");
+            innerText.Text = "Inner angle: " + float.RadiansToDegrees(innerAngle).ToString("000.000");
+            outerText.Text = "Outer angle: " + float.RadiansToDegrees(outerAngle).ToString("000.000");
 
             Vector2 inner = center + segment_length * new Vector2(MathF.Cos(innerAngle), MathF.Sin(innerAngle));
             Vector2 outer = inner + segment_length * new Vector2(MathF.Cos(outerAngle), MathF.Sin(outerAngle));
@@ -67,7 +65,7 @@ namespace osu.Framework.Tests.Visual.Drawables
         private static SpriteText createLabel() => new SpriteText
         {
             Font = new FontUsage(size: 20),
-            Colour = Color4.White,
+            Colour = Colour4.White,
         };
     }
 }

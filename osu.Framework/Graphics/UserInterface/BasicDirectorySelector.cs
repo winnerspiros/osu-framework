@@ -4,9 +4,9 @@
 #nullable disable
 
 using System.IO;
+using System.Numerics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Localisation;
-using System.Numerics;
 
 namespace osu.Framework.Graphics.UserInterface
 {

@@ -11,7 +11,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Drawables
 {
@@ -127,7 +126,7 @@ namespace osu.Framework.Tests.Visual.Drawables
         {
             Text = text + "ToBSpline",
             Font = new FontUsage(size: 20),
-            Colour = Color4.White,
+            Colour = Colour4.White,
         };
 
         public delegate List<Vector2> ApproximatorFunc(ReadOnlySpan<Vector2> controlPoints);
@@ -173,18 +172,18 @@ namespace osu.Framework.Tests.Visual.Drawables
                 {
                     new Path
                     {
-                        Colour = Color4.White,
+                        Colour = Colour4.White,
                         PathRadius = 2,
                         Vertices = inputPath,
                     },
                     approximatedDrawnPath = new Path
                     {
-                        Colour = Color4.Magenta,
+                        Colour = Colour4.Magenta,
                         PathRadius = 2,
                     },
                     controlPointPath = new Path
                     {
-                        Colour = Color4.LightGreen,
+                        Colour = Colour4.LightGreen,
                         PathRadius = 1,
                         Alpha = 0.5f,
                     },
@@ -212,7 +211,7 @@ namespace osu.Framework.Tests.Visual.Drawables
                         Origin = Anchor.Centre,
                         Size = new Vector2(10),
                         Position = cp,
-                        Colour = Color4.LightGreen,
+                        Colour = Colour4.LightGreen,
                     });
                 }
             }

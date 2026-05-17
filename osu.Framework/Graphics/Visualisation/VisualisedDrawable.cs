@@ -6,8 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Cursor;
@@ -17,9 +17,6 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Input;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
-using System.Numerics;
-using osuTK.Graphics;
-using osuTK.Input;
 
 namespace osu.Framework.Graphics.Visualisation
 {
@@ -125,7 +122,7 @@ namespace osu.Framework.Graphics.Visualisation
                             Size = new Vector2(100, 1), // a bit of a hack, but works well enough.
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
-                            Colour = Color4.Transparent,
+                            Colour = Colour4.Transparent,
                         },
                         inputReceiving = new Container
                         {
@@ -138,14 +135,14 @@ namespace osu.Framework.Graphics.Visualisation
                             {
                                 new Box
                                 {
-                                    Colour = Color4.Cyan,
+                                    Colour = Colour4.Cyan,
                                     RelativeSizeAxes = Axes.Both,
                                 },
                                 new SpriteIcon
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
-                                    Colour = Color4.Cyan.Darken(5),
+                                    Colour = Colour4.Cyan.Darken(5),
                                     Icon = FontAwesome.Solid.MousePointer,
                                     Size = new Vector2(6),
                                 }
@@ -153,7 +150,7 @@ namespace osu.Framework.Graphics.Visualisation
                         },
                         activityInvalidate = new Box
                         {
-                            Colour = Color4.Yellow,
+                            Colour = Colour4.Yellow,
                             Size = new Vector2(2, line_height),
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
@@ -162,7 +159,7 @@ namespace osu.Framework.Graphics.Visualisation
                         },
                         activityLayout = new Box
                         {
-                            Colour = Color4.Orange,
+                            Colour = Colour4.Orange,
                             Size = new Vector2(2, line_height),
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
@@ -171,7 +168,7 @@ namespace osu.Framework.Graphics.Visualisation
                         },
                         activityAutosize = new Box
                         {
-                            Colour = Color4.Red,
+                            Colour = Colour4.Red,
                             Size = new Vector2(2, line_height),
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
@@ -181,7 +178,7 @@ namespace osu.Framework.Graphics.Visualisation
                         previewBox = spriteTarget?.Texture == null
                             ? previewBox = new Box
                             {
-                                Colour = Color4.White,
+                                Colour = Colour4.White,
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
                             }
@@ -370,13 +367,13 @@ namespace osu.Framework.Graphics.Visualisation
             else if (IsHovered)
             {
                 background.Colour = FrameworkColour.BlueGreen;
-                text.Colour = Color4.White;
+                text.Colour = Colour4.White;
                 text2.Colour = FrameworkColour.YellowGreen;
             }
             else
             {
-                background.Colour = Color4.Transparent;
-                text.Colour = Color4.White;
+                background.Colour = Colour4.Transparent;
+                text.Colour = Colour4.White;
                 text2.Colour = FrameworkColour.YellowGreen;
             }
         }

@@ -5,8 +5,8 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
-using osu.Framework.Graphics.Primitives;
 using System.Numerics;
+using osu.Framework.Graphics.Primitives;
 
 namespace osu.Framework.Graphics.Lines
 {

@@ -7,12 +7,9 @@ using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Threading;
-using osuTK.Graphics.ES30;
 using Veldrid;
 using Veldrid.SPIRV;
 using static osu.Framework.Threading.ScheduledDelegate;
-using GL4 = osuTK.Graphics.OpenGL;
-using ProgramInterface = osuTK.Graphics.OpenGL.ProgramInterface;
 
 namespace osu.Framework.Graphics.OpenGL.Shaders
 {
@@ -199,7 +196,7 @@ namespace osu.Framework.Graphics.OpenGL.Shaders
 
                         case ResourceKind.StructuredBufferReadOnly:
                         case ResourceKind.StructuredBufferReadWrite:
-                            uniformBlocks[layout.Elements[0].Name] = GL4.GL.GetProgramResourceIndex(this, ProgramInterface.ShaderStorageBlock, layout.Elements[0].Name);
+                            uniformBlocks[layout.Elements[0].Name] = (int)GL4.GL.GetProgramResourceIndex(this, ProgramInterface.ShaderStorageBlock, layout.Elements[0].Name);
                             break;
                     }
                 }

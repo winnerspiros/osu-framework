@@ -4,8 +4,8 @@
 #nullable disable
 
 using System.Linq;
-using osu.Framework.Graphics.Containers;
 using System.Numerics;
+using osu.Framework.Graphics.Containers;
 
 namespace osu.Framework.Graphics.Animations
 {

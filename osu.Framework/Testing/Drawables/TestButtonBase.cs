@@ -11,7 +11,6 @@ using System.Reflection;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Localisation;
-using osuTK.Graphics;
 using Container = osu.Framework.Graphics.Containers.Container;
 
 namespace osu.Framework.Testing.Drawables
@@ -136,19 +135,17 @@ namespace osu.Framework.Testing.Drawables
             }
         }
 
-        private bool current;
-
         public virtual bool Current
         {
-            get => current;
+            get;
             set
             {
-                if (current == value)
+                if (field == value)
                     return;
 
-                current = value;
+                field = value;
 
-                text.FadeColour(value ? Color4.Black : Color4.White, TRANSITION_DURATION);
+                text.FadeColour(value ? Colour4.Black : Colour4.White, TRANSITION_DURATION);
                 updateVisibility();
             }
         }

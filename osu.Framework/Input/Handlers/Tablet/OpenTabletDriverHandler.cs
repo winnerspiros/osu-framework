@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using OpenTabletDriver;
 using OpenTabletDriver.Plugin;
@@ -15,7 +16,6 @@ using osu.Framework.Extensions;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Platform;
 using osu.Framework.Statistics;
-using System.Numerics;
 
 namespace osu.Framework.Input.Handlers.Tablet
 {

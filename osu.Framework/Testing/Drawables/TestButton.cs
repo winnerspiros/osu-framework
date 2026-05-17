@@ -4,13 +4,12 @@
 #nullable disable
 
 using System;
+using System.Numerics;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Testing.Drawables
 {
@@ -55,7 +54,7 @@ namespace osu.Framework.Testing.Drawables
                 {
                     Size = new Vector2(10),
                     Icon = FontAwesome.Solid.ChevronDown,
-                    Colour = Color4.White,
+                    Colour = Colour4.White,
                     Margin = new MarginPadding { Right = left_box_width + 5 },
                     Anchor = Anchor.CentreRight,
                     Origin = Anchor.CentreRight,
@@ -69,7 +68,7 @@ namespace osu.Framework.Testing.Drawables
             {
                 base.Current = value;
 
-                icon.FadeColour(value ? Color4.Black : Color4.White, 100);
+                icon.FadeColour(value ? Colour4.Black : Colour4.White, 100);
 
                 if (value)
                 {

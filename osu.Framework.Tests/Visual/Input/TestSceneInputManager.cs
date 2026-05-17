@@ -17,7 +17,6 @@ using osu.Framework.Input.Handlers.Mouse;
 using osu.Framework.Input.Handlers.Pen;
 using osu.Framework.Platform;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Input
 {
@@ -92,7 +91,7 @@ namespace osu.Framework.Tests.Visual.Input
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = new Color4(1, 1, 1, 0.2f),
+                        Colour = new Colour4(1, 1, 1, 0.2f),
                     },
                     new FillFlowContainer
                     {

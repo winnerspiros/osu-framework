@@ -12,7 +12,6 @@ using osu.Framework.Input;
 using osu.Framework.Testing;
 using osu.Framework.Utils;
 using System.Numerics;
-using osuTK.Graphics;
 
 namespace osu.Framework.Tests.Visual.Containers
 {
@@ -90,7 +89,7 @@ namespace osu.Framework.Tests.Visual.Containers
                 {
                     new Box
                     {
-                        Colour = Color4.Yellow,
+                        Colour = Colour4.Yellow,
                         RelativeSizeAxes = Axes.Both,
                     },
                     cursorContainer = new TestCursorContainer
@@ -107,7 +106,7 @@ namespace osu.Framework.Tests.Visual.Containers
             protected override Drawable CreateCursor() => new Circle
             {
                 Size = new Vector2(50),
-                Colour = Color4.Red,
+                Colour = Colour4.Red,
                 Origin = Anchor.Centre,
             };
         }

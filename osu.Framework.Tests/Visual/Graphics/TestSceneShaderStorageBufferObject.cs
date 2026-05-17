@@ -13,7 +13,6 @@ using osu.Framework.Graphics.Rendering.Vertices;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Shaders.Types;
 using System.Numerics;
-using osuTK.Graphics.ES30;
 
 namespace osu.Framework.Tests.Visual.Graphics
 {

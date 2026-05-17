@@ -241,147 +241,136 @@ namespace osu.Framework.Input.Bindings
 
         public static InputKey FromKey(Key key)
         {
-            switch (key)
+            return key switch
             {
-                case Key.LShift: return InputKey.LShift;
-                case Key.RShift: return InputKey.RShift;
-                case Key.LControl: return InputKey.LControl;
-                case Key.RControl: return InputKey.RControl;
-                case Key.LAlt: return InputKey.LAlt;
-                case Key.RAlt: return InputKey.RAlt;
-                case Key.LWin: return InputKey.LSuper;
-                case Key.RWin: return InputKey.RSuper;
-
-                case Key.CapsLock: return InputKey.CapsLock;
-                case Key.NumLock: return InputKey.NumLock;
-                case Key.ScrollLock: return InputKey.ScrollLock;
-
-                case Key.F1: return InputKey.F1;
-                case Key.F2: return InputKey.F2;
-                case Key.F3: return InputKey.F3;
-                case Key.F4: return InputKey.F4;
-                case Key.F5: return InputKey.F5;
-                case Key.F6: return InputKey.F6;
-                case Key.F7: return InputKey.F7;
-                case Key.F8: return InputKey.F8;
-                case Key.F9: return InputKey.F9;
-                case Key.F10: return InputKey.F10;
-                case Key.F11: return InputKey.F11;
-                case Key.F12: return InputKey.F12;
-                case Key.F13: return InputKey.F13;
-                case Key.F14: return InputKey.F14;
-                case Key.F15: return InputKey.F15;
-                case Key.F16: return InputKey.F16;
-                case Key.F17: return InputKey.F17;
-                case Key.F18: return InputKey.F18;
-                case Key.F19: return InputKey.F19;
-                case Key.F20: return InputKey.F20;
-                case Key.F21: return InputKey.F21;
-                case Key.F22: return InputKey.F22;
-                case Key.F23: return InputKey.F23;
-                case Key.F24: return InputKey.F24;
-
-                case Key.Up: return InputKey.Up;
-                case Key.Down: return InputKey.Down;
-                case Key.Left: return InputKey.Left;
-                case Key.Right: return InputKey.Right;
-                case Key.Insert: return InputKey.Insert;
-                case Key.Delete: return InputKey.Delete;
-                case Key.Home: return InputKey.Home;
-                case Key.End: return InputKey.End;
-                case Key.PageUp: return InputKey.PageUp;
-                case Key.PageDown: return InputKey.PageDown;
-                case Key.PrintScreen: return InputKey.PrintScreen;
-                case Key.Pause: return InputKey.Pause;
-
-                case Key.BackSpace: return InputKey.BackSpace;
-                case Key.Tab: return InputKey.Tab;
-                case Key.Clear: return InputKey.Clear;
-                case Key.Enter: return InputKey.Enter;
-                case Key.Escape: return InputKey.Escape;
-                case Key.Space: return InputKey.Space;
-
-                case Key.Number0: return InputKey.Number0;
-                case Key.Number1: return InputKey.Number1;
-                case Key.Number2: return InputKey.Number2;
-                case Key.Number3: return InputKey.Number3;
-                case Key.Number4: return InputKey.Number4;
-                case Key.Number5: return InputKey.Number5;
-                case Key.Number6: return InputKey.Number6;
-                case Key.Number7: return InputKey.Number7;
-                case Key.Number8: return InputKey.Number8;
-                case Key.Number9: return InputKey.Number9;
-
-                case Key.A: return InputKey.A;
-                case Key.B: return InputKey.B;
-                case Key.C: return InputKey.C;
-                case Key.D: return InputKey.D;
-                case Key.E: return InputKey.E;
-                case Key.F: return InputKey.F;
-                case Key.G: return InputKey.G;
-                case Key.H: return InputKey.H;
-                case Key.I: return InputKey.I;
-                case Key.J: return InputKey.J;
-                case Key.K: return InputKey.K;
-                case Key.L: return InputKey.L;
-                case Key.M: return InputKey.M;
-                case Key.N: return InputKey.N;
-                case Key.O: return InputKey.O;
-                case Key.P: return InputKey.P;
-                case Key.Q: return InputKey.Q;
-                case Key.R: return InputKey.R;
-                case Key.S: return InputKey.S;
-                case Key.T: return InputKey.T;
-                case Key.U: return InputKey.U;
-                case Key.V: return InputKey.V;
-                case Key.W: return InputKey.W;
-                case Key.X: return InputKey.X;
-                case Key.Y: return InputKey.Y;
-                case Key.Z: return InputKey.Z;
-
-                case Key.Quote: return InputKey.Quote;
-                case Key.Comma: return InputKey.Comma;
-                case Key.Minus: return InputKey.Minus;
-                case Key.Period: return InputKey.Period;
-                case Key.Slash: return InputKey.Slash;
-                case Key.Semicolon: return InputKey.Semicolon;
-                case Key.Plus: return InputKey.Plus;
-                case Key.BracketLeft: return InputKey.BracketLeft;
-                case Key.BackSlash: return InputKey.BackSlash;
-                case Key.BracketRight: return InputKey.BracketRight;
-                case Key.Tilde: return InputKey.Tilde;
-                case Key.NonUsBackSlash: return InputKey.NonUSBackSlash;
-
-                case Key.Keypad0: return InputKey.Keypad0;
-                case Key.Keypad1: return InputKey.Keypad1;
-                case Key.Keypad2: return InputKey.Keypad2;
-                case Key.Keypad3: return InputKey.Keypad3;
-                case Key.Keypad4: return InputKey.Keypad4;
-                case Key.Keypad5: return InputKey.Keypad5;
-                case Key.Keypad6: return InputKey.Keypad6;
-                case Key.Keypad7: return InputKey.Keypad7;
-                case Key.Keypad8: return InputKey.Keypad8;
-                case Key.Keypad9: return InputKey.Keypad9;
-                case Key.KeypadDecimal: return InputKey.KeypadDecimal;
-                case Key.KeypadDivide: return InputKey.KeypadDivide;
-                case Key.KeypadMultiply: return InputKey.KeypadMultiply;
-                case Key.KeypadMinus: return InputKey.KeypadMinus;
-                case Key.KeypadPlus: return InputKey.KeypadPlus;
-                case Key.KeypadEnter: return InputKey.KeypadEnter;
-
-                case Key.Menu: return InputKey.Menu;
-
-                case Key.Mute: return InputKey.Mute;
-                case Key.VolumeDown: return InputKey.VolumeDown;
-                case Key.VolumeUp: return InputKey.VolumeUp;
-                case Key.TrackNext: return InputKey.TrackNext;
-                case Key.TrackPrevious: return InputKey.TrackPrevious;
-                case Key.Stop: return InputKey.Stop;
-                case Key.PlayPause: return InputKey.PlayPause;
-                case Key.Sleep: return InputKey.Sleep;
-            }
-
-            return InputKey.None;
+                Key.LShift => InputKey.LShift,
+                Key.RShift => InputKey.RShift,
+                Key.LControl => InputKey.LControl,
+                Key.RControl => InputKey.RControl,
+                Key.LAlt => InputKey.LAlt,
+                Key.RAlt => InputKey.RAlt,
+                Key.LWin => InputKey.LSuper,
+                Key.RWin => InputKey.RSuper,
+                Key.CapsLock => InputKey.CapsLock,
+                Key.NumLock => InputKey.NumLock,
+                Key.ScrollLock => InputKey.ScrollLock,
+                Key.F1 => InputKey.F1,
+                Key.F2 => InputKey.F2,
+                Key.F3 => InputKey.F3,
+                Key.F4 => InputKey.F4,
+                Key.F5 => InputKey.F5,
+                Key.F6 => InputKey.F6,
+                Key.F7 => InputKey.F7,
+                Key.F8 => InputKey.F8,
+                Key.F9 => InputKey.F9,
+                Key.F10 => InputKey.F10,
+                Key.F11 => InputKey.F11,
+                Key.F12 => InputKey.F12,
+                Key.F13 => InputKey.F13,
+                Key.F14 => InputKey.F14,
+                Key.F15 => InputKey.F15,
+                Key.F16 => InputKey.F16,
+                Key.F17 => InputKey.F17,
+                Key.F18 => InputKey.F18,
+                Key.F19 => InputKey.F19,
+                Key.F20 => InputKey.F20,
+                Key.F21 => InputKey.F21,
+                Key.F22 => InputKey.F22,
+                Key.F23 => InputKey.F23,
+                Key.F24 => InputKey.F24,
+                Key.Up => InputKey.Up,
+                Key.Down => InputKey.Down,
+                Key.Left => InputKey.Left,
+                Key.Right => InputKey.Right,
+                Key.Insert => InputKey.Insert,
+                Key.Delete => InputKey.Delete,
+                Key.Home => InputKey.Home,
+                Key.End => InputKey.End,
+                Key.PageUp => InputKey.PageUp,
+                Key.PageDown => InputKey.PageDown,
+                Key.PrintScreen => InputKey.PrintScreen,
+                Key.Pause => InputKey.Pause,
+                Key.BackSpace => InputKey.BackSpace,
+                Key.Tab => InputKey.Tab,
+                Key.Clear => InputKey.Clear,
+                Key.Enter => InputKey.Enter,
+                Key.Escape => InputKey.Escape,
+                Key.Space => InputKey.Space,
+                Key.Number0 => InputKey.Number0,
+                Key.Number1 => InputKey.Number1,
+                Key.Number2 => InputKey.Number2,
+                Key.Number3 => InputKey.Number3,
+                Key.Number4 => InputKey.Number4,
+                Key.Number5 => InputKey.Number5,
+                Key.Number6 => InputKey.Number6,
+                Key.Number7 => InputKey.Number7,
+                Key.Number8 => InputKey.Number8,
+                Key.Number9 => InputKey.Number9,
+                Key.A => InputKey.A,
+                Key.B => InputKey.B,
+                Key.C => InputKey.C,
+                Key.D => InputKey.D,
+                Key.E => InputKey.E,
+                Key.F => InputKey.F,
+                Key.G => InputKey.G,
+                Key.H => InputKey.H,
+                Key.I => InputKey.I,
+                Key.J => InputKey.J,
+                Key.K => InputKey.K,
+                Key.L => InputKey.L,
+                Key.M => InputKey.M,
+                Key.N => InputKey.N,
+                Key.O => InputKey.O,
+                Key.P => InputKey.P,
+                Key.Q => InputKey.Q,
+                Key.R => InputKey.R,
+                Key.S => InputKey.S,
+                Key.T => InputKey.T,
+                Key.U => InputKey.U,
+                Key.V => InputKey.V,
+                Key.W => InputKey.W,
+                Key.X => InputKey.X,
+                Key.Y => InputKey.Y,
+                Key.Z => InputKey.Z,
+                Key.Quote => InputKey.Quote,
+                Key.Comma => InputKey.Comma,
+                Key.Minus => InputKey.Minus,
+                Key.Period => InputKey.Period,
+                Key.Slash => InputKey.Slash,
+                Key.Semicolon => InputKey.Semicolon,
+                Key.Plus => InputKey.Plus,
+                Key.BracketLeft => InputKey.BracketLeft,
+                Key.BackSlash => InputKey.BackSlash,
+                Key.BracketRight => InputKey.BracketRight,
+                Key.Tilde => InputKey.Tilde,
+                Key.NonUsBackSlash => InputKey.NonUSBackSlash,
+                Key.Keypad0 => InputKey.Keypad0,
+                Key.Keypad1 => InputKey.Keypad1,
+                Key.Keypad2 => InputKey.Keypad2,
+                Key.Keypad3 => InputKey.Keypad3,
+                Key.Keypad4 => InputKey.Keypad4,
+                Key.Keypad5 => InputKey.Keypad5,
+                Key.Keypad6 => InputKey.Keypad6,
+                Key.Keypad7 => InputKey.Keypad7,
+                Key.Keypad8 => InputKey.Keypad8,
+                Key.Keypad9 => InputKey.Keypad9,
+                Key.KeypadDecimal => InputKey.KeypadDecimal,
+                Key.KeypadDivide => InputKey.KeypadDivide,
+                Key.KeypadMultiply => InputKey.KeypadMultiply,
+                Key.KeypadMinus => InputKey.KeypadMinus,
+                Key.KeypadPlus => InputKey.KeypadPlus,
+                Key.KeypadEnter => InputKey.KeypadEnter,
+                Key.Menu => InputKey.Menu,
+                Key.Mute => InputKey.Mute,
+                Key.VolumeDown => InputKey.VolumeDown,
+                Key.VolumeUp => InputKey.VolumeUp,
+                Key.TrackNext => InputKey.TrackNext,
+                Key.TrackPrevious => InputKey.TrackPrevious,
+                Key.Stop => InputKey.Stop,
+                Key.PlayPause => InputKey.PlayPause,
+                Key.Sleep => InputKey.Sleep,
+                _ => InputKey.None
+            };
         }
 
         public static InputKey FromMouseButton(MouseButton button) => (InputKey)((int)InputKey.FirstMouseButton + button);

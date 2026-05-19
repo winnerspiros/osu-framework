@@ -194,7 +194,7 @@ namespace osu.Framework.Graphics.Lines
                 for (int i = 1; i < segments.Count; i++)
                 {
                     Vector2 dir = segmentToDraw.Direction;
-                    float lengthSquared = dir.X * dir.X + dir.Y * dir.Y;
+                    float lengthSquared = dir.LengthSquared();
                     Vector2 nextVertex = segments[i].EndPoint;
 
                     // If segment is too short, make its end point equal start point of a new segment
@@ -303,7 +303,7 @@ namespace osu.Framework.Graphics.Lines
                     EndPoint = guide.EndPoint;
 
                     Vector2 dir = guide.Direction;
-                    float lengthSquared = dir.X * dir.X + dir.Y * dir.Y;
+                    float lengthSquared = dir.LengthSquared();
 
                     if (lengthSquared < precision * precision)
                         dir = Vector2.UnitX;

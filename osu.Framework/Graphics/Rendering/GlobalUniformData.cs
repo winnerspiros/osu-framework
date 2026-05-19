@@ -35,5 +35,6 @@ namespace osu.Framework.Graphics.Rendering
         public UniformInt WrapModeS;
         public UniformInt WrapModeT;
         public UniformBool TextureHasPremultipliedAlpha;
+        private readonly UniformPadding12 pad4;
     }
 }

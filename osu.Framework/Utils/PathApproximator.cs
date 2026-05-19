@@ -105,10 +105,15 @@ namespace osu.Framework.Utils
             // <a href="https://en.wikipedia.org/wiki/Depth-first_search">Depth-first search</a>
             // over the tree resulting from the subdivisions we make.)
 
-            var subdivisionBuffer1 = new Vector2[degree + 1];
-            var subdivisionBuffer2 = new Vector2[degree * 2 + 1];
+            int buf1Size = degree + 1;
+            int buf2Size = degree * 2 + 1;
 
-            Vector2[] leftChild = subdivisionBuffer2;
+            // Use stack memory for the scratch subdivision buffers when the degree is small (common case).
+            // This avoids heap allocations in the hot path for typical cubic/quintic Bézier curves.
+            Span<Vector2> subdivisionBuffer1 = buf1Size <= 32 ? stackalloc Vector2[buf1Size] : new Vector2[buf1Size];
+            Span<Vector2> subdivisionBuffer2 = buf2Size <= 63 ? stackalloc Vector2[buf2Size] : new Vector2[buf2Size];
+
+            Span<Vector2> leftChild = subdivisionBuffer2;
 
             while (toFlatten.Count > 0)
             {
@@ -849,9 +854,9 @@ namespace osu.Framework.Utils
         /// <param name="r">Output: The control points corresponding to the right half of the curve.</param>
         /// <param name="subdivisionBuffer">The first buffer containing the current subdivision state.</param>
         /// <param name="count">The number of control points in the original list.</param>
-        private static void bezierSubdivide(Vector2[] controlPoints, Vector2[] l, Vector2[] r, Vector2[] subdivisionBuffer, int count)
+        private static void bezierSubdivide(Vector2[] controlPoints, Span<Vector2> l, Span<Vector2> r, Span<Vector2> subdivisionBuffer, int count)
         {
-            Vector2[] midpoints = subdivisionBuffer;
+            Span<Vector2> midpoints = subdivisionBuffer;
 
             for (int i = 0; i < count; ++i)
                 midpoints[i] = controlPoints[i];
@@ -875,10 +880,10 @@ namespace osu.Framework.Utils
         /// <param name="count">The number of control points in the original list.</param>
         /// <param name="subdivisionBuffer1">The first buffer containing the current subdivision state.</param>
         /// <param name="subdivisionBuffer2">The second buffer containing the current subdivision state.</param>
-        private static void bezierApproximate(Vector2[] controlPoints, List<Vector2> output, Vector2[] subdivisionBuffer1, Vector2[] subdivisionBuffer2, int count)
+        private static void bezierApproximate(Vector2[] controlPoints, List<Vector2> output, Span<Vector2> subdivisionBuffer1, Span<Vector2> subdivisionBuffer2, int count)
         {
-            Vector2[] l = subdivisionBuffer2;
-            Vector2[] r = subdivisionBuffer1;
+            Span<Vector2> l = subdivisionBuffer2;
+            Span<Vector2> r = subdivisionBuffer1;
 
             bezierSubdivide(controlPoints, l, r, subdivisionBuffer1, count);
 

@@ -109,11 +109,11 @@ namespace osu.Framework.Graphics.Visualisation.Audio
             usingGlobalMixer = audioManager.UsingGlobalMixer.GetBoundCopy();
         }
 
+        private readonly float[] levels = new float[2];
+
         protected override void Update()
         {
             base.Update();
-
-            float[] levels = new float[2];
 
             if (isOutputChannel && !usingGlobalMixer.Value)
                 Bass.ChannelGetLevel(ChannelHandle, levels, 1 / 1000f * sample_window, LevelRetrievalFlags.Stereo);

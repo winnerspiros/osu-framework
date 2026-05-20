@@ -237,9 +237,11 @@ namespace osu.Framework.Threading
             if (runQueue.TryDequeue(out task))
             {
                 Interlocked.Decrement(ref runQueueCount);
-                // Remove from the once-set so the same Action can be re-queued next frame.
-                if (task.Task != null)
-                    runQueueOnceSet.TryRemove(task.Task, out _);
+                // Remove from the once-set so the same delegate can be re-queued next frame.
+                // Use OnceKey (set by all AddOnce paths) rather than task.Task, because
+                // ScheduledDelegateWithData<T> hides the base Task field and leaves it null.
+                if (task.OnceKey != null)
+                    runQueueOnceSet.TryRemove(task.OnceKey, out _);
                 return true;
             }
 
@@ -387,6 +389,7 @@ namespace osu.Framework.Threading
                 }
 
                 var del = new ScheduledDelegateWithData<T>(task, data);
+                del.OnceKey = task;
                 runQueueOnceSet.TryAdd(task, del);
                 enqueue(del);
             }
@@ -406,6 +409,7 @@ namespace osu.Framework.Threading
             {
                 // ConcurrentDictionary.TryAdd is O(1) by reference identity.
                 var del = new ScheduledDelegate(task);
+                del.OnceKey = task;
                 if (!runQueueOnceSet.TryAdd(task, del))
                     return false;
 

@@ -32,7 +32,7 @@ namespace osu.Framework.Graphics.Rendering.Vertices
         // Without this the struct is 60 bytes, leaving 4 bytes of the cache line unused.
         // Padding ensures that two adjacent vertices never share a cache line, eliminating
         // false-sharing when the CPU prefetches ahead while the GPU reads vertex data.
-        private readonly int _pad;
+        private readonly int pad;
 
         [Obsolete("Initialise this type with an IRenderer instead", true)]
         public TexturedVertex2D()

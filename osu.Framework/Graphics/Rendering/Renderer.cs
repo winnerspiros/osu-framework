@@ -188,7 +188,7 @@ namespace osu.Framework.Graphics.Rendering
 
         private IUniformBuffer<GlobalUniformData>? globalUniformBuffer;
         private IVertexBatch<TexturedVertex2D>? defaultQuadBatch;
-        private IVertexBatch? currentActiveBatch;
+        internal IVertexBatch? CurrentActiveBatch { get; private set; }
         private MaskingInfo currentMaskingInfo;
         private int lastActiveTextureUnit;
         private bool globalUniformsChanged;
@@ -288,7 +288,7 @@ namespace osu.Framework.Graphics.Rendering
             }
 
             globalUniformsChanged = true;
-            currentActiveBatch = null;
+            CurrentActiveBatch = null;
             CurrentBlendingParameters = new BlendingParameters();
             currentMaskingInfo = default;
             lastGlobalUniformBoundShader = null;
@@ -869,21 +869,15 @@ namespace osu.Framework.Graphics.Rendering
         /// <param name="batch">The batch.</param>
         internal void SetActiveBatch(IVertexBatch batch)
         {
-            if (currentActiveBatch == batch)
+            if (CurrentActiveBatch == batch)
                 return;
 
             batchResetList.Add(batch);
 
             FlushCurrentBatch(FlushBatchSource.SetActiveBatch);
 
-            currentActiveBatch = batch;
+            CurrentActiveBatch = batch;
         }
-
-        /// <summary>
-        /// Returns the currently active vertex batch, allowing callers to avoid redundant
-        /// <see cref="SetActiveBatch"/> virtual-dispatch calls when already active.
-        /// </summary>
-        internal IVertexBatch? CurrentActiveBatch => currentActiveBatch;
 
         /// <summary>
         /// Flushes the currently active vertex batch.
@@ -891,7 +885,7 @@ namespace osu.Framework.Graphics.Rendering
         /// <param name="source">The source performing the flush, for profiling purposes.</param>
         protected internal void FlushCurrentBatch(FlushBatchSource? source)
         {
-            if (currentActiveBatch?.Draw() > 0 && source != null)
+            if (CurrentActiveBatch?.Draw() > 0 && source != null)
                 flush_source_statistics[(int)source].Value++;
         }
 

@@ -12,10 +12,12 @@ namespace osu.Framework.Graphics.Rendering.Deferred
     internal class DeferredVertexBatch<TVertex> : IVertexBatch<TVertex>, IDeferredVertexBatch
         where TVertex : unmanaged, IEquatable<TVertex>, IVertex
     {
-        private static readonly TVertex[] current_primitive = new TVertex[4];
+        // Instance fields: sharing these as statics across instances of the same closed generic
+        // would corrupt currentPrimitiveSize when two batches of the same vertex type are
+        // interleaved mid-primitive. Making them instance fields eliminates the latent bug.
+        private readonly TVertex[] current_primitive = new TVertex[4];
 
-        // ReSharper disable once StaticMemberInGenericType
-        private static int currentPrimitiveSize;
+        private int currentPrimitiveSize;
 
         public Action<TVertex> AddAction { get; }
 

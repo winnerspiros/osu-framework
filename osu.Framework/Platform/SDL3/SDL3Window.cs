@@ -244,6 +244,8 @@ namespace osu.Framework.Platform.SDL3
             // When SDL_WarpMouseInWindow is called while relative mode is active (e.g. on focus regain),
             // prevent a spurious large absolute SDL_MOUSEMOTION that would cause an unwanted cursor jump.
             SDL_SetHint(SDL_HINT_MOUSE_EMULATE_WARP_WITH_RELATIVE, "1"u8).LogErrorIfFailed();
+            // Disable system mouse acceleration in relative mode so raw deltas are passed through unchanged.
+            SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SYSTEM_SCALE, "0"u8).LogErrorIfFailed();
 
             SDLWindowHandle = SDL_CreateWindow(Title, Size.Width, Size.Height, flags);
 

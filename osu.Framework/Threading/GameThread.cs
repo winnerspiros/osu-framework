@@ -147,6 +147,10 @@ namespace osu.Framework.Threading
 
         private readonly GameThreadSynchronizationContext synchronizationContext;
 
+        // Pre-allocated Action to avoid heap allocation of a closure each time updateMaximumHz is called.
+        // updateMaximumHz is triggered on every IsActive change and on ActiveHz/InactiveHz property sets.
+        private readonly Action applyMaximumHzAction;
+
         internal PerformanceMonitor? Monitor { get; }
 
         internal virtual IEnumerable<StatisticsCounterType> StatisticsCounters => Array.Empty<StatisticsCounterType>();
@@ -186,6 +190,7 @@ namespace osu.Framework.Threading
 
             Scheduler = new GameThreadScheduler(this);
             synchronizationContext = new GameThreadSynchronizationContext(this);
+            applyMaximumHzAction = () => Clock.MaximumUpdateHz = IsActive.Value ? ActiveHz : InactiveHz;
 
             IsActive.BindValueChanged(_ => updateMaximumHz(), true);
         }
@@ -417,7 +422,7 @@ namespace osu.Framework.Threading
 
         private void updateMaximumHz()
         {
-            Scheduler.Add(() => Clock.MaximumUpdateHz = IsActive.Value ? ActiveHz : InactiveHz);
+            Scheduler.Add(applyMaximumHzAction);
         }
 
         /// <summary>

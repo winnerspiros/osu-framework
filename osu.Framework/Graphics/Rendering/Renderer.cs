@@ -188,10 +188,20 @@ namespace osu.Framework.Graphics.Rendering
 
         private IUniformBuffer<GlobalUniformData>? globalUniformBuffer;
         private IVertexBatch<TexturedVertex2D>? defaultQuadBatch;
-        private IVertexBatch? currentActiveBatch;
+        internal IVertexBatch? CurrentActiveBatch { get; private set; }
         private MaskingInfo currentMaskingInfo;
         private int lastActiveTextureUnit;
         private bool globalUniformsChanged;
+
+        // Cache the last shader that had g_GlobalUniforms bound so we only rebind when
+        // the shader changes — not on every draw call (which can number in the hundreds).
+        private IShader? lastGlobalUniformBoundShader;
+
+        // Cached values to avoid reading back the large GlobalUniformData struct through the
+        // IUniformBuffer interface (which copies the entire ~250-byte struct) just to preserve
+        // two fields that haven't changed in the current masking state.
+        private Matrix4x4 cachedBorderColour;
+        private float cachedInnerCornerRadius;
 
         private static readonly GlobalStatistic<int>[] flush_source_statistics;
 
@@ -278,9 +288,12 @@ namespace osu.Framework.Graphics.Rendering
             }
 
             globalUniformsChanged = true;
-            currentActiveBatch = null;
+            CurrentActiveBatch = null;
             CurrentBlendingParameters = new BlendingParameters();
             currentMaskingInfo = default;
+            lastGlobalUniformBoundShader = null;
+            cachedBorderColour = default;
+            cachedInnerCornerRadius = 0;
 
             foreach (var b in batchResetList)
                 b.ResetCounters();
@@ -856,14 +869,14 @@ namespace osu.Framework.Graphics.Rendering
         /// <param name="batch">The batch.</param>
         internal void SetActiveBatch(IVertexBatch batch)
         {
-            if (currentActiveBatch == batch)
+            if (CurrentActiveBatch == batch)
                 return;
 
             batchResetList.Add(batch);
 
             FlushCurrentBatch(FlushBatchSource.SetActiveBatch);
 
-            currentActiveBatch = batch;
+            CurrentActiveBatch = batch;
         }
 
         /// <summary>
@@ -872,7 +885,7 @@ namespace osu.Framework.Graphics.Rendering
         /// <param name="source">The source performing the flush, for profiling purposes.</param>
         protected internal void FlushCurrentBatch(FlushBatchSource? source)
         {
-            if (currentActiveBatch?.Draw() > 0 && source != null)
+            if (CurrentActiveBatch?.Draw() > 0 && source != null)
                 flush_source_statistics[(int)source].Value++;
         }
 
@@ -953,18 +966,24 @@ namespace osu.Framework.Graphics.Rendering
 
         private void setWrapMode(WrapMode wrapModeS, WrapMode wrapModeT)
         {
-            if (wrapModeS != CurrentWrapModeS)
-            {
-                FlushCurrentBatch(FlushBatchSource.BindTexture);
+            bool sChanged = wrapModeS != CurrentWrapModeS;
+            bool tChanged = wrapModeT != CurrentWrapModeT;
 
+            if (!sChanged && !tChanged)
+                return;
+
+            // Flush once for both wrap mode changes — previously two separate FlushCurrentBatch
+            // calls fired when both S and T changed (e.g., on first texture bind after BeginFrame).
+            FlushCurrentBatch(FlushBatchSource.BindTexture);
+
+            if (sChanged)
+            {
                 CurrentWrapModeS = wrapModeS;
                 globalUniformsChanged = true;
             }
 
-            if (wrapModeT != CurrentWrapModeT)
+            if (tChanged)
             {
-                FlushCurrentBatch(FlushBatchSource.BindTexture);
-
                 CurrentWrapModeT = wrapModeT;
                 globalUniformsChanged = true;
             }
@@ -1077,6 +1096,32 @@ namespace osu.Framework.Graphics.Rendering
 
             if (globalUniformsChanged)
             {
+                // Update cached values used to preserve BorderColour/InnerCornerRadius when
+                // the masking state doesn't change them (avoids reading the entire struct back).
+                if (currentMaskingInfo.BorderThickness > 0)
+                {
+                    cachedBorderColour = new Matrix4x4(
+                        currentMaskingInfo.BorderColour.TopLeft.SRGB.R,
+                        currentMaskingInfo.BorderColour.TopLeft.SRGB.G,
+                        currentMaskingInfo.BorderColour.TopLeft.SRGB.B,
+                        currentMaskingInfo.BorderColour.TopLeft.SRGB.A,
+                        currentMaskingInfo.BorderColour.BottomLeft.SRGB.R,
+                        currentMaskingInfo.BorderColour.BottomLeft.SRGB.G,
+                        currentMaskingInfo.BorderColour.BottomLeft.SRGB.B,
+                        currentMaskingInfo.BorderColour.BottomLeft.SRGB.A,
+                        currentMaskingInfo.BorderColour.TopRight.SRGB.R,
+                        currentMaskingInfo.BorderColour.TopRight.SRGB.G,
+                        currentMaskingInfo.BorderColour.TopRight.SRGB.B,
+                        currentMaskingInfo.BorderColour.TopRight.SRGB.A,
+                        currentMaskingInfo.BorderColour.BottomRight.SRGB.R,
+                        currentMaskingInfo.BorderColour.BottomRight.SRGB.G,
+                        currentMaskingInfo.BorderColour.BottomRight.SRGB.B,
+                        currentMaskingInfo.BorderColour.BottomRight.SRGB.A);
+                }
+
+                if (currentMaskingInfo.Hollow)
+                    cachedInnerCornerRadius = currentMaskingInfo.HollowCornerRadius;
+
                 globalUniformBuffer!.Data = new GlobalUniformData
                 {
                     BackbufferDraw = UsingBackbuffer,
@@ -1094,36 +1139,12 @@ namespace osu.Framework.Graphics.Rendering
                         currentMaskingInfo.MaskingRect.Right,
                         currentMaskingInfo.MaskingRect.Bottom),
                     BorderThickness = currentMaskingInfo.BorderThickness / currentMaskingInfo.BlendRange,
-                    BorderColour = currentMaskingInfo.BorderThickness > 0
-                        ? new Matrix4x4(
-                            // TopLeft
-                            currentMaskingInfo.BorderColour.TopLeft.SRGB.R,
-                            currentMaskingInfo.BorderColour.TopLeft.SRGB.G,
-                            currentMaskingInfo.BorderColour.TopLeft.SRGB.B,
-                            currentMaskingInfo.BorderColour.TopLeft.SRGB.A,
-                            // BottomLeft
-                            currentMaskingInfo.BorderColour.BottomLeft.SRGB.R,
-                            currentMaskingInfo.BorderColour.BottomLeft.SRGB.G,
-                            currentMaskingInfo.BorderColour.BottomLeft.SRGB.B,
-                            currentMaskingInfo.BorderColour.BottomLeft.SRGB.A,
-                            // TopRight
-                            currentMaskingInfo.BorderColour.TopRight.SRGB.R,
-                            currentMaskingInfo.BorderColour.TopRight.SRGB.G,
-                            currentMaskingInfo.BorderColour.TopRight.SRGB.B,
-                            currentMaskingInfo.BorderColour.TopRight.SRGB.A,
-                            // BottomRight
-                            currentMaskingInfo.BorderColour.BottomRight.SRGB.R,
-                            currentMaskingInfo.BorderColour.BottomRight.SRGB.G,
-                            currentMaskingInfo.BorderColour.BottomRight.SRGB.B,
-                            currentMaskingInfo.BorderColour.BottomRight.SRGB.A)
-                        : globalUniformBuffer.Data.BorderColour,
+                    BorderColour = cachedBorderColour,
                     MaskingBlendRange = currentMaskingInfo.BlendRange,
                     AlphaExponent = currentMaskingInfo.AlphaExponent,
                     EdgeOffset = currentMaskingInfo.EdgeOffset,
                     DiscardInner = currentMaskingInfo.Hollow,
-                    InnerCornerRadius = currentMaskingInfo.Hollow
-                        ? currentMaskingInfo.HollowCornerRadius
-                        : globalUniformBuffer.Data.InnerCornerRadius,
+                    InnerCornerRadius = cachedInnerCornerRadius,
                     WrapModeS = (int)CurrentWrapModeS,
                     WrapModeT = (int)CurrentWrapModeT,
                     TextureHasPremultipliedAlpha = currentTextureIsPremultiplied
@@ -1132,7 +1153,13 @@ namespace osu.Framework.Graphics.Rendering
                 globalUniformsChanged = false;
             }
 
-            Shader.BindUniformBlock("g_GlobalUniforms", globalUniformBuffer!);
+            // Only rebind the global uniform block when the shader changes — the binding
+            // persists on the GL context and does not need to be set on every draw call.
+            if (!ReferenceEquals(Shader, lastGlobalUniformBoundShader))
+            {
+                Shader.BindUniformBlock("g_GlobalUniforms", globalUniformBuffer!);
+                lastGlobalUniformBoundShader = Shader;
+            }
 
             DrawVerticesImplementation(topology, vertexStart, verticesCount);
 

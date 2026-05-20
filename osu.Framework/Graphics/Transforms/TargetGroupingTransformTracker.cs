@@ -308,6 +308,11 @@ namespace osu.Framework.Graphics.Transforms
             invokePendingRemovalActions();
         }
 
+        // Reusable scratch buffer for FinishTransforms — avoids a heap allocation of
+        // List<Transform> on every call to FinishTransforms (which can be called multiple
+        // times per frame when animations complete or are explicitly flushed).
+        private readonly List<Transform> finishTransformsScratch = new List<Transform>();
+
         /// <summary>
         /// Finishes specified <see cref="Transform"/>s, using their <see cref="Transform{TValue}.EndValue"/>.
         /// </summary>
@@ -325,7 +330,8 @@ namespace osu.Framework.Graphics.Transforms
 
             // Flush is undefined for endlessly looping transforms.
             // Collect matching transforms while removing them in a single pass to halve predicate evaluations.
-            var toFlush = new List<Transform>();
+            var toFlush = finishTransformsScratch;
+            toFlush.Clear();
             transforms.RemoveAll(t =>
             {
                 if (!toFlushPredicate(t))

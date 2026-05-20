@@ -193,7 +193,7 @@ namespace osu.Framework.Graphics.Containers
                 {
                     if (row == 0)
                         result[row, col] = CreateHeader(col, col >= Columns?.Length ? null : Columns?[col]);
-                    else if (col < Content.GetLength(1))
+                    else if (Content != null && col < Content.GetLength(1))
                         result[row, col] = Content[row - 1, col];
                 }
             }

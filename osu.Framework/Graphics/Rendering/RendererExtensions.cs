@@ -58,7 +58,9 @@ namespace osu.Framework.Graphics.Rendering
                 texRect = texRect.Inflate(inflationVector);
             }
 
-            RectangleF coordRect = texture.GetTextureRect(textureCoords ?? textureRect);
+            // Reuse the already-computed texRect when no explicit textureCoords are provided,
+            // avoiding a duplicate GetTextureRect atlas-offset calculation on every drawn triangle.
+            RectangleF coordRect = textureCoords.HasValue ? texture.GetTextureRect(textureCoords.Value) : texRect;
             RectangleF inflatedCoordRect = coordRect.Inflate(inflationAmount);
 
             vertexAction ??= renderer.DefaultQuadBatch.AddAction;
@@ -153,7 +155,9 @@ namespace osu.Framework.Graphics.Rendering
                 texRect = texRect.Inflate(inflationVector);
             }
 
-            RectangleF coordRect = texture.GetTextureRect(textureCoords ?? textureRect);
+            // Reuse the already-computed texRect when no explicit textureCoords are provided,
+            // avoiding a duplicate GetTextureRect atlas-offset calculation on every drawn quad.
+            RectangleF coordRect = textureCoords.HasValue ? texture.GetTextureRect(textureCoords.Value) : texRect;
             RectangleF inflatedCoordRect = coordRect.Inflate(inflationAmount);
             Vector2 blendRange = blendRangeOverride ?? inflationAmount;
 

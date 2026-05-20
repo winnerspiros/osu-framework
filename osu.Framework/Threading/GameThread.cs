@@ -147,6 +147,10 @@ namespace osu.Framework.Threading
 
         private readonly GameThreadSynchronizationContext synchronizationContext;
 
+        // Pre-allocated Action to avoid heap allocation of a closure each time updateMaximumHz is called.
+        // updateMaximumHz is triggered on every IsActive change and on ActiveHz/InactiveHz property sets.
+        private readonly Action applyMaximumHzAction;
+
         internal PerformanceMonitor? Monitor { get; }
 
         internal virtual IEnumerable<StatisticsCounterType> StatisticsCounters => Array.Empty<StatisticsCounterType>();
@@ -186,6 +190,7 @@ namespace osu.Framework.Threading
 
             Scheduler = new GameThreadScheduler(this);
             synchronizationContext = new GameThreadSynchronizationContext(this);
+            applyMaximumHzAction = () => Clock.MaximumUpdateHz = IsActive.Value ? ActiveHz : InactiveHz;
 
             IsActive.BindValueChanged(_ => updateMaximumHz(), true);
         }
@@ -363,12 +368,19 @@ namespace osu.Framework.Threading
                 // is never blocked indefinitely when the game thread is stuck in a native call.
                 long deadline = Environment.TickCount64 + 5000;
 
+                // SpinWait starts with CPU-level hardware PAUSE instructions, then progressively
+                // yields the thread time-slice before sleeping. This gives near-zero latency when
+                // the target thread transitions state within a few microseconds (the common case),
+                // while still yielding the CPU gracefully for longer waits — unlike Thread.Sleep(1)
+                // which always burns a full millisecond regardless of how quickly the other thread responds.
+                var spinWait = new SpinWait();
+
                 while (state.Value != targetState)
                 {
                     if (Environment.TickCount64 > deadline)
                         break;
 
-                    Thread.Sleep(1);
+                    spinWait.SpinOnce();
                 }
             }
         }
@@ -410,7 +422,7 @@ namespace osu.Framework.Threading
 
         private void updateMaximumHz()
         {
-            Scheduler.Add(() => Clock.MaximumUpdateHz = IsActive.Value ? ActiveHz : InactiveHz);
+            Scheduler.Add(applyMaximumHzAction);
         }
 
         /// <summary>

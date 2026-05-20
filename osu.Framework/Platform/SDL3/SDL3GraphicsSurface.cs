@@ -36,6 +36,11 @@ namespace osu.Framework.Platform.SDL3
                     SDL_GL_SetAttribute(SDL_GLAttr.SDL_GL_ACCUM_ALPHA_SIZE, 0).ThrowIfFailed();
                     SDL_GL_SetAttribute(SDL_GLAttr.SDL_GL_DEPTH_SIZE, 16).ThrowIfFailed();
                     SDL_GL_SetAttribute(SDL_GLAttr.SDL_GL_STENCIL_SIZE, 8).ThrowIfFailed();
+                    // Explicitly request hardware-accelerated double-buffering.
+                    // Without this, some drivers (especially Mesa on Linux) may silently fall back
+                    // to software rendering or enable triple-buffering (one extra frame of latency).
+                    SDL_GL_SetAttribute(SDL_GLAttr.SDL_GL_DOUBLEBUFFER, 1).ThrowIfFailed();
+                    SDL_GL_SetAttribute(SDL_GLAttr.SDL_GL_ACCELERATED_VISUAL, 1).ThrowIfFailed();
                     break;
 
                 case GraphicsSurfaceType.Vulkan:

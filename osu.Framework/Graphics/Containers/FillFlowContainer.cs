@@ -138,9 +138,9 @@ namespace osu.Framework.Graphics.Containers
                 {
                     Drawable c = children[i];
 
-                    static Axes toAxes(FillDirection Direction)
+                    static Axes toAxes(FillDirection direction)
                     {
-                        switch (Direction)
+                        switch (direction)
                         {
                             case FillDirection.Full:
                                 return Axes.Both;
@@ -152,7 +152,7 @@ namespace osu.Framework.Graphics.Containers
                                 return Axes.Y;
 
                             default:
-                                throw new ArgumentException($"{Direction.ToString()} is not defined");
+                                throw new ArgumentException($"{direction.ToString()} is not defined");
                         }
                     }
 

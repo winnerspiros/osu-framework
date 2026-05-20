@@ -30,6 +30,10 @@ namespace osu.Framework.Statistics
 
         private const int max_pending_frames = 10;
 
+        // Pre-computed string names for each StatisticsCounterType, indexed by (int)type.
+        // Avoids calling enum.ToString() per active counter per frame, which allocates a string.
+        private static readonly string[] counter_type_names = Enum.GetNames<StatisticsCounterType>();
+
         private readonly string threadName;
 
         internal readonly ConcurrentQueue<FrameStatistics> PendingFrames = new ConcurrentQueue<FrameStatistics>();
@@ -156,7 +160,7 @@ namespace osu.Framework.Statistics
                     var type = (StatisticsCounterType)i;
 
                     if (!globalStatistics.TryGetValue(type, out var global))
-                        globalStatistics[type] = global = GlobalStatistics.Get<long>(threadName, type.ToString());
+                        globalStatistics[type] = global = GlobalStatistics.Get<long>(threadName, counter_type_names[i]);
 
                     global.Value = count;
                     currentFrame.Counts[i] = count;

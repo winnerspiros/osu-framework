@@ -231,6 +231,7 @@ namespace osu.Framework.Graphics.Containers
                             break;
                         }
                     }
+
                     Vector2 currentTargetPos = existingTransform?.EndValue ?? drawable.Position;
 
                     if (Precision.AlmostEquals(currentTargetPos, pos)) continue;

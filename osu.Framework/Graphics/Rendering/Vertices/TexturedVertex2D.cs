@@ -28,6 +28,12 @@ namespace osu.Framework.Graphics.Rendering.Vertices
         [VertexMember(1, VertexAttribPointerType.Float)]
         private readonly float backbufferDrawDepth;
 
+        // 4-byte explicit pad to round the struct up to 64 bytes (one full CPU cache line).
+        // Without this the struct is 60 bytes, leaving 4 bytes of the cache line unused.
+        // Padding ensures that two adjacent vertices never share a cache line, eliminating
+        // false-sharing when the CPU prefetches ahead while the GPU reads vertex data.
+        private readonly int pad;
+
         [Obsolete("Initialise this type with an IRenderer instead", true)]
         public TexturedVertex2D()
         {

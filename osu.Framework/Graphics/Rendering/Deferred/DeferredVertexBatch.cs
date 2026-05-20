@@ -12,10 +12,12 @@ namespace osu.Framework.Graphics.Rendering.Deferred
     internal class DeferredVertexBatch<TVertex> : IVertexBatch<TVertex>, IDeferredVertexBatch
         where TVertex : unmanaged, IEquatable<TVertex>, IVertex
     {
-        private static readonly TVertex[] current_primitive = new TVertex[4];
+        // Instance fields: sharing these as statics across instances of the same closed generic
+        // would corrupt currentPrimitiveSize when two batches of the same vertex type are
+        // interleaved mid-primitive. Making them instance fields eliminates the latent bug.
+        private readonly TVertex[] currentPrimitive = new TVertex[4];
 
-        // ReSharper disable once StaticMemberInGenericType
-        private static int currentPrimitiveSize;
+        private int currentPrimitiveSize;
 
         public Action<TVertex> AddAction { get; }
 
@@ -93,13 +95,17 @@ namespace osu.Framework.Graphics.Rendering.Deferred
 
         void IVertexBatch<TVertex>.Add(TVertex vertex)
         {
-            renderer.SetActiveBatch(this);
+            // Check renderer.CurrentActiveBatch directly instead of a cached bool — a cached bool
+            // goes stale when another batch steals active status (SetActiveBatch is called with
+            // a different batch). The property is a simple field read (no virtual dispatch).
+            if (!ReferenceEquals(renderer.CurrentActiveBatch, this))
+                renderer.SetActiveBatch(this);
 
-            current_primitive[currentPrimitiveSize] = vertex;
+            currentPrimitive[currentPrimitiveSize] = vertex;
 
             if (++currentPrimitiveSize == primitiveSize)
             {
-                renderer.Context.EnqueueEvent(AddPrimitiveToBatchEvent.Create(renderer, this, current_primitive.AsSpan()[..primitiveSize]));
+                renderer.Context.EnqueueEvent(AddPrimitiveToBatchEvent.Create(renderer, this, currentPrimitive.AsSpan()[..primitiveSize]));
                 currentPrimitiveSize = 0;
             }
 

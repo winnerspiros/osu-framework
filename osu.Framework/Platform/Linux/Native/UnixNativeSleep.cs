@@ -15,23 +15,41 @@ namespace osu.Framework.Platform.Linux.Native
             public nint NanoSeconds;
         }
 
+        // clock_nanosleep with CLOCK_MONOTONIC is preferred over nanosleep because:
+        // 1. It uses the monotonic clock, which is immune to NTP adjustments (nanosleep uses CLOCK_REALTIME).
+        // 2. This gives more consistent sleep durations when the system clock is being stepped.
+        [DllImport("libc", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        private static extern int clock_nanosleep(int clockId, int flags, in TimeSpec request, out TimeSpec remain);
+
+        // Fallback for platforms where clock_nanosleep is unavailable (e.g. some embedded libc).
         [DllImport("libc", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         private static extern int nanosleep(in TimeSpec duration, out TimeSpec rem);
 
-        private const int interrupt_error = 4;
+        private const int clock_monotonic = 1;
+        private const int timer_reltime = 0;
+        private const int interrupt_error = 4; // EINTR
 
         public static bool Available { get; private set; }
 
-        // Just a safe check before actually using it.
-        // .NET tries possible library names if 'libc' is given, but it may fail to find it.
+        private static bool useClockNanosleep;
+
         private static bool testNanoSleep()
         {
-            TimeSpec test = new TimeSpec
-            {
-                Seconds = 0,
-                NanoSeconds = 1,
-            };
+            TimeSpec test = new TimeSpec { Seconds = 0, NanoSeconds = 1 };
 
+            try
+            {
+                // Prefer clock_nanosleep(CLOCK_MONOTONIC).
+                if (clock_nanosleep(clock_monotonic, timer_reltime, in test, out _) == 0 ||
+                    Marshal.GetLastPInvokeError() == interrupt_error)
+                {
+                    useClockNanosleep = true;
+                    return true;
+                }
+            }
+            catch { }
+
+            // Fall back to nanosleep.
             try
             {
                 nanosleep(in test, out _);
@@ -61,6 +79,18 @@ namespace osu.Framework.Platform.Linux.Native
             };
 
             int ret;
+
+            if (useClockNanosleep)
+            {
+                while ((ret = clock_nanosleep(clock_monotonic, timer_reltime, in timeSpec, out var remaining)) != 0
+                       && Marshal.GetLastPInvokeError() == interrupt_error)
+                {
+                    // Interrupted by a signal — sleep for the remaining time.
+                    timeSpec = remaining;
+                }
+
+                return ret == 0;
+            }
 
             while ((ret = nanosleep(in timeSpec, out var remaining)) == -1 && Marshal.GetLastPInvokeError() == interrupt_error)
             {

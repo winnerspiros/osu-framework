@@ -31,7 +31,7 @@ namespace osu.Framework.Graphics.UserInterface
         /// <summary>
         /// Invoked when <see cref="Count"/> has changed.
         /// </summary>
-        protected virtual void OnCountChanged(double Count)
+        protected virtual void OnCountChanged(double count)
         {
         }
 

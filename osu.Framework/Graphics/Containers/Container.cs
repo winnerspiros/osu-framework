@@ -184,6 +184,7 @@ namespace osu.Framework.Graphics.Containers
         }
 
         private readonly IReadOnlyList<T> internalChildrenAsT;
+
         /// <summary>
         /// The index of a given child within <see cref="Children"/>.
         /// </summary>

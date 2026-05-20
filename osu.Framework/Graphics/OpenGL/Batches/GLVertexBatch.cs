@@ -13,7 +13,7 @@ namespace osu.Framework.Graphics.OpenGL.Batches
     internal abstract class GLVertexBatch<T> : IVertexBatch<T>
         where T : unmanaged, IEquatable<T>, IVertex
     {
-        public List<GLVertexBuffer<T>> VertexBuffers = new List<GLVertexBuffer<T>>();
+        public List<GLVertexBuffer<T>> VertexBuffers = new List<GLVertexBuffer<T>>(4);
 
         /// <summary>
         /// The number of vertices in each VertexBuffer.

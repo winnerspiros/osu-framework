@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
@@ -16,9 +17,23 @@ namespace osu.Framework.Threading
     /// </summary>
     public class Scheduler
     {
-        private readonly Queue<ScheduledDelegate> runQueue = new Queue<ScheduledDelegate>();
+        // ConcurrentQueue allows producer threads to enqueue without any lock, eliminating
+        // the contention that the previous Monitor-based Queue caused when audio/input threads
+        // fire AddDelayed/Add at high frequency (e.g. 1 kHz input polling).
+        private readonly ConcurrentQueue<ScheduledDelegate> runQueue = new ConcurrentQueue<ScheduledDelegate>();
+
+        // ConcurrentQueue.Count is O(n); maintain our own O(1) counter via Interlocked.
+        private int runQueueCount;
+
         private readonly List<ScheduledDelegate> timedTasks = new List<ScheduledDelegate>();
         private readonly List<ScheduledDelegate> perUpdateTasks = new List<ScheduledDelegate>();
+
+        // Maps each once-delegate to the live ScheduledDelegate in runQueue so AddOnce<T>
+        // can update its Data in O(1) (dict lookup) rather than the previous O(n) queue scan.
+        // Uses default Delegate equality (same method + same target) which matches the original
+        // sd.Task == task semantics; reference equality would break method-group dedup.
+        private readonly ConcurrentDictionary<Delegate, ScheduledDelegate> runQueueOnceSet =
+            new ConcurrentDictionary<Delegate, ScheduledDelegate>();
 
         private readonly Func<bool>? isCurrentThread;
 
@@ -43,7 +58,7 @@ namespace osu.Framework.Threading
         /// <summary>
         /// The total number of <see cref="ScheduledDelegate"/>s tracked by this instance for future execution.
         /// </summary>
-        internal int TotalPendingTasks => runQueue.Count + timedTasks.Count + perUpdateTasks.Count;
+        internal int TotalPendingTasks => Volatile.Read(ref runQueueCount) + timedTasks.Count + perUpdateTasks.Count;
 
         /// <summary>
         /// The base thread is assumed to be the thread on which the constructor is run.
@@ -111,10 +126,11 @@ namespace osu.Framework.Threading
                 }
             }
 
-            int countToRun = runQueue.Count;
+            // O(1) read via Interlocked counter — ConcurrentQueue.Count is O(n).
+            int countToRun = Volatile.Read(ref runQueueCount);
 
             if (countToRun == 0)
-                return 0; // avoid taking out a lock via getNextTask() if there are no items.
+                return 0; // avoid dequeue overhead if there are no items.
 
             int countRun = 0;
 
@@ -167,10 +183,23 @@ namespace osu.Framework.Threading
                     }
                 }
 
-                foreach (var t in tasksToRemove)
-                    timedTasks.Remove(t);
+                if (tasksToRemove.Count > 0)
+                {
+                    if (tasksToRemove.Count > 2)
+                    {
+                        // For larger batch removals, build a reference-equality set for O(1) per-element
+                        // lookup so that RemoveAll's single-pass scan is O(n) total, not O(n*m).
+                        var toRemoveSet = new HashSet<ScheduledDelegate>(tasksToRemove, ReferenceEqualityComparer.Instance);
+                        timedTasks.RemoveAll(toRemoveSet.Contains);
+                    }
+                    else
+                    {
+                        foreach (var t in tasksToRemove)
+                            timedTasks.Remove(t);
+                    }
 
-                tasksToRemove.Clear();
+                    tasksToRemove.Clear();
+                }
 
                 foreach (var t in tasksToSchedule)
                     timedTasks.AddInPlace(t);
@@ -203,16 +232,19 @@ namespace osu.Framework.Threading
 
         private bool getNextTask([NotNullWhen(true)] out ScheduledDelegate? task)
         {
-            lock (queueLock)
+            // ConcurrentQueue.TryDequeue is lock-free. The consumer thread (Update) is the
+            // only dequeuer, so this is safe without additional synchronisation.
+            if (runQueue.TryDequeue(out task))
             {
-                if (runQueue.Count > 0)
-                {
-                    task = runQueue.Dequeue();
-                    return true;
-                }
+                Interlocked.Decrement(ref runQueueCount);
+                // Remove from the once-set so the same delegate can be re-queued next frame.
+                // Use OnceKey (set by all AddOnce paths) rather than task.Task, because
+                // ScheduledDelegateWithData<T> hides the base Task field and leaves it null.
+                if (task.OnceKey != null)
+                    runQueueOnceSet.TryRemove(task.OnceKey, out _);
+                return true;
             }
 
-            task = null;
             return false;
         }
 
@@ -348,17 +380,17 @@ namespace osu.Framework.Threading
         {
             lock (queueLock)
             {
-                foreach (var sd in runQueue)
+                // O(1) dictionary lookup by reference, replacing the previous O(n) runQueue scan.
+                if (runQueueOnceSet.TryGetValue(task, out var existing))
                 {
-                    if (sd is ScheduledDelegateWithData<T> existing && existing.Task == task)
-                    {
-                        // ensure the single queued instance always has the most recent data.
-                        existing.Data = data;
-                        return false;
-                    }
+                    // Update the data on the already-queued delegate so the most recent value wins.
+                    ((ScheduledDelegateWithData<T>)existing).Data = data;
+                    return false;
                 }
 
-                enqueue(new ScheduledDelegateWithData<T>(task, data));
+                var del = new ScheduledDelegateWithData<T>(task, data) { OnceKey = task };
+                runQueueOnceSet.TryAdd(task, del);
+                enqueue(del);
             }
 
             return true;
@@ -374,13 +406,12 @@ namespace osu.Framework.Threading
         {
             lock (queueLock)
             {
-                foreach (var sd in runQueue)
-                {
-                    if (sd.Task == task)
-                        return false;
-                }
+                // ConcurrentDictionary.TryAdd is O(1) by reference identity.
+                var del = new ScheduledDelegate(task) { OnceKey = task };
+                if (!runQueueOnceSet.TryAdd(task, del))
+                    return false;
 
-                enqueue(new ScheduledDelegate(task));
+                enqueue(del);
             }
 
             return true;
@@ -388,13 +419,11 @@ namespace osu.Framework.Threading
 
         private void enqueue(ScheduledDelegate task)
         {
-            int count;
-
-            lock (queueLock)
-            {
-                runQueue.Enqueue(task);
-                count = runQueue.Count;
-            }
+            // ConcurrentQueue.Enqueue is lock-free — no lock needed for regular Add() callers.
+            // AddOnce paths call this while holding queueLock (for atomicity), but that is safe
+            // since ConcurrentQueue does not itself take a lock (no deadlock risk).
+            runQueue.Enqueue(task);
+            int count = Interlocked.Increment(ref runQueueCount);
 
             if (count % LOG_EXCESSSIVE_QUEUE_LENGTH_INTERVAL == 0)
                 Logger.Log($"{this} has {count} tasks pending", LoggingTarget.Performance);

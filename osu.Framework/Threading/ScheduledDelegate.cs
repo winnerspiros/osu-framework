@@ -43,6 +43,13 @@ namespace osu.Framework.Threading
         /// </summary>
         internal Action? Task;
 
+        /// <summary>
+        /// The key used to identify this delegate in the once-set maintained by <see cref="Scheduler"/>.
+        /// Set by <see cref="Scheduler.AddOnce(System.Action)"/> and <see cref="Scheduler.AddOnce{T}"/>;
+        /// null for delegates not queued via AddOnce.
+        /// </summary>
+        internal Delegate? OnceKey;
+
         public ScheduledDelegate(Action task, double executionTime = 0, double repeatInterval = -1)
             : this(executionTime, repeatInterval)
         {

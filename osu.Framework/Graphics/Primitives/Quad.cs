@@ -5,6 +5,7 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 using osu.Framework.Utils;
 
 namespace osu.Framework.Graphics.Primitives
@@ -82,12 +83,12 @@ namespace osu.Framework.Graphics.Primitives
         {
             get
             {
-                int xMin = (int)Math.Floor(Math.Min(TopLeft.X, Math.Min(TopRight.X, Math.Min(BottomLeft.X, BottomRight.X))));
-                int yMin = (int)Math.Floor(Math.Min(TopLeft.Y, Math.Min(TopRight.Y, Math.Min(BottomLeft.Y, BottomRight.Y))));
-                int xMax = (int)Math.Ceiling(Math.Max(TopLeft.X, Math.Max(TopRight.X, Math.Max(BottomLeft.X, BottomRight.X))));
-                int yMax = (int)Math.Ceiling(Math.Max(TopLeft.Y, Math.Max(TopRight.Y, Math.Max(BottomLeft.Y, BottomRight.Y))));
-
-                return new RectangleI(xMin, yMin, xMax - xMin, yMax - yMin);
+                var (xMin, yMin, xMax, yMax) = computeAABBFloats();
+                return new RectangleI(
+                    (int)Math.Floor(xMin),
+                    (int)Math.Floor(yMin),
+                    (int)Math.Ceiling(xMax) - (int)Math.Floor(xMin),
+                    (int)Math.Ceiling(yMax) - (int)Math.Floor(yMin));
             }
         }
 
@@ -95,13 +96,45 @@ namespace osu.Framework.Graphics.Primitives
         {
             get
             {
-                float xMin = Math.Min(TopLeft.X, Math.Min(TopRight.X, Math.Min(BottomLeft.X, BottomRight.X)));
-                float yMin = Math.Min(TopLeft.Y, Math.Min(TopRight.Y, Math.Min(BottomLeft.Y, BottomRight.Y)));
-                float xMax = Math.Max(TopLeft.X, Math.Max(TopRight.X, Math.Max(BottomLeft.X, BottomRight.X)));
-                float yMax = Math.Max(TopLeft.Y, Math.Max(TopRight.Y, Math.Max(BottomLeft.Y, BottomRight.Y)));
-
+                var (xMin, yMin, xMax, yMax) = computeAABBFloats();
                 return new RectangleF(xMin, yMin, xMax - xMin, yMax - yMin);
             }
+        }
+
+        /// <summary>
+        /// Computes the axis-aligned bounding box extents of this quad using SIMD.
+        /// </summary>
+        /// <remarks>
+        /// The Quad struct is <see cref="LayoutKind.Sequential"/> with four contiguous <see cref="Vector2"/>
+        /// fields (TopLeft, BottomLeft, BottomRight, TopRight = 8 floats total). We load them into two
+        /// <see cref="Vector128{T}"/> registers and perform a two-step horizontal min/max reduction:
+        /// <list type="number">
+        ///   <item>Pairwise min/max across the two registers.</item>
+        ///   <item>Swap adjacent pairs and min/max again to finish the horizontal reduction.</item>
+        /// </list>
+        /// Result: element 0 = final X min/max, element 1 = final Y min/max.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private (float xMin, float yMin, float xMax, float yMax) computeAABBFloats()
+        {
+            // Reinterpret the 8 sequential floats of this struct as two Vector128<float>.
+            ref float verts = ref Unsafe.As<Quad, float>(ref Unsafe.AsRef(in this));
+
+            // lo = [TL.X, TL.Y, BL.X, BL.Y]  hi = [BR.X, BR.Y, TR.X, TR.Y]
+            var lo = Vector128.LoadUnsafe(ref verts, 0);
+            var hi = Vector128.LoadUnsafe(ref verts, 4);
+
+            // Step 1 — pairwise min/max across the two halves.
+            var mn = Vector128.Min(lo, hi); // [min(TL.X,BR.X), min(TL.Y,BR.Y), min(BL.X,TR.X), min(BL.Y,TR.Y)]
+            var mx = Vector128.Max(lo, hi); // [max(TL.X,BR.X), max(TL.Y,BR.Y), max(BL.X,TR.X), max(BL.Y,TR.Y)]
+
+            // Step 2 — swap adjacent pairs [0,1,2,3]→[2,3,0,1] and min/max again.
+            // After this: element 0 = min/max of all X values, element 1 = min/max of all Y values.
+            var pairSwap = Vector128.Create(2, 3, 0, 1);
+            mn = Vector128.Min(mn, Vector128.Shuffle(mn, pairSwap));
+            mx = Vector128.Max(mx, Vector128.Shuffle(mx, pairSwap));
+
+            return (mn.GetElement(0), mn.GetElement(1), mx.GetElement(0), mx.GetElement(1));
         }
 
         public ReadOnlySpan<Vector2> GetAxisVertices() => GetVertices();

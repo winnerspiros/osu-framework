@@ -322,11 +322,11 @@ namespace osu.Framework.Tests.Visual.Sprites
                 }
 
                 timeText?.Text = $"aim time: {video.PlaybackPosition:N2}\n"
-                                    + $"video time: {video.CurrentFrameTime:N2}\n"
-                                    + $"duration: {video.Duration:N2}\n"
-                                    + $"buffered {video.AvailableFrames}\n"
-                                    + $"FPS: {fps}\n"
-                                    + $"State: {video.State}";
+                    + $"video time: {video.CurrentFrameTime:N2}\n"
+                    + $"duration: {video.Duration:N2}\n"
+                    + $"buffered {video.AvailableFrames}\n"
+                    + $"FPS: {fps}\n"
+                    + $"State: {video.State}";
 
                 didDecode |= video.State == VideoDecoder.DecoderState.Running;
             }

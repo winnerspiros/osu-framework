@@ -35,6 +35,11 @@ namespace osu.Framework.Graphics.Textures
 
         private Vector2I currentPosition;
 
+        // Tracks the bottom edge (in atlas pixels, including PADDING) of the tallest texture
+        // placed in the current row. Updated incrementally as textures are added, eliminating
+        // the O(n) scan over subTextureBounds that previously ran on every row wrap.
+        private int currentRowBottom;
+
         internal TextureWhitePixel WhitePixel
         {
             get
@@ -75,6 +80,7 @@ namespace osu.Framework.Graphics.Textures
             {
                 subTextureBounds.Clear();
                 currentPosition = Vector2I.Zero;
+                currentRowBottom = 0;
 
                 // We pass PADDING/2 as opposed to PADDING such that the padded region of each individual texture
                 // occupies half of the padded space.
@@ -88,6 +94,8 @@ namespace osu.Framework.Graphics.Textures
                     whiteTex.SetData(new TextureUpload(new Image<Rgba32>(SixLabors.ImageSharp.Configuration.Default, whiteTex.Width, whiteTex.Height, new Rgba32(Vector4.One))));
 
                 currentPosition = new Vector2I(PADDING + WHITE_PIXEL_SIZE, PADDING);
+                // After placing the white pixel, seed currentRowBottom with its bottom edge.
+                currentRowBottom = PADDING + WHITE_PIXEL_SIZE + PADDING;
             }
         }
 
@@ -111,6 +119,9 @@ namespace osu.Framework.Graphics.Textures
 
                 RectangleI bounds = new RectangleI(position.X, position.Y, width, height);
                 subTextureBounds.Add(bounds);
+
+                // Maintain the incremental row-bottom tracker so findPosition can wrap rows in O(1).
+                currentRowBottom = Math.Max(currentRowBottom, position.Y + height + PADDING);
 
                 return new TextureRegion(atlasTexture, bounds, wrapModeS, wrapModeT);
             }
@@ -158,13 +169,12 @@ namespace osu.Framework.Graphics.Textures
 
             if (currentPosition.X + width + PADDING > atlasWidth)
             {
-                int maxY = 0;
-
-                foreach (RectangleI bounds in subTextureBounds)
-                    maxY = Math.Max(maxY, bounds.Bottom + PADDING);
-
+                // Move to the next row. currentRowBottom already holds the bottom edge of
+                // the tallest texture in the current row, computed incrementally in O(1)
+                // as each texture is placed. Previously this required an O(n) scan of all
+                // subTextureBounds to find maxY — now it's a single field read.
                 subTextureBounds.Clear();
-                currentPosition = new Vector2I(PADDING, maxY);
+                currentPosition = new Vector2I(PADDING, currentRowBottom);
 
                 return findPosition(width, height);
             }

@@ -20,6 +20,11 @@ namespace osu.Framework.Threading
         private readonly List<ScheduledDelegate> timedTasks = new List<ScheduledDelegate>();
         private readonly List<ScheduledDelegate> perUpdateTasks = new List<ScheduledDelegate>();
 
+        // Tracks which Action delegates are currently in runQueue via AddOnce, enabling O(1)
+        // duplicate detection instead of the O(n) Queue scan previously done in AddOnce().
+        // Populated in AddOnce; cleared when the task is dequeued in getNextTask.
+        private readonly HashSet<Delegate> runQueueOnceSet = new HashSet<Delegate>(ReferenceEqualityComparer.Instance);
+
         private readonly Func<bool>? isCurrentThread;
 
         private IClock? clock;
@@ -208,6 +213,9 @@ namespace osu.Framework.Threading
                 if (runQueue.Count > 0)
                 {
                     task = runQueue.Dequeue();
+                    // Remove from the once-set so the same Action can be re-queued next frame.
+                    if (task.Task != null)
+                        runQueueOnceSet.Remove(task.Task);
                     return true;
                 }
             }
@@ -374,11 +382,9 @@ namespace osu.Framework.Threading
         {
             lock (queueLock)
             {
-                foreach (var sd in runQueue)
-                {
-                    if (sd.Task == task)
-                        return false;
-                }
+                // HashSet lookup is O(1) by reference identity; replaces the previous O(n) Queue scan.
+                if (!runQueueOnceSet.Add(task))
+                    return false;
 
                 enqueue(new ScheduledDelegate(task));
             }

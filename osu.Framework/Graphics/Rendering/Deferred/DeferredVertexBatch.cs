@@ -95,7 +95,11 @@ namespace osu.Framework.Graphics.Rendering.Deferred
 
         void IVertexBatch<TVertex>.Add(TVertex vertex)
         {
-            renderer.SetActiveBatch(this);
+            // Check renderer.CurrentActiveBatch directly instead of a cached bool — a cached bool
+            // goes stale when another batch steals active status (SetActiveBatch is called with
+            // a different batch). The property is a simple field read (no virtual dispatch).
+            if (!ReferenceEquals(renderer.CurrentActiveBatch, this))
+                renderer.SetActiveBatch(this);
 
             current_primitive[currentPrimitiveSize] = vertex;
 

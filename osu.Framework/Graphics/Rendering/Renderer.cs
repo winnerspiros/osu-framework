@@ -880,6 +880,12 @@ namespace osu.Framework.Graphics.Rendering
         }
 
         /// <summary>
+        /// Returns the currently active vertex batch, allowing callers to avoid redundant
+        /// <see cref="SetActiveBatch"/> virtual-dispatch calls when already active.
+        /// </summary>
+        internal IVertexBatch? CurrentActiveBatch => currentActiveBatch;
+
+        /// <summary>
         /// Flushes the currently active vertex batch.
         /// </summary>
         /// <param name="source">The source performing the flush, for profiling purposes.</param>
@@ -966,18 +972,24 @@ namespace osu.Framework.Graphics.Rendering
 
         private void setWrapMode(WrapMode wrapModeS, WrapMode wrapModeT)
         {
-            if (wrapModeS != CurrentWrapModeS)
-            {
-                FlushCurrentBatch(FlushBatchSource.BindTexture);
+            bool sChanged = wrapModeS != CurrentWrapModeS;
+            bool tChanged = wrapModeT != CurrentWrapModeT;
 
+            if (!sChanged && !tChanged)
+                return;
+
+            // Flush once for both wrap mode changes — previously two separate FlushCurrentBatch
+            // calls fired when both S and T changed (e.g., on first texture bind after BeginFrame).
+            FlushCurrentBatch(FlushBatchSource.BindTexture);
+
+            if (sChanged)
+            {
                 CurrentWrapModeS = wrapModeS;
                 globalUniformsChanged = true;
             }
 
-            if (wrapModeT != CurrentWrapModeT)
+            if (tChanged)
             {
-                FlushCurrentBatch(FlushBatchSource.BindTexture);
-
                 CurrentWrapModeT = wrapModeT;
                 globalUniformsChanged = true;
             }

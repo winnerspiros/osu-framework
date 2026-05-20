@@ -331,9 +331,13 @@ namespace osu.Framework.Threading
         }
 
         /// <summary>
-        /// Spin indefinitely until this thread enters a required state.
+        /// Spin until this thread enters a required state, or a 5-second deadline elapses.
         /// For cases where no native thread is present, this will run <see cref="processFrame"/> until the required state is reached.
         /// </summary>
+        /// <remarks>
+        /// The deadline prevents indefinitely blocking a platform main thread (e.g. the Android Java main thread)
+        /// when the game thread is stuck inside a native call such as <c>vkQueuePresentKHR</c>.
+        /// </remarks>
         /// <param name="targetState">The state to wait for.</param>
         internal void WaitForState(GameThreadState targetState)
         {
@@ -351,14 +355,22 @@ namespace osu.Framework.Threading
 
                 // note that the only state transition here can be an exiting one. entering a running state can only occur in Initialize().
                 setExitState(newState.Value);
+                Debug.Assert(state.Value == targetState);
             }
             else
             {
-                while (state.Value != targetState)
-                    Thread.Sleep(1);
-            }
+                // Bound the spin to 5 seconds so a platform main thread (e.g. Android Java main thread)
+                // is never blocked indefinitely when the game thread is stuck in a native call.
+                long deadline = Environment.TickCount64 + 5000;
 
-            Debug.Assert(state.Value == targetState);
+                while (state.Value != targetState)
+                {
+                    if (Environment.TickCount64 > deadline)
+                        break;
+
+                    Thread.Sleep(1);
+                }
+            }
         }
 
         /// <summary>

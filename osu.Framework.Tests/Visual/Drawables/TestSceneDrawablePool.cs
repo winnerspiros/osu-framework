@@ -315,7 +315,7 @@ namespace osu.Framework.Tests.Visual.Drawables
             base.Update();
 
             count?.Text =
-                    $"available: {pool.CountAvailable} poolSize: {pool.CurrentPoolSize} inUse: {pool.CountInUse} consumed: {consumed.Count} excessConstructed: {pool.CountExcessConstructed} disposed: {consumed.Count(d => d.IsDisposed)}";
+                $"available: {pool.CountAvailable} poolSize: {pool.CurrentPoolSize} inUse: {pool.CountInUse} consumed: {consumed.Count} excessConstructed: {pool.CountExcessConstructed} disposed: {consumed.Count(d => d.IsDisposed)}";
         }
 
         private static int displayCount;

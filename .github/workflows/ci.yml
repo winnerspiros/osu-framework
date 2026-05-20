@@ -164,18 +164,19 @@ jobs:
           dotnet-version: "10.0.x"
 
       - name: Restore .NET workloads
-        run: dotnet workload install ios
+        run: dotnet workload update && dotnet workload install ios
 
       # https://github.com/dotnet/macios/issues/19157
       # https://github.com/actions/runner-images/issues/12758
-      - name: Use Xcode 26.4
+      - name: Use latest Xcode
         run: |
-          # Pin to Xcode 26.4 — the .NET iOS workload (net10.0_26.4) requires exactly Xcode 26.4.
-          # Using Xcode 26.5 causes a hard build failure: "requires Xcode 26.4, current is 26.5".
-          # Fix: MacOSX.sdk in Xcode 26.4 is a minimal stub. Replace it with a symlink to the
-          # real versioned SDK found across Xcode installs. Real SDKs have hundreds of headers;
-          # stubs have ≤1.
-          ACTIVE_XCODE="/Applications/Xcode_26.4.app"
+          # Select the highest available Xcode 26.x so the updated workload (net10.0_26.5+) can use it.
+          # MacOSX.sdk in some installs is a minimal stub; replace it with a symlink to the real one.
+          # Real SDKs have hundreds of headers in usr/include; stubs have ≤1.
+          ACTIVE_XCODE=$(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV | head -1)
+          if [ -z "$ACTIVE_XCODE" ]; then
+            echo "ERROR: No Xcode_26.x.app found" && exit 1
+          fi
           echo "Active Xcode: $ACTIVE_XCODE"
           sudo xcode-select -switch "$ACTIVE_XCODE"
           SDKS_DIR="$ACTIVE_XCODE/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"

@@ -363,12 +363,19 @@ namespace osu.Framework.Threading
                 // is never blocked indefinitely when the game thread is stuck in a native call.
                 long deadline = Environment.TickCount64 + 5000;
 
+                // SpinWait starts with CPU-level hardware PAUSE instructions, then progressively
+                // yields the thread time-slice before sleeping. This gives near-zero latency when
+                // the target thread transitions state within a few microseconds (the common case),
+                // while still yielding the CPU gracefully for longer waits — unlike Thread.Sleep(1)
+                // which always burns a full millisecond regardless of how quickly the other thread responds.
+                var spinWait = new SpinWait();
+
                 while (state.Value != targetState)
                 {
                     if (Environment.TickCount64 > deadline)
                         break;
 
-                    Thread.Sleep(1);
+                    spinWait.SpinOnce();
                 }
             }
         }

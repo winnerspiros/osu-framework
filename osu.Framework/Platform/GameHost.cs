@@ -732,10 +732,17 @@ namespace osu.Framework.Platform
                 Environment.FailFast($"{nameof(GameHost)}s should not be run on a TPL thread (use TaskCreationOptions.LongRunning).");
             }
 
-            if (RuntimeInfo.IsDesktop)
+            try
             {
-                // Mono (netcore) throws for this property
+                // SustainedLowLatency tells the GC to favour shorter, more frequent collections
+                // over longer stop-the-world pauses, reducing frame hitches.
+                // Previously guarded to desktop-only because old Mono threw for this property,
+                // but .NET 10 supports it on all platforms including iOS and Android.
                 GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
+            }
+            catch
+            {
+                // Silently ignored — not all runtime configurations support this mode.
             }
 
             if (ExecutionState != ExecutionState.Idle)

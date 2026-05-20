@@ -459,6 +459,17 @@ namespace osu.Framework.Graphics.Containers
         private readonly SortedList<Drawable> aliveInternalChildren;
         protected internal IReadOnlyList<Drawable> AliveInternalChildren => aliveInternalChildren;
 
+        // Tracks how many children have a non-default (finite) lifetime.
+        // When zero AND all children are alive, CheckChildrenLife can return immediately
+        // without iterating the full child list — eliminating the per-frame O(n) scan for
+        // static UI that never changes its alive/dead state.
+        private int childrenWithFiniteLifetime;
+
+        // Returns true when a child uses the infinite default lifetime (LifetimeStart = MinValue,
+        // LifetimeEnd = MaxValue) meaning it is permanently alive once added.
+        private static bool hasDefaultLifetime(Drawable c) =>
+            c.LifetimeStart == double.MinValue && c.LifetimeEnd == double.MaxValue;
+
         /// <summary>
         /// The index of a given child within <see cref="InternalChildren"/>.
         /// </summary>
@@ -510,6 +521,11 @@ namespace osu.Framework.Graphics.Containers
 
                 internalChildren.RemoveAt(index);
 
+                // Undo the finite-lifetime tracking for this child.
+                drawable.LifetimeChanged -= onChildLifetimeChanged;
+                if (!hasDefaultLifetime(drawable))
+                    childrenWithFiniteLifetime--;
+
                 if (drawable.IsAlive)
                 {
                     aliveInternalChildren.Remove(drawable);
@@ -552,6 +568,8 @@ namespace osu.Framework.Graphics.Containers
 
             foreach (Drawable t in internalChildren)
             {
+                t.LifetimeChanged -= onChildLifetimeChanged;
+
                 if (t.IsAlive)
                     ChildDied?.Invoke(t);
 
@@ -566,6 +584,7 @@ namespace osu.Framework.Graphics.Containers
 
             internalChildren.Clear();
             aliveInternalChildren.Clear();
+            childrenWithFiniteLifetime = 0;
             RequestsNonPositionalInputSubTree = RequestsNonPositionalInput;
             RequestsPositionalInputSubTree = RequestsPositionalInput;
 
@@ -613,6 +632,12 @@ namespace osu.Framework.Graphics.Containers
             }
 
             internalChildren.Add(drawable);
+
+            // Track finite-lifetime children so CheckChildrenLife can fast-path when all are alive
+            // with default (infinite) lifetimes.
+            drawable.LifetimeChanged += onChildLifetimeChanged;
+            if (!hasDefaultLifetime(drawable))
+                childrenWithFiniteLifetime++;
 
             if (AutoSizeAxes != Axes.None)
                 Invalidate(Invalidation.RequiredParentSizeToFit, InvalidationSource.Child);
@@ -727,6 +752,11 @@ namespace osu.Framework.Graphics.Containers
         /// <returns>Whether any child's alive state has changed.</returns>
         protected virtual bool CheckChildrenLife()
         {
+            // Fast path: when no child has a finite (non-default) lifetime every child is
+            // permanently alive, so no alive-state can change. Skip the full O(n) scan.
+            if (childrenWithFiniteLifetime == 0 && aliveInternalChildren.Count == internalChildren.Count)
+                return false;
+
             bool anyAliveChanged = false;
 
             for (int i = 0; i < internalChildren.Count; i++)
@@ -742,6 +772,22 @@ namespace osu.Framework.Graphics.Containers
             FrameStatistics.Add(StatisticsCounterType.CCL, internalChildren.Count);
 
             return anyAliveChanged;
+        }
+
+        /// <summary>
+        /// Called when a child's <see cref="Drawable.LifetimeStart"/> or <see cref="Drawable.LifetimeEnd"/> changes.
+        /// Maintains the <see cref="childrenWithFiniteLifetime"/> counter so that <see cref="CheckChildrenLife"/>
+        /// can use its fast path when all children have infinite (default) lifetimes.
+        /// </summary>
+        private void onChildLifetimeChanged(Drawable _)
+        {
+            // Lifetime changes are rare (e.g. a single Expire() call per hit-object lifetime),
+            // so a full recount is acceptable here to maintain a consistent counter without
+            // needing per-child shadow state.
+            int count = 0;
+            for (int i = 0; i < internalChildren.Count; i++)
+                if (!hasDefaultLifetime(internalChildren[i])) count++;
+            childrenWithFiniteLifetime = count;
         }
 
         /// <summary>

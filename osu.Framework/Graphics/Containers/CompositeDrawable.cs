@@ -785,10 +785,12 @@ namespace osu.Framework.Graphics.Containers
             // so a full recount is acceptable here to maintain a consistent counter without
             // needing per-child shadow state.
             int count = 0;
+
             for (int i = 0; i < internalChildren.Count; i++)
             {
                 if (!hasDefaultLifetime(internalChildren[i])) count++;
             }
+
             childrenWithFiniteLifetime = count;
         }
 

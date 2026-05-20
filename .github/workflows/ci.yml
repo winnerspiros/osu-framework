@@ -172,29 +172,46 @@ jobs:
       - name: Use latest Xcode
         run: |
           # Select the highest available Xcode 26.x so the updated workload (net10.0_26.5+) can use it.
-          # MacOSX.sdk in some installs is a minimal stub; replace it with a symlink to the real one.
-          # Real SDKs have hundreds of headers in usr/include; stubs have ≤1.
           ACTIVE_XCODE=$(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV | head -1)
           if [ -z "$ACTIVE_XCODE" ]; then
             echo "ERROR: No Xcode_26.x.app found" && exit 1
           fi
           echo "Active Xcode: $ACTIVE_XCODE"
           sudo xcode-select -switch "$ACTIVE_XCODE"
+
+          # Pre-create the Xamarin/MAUI settings plist with the selected Xcode path.
+          # This works around a crash in AppleSdkSettings..cctor() (net10.0_26.5 SDK) where
+          # Directory.CreateDirectory is called with a null path when the settings file is absent.
+          mkdir -p "$HOME/Library/Preferences/maui"
+          cat > "$HOME/Library/Preferences/maui/Settings.plist" << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>AppleSdkRoot</key>
+            <string>$ACTIVE_XCODE</string>
+          </dict>
+          </plist>
+          EOF
+          echo "Settings.plist written for $ACTIVE_XCODE"
+
+          # MacOSX.sdk fix: some Xcode installs have a stub MacOSX.sdk lacking real content.
+          # On Xcode 15+, headers moved out of usr/include; use System/Library/Frameworks count instead.
+          # Real SDKs have 100+ frameworks; stubs have 0.
           SDKS_DIR="$ACTIVE_XCODE/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
           MACOS_SDK="$SDKS_DIR/MacOSX.sdk"
           echo "=== MacOSX.sdk state ==="
           ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
           REAL_SDK=""
-          # Search ALL Xcode_26.x.app installs (including active) for versioned MacOSX[N].sdk.
-          # Validate by usr/include header count: stubs ≤1 file, real SDKs have hundreds.
+          # Search all Xcode_26.x.app installs for any *.sdk with real frameworks.
           for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
             sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
             [ -d "$sdk_dir" ] || continue
-            for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '^MacOSX[0-9].*\.sdk$' | sort -rV); do
+            for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '\.sdk$' | sort -rV); do
               cand="$sdk_dir/$sdk"
-              hdr_count=$(ls "$cand/usr/include" 2>/dev/null | wc -l | tr -d ' ')
-              echo "  Checking $cand: $hdr_count headers in usr/include"
-              if [ "${hdr_count:-0}" -gt 5 ]; then
+              fw_count=$(ls "$cand/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
+              echo "  Checking $cand: $fw_count frameworks"
+              if [ "${fw_count:-0}" -gt 50 ]; then
                 REAL_SDK="$cand"
                 echo "Found real macOS SDK: $REAL_SDK"
                 break 2
@@ -203,11 +220,11 @@ jobs:
           done
           # Fallback: CommandLineTools
           if [ -z "$REAL_SDK" ]; then
-            for sdk in $(ls /Library/Developer/CommandLineTools/SDKs 2>/dev/null | grep '^MacOSX[0-9].*\.sdk$' | sort -rV); do
+            for sdk in $(ls /Library/Developer/CommandLineTools/SDKs 2>/dev/null | grep '\.sdk$' | sort -rV); do
               cand="/Library/Developer/CommandLineTools/SDKs/$sdk"
-              hdr_count=$(ls "$cand/usr/include" 2>/dev/null | wc -l | tr -d ' ')
-              echo "  CLT $cand: $hdr_count headers"
-              if [ "${hdr_count:-0}" -gt 5 ]; then
+              fw_count=$(ls "$cand/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
+              echo "  CLT $cand: $fw_count frameworks"
+              if [ "${fw_count:-0}" -gt 50 ]; then
                 REAL_SDK="$cand"
                 echo "Found macOS SDK in CLT: $REAL_SDK"
                 break
@@ -224,7 +241,7 @@ jobs:
               sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
               echo "  $xapp:"; ls "$sdk_dir" 2>&1 | sed 's/^/    /'
               for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '\.sdk$'); do
-                echo "    $sdk: $(ls "$sdk_dir/$sdk" 2>/dev/null | wc -l | tr -d ' ') items, $(ls "$sdk_dir/$sdk/usr/include" 2>/dev/null | wc -l | tr -d ' ') hdrs"
+                echo "    $sdk: $(ls "$sdk_dir/$sdk/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ') frameworks"
               done
             done
           fi

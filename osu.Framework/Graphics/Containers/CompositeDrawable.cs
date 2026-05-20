@@ -786,7 +786,9 @@ namespace osu.Framework.Graphics.Containers
             // needing per-child shadow state.
             int count = 0;
             for (int i = 0; i < internalChildren.Count; i++)
+            {
                 if (!hasDefaultLifetime(internalChildren[i])) count++;
+            }
             childrenWithFiniteLifetime = count;
         }
 

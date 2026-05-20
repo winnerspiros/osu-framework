@@ -125,8 +125,8 @@ namespace osu.Framework.Graphics.Primitives
             var hi = Vector128.LoadUnsafe(ref verts, 4);
 
             // Step 1 — pairwise min/max across the two halves.
-            var mn = Vector128.Min(lo, hi);  // [min(TL.X,BR.X), min(TL.Y,BR.Y), min(BL.X,TR.X), min(BL.Y,TR.Y)]
-            var mx = Vector128.Max(lo, hi);  // [max(TL.X,BR.X), max(TL.Y,BR.Y), max(BL.X,TR.X), max(BL.Y,TR.Y)]
+            var mn = Vector128.Min(lo, hi); // [min(TL.X,BR.X), min(TL.Y,BR.Y), min(BL.X,TR.X), min(BL.Y,TR.Y)]
+            var mx = Vector128.Max(lo, hi); // [max(TL.X,BR.X), max(TL.Y,BR.Y), max(BL.X,TR.X), max(BL.Y,TR.Y)]
 
             // Step 2 — swap adjacent pairs [0,1,2,3]→[2,3,0,1] and min/max again.
             // After this: element 0 = min/max of all X values, element 1 = min/max of all Y values.

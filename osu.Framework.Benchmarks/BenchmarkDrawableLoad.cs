@@ -8,7 +8,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using System.Numerics;
 
-
 namespace osu.Framework.Benchmarks
 {
     [MemoryDiagnoser]

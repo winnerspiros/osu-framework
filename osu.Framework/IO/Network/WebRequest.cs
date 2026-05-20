@@ -136,6 +136,7 @@ namespace osu.Framework.IO.Network
         private MemoryStream rawContent;
         private int responseBytesRead;
         private bool? allowInsecureRequests;
+
         private static readonly HttpClient client = new HttpClient(
             // SocketsHttpHandler causes crash on Android in debug builds due to debugger interop.
             // On release builds (.NET 8+) it works correctly and is preferred — it brings Happy Eyeballs,

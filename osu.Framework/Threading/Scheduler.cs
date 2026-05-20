@@ -190,7 +190,7 @@ namespace osu.Framework.Threading
                         // For larger batch removals, build a reference-equality set for O(1) per-element
                         // lookup so that RemoveAll's single-pass scan is O(n) total, not O(n*m).
                         var toRemoveSet = new HashSet<ScheduledDelegate>(tasksToRemove, ReferenceEqualityComparer.Instance);
-                        timedTasks.RemoveAll(t => toRemoveSet.Contains(t));
+                        timedTasks.RemoveAll(toRemoveSet.Contains);
                     }
                     else
                     {
@@ -388,8 +388,7 @@ namespace osu.Framework.Threading
                     return false;
                 }
 
-                var del = new ScheduledDelegateWithData<T>(task, data);
-                del.OnceKey = task;
+                var del = new ScheduledDelegateWithData<T>(task, data) { OnceKey = task };
                 runQueueOnceSet.TryAdd(task, del);
                 enqueue(del);
             }
@@ -408,8 +407,7 @@ namespace osu.Framework.Threading
             lock (queueLock)
             {
                 // ConcurrentDictionary.TryAdd is O(1) by reference identity.
-                var del = new ScheduledDelegate(task);
-                del.OnceKey = task;
+                var del = new ScheduledDelegate(task) { OnceKey = task };
                 if (!runQueueOnceSet.TryAdd(task, del))
                     return false;
 

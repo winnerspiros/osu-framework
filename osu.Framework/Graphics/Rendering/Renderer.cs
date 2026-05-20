@@ -293,7 +293,7 @@ namespace osu.Framework.Graphics.Rendering
             currentMaskingInfo = default;
             lastGlobalUniformBoundShader = null;
             cachedBorderColour = default;
-            cachedInnerCornerRadius = default;
+            cachedInnerCornerRadius = 0;
 
             foreach (var b in batchResetList)
                 b.ResetCounters();

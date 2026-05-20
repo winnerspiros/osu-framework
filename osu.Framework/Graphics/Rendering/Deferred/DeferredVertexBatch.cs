@@ -15,7 +15,7 @@ namespace osu.Framework.Graphics.Rendering.Deferred
         // Instance fields: sharing these as statics across instances of the same closed generic
         // would corrupt currentPrimitiveSize when two batches of the same vertex type are
         // interleaved mid-primitive. Making them instance fields eliminates the latent bug.
-        private readonly TVertex[] current_primitive = new TVertex[4];
+        private readonly TVertex[] currentPrimitive = new TVertex[4];
 
         private int currentPrimitiveSize;
 
@@ -101,11 +101,11 @@ namespace osu.Framework.Graphics.Rendering.Deferred
             if (!ReferenceEquals(renderer.CurrentActiveBatch, this))
                 renderer.SetActiveBatch(this);
 
-            current_primitive[currentPrimitiveSize] = vertex;
+            currentPrimitive[currentPrimitiveSize] = vertex;
 
             if (++currentPrimitiveSize == primitiveSize)
             {
-                renderer.Context.EnqueueEvent(AddPrimitiveToBatchEvent.Create(renderer, this, current_primitive.AsSpan()[..primitiveSize]));
+                renderer.Context.EnqueueEvent(AddPrimitiveToBatchEvent.Create(renderer, this, currentPrimitive.AsSpan()[..primitiveSize]));
                 currentPrimitiveSize = 0;
             }
 

@@ -196,6 +196,9 @@ csharp_style_prefer_switch_expression = false:none
 
 csharp_style_namespace_declarations = block_scoped:warning
 
+# ReSharper - prefer target-typed new() over explicit type when type is evident
+resharper_arrange_object_creation_when_type_evident = target_typed_new
+
 [*.{yaml,yml}]
 insert_final_newline = true
 indent_style = space

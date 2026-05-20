@@ -179,10 +179,25 @@ jobs:
           echo "Active Xcode: $ACTIVE_XCODE"
           sudo xcode-select -switch "$ACTIVE_XCODE"
 
-          # Run first-launch setup for the newly-selected Xcode (accepts license, extracts embedded
-          # packages including iOS/iPhoneSimulator platform support).  Without this, ibtool fails
-          # with "iOS XX.X Platform Not Installed" when processing storyboards for a beta Xcode.
-          sudo xcodebuild -runFirstLaunch 2>&1 || true
+          # Accept the Xcode license explicitly first — runFirstLaunch may silently skip
+          # platform extraction if the license hasn't been accepted yet.
+          sudo xcodebuild -license accept 2>&1 | tail -5 || true
+
+          # Run first-launch setup for the newly-selected Xcode (extracts embedded packages
+          # including iOS/iPhoneSimulator platform support).
+          sudo xcodebuild -runFirstLaunch 2>&1 | tail -5 || true
+
+          # Kill the ibtoold daemon so it restarts from the newly-selected Xcode.
+          # A stale daemon from the runner's default Xcode doesn't know about iOS 26.x and
+          # causes ibtool to report "iOS XX.X Platform Not Installed" when compiling storyboards.
+          sudo pkill -9 ibtoold 2>/dev/null || true
+
+          # Diagnostic: confirm iOS Simulator SDK is present in the selected Xcode.
+          echo "=== iPhoneSimulator SDKs ==="
+          IOS_SIM_SDKS="$ACTIVE_XCODE/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs"
+          ls "$IOS_SIM_SDKS" 2>/dev/null | head -5 || echo "WARNING: iPhoneSimulator SDK not found at $IOS_SIM_SDKS"
+          echo "=== xcodebuild showsdks (iOS) ==="
+          xcodebuild -showsdks 2>&1 | grep -E 'iphonesimulator|iphoneos' || echo "(no iOS SDKs found)"
 
           # Pre-create the Xamarin/MAUI settings plist with the selected Xcode path.
           # This works around a crash in AppleSdkSettings..cctor() (net10.0_26.5 SDK) where

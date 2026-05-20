@@ -202,48 +202,61 @@ jobs:
           MACOS_SDK="$SDKS_DIR/MacOSX.sdk"
           echo "=== MacOSX.sdk state ==="
           ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
+
+          # Check if the current MacOSX.sdk already has real content (resolving symlinks).
+          # IMPORTANT: only search VERSIONED SDKs (MacOSX[0-9]*.sdk) to avoid creating
+          # a circular symlink when MacOSX.sdk itself resolves to the same path as REAL_SDK.
+          _resolved=$(readlink -f "$MACOS_SDK" 2>/dev/null || echo "$MACOS_SDK")
+          _current_fw=$(ls "$_resolved/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
+          echo "Current MacOSX.sdk (resolved: $_resolved): $_current_fw frameworks"
+
           REAL_SDK=""
-          # Search all Xcode_26.x.app installs for any *.sdk with real frameworks.
-          for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
-            sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
-            [ -d "$sdk_dir" ] || continue
-            for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '\.sdk$' | sort -rV); do
-              cand="$sdk_dir/$sdk"
-              fw_count=$(ls "$cand/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
-              echo "  Checking $cand: $fw_count frameworks"
-              if [ "${fw_count:-0}" -gt 50 ]; then
-                REAL_SDK="$cand"
-                echo "Found real macOS SDK: $REAL_SDK"
-                break 2
-              fi
-            done
-          done
-          # Fallback: CommandLineTools
-          if [ -z "$REAL_SDK" ]; then
-            for sdk in $(ls /Library/Developer/CommandLineTools/SDKs 2>/dev/null | grep '\.sdk$' | sort -rV); do
-              cand="/Library/Developer/CommandLineTools/SDKs/$sdk"
-              fw_count=$(ls "$cand/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
-              echo "  CLT $cand: $fw_count frameworks"
-              if [ "${fw_count:-0}" -gt 50 ]; then
-                REAL_SDK="$cand"
-                echo "Found macOS SDK in CLT: $REAL_SDK"
-                break
-              fi
-            done
-          fi
-          if [ -n "$REAL_SDK" ]; then
-            sudo rm -rf "$MACOS_SDK"
-            sudo ln -sfn "$REAL_SDK" "$MACOS_SDK"
-            echo "Created MacOSX.sdk symlink -> $REAL_SDK"
+          if [ "${_current_fw:-0}" -gt 50 ]; then
+            echo "MacOSX.sdk already has real content – no fix needed"
           else
-            echo "WARNING: no valid macOS SDK found; listing all candidates:"
+            # Search all Xcode_26.x.app installs for a VERSIONED sdk with real frameworks.
+            # Do NOT include the unversioned MacOSX.sdk to avoid circular symlinks.
             for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
               sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
-              echo "  $xapp:"; ls "$sdk_dir" 2>&1 | sed 's/^/    /'
-              for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '\.sdk$'); do
-                echo "    $sdk: $(ls "$sdk_dir/$sdk/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ') frameworks"
+              [ -d "$sdk_dir" ] || continue
+              for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '^MacOSX[0-9]' | sort -rV); do
+                cand="$sdk_dir/$sdk"
+                fw_count=$(ls "$cand/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
+                echo "  Checking $cand: $fw_count frameworks"
+                if [ "${fw_count:-0}" -gt 50 ]; then
+                  REAL_SDK="$cand"
+                  echo "Found real macOS SDK: $REAL_SDK"
+                  break 2
+                fi
               done
             done
+            # Fallback: CommandLineTools (versioned only)
+            if [ -z "$REAL_SDK" ]; then
+              for sdk in $(ls /Library/Developer/CommandLineTools/SDKs 2>/dev/null | grep '^MacOSX[0-9]' | sort -rV); do
+                cand="/Library/Developer/CommandLineTools/SDKs/$sdk"
+                fw_count=$(ls "$cand/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
+                echo "  CLT $cand: $fw_count frameworks"
+                if [ "${fw_count:-0}" -gt 50 ]; then
+                  REAL_SDK="$cand"
+                  echo "Found macOS SDK in CLT: $REAL_SDK"
+                  break
+                fi
+              done
+            fi
+            if [ -n "$REAL_SDK" ]; then
+              sudo rm -rf "$MACOS_SDK"
+              sudo ln -sfn "$REAL_SDK" "$MACOS_SDK"
+              echo "Created MacOSX.sdk symlink -> $REAL_SDK"
+            else
+              echo "WARNING: no versioned macOS SDK found; listing all candidates:"
+              for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
+                sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
+                echo "  $xapp:"; ls "$sdk_dir" 2>&1 | sed 's/^/    /'
+                for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '\.sdk$'); do
+                  echo "    $sdk: $(ls "$sdk_dir/$sdk/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ') frameworks"
+                done
+              done
+            fi
           fi
           echo "=== MacOSX.sdk state after fix ==="
           ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"

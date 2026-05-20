@@ -179,6 +179,11 @@ jobs:
           echo "Active Xcode: $ACTIVE_XCODE"
           sudo xcode-select -switch "$ACTIVE_XCODE"
 
+          # Run first-launch setup for the newly-selected Xcode (accepts license, extracts embedded
+          # packages including iOS/iPhoneSimulator platform support).  Without this, ibtool fails
+          # with "iOS XX.X Platform Not Installed" when processing storyboards for a beta Xcode.
+          sudo xcodebuild -runFirstLaunch 2>&1 || true
+
           # Pre-create the Xamarin/MAUI settings plist with the selected Xcode path.
           # This works around a crash in AppleSdkSettings..cctor() (net10.0_26.5 SDK) where
           # Directory.CreateDirectory is called with a null path when the settings file is absent.

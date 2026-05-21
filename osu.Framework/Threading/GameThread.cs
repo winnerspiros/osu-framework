@@ -318,10 +318,10 @@ namespace osu.Framework.Threading
         /// <summary>
         /// Pause this thread. Must be run from <see cref="ThreadRunner"/> in a safe manner.
         /// </summary>
-        /// <remarks>
-        /// This method blocks until in a paused state.
-        /// </remarks>
-        internal void Pause()
+        /// <param name="waitForState">
+        /// Whether to block until the thread reaches <see cref="GameThreadState.Paused"/>.
+        /// </param>
+        internal void Pause(bool waitForState = true)
         {
             lock (startStopLock)
             {
@@ -332,7 +332,8 @@ namespace osu.Framework.Threading
                 pauseRequested = true;
             }
 
-            WaitForState(GameThreadState.Paused);
+            if (waitForState)
+                WaitForState(GameThreadState.Paused);
         }
 
         /// <summary>

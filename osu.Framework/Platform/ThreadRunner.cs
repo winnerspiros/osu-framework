@@ -214,9 +214,17 @@ namespace osu.Framework.Platform
 
         private void pauseAllThreads()
         {
+            // Request pause on all threads first, then wait.
+            // This allows all threads to start transitioning at once,
+            // reducing total suspend latency when one thread is slow to pause (e.g. blocked in present).
+            var threadsToPause = Threads.Reverse().ToArray();
+
             // shut down threads in reverse to ensure audio stops last (other threads may be waiting on a queued event otherwise)
-            foreach (var t in Threads.Reverse())
-                t.Pause();
+            foreach (var t in threadsToPause)
+                t.Pause(waitForState: false);
+
+            foreach (var t in threadsToPause)
+                t.WaitForState(GameThreadState.Paused);
         }
 
         private void updateMainThreadRates()

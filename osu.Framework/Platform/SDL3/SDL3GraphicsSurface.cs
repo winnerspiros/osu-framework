@@ -36,6 +36,12 @@ namespace osu.Framework.Platform.SDL3
                     SDL_GL_SetAttribute(SDL_GLAttr.SDL_GL_ACCUM_ALPHA_SIZE, 0).ThrowIfFailed();
                     SDL_GL_SetAttribute(SDL_GLAttr.SDL_GL_DEPTH_SIZE, 16).ThrowIfFailed();
                     SDL_GL_SetAttribute(SDL_GLAttr.SDL_GL_STENCIL_SIZE, 8).ThrowIfFailed();
+                    if (OperatingSystem.IsAndroid())
+                    {
+                        // Avoid driver-selected sRGB framebuffer behaviour causing colour output shifts on some Android devices.
+                        SDL_GL_SetAttribute(SDL_GLAttr.SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 0).LogErrorIfFailed();
+                    }
+
                     // Explicitly request hardware-accelerated double-buffering.
                     // Without this, some drivers (especially Mesa on Linux) may silently fall back
                     // to software rendering or enable triple-buffering (one extra frame of latency).

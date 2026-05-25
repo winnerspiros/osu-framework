@@ -109,6 +109,12 @@ namespace osu.Framework.Threading
         private readonly List<ScheduledDelegate> tasksToRemove = new List<ScheduledDelegate>();
 
         /// <summary>
+        /// Reusable set for batch removal of timed tasks. Avoids allocating a new HashSet on every frame
+        /// that has >2 tasks ready to fire. Cleared before each use.
+        /// </summary>
+        private readonly HashSet<ScheduledDelegate> tasksToRemoveSet = new HashSet<ScheduledDelegate>(ReferenceEqualityComparer.Instance);
+
+        /// <summary>
         /// Run any pending work tasks.
         /// </summary>
         /// <returns>The number of tasks that were run.</returns>
@@ -187,10 +193,14 @@ namespace osu.Framework.Threading
                 {
                     if (tasksToRemove.Count > 2)
                     {
-                        // For larger batch removals, build a reference-equality set for O(1) per-element
+                        // For larger batch removals, use the cached set for O(1) per-element
                         // lookup so that RemoveAll's single-pass scan is O(n) total, not O(n*m).
-                        var toRemoveSet = new HashSet<ScheduledDelegate>(tasksToRemove, ReferenceEqualityComparer.Instance);
-                        timedTasks.RemoveAll(toRemoveSet.Contains);
+                        tasksToRemoveSet.Clear();
+
+                        foreach (var t in tasksToRemove)
+                            tasksToRemoveSet.Add(t);
+
+                        timedTasks.RemoveAll(tasksToRemoveSet.Contains);
                     }
                     else
                     {

@@ -64,7 +64,21 @@ namespace osu.Framework.Input
         /// <returns>Whether the event was handled.</returns>
         private bool handleButtonDown(InputState state)
         {
-            List<Drawable> inputQueue = new List<Drawable>(InputQueue);
+            var inputQueue = ButtonDownInputQueue;
+
+            if (inputQueue != null)
+            {
+                // Reuse the existing list to avoid per-press allocation.
+                inputQueue.Clear();
+
+                foreach (var d in InputQueue)
+                    inputQueue.Add(d);
+            }
+            else
+            {
+                inputQueue = new List<Drawable>(InputQueue);
+            }
+
             Drawable? handledBy = HandleButtonDown(state, inputQueue);
 
             if (handledBy != null)

@@ -195,6 +195,7 @@ namespace osu.Framework.Graphics.Containers
                     foreach (var d in loadables)
                         LoadingComponentsLogger.Remove(d);
 
+                    loadables.Clear();
                     linkedSource.Dispose();
                     return;
                 }
@@ -208,6 +209,8 @@ namespace osu.Framework.Graphics.Containers
 
                         if (!linkedSource.Token.IsCancellationRequested)
                             onLoaded?.Invoke(loadables);
+                        else
+                            loadables.Clear();
                     }
                     finally
                     {

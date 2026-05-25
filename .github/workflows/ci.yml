@@ -60,7 +60,7 @@ jobs:
           caches-home: inspectcode
           verbosity: WARN
           tool-version: 2026.1.0.1
-          additional-arguments: '--exclude=submodules/**;osu.Framework.Templates/**'
+          exclude: '"submodules/**;osu.Framework.Templates/**"'
 
   test:
     name: Test
@@ -176,7 +176,12 @@ jobs:
           if [ -z "$ACTIVE_XCODE" ]; then
             echo "ERROR: No Xcode_26.x.app found" && exit 1
           fi
-          echo "Active Xcode: $ACTIVE_XCODE"
+
+          # Resolve to canonical path. Some runners have Xcode_26.5.0.app as a symlink to
+          # Xcode_26.5.app; using the symlink path in Settings.plist causes .NET MSBuild
+          # to construct SDK paths that xcodebuild/xcrun cannot locate.
+          ACTIVE_XCODE=$(readlink -f "$ACTIVE_XCODE" 2>/dev/null || echo "$ACTIVE_XCODE")
+          echo "Active Xcode (canonical): $ACTIVE_XCODE"
           sudo xcode-select -switch "$ACTIVE_XCODE"
 
           # Accept the Xcode license explicitly first — runFirstLaunch may silently skip
@@ -215,34 +220,52 @@ jobs:
           EOF
           echo "Settings.plist written for $ACTIVE_XCODE"
 
-          # MacOSX.sdk fix: some Xcode installs have a stub MacOSX.sdk lacking real content.
+          # MacOSX.sdk fix: some Xcode installs have a stub MacOSX.sdk lacking real content,
+          # or worse, circular symlinks (MacOSX.sdk → MacOSX26.5.sdk → MacOSX.sdk) causing ELOOP.
           # On Xcode 15+, headers moved out of usr/include; use System/Library/Frameworks count instead.
-          # Real SDKs have 100+ frameworks; stubs have 0.
+          # Real SDKs have 100+ frameworks; stubs/broken symlinks have 0.
           SDKS_DIR="$ACTIVE_XCODE/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
           MACOS_SDK="$SDKS_DIR/MacOSX.sdk"
           echo "=== MacOSX.sdk state ==="
-          ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
+          ls -la "$SDKS_DIR" 2>&1 || echo "(SDKs dir does not exist)"
 
-          # Check if the current MacOSX.sdk already has real content (resolving symlinks).
-          # IMPORTANT: only search VERSIONED SDKs (MacOSX[0-9]*.sdk) to avoid creating
-          # a circular symlink when MacOSX.sdk itself resolves to the same path as REAL_SDK.
-          _resolved=$(readlink -f "$MACOS_SDK" 2>/dev/null || echo "$MACOS_SDK")
-          _current_fw=$(ls "$_resolved/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
-          echo "Current MacOSX.sdk (resolved: $_resolved): $_current_fw frameworks"
+          # Phase 1: Detect and remove broken/circular symlinks in the SDKs directory.
+          # A circular symlink causes ELOOP (errno=Too many levels of symbolic links) which
+          # makes xcrun/xcodebuild unable to locate actool or any SDK tools.
+          echo "--- Checking for broken/circular symlinks ---"
+          for sdk_entry in $(ls "$SDKS_DIR" 2>/dev/null | grep '\.sdk$'); do
+            entry_path="$SDKS_DIR/$sdk_entry"
+            if [ -L "$entry_path" ]; then
+              # stat follows symlinks - if it fails, the symlink is broken or circular
+              if ! stat "$entry_path" > /dev/null 2>&1; then
+                echo "  Removing broken/circular symlink: $sdk_entry (target: $(readlink "$entry_path"))"
+                sudo rm -f "$entry_path"
+              fi
+            fi
+          done
+
+          # Phase 2: Check if MacOSX.sdk now exists with real content
+          _current_fw=$(ls "$MACOS_SDK/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
+          _has_library=$([ -d "$MACOS_SDK/Library" ] && echo "yes" || echo "no")
+          echo "MacOSX.sdk: $_current_fw frameworks, has Library dir: $_has_library"
 
           REAL_SDK=""
           if [ "${_current_fw:-0}" -gt 50 ]; then
-            echo "MacOSX.sdk already has real content – no fix needed"
+            echo "MacOSX.sdk already has real content ($_current_fw frameworks) – no fix needed"
           else
-            # Search all Xcode_26.x.app installs for a VERSIONED sdk with real frameworks.
-            # Do NOT include the unversioned MacOSX.sdk to avoid circular symlinks.
+            echo "MacOSX.sdk is missing or broken (frameworks=$_current_fw, Library=$_has_library) — searching for real SDK..."
+
+            # Search for real (non-symlink) versioned SDK directories across all Xcode installs.
             for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
+              xapp=$(readlink -f "$xapp" 2>/dev/null || echo "$xapp")
               sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
               [ -d "$sdk_dir" ] || continue
               for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '^MacOSX[0-9]' | sort -rV); do
                 cand="$sdk_dir/$sdk"
+                # Skip symlinks — they may be part of the circular chain we just cleaned up
+                [ -L "$cand" ] && continue
                 fw_count=$(ls "$cand/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
-                echo "  Checking $cand: $fw_count frameworks"
+                echo "  Checking (dir) $cand: $fw_count frameworks"
                 if [ "${fw_count:-0}" -gt 50 ]; then
                   REAL_SDK="$cand"
                   echo "Found real macOS SDK: $REAL_SDK"
@@ -250,10 +273,30 @@ jobs:
                 fi
               done
             done
-            # Fallback: CommandLineTools (versioned only)
+
+            # Fallback: use find to locate any real SDK directory (not symlink) system-wide
+            if [ -z "$REAL_SDK" ]; then
+              echo "  Searching with find for real SDK directories..."
+              for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
+                xapp=$(readlink -f "$xapp" 2>/dev/null || echo "$xapp")
+                sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
+                cand=$(find "$sdk_dir" -maxdepth 1 -type d -name 'MacOSX*.sdk' 2>/dev/null | head -1)
+                if [ -n "$cand" ]; then
+                  fw_count=$(ls "$cand/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
+                  echo "  Found directory: $cand ($fw_count frameworks)"
+                  if [ "${fw_count:-0}" -gt 50 ]; then
+                    REAL_SDK="$cand"
+                    break
+                  fi
+                fi
+              done
+            fi
+
+            # Fallback: CommandLineTools (versioned only, non-symlink)
             if [ -z "$REAL_SDK" ]; then
               for sdk in $(ls /Library/Developer/CommandLineTools/SDKs 2>/dev/null | grep '^MacOSX[0-9]' | sort -rV); do
                 cand="/Library/Developer/CommandLineTools/SDKs/$sdk"
+                [ -L "$cand" ] && continue
                 fw_count=$(ls "$cand/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
                 echo "  CLT $cand: $fw_count frameworks"
                 if [ "${fw_count:-0}" -gt 50 ]; then
@@ -263,24 +306,41 @@ jobs:
                 fi
               done
             fi
+
+            # Last resort: CommandLineTools even if symlink (the target might be valid if NOT in the same dir)
+            if [ -z "$REAL_SDK" ]; then
+              for sdk in $(ls /Library/Developer/CommandLineTools/SDKs 2>/dev/null | grep '^MacOSX' | sort -rV); do
+                cand="/Library/Developer/CommandLineTools/SDKs/$sdk"
+                # Must be stat-able (not broken/circular)
+                stat "$cand" > /dev/null 2>&1 || continue
+                fw_count=$(ls "$cand/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
+                echo "  CLT (any) $cand: $fw_count frameworks"
+                if [ "${fw_count:-0}" -gt 50 ]; then
+                  REAL_SDK="$cand"
+                  echo "Found macOS SDK in CLT (symlink OK): $REAL_SDK"
+                  break
+                fi
+              done
+            fi
+
             if [ -n "$REAL_SDK" ]; then
               sudo rm -rf "$MACOS_SDK"
               sudo ln -sfn "$REAL_SDK" "$MACOS_SDK"
               echo "Created MacOSX.sdk symlink -> $REAL_SDK"
             else
-              echo "WARNING: no versioned macOS SDK found; listing all candidates:"
+              echo "WARNING: no usable macOS SDK found; listing all candidates:"
               for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
                 sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
-                echo "  $xapp:"; ls "$sdk_dir" 2>&1 | sed 's/^/    /'
-                for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '\.sdk$'); do
-                  echo "    $sdk: $(ls "$sdk_dir/$sdk/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ') frameworks"
-                done
+                echo "  $xapp:"; ls -la "$sdk_dir" 2>&1 | sed 's/^/    /'
               done
+              ls -la /Library/Developer/CommandLineTools/SDKs/ 2>&1 | sed 's/^/  CLT: /'
             fi
           fi
           echo "=== MacOSX.sdk state after fix ==="
-          ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
-          xcodebuild -sdk macosx -version 2>&1 || echo "(xcodebuild cannot locate macosx SDK)"
+          ls -la "$SDKS_DIR" 2>&1 || echo "(does not exist)"
+          echo "--- xcrun validation ---"
+          xcrun --sdk macosx --show-sdk-path 2>&1 || echo "(xcrun failed)"
+          xcodebuild -sdk macosx -version 2>&1 | head -5 || echo "(xcodebuild cannot locate macosx SDK)"
 
       - name: Compile
         run: dotnet build -c Debug osu-framework.iOS.slnf

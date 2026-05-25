@@ -498,10 +498,24 @@ namespace osu.Framework.Graphics.Veldrid
         private static bool isSwapchainSurfaceLost(VeldridException ex)
         {
             // Veldrid does not expose a typed exception for VK_ERROR_SURFACE_LOST_KHR / out-of-date surface
-            // failures, so match on the message text it produces in VkSwapchain.createSwapchain.
+            // failures, so match on the message text it produces in VkSwapchain.createSwapchain and related paths.
+            // Known messages include:
+            //   "The Vulkan surface was not ready in time; cannot create a swapchain."
+            //   "The system does not support presenting the given Vulkan surface."
+            //   "Could not acquire next image from the Vulkan swapchain."
             string message = ex.Message;
-            return message.Contains("Swapchain", StringComparison.Ordinal)
-                   || message.Contains("surface", StringComparison.OrdinalIgnoreCase);
+
+            if (message.Contains("Swapchain", StringComparison.OrdinalIgnoreCase)
+                || message.Contains("surface", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // Also check inner exception in case Veldrid wraps the original error.
+            if (ex.InnerException is { Message: { } inner })
+                return inner.Contains("surface", StringComparison.OrdinalIgnoreCase);
+
+            return false;
         }
 
         /// <summary>
@@ -653,10 +667,19 @@ namespace osu.Framework.Graphics.Veldrid
             // until that is fixed in some way or another, poll on the signal state.
             if (graphicsSurface.Type == GraphicsSurfaceType.Metal)
             {
-                const int sleep_time = 10;
+                // Use SpinWait for progressive backoff: quick fence signals complete in < 1ms
+                // without any thread sleep. Longer waits progressively yield and eventually sleep,
+                // providing better latency than the fixed 10ms sleep for short GPU operations.
+                long deadline = Environment.TickCount64 + millisecondsTimeout;
+                var spinner = new SpinWait();
 
-                while (!fence.Signaled && (millisecondsTimeout -= sleep_time) > 0)
-                    Thread.Sleep(sleep_time);
+                while (!fence.Signaled)
+                {
+                    if (Environment.TickCount64 >= deadline)
+                        break;
+
+                    spinner.SpinOnce();
+                }
 
                 return fence.Signaled;
             }

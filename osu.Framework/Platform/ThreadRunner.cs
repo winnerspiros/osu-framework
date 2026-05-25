@@ -33,28 +33,28 @@ namespace osu.Framework.Platform
         {
             get
             {
-                // Fast volatile read of the cached snapshot avoids locking on every access.
-                // The snapshot is invalidated (set to null) when threads are added/removed.
-                var snapshot = Volatile.Read(ref threadsSnapshot);
+                // Fast path: read the cached snapshot without locking. The volatile field
+                // ensures visibility of writes made inside the lock on other threads.
+                var snapshot = threadsSnapshot;
 
                 if (snapshot != null)
                     return snapshot;
 
                 lock (threadsLock)
                 {
-                    snapshot = Volatile.Read(ref threadsSnapshot);
+                    snapshot = threadsSnapshot;
 
                     if (snapshot != null)
                         return snapshot;
 
                     snapshot = threads.ToArray();
-                    Volatile.Write(ref threadsSnapshot, snapshot);
+                    threadsSnapshot = snapshot;
                     return snapshot;
                 }
             }
         }
 
-        private GameThread[]? threadsSnapshot;
+        private volatile GameThread[]? threadsSnapshot;
 
         private double maximumUpdateHz = GameThread.DEFAULT_ACTIVE_HZ;
 
@@ -101,7 +101,7 @@ namespace osu.Framework.Platform
                 if (!threads.Contains(thread))
                 {
                     threads.Add(thread);
-                    Volatile.Write(ref threadsSnapshot, null);
+                    threadsSnapshot = null;
                 }
             }
         }
@@ -114,7 +114,7 @@ namespace osu.Framework.Platform
             lock (threadsLock)
             {
                 if (threads.Remove(thread))
-                    Volatile.Write(ref threadsSnapshot, null);
+                    threadsSnapshot = null;
             }
         }
 

@@ -133,11 +133,11 @@ namespace osu.Framework.Platform
             {
                 case ExecutionMode.SingleThread:
                 {
-                    lock (threadsLock)
-                    {
-                        foreach (var t in threads)
-                            t.RunSingleFrame();
-                    }
+                    // Use the cached snapshot so we don't hold threadsLock during frame execution.
+                    // Holding the lock while running frames could deadlock if any frame logic
+                    // triggers AddThread/RemoveThread from a background callback.
+                    foreach (var t in Threads)
+                        t.RunSingleFrame();
 
                     break;
                 }

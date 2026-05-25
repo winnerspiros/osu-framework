@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using osu.Framework.Development;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Logging;
@@ -346,7 +347,42 @@ namespace osu.Framework.Graphics.Veldrid
                         MinStagingBufferSize = 64 * 1024,
                         MaxStagingBufferSize = 4 * 1024 * 1024,
                     };
-                    Device = GraphicsDevice.CreateVulkan(options, swapchain, vkOptions);
+
+                    // On certain Android devices (notably Adreno-based), CreateVulkan() can hang
+                    // indefinitely inside native Vulkan driver code, producing a permanent black
+                    // screen. Run it on a separate thread with a timeout so that a hung driver
+                    // causes a clean exception — the caller can then fall back to OpenGL within
+                    // the same process launch rather than requiring a watchdog kill + restart.
+                    const int vulkan_create_timeout_ms = 10_000;
+
+                    GraphicsDevice? vulkanDevice = null;
+                    Exception? vulkanException = null;
+
+                    var createTask = Task.Run(() =>
+                    {
+                        try
+                        {
+                            vulkanDevice = GraphicsDevice.CreateVulkan(options, swapchain, vkOptions);
+                        }
+                        catch (Exception ex)
+                        {
+                            vulkanException = ex;
+                        }
+                    });
+
+                    if (!createTask.Wait(vulkan_create_timeout_ms))
+                    {
+                        Logger.Log("Vulkan device creation timed out after 10 seconds — driver is likely hung. " +
+                                   "Throwing to trigger OpenGL fallback.", LoggingTarget.Runtime, LogLevel.Error);
+                        throw new TimeoutException(
+                            $"GraphicsDevice.CreateVulkan() did not complete within {vulkan_create_timeout_ms}ms. " +
+                            "The Vulkan driver appears to be hung. Falling back to OpenGL.");
+                    }
+
+                    if (vulkanException != null)
+                        throw vulkanException;
+
+                    Device = vulkanDevice!;
                     Device.LogVulkan(out maxTextureSize);
                     break;
 

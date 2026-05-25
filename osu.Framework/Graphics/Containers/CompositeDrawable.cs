@@ -209,10 +209,11 @@ namespace osu.Framework.Graphics.Containers
 
                         if (!linkedSource.Token.IsCancellationRequested)
                             onLoaded?.Invoke(loadables);
+                        else
+                            loadables.Clear();
                     }
                     finally
                     {
-                        loadables.Clear();
                         linkedSource.Dispose();
                     }
                 });

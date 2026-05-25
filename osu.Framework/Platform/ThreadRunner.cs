@@ -1,17 +1,12 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
-// See the LICENCE file in the repository root for full licence text.
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using osu.Framework.Development;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Threading;
 
@@ -27,14 +22,39 @@ namespace osu.Framework.Platform
         private readonly List<GameThread> threads = new List<GameThread>();
         private readonly Lock threadsLock = new Lock();
 
-        public IReadOnlyCollection<GameThread> Threads
+        /// <summary>
+        /// Returns a snapshot of all managed threads.
+        /// </summary>
+        /// <remarks>
+        /// The returned list is a cached snapshot that is only reallocated when threads are added or removed.
+        /// Callers must not mutate the returned array.
+        /// </remarks>
+        public IReadOnlyList<GameThread> Threads
         {
             get
             {
+                // Fast volatile read of the cached snapshot avoids locking on every access.
+                // The snapshot is invalidated (set to null) when threads are added/removed.
+                var snapshot = Volatile.Read(ref threadsSnapshot);
+
+                if (snapshot != null)
+                    return snapshot;
+
                 lock (threadsLock)
-                    return threads.ToArray();
+                {
+                    snapshot = Volatile.Read(ref threadsSnapshot);
+
+                    if (snapshot != null)
+                        return snapshot;
+
+                    snapshot = threads.ToArray();
+                    Volatile.Write(ref threadsSnapshot, snapshot);
+                    return snapshot;
+                }
             }
         }
+
+        private GameThread[]? threadsSnapshot;
 
         private double maximumUpdateHz = GameThread.DEFAULT_ACTIVE_HZ;
 
@@ -79,7 +99,10 @@ namespace osu.Framework.Platform
             lock (threadsLock)
             {
                 if (!threads.Contains(thread))
+                {
                     threads.Add(thread);
+                    Volatile.Write(ref threadsSnapshot, null);
+                }
             }
         }
 
@@ -89,7 +112,10 @@ namespace osu.Framework.Platform
         public void RemoveThread(GameThread thread)
         {
             lock (threadsLock)
-                threads.Remove(thread);
+            {
+                if (threads.Remove(thread))
+                    Volatile.Write(ref threadsSnapshot, null);
+            }
         }
 
         private ExecutionMode? activeExecutionMode;
@@ -141,8 +167,12 @@ namespace osu.Framework.Platform
             const int thread_join_timeout = 30000;
 
             // exit in reverse order so AudioThread is exited last (UpdateThread depends on AudioThread)
-            Threads.Reverse().ForEach(t =>
+            var threadList = Threads;
+
+            for (int i = threadList.Count - 1; i >= 0; i--)
             {
+                var t = threadList[i];
+
                 // save the native thread to a local variable as Thread gets set to null when exiting.
                 // WaitForState(Exited) appears to be unsafe in multithreaded.
                 var thread = t.Thread;
@@ -160,7 +190,7 @@ namespace osu.Framework.Platform
                 }
 
                 Debug.Assert(t.Exited);
-            });
+            }
 
             ThreadSafety.ResetAllForCurrentThread();
         }
@@ -217,14 +247,14 @@ namespace osu.Framework.Platform
             // Request pause on all threads first, then wait.
             // This allows all threads to start transitioning at once,
             // reducing total suspend latency when one thread is slow to pause (e.g. blocked in present).
-            var threadsToPause = Threads.Reverse().ToArray();
+            var threadList = Threads;
 
             // shut down threads in reverse to ensure audio stops last (other threads may be waiting on a queued event otherwise)
-            foreach (var t in threadsToPause)
-                t.Pause(waitForState: false);
+            for (int i = threadList.Count - 1; i >= 0; i--)
+                threadList[i].Pause(waitForState: false);
 
-            foreach (var t in threadsToPause)
-                t.WaitForState(GameThreadState.Paused);
+            for (int i = threadList.Count - 1; i >= 0; i--)
+                threadList[i].WaitForState(GameThreadState.Paused);
         }
 
         private void updateMainThreadRates()

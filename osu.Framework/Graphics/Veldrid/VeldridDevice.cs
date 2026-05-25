@@ -357,12 +357,31 @@ namespace osu.Framework.Graphics.Veldrid
 
                     GraphicsDevice? vulkanDevice = null;
                     Exception? vulkanException = null;
+                    int timedOut = 0;
 
                     var createTask = Task.Run(() =>
                     {
                         try
                         {
-                            vulkanDevice = GraphicsDevice.CreateVulkan(options, swapchain, vkOptions);
+                            var device = GraphicsDevice.CreateVulkan(options, swapchain, vkOptions);
+
+                            // If this thread wins the race after the caller timed out, dispose the
+                            // device immediately to avoid leaking native Vulkan resources.
+                            if (Interlocked.CompareExchange(ref timedOut, 0, 0) != 0)
+                            {
+                                try
+                                {
+                                    device.Dispose();
+                                }
+                                catch
+                                {
+                                    // Best-effort cleanup — driver may be in a bad state.
+                                }
+                            }
+                            else
+                            {
+                                vulkanDevice = device;
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -372,6 +391,10 @@ namespace osu.Framework.Graphics.Veldrid
 
                     if (!createTask.Wait(vulkan_create_timeout_ms))
                     {
+                        // Signal the background thread that we've abandoned it. If CreateVulkan()
+                        // eventually returns, the thread will dispose the device instead of leaking it.
+                        Interlocked.Exchange(ref timedOut, 1);
+
                         Logger.Log("Vulkan device creation timed out after 10 seconds — driver is likely hung. " +
                                    "Throwing to trigger OpenGL fallback.", LoggingTarget.Runtime, LogLevel.Error);
                         throw new TimeoutException(

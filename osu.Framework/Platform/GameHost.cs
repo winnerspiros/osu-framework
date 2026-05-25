@@ -984,8 +984,10 @@ namespace osu.Framework.Platform
                     ResolvedRenderer = type;
                     return;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Logger.Log($"🖼️ Renderer \"{type.GetDescription()}\" failed to initialise: {ex.Message}", level: LogLevel.Important);
+
                     if (configRenderer.Value != RendererType.Automatic)
                     {
                         // If we fail, assume the user may have had a custom setting and switch it back to automatic.
@@ -997,6 +999,7 @@ namespace osu.Framework.Platform
             }
 
             Logger.Log("No usable renderer was found!", level: LogLevel.Error);
+            throw new InvalidOperationException("No usable renderer was found. All graphics backends failed to initialise.");
         }
 
         private static GraphicsSurfaceType rendererToGraphicsSurfaceType(RendererType renderer) => renderer switch

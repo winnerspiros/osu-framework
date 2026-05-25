@@ -357,7 +357,11 @@ namespace osu.Framework.Graphics.Veldrid
 
                     GraphicsDevice? vulkanDevice = null;
                     Exception? vulkanException = null;
-                    int timedOut = 0;
+
+                    // Shared flag: 0 = not timed out, 1 = timed out.
+                    // Using a single-element array avoids InspectCode's "access to modified captured variable"
+                    // warning while still providing the reference semantics needed for Interlocked operations.
+                    int[] timedOutFlag = [0];
 
                     var createTask = Task.Run(() =>
                     {
@@ -367,7 +371,7 @@ namespace osu.Framework.Graphics.Veldrid
 
                             // If this thread wins the race after the caller timed out, dispose the
                             // device immediately to avoid leaking native Vulkan resources.
-                            if (Interlocked.CompareExchange(ref timedOut, 0, 0) != 0)
+                            if (Interlocked.CompareExchange(ref timedOutFlag[0], 0, 0) != 0)
                             {
                                 try
                                 {
@@ -393,7 +397,7 @@ namespace osu.Framework.Graphics.Veldrid
                     {
                         // Signal the background thread that we've abandoned it. If CreateVulkan()
                         // eventually returns, the thread will dispose the device instead of leaking it.
-                        Interlocked.Exchange(ref timedOut, 1);
+                        Interlocked.Exchange(ref timedOutFlag[0], 1);
 
                         Logger.Log("Vulkan device creation timed out after 10 seconds — driver is likely hung. " +
                                    "Throwing to trigger OpenGL fallback.", LoggingTarget.Runtime, LogLevel.Error);

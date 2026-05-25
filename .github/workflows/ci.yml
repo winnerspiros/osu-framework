@@ -176,7 +176,12 @@ jobs:
           if [ -z "$ACTIVE_XCODE" ]; then
             echo "ERROR: No Xcode_26.x.app found" && exit 1
           fi
-          echo "Active Xcode: $ACTIVE_XCODE"
+
+          # Resolve to canonical path. Some runners have Xcode_26.5.0.app as a symlink to
+          # Xcode_26.5.app; using the symlink path in Settings.plist causes .NET MSBuild
+          # to construct SDK paths that xcodebuild/xcrun cannot locate.
+          ACTIVE_XCODE=$(readlink -f "$ACTIVE_XCODE" 2>/dev/null || echo "$ACTIVE_XCODE")
+          echo "Active Xcode (canonical): $ACTIVE_XCODE"
           sudo xcode-select -switch "$ACTIVE_XCODE"
 
           # Accept the Xcode license explicitly first — runFirstLaunch may silently skip
@@ -223,20 +228,24 @@ jobs:
           echo "=== MacOSX.sdk state ==="
           ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
 
-          # Check if the current MacOSX.sdk already has real content (resolving symlinks).
-          # IMPORTANT: only search VERSIONED SDKs (MacOSX[0-9]*.sdk) to avoid creating
-          # a circular symlink when MacOSX.sdk itself resolves to the same path as REAL_SDK.
-          _resolved=$(readlink -f "$MACOS_SDK" 2>/dev/null || echo "$MACOS_SDK")
-          _current_fw=$(ls "$_resolved/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
-          echo "Current MacOSX.sdk (resolved: $_resolved): $_current_fw frameworks"
+          # Check if the current MacOSX.sdk already has real content.
+          # IMPORTANT: check at the LITERAL path (no readlink) AND verify it has Library/ dir.
+          # A stub SDK may have System/ symlinked to a real SDK (passing framework count) but
+          # lacks Library/ and other directories that xcodebuild requires.
+          _current_fw=$(ls "$MACOS_SDK/System/Library/Frameworks" 2>/dev/null | wc -l | tr -d ' ')
+          _has_library=$([ -d "$MACOS_SDK/Library" ] && echo "yes" || echo "no")
+          echo "MacOSX.sdk: $_current_fw frameworks, has Library dir: $_has_library"
 
           REAL_SDK=""
-          if [ "${_current_fw:-0}" -gt 50 ]; then
+          if [ "${_current_fw:-0}" -gt 50 ] && [ "$_has_library" = "yes" ]; then
             echo "MacOSX.sdk already has real content – no fix needed"
           else
+            echo "MacOSX.sdk is missing or is a stub (frameworks=$_current_fw, Library=$_has_library) — searching for real SDK..."
             # Search all Xcode_26.x.app installs for a VERSIONED sdk with real frameworks.
             # Do NOT include the unversioned MacOSX.sdk to avoid circular symlinks.
             for xapp in $(ls -d /Applications/Xcode_26.*.app 2>/dev/null | sort -rV); do
+              # Resolve each Xcode app to canonical path to avoid traversing symlinks
+              xapp=$(readlink -f "$xapp" 2>/dev/null || echo "$xapp")
               sdk_dir="$xapp/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs"
               [ -d "$sdk_dir" ] || continue
               for sdk in $(ls "$sdk_dir" 2>/dev/null | grep '^MacOSX[0-9]' | sort -rV); do
@@ -281,6 +290,23 @@ jobs:
           echo "=== MacOSX.sdk state after fix ==="
           ls -laH "$MACOS_SDK" 2>&1 || echo "(does not exist)"
           xcodebuild -sdk macosx -version 2>&1 || echo "(xcodebuild cannot locate macosx SDK)"
+
+          # Final validation: ensure xcrun can actually find actool at the resolved SDK path.
+          # If this fails, the build will definitely fail later.
+          RESOLVED_SDK=$(xcrun --sdk macosx --show-sdk-path 2>/dev/null || echo "")
+          if [ -z "$RESOLVED_SDK" ] || [ ! -d "$RESOLVED_SDK" ]; then
+            echo "ERROR: xcrun cannot resolve macosx SDK path (got: '$RESOLVED_SDK')"
+            echo "Attempting emergency fix: symlinking from xcodebuild reported path..."
+            # Use the path reported by xcodebuild -sdk macosx -version
+            XCODEBUILD_PATH=$(xcodebuild -sdk macosx -version Path 2>/dev/null || echo "")
+            if [ -n "$XCODEBUILD_PATH" ] && [ -d "$XCODEBUILD_PATH" ]; then
+              sudo rm -rf "$MACOS_SDK"
+              sudo ln -sfn "$XCODEBUILD_PATH" "$MACOS_SDK"
+              echo "Emergency fix: MacOSX.sdk -> $XCODEBUILD_PATH"
+            fi
+          else
+            echo "xcrun SDK path validated: $RESOLVED_SDK"
+          fi
 
       - name: Compile
         run: dotnet build -c Debug osu-framework.iOS.slnf

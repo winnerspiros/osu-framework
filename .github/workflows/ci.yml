@@ -60,7 +60,7 @@ jobs:
           caches-home: inspectcode
           verbosity: WARN
           tool-version: 2026.1.0.1
-          exclude: 'submodules/**;osu.Framework.Templates/**'
+          exclude: '"submodules/**;osu.Framework.Templates/**"'
 
   test:
     name: Test

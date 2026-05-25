@@ -253,8 +253,15 @@ namespace osu.Framework.Platform
             for (int i = threadList.Count - 1; i >= 0; i--)
                 threadList[i].Pause(waitForState: false);
 
+            // Only wait for threads that are actually transitioning to Paused.
+            // Threads in NotStarted or already-Paused states never transition, so calling
+            // WaitForState(Paused) on them would spin forever in the processFrame() loop
+            // (processFrame returns null when state != Running).
             for (int i = threadList.Count - 1; i >= 0; i--)
-                threadList[i].WaitForState(GameThreadState.Paused);
+            {
+                if (threadList[i].Running)
+                    threadList[i].WaitForState(GameThreadState.Paused);
+            }
         }
 
         private void updateMainThreadRates()

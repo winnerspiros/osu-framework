@@ -158,6 +158,12 @@ namespace osu.Framework.Graphics.Containers
 
             scheduledAddition?.Cancel();
             scheduledAddition = null;
+
+            // If a load was triggered but never completed (content never added to hierarchy),
+            // release the Content reference so GC can collect the loaded drawable.
+            // This mirrors the cleanup in DelayedLoadUnloadWrapper.checkForUnload().
+            if (DelayedLoadTriggered && !DelayedLoadCompleted)
+                Content = null;
         }
 
         /// <summary>

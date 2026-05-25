@@ -250,8 +250,8 @@ jobs:
           echo "MacOSX.sdk: $_current_fw frameworks, has Library dir: $_has_library"
 
           REAL_SDK=""
-          if [ "${_current_fw:-0}" -gt 50 ] && [ "$_has_library" = "yes" ]; then
-            echo "MacOSX.sdk already has real content – no fix needed"
+          if [ "${_current_fw:-0}" -gt 50 ]; then
+            echo "MacOSX.sdk already has real content ($_current_fw frameworks) – no fix needed"
           else
             echo "MacOSX.sdk is missing or broken (frameworks=$_current_fw, Library=$_has_library) — searching for real SDK..."
 
@@ -324,7 +324,7 @@ jobs:
             fi
 
             if [ -n "$REAL_SDK" ]; then
-              sudo rm -f "$MACOS_SDK"
+              sudo rm -rf "$MACOS_SDK"
               sudo ln -sfn "$REAL_SDK" "$MACOS_SDK"
               echo "Created MacOSX.sdk symlink -> $REAL_SDK"
             else

@@ -379,10 +379,10 @@ namespace osu.Framework.Audio.NativeOutput
             uint bufferSize = (uint)frames;
             status = AudioObjectSetPropertyData(deviceID, ref bufferAddress, 0, IntPtr.Zero, sizeof(uint), ref bufferSize);
 
-            Logger.Log(status != 0
+            string logMessage = status != 0
                 ? $"CoreAudio: Could not set buffer frame size to {frames} (status={status}). Hardware will use its default."
-                : $"CoreAudio: Hardware buffer frame size set to {frames}.",
-                LoggingTarget.Runtime, LogLevel.Debug);
+                : $"CoreAudio: Hardware buffer frame size set to {frames}.";
+            Logger.Log(logMessage, LoggingTarget.Runtime, LogLevel.Debug);
         }
 
         /// <summary>

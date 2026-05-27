@@ -70,6 +70,7 @@ namespace osu.Framework.Audio.NativeOutput
             public uint ChunkOffset;
             public uint ChunkSize;
             public int ChunkStride;
+
             // Note: actual struct has padding/additional fields but we only need through chunk.
         }
 

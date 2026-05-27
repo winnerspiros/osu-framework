@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using osu.Framework.Extensions.ListExtensions;
 using osu.Framework.Graphics;
@@ -45,6 +44,12 @@ namespace osu.Framework.Input.Bindings
         private readonly List<T> pressedActions = new List<T>();
 
         private readonly HashSet<InputKey> bindingInitiatingKeys = new HashSet<InputKey>();
+
+        // Reusable HashSet to avoid LINQ Intersect allocations in hot paths.
+        private readonly HashSet<Drawable> keyBindingInputQueueHashSet = new HashSet<Drawable>();
+
+        // Reusable list to avoid LINQ Where allocation in handleNewReleased.
+        private readonly List<Drawable> releaseFilteredQueue = new List<Drawable>();
 
         /// <summary>
         /// All actions in a currently pressed state.
@@ -196,14 +201,29 @@ namespace osu.Framework.Input.Bindings
 
             // A simplistic approach to key repeat (that mostly matches OS level implementations) is that the last binding - or action - to
             // trigger is the one and only action to repeat.
-            T action = pressedActions.Last();
+            T action = pressedActions[pressedActions.Count - 1];
 
             var pressEvent = new KeyBindingPressEvent<T>(state, action, true);
 
-            // Only drawables that can still handle input should handle the repeat
-            var drawables = keyRepeatInputQueue.Intersect(KeyBindingInputQueue).Where(t => t.IsAlive && t.IsPresent);
+            // Only drawables that can still handle input should handle the repeat.
+            // Manual intersection avoids LINQ Intersect/Where allocations on every repeat frame.
+            var bindingQueue = KeyBindingInputQueue;
+            var bindingQueueSet = keyBindingInputQueueHashSet;
+            rebuildHashSet(bindingQueueSet, bindingQueue);
 
-            return drawables.FirstOrDefault(d => triggerKeyBindingEvent(d, pressEvent)) != null;
+            foreach (var drawable in keyRepeatInputQueue)
+            {
+                if (!drawable.IsAlive || !drawable.IsPresent)
+                    continue;
+
+                if (!bindingQueueSet.Contains(drawable))
+                    continue;
+
+                if (triggerKeyBindingEvent(drawable, pressEvent))
+                    return true;
+            }
+
+            return false;
         }
 
         private readonly List<IKeyBinding> newlyPressed = new List<IKeyBinding>();
@@ -228,7 +248,7 @@ namespace osu.Framework.Input.Bindings
 
                     // Don't allow a binding to fire if any of its non-modifier keys were
                     // already consumed by a previous binding that hasn't been fully released yet.
-                    if (binding.KeyCombination.Keys.Any(key => !KeyCombination.IsModifierKey(key) && bindingInitiatingKeys.Contains(key)))
+                    if (hasConsumedNonModifierKey(binding))
                         continue;
 
                     if (binding.KeyCombination.IsPressed(pressedCombination, state, matchingMode))
@@ -241,7 +261,7 @@ namespace osu.Framework.Input.Bindings
                 // if the current key pressed was a modifier, only handle modifier-only bindings.
                 for (int i = 0; i < newlyPressed.Count; i++)
                 {
-                    if (!newlyPressed[i].KeyCombination.Keys.All(KeyCombination.IsModifierKey))
+                    if (!allKeysAreModifiers(newlyPressed[i]))
                         newlyPressed.RemoveAt(i--);
                 }
             }
@@ -255,7 +275,7 @@ namespace osu.Framework.Input.Bindings
             if (simultaneousMode == SimultaneousBindingMode.None && (matchingMode == KeyCombinationMatchingMode.Exact || matchingMode == KeyCombinationMatchingMode.Modifiers))
             {
                 // only want to release pressed actions if no existing bindings would still remain pressed
-                if (pressedBindings.Count > 0 && !pressedBindings.Any(m => m.KeyCombination.IsPressed(pressedCombination, state, matchingMode)))
+                if (pressedBindings.Count > 0 && !anyBindingStillPressed(pressedBindings, pressedCombination, state, matchingMode))
                     releasePressedActions(state);
             }
 
@@ -272,7 +292,7 @@ namespace osu.Framework.Input.Bindings
 
                 if (handledBy != null)
                 {
-                    if (newBinding.KeyCombination.Keys.Any(KeyCombination.IsModifierKey))
+                    if (hasAnyModifierKey(newBinding))
                     {
                         foreach (var key in newBinding.KeyCombination.Keys)
                         {
@@ -331,13 +351,29 @@ namespace osu.Framework.Input.Bindings
                 if (scrollAmount != 0)
                 {
                     var scrollEvent = new KeyBindingScrollEvent<T>(state, pressed, scrollAmount, isPrecise);
-                    handled = drawables.FirstOrDefault(d => triggerKeyBindingEvent(d, scrollEvent));
+
+                    foreach (var d in drawables)
+                    {
+                        if (triggerKeyBindingEvent(d, scrollEvent))
+                        {
+                            handled = d;
+                            break;
+                        }
+                    }
                 }
 
                 if (handled == null)
                 {
                     var pressEvent = new KeyBindingPressEvent<T>(state, pressed, repeat);
-                    handled = drawables.FirstOrDefault(d => triggerKeyBindingEvent(d, pressEvent));
+
+                    foreach (var d in drawables)
+                    {
+                        if (triggerKeyBindingEvent(d, pressEvent))
+                        {
+                            handled = d;
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -357,8 +393,13 @@ namespace osu.Framework.Input.Bindings
             {
                 var releaseEvent = new KeyBindingReleaseEvent<T>(state, action);
 
-                foreach (var kvp in keyBindingQueues.Where(k => EqualityComparer<T>.Default.Equals(k.Key.GetAction<T>(), action)))
+                foreach (var kvp in keyBindingQueues)
+                {
+                    if (!EqualityComparer<T>.Default.Equals(kvp.Key.GetAction<T>(), action))
+                        continue;
+
                     kvp.Value.ForEach(d => triggerKeyBindingEvent(d, releaseEvent));
+                }
             }
 
             pressedActions.Clear();
@@ -382,7 +423,18 @@ namespace osu.Framework.Input.Bindings
                 if (pressedInputKeys.Count == 0 || !binding.KeyCombination.IsPressed(pressedCombination, state, KeyCombinationMatchingMode.Any))
                 {
                     pressedBindings.RemoveAt(i--);
-                    PropagateReleased(getInputQueue(binding).Where(d => d.IsRootedAt(this)), state, binding.GetAction<T>());
+
+                    // Filter rooted drawables without LINQ allocation.
+                    var inputQueue = getInputQueue(binding);
+                    releaseFilteredQueue.Clear();
+
+                    foreach (var d in inputQueue)
+                    {
+                        if (d.IsRootedAt(this))
+                            releaseFilteredQueue.Add(d);
+                    }
+
+                    PropagateReleased(releaseFilteredQueue, state, binding.GetAction<T>());
                     keyBindingQueues[binding].Clear();
                 }
             }
@@ -393,12 +445,35 @@ namespace osu.Framework.Input.Bindings
             // we either want multiple release events due to the simultaneous mode, or we only want one when we
             // - were pressed (as an action)
             // - are the last pressed binding with this action
-            if (simultaneousMode == SimultaneousBindingMode.All || (pressedActions.Contains(released) && pressedBindings.All(b => !EqualityComparer<T>.Default.Equals(b.GetAction<T>(), released))))
+            bool shouldRelease = simultaneousMode == SimultaneousBindingMode.All;
+
+            if (!shouldRelease && pressedActions.Contains(released))
+            {
+                // Check if no remaining pressed binding has this action (replaces .All() LINQ).
+                bool anyBindingStillPressed = false;
+
+                foreach (var b in pressedBindings)
+                {
+                    if (EqualityComparer<T>.Default.Equals(b.GetAction<T>(), released))
+                    {
+                        anyBindingStillPressed = true;
+                        break;
+                    }
+                }
+
+                shouldRelease = !anyBindingStillPressed;
+            }
+
+            if (shouldRelease)
             {
                 var releaseEvent = new KeyBindingReleaseEvent<T>(state, released);
 
-                foreach (var d in drawables.OfType<IKeyBindingHandler<T>>())
-                    triggerKeyBindingEvent(d, releaseEvent);
+                // Manual type check avoids .OfType<T>() allocation.
+                foreach (var d in drawables)
+                {
+                    if (d is IKeyBindingHandler<T> handler)
+                        triggerKeyBindingEvent(handler, releaseEvent);
+                }
 
                 pressedActions.Remove(released);
             }
@@ -448,6 +523,74 @@ namespace osu.Framework.Input.Bindings
                 default:
                     throw new ArgumentException($"Invalid event type: {e.GetType()}", nameof(e));
             }
+        }
+
+        private static void rebuildHashSet(HashSet<Drawable> set, IEnumerable<Drawable> source)
+        {
+            set.Clear();
+
+            foreach (var item in source)
+                set.Add(item);
+        }
+
+        /// <summary>
+        /// Returns true if any non-modifier key in the binding has already been consumed by a previous binding.
+        /// Replaces LINQ .Any() with a manual loop to avoid closure allocation.
+        /// </summary>
+        private bool hasConsumedNonModifierKey(IKeyBinding binding)
+        {
+            foreach (var key in binding.KeyCombination.Keys)
+            {
+                if (!KeyCombination.IsModifierKey(key) && bindingInitiatingKeys.Contains(key))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns true if all keys in the binding are modifier keys.
+        /// Replaces LINQ .All() with a manual loop.
+        /// </summary>
+        private static bool allKeysAreModifiers(IKeyBinding binding)
+        {
+            foreach (var key in binding.KeyCombination.Keys)
+            {
+                if (!KeyCombination.IsModifierKey(key))
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Returns true if any key in the binding is a modifier key.
+        /// Replaces LINQ .Any() with a manual loop.
+        /// </summary>
+        private static bool hasAnyModifierKey(IKeyBinding binding)
+        {
+            foreach (var key in binding.KeyCombination.Keys)
+            {
+                if (KeyCombination.IsModifierKey(key))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns true if any binding in the list is still pressed according to the current combination.
+        /// Replaces LINQ .Any() with a manual loop to avoid closure allocation.
+        /// </summary>
+        private static bool anyBindingStillPressed(List<IKeyBinding> bindings, KeyCombination pressedCombination, InputState state, KeyCombinationMatchingMode mode)
+        {
+            foreach (var m in bindings)
+            {
+                if (m.KeyCombination.IsPressed(pressedCombination, state, mode))
+                    return true;
+            }
+
+            return false;
         }
     }
 

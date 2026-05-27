@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using osu.Framework.Extensions.TypeExtensions;
 
 namespace osu.Framework.Input.States
@@ -17,6 +16,10 @@ namespace osu.Framework.Input.States
         where TButton : struct
     {
         private HashSet<TButton> pressedButtons = new HashSet<TButton>();
+
+        // Reusable buffers to avoid per-frame allocations in EnumerateDifference.
+        private TButton[] releasedBuffer = Array.Empty<TButton>();
+        private TButton[] pressedBuffer = Array.Empty<TButton>();
 
         public ButtonStates<TButton> Clone()
         {
@@ -60,28 +63,55 @@ namespace osu.Framework.Input.States
             if (!lastButtons.HasAnyButtonPressed)
             {
                 // if no buttons pressed anywhere, use static to avoid alloc.
-                return !HasAnyButtonPressed ? ButtonStateDifference.EMPTY : new ButtonStateDifference(Array.Empty<TButton>(), pressedButtons.ToArray());
+                if (!HasAnyButtonPressed)
+                    return ButtonStateDifference.EMPTY;
+
+                return new ButtonStateDifference(Array.Empty<TButton>(), toReusableArray(pressedButtons, ref pressedBuffer));
             }
 
             if (!HasAnyButtonPressed)
-                return new ButtonStateDifference(lastButtons.pressedButtons.ToArray(), Array.Empty<TButton>());
+                return new ButtonStateDifference(toReusableArray(lastButtons.pressedButtons, ref releasedBuffer), Array.Empty<TButton>());
 
-            List<TButton> released = new List<TButton>();
-            List<TButton> pressed = new List<TButton>();
+            int releasedCount = 0;
+            int pressedCount = 0;
+
+            // Ensure buffers are large enough. In practice button counts are tiny (< 20).
+            ensureCapacity(ref releasedBuffer, lastButtons.pressedButtons.Count);
+            ensureCapacity(ref pressedBuffer, pressedButtons.Count);
 
             foreach (var b in pressedButtons)
             {
                 if (!lastButtons.pressedButtons.Contains(b))
-                    pressed.Add(b);
+                    pressedBuffer[pressedCount++] = b;
             }
 
             foreach (var b in lastButtons.pressedButtons)
             {
                 if (!pressedButtons.Contains(b))
-                    released.Add(b);
+                    releasedBuffer[releasedCount++] = b;
             }
 
-            return new ButtonStateDifference(released.ToArray(), pressed.ToArray());
+            return new ButtonStateDifference(
+                releasedCount == 0 ? Array.Empty<TButton>() : releasedBuffer.AsSpan(0, releasedCount).ToArray(),
+                pressedCount == 0 ? Array.Empty<TButton>() : pressedBuffer.AsSpan(0, pressedCount).ToArray());
+        }
+
+        private static TButton[] toReusableArray(HashSet<TButton> set, ref TButton[] buffer)
+        {
+            int count = set.Count;
+
+            if (count == 0)
+                return Array.Empty<TButton>();
+
+            ensureCapacity(ref buffer, count);
+            set.CopyTo(buffer);
+            return buffer.AsSpan(0, count).ToArray();
+        }
+
+        private static void ensureCapacity(ref TButton[] buffer, int needed)
+        {
+            if (buffer.Length < needed)
+                buffer = new TButton[Math.Max(needed, 8)];
         }
 
         /// <summary>

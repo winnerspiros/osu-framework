@@ -13,6 +13,7 @@ using osu.Framework.Audio;
 using osu.Framework.Bindables;
 using osu.Framework.Development;
 using osu.Framework.Logging;
+using osu.Framework.Platform.Linux.Native;
 using osu.Framework.Platform.Windows.Native;
 using LinuxScheduling = osu.Framework.Platform.Linux.Native.Scheduling;
 using MacOSScheduling = osu.Framework.Platform.MacOS.Native.Scheduling;

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.ObjectExtensions;
@@ -81,6 +80,23 @@ namespace osu.Framework.Input
         /// </summary>
         public Drawable? DraggedDrawable { get; protected set; }
 
+        // Reusable list to avoid allocations in handleClick's intersection filtering.
+        private readonly List<Drawable> clickFilteredQueue = new List<Drawable>();
+
+        // Reusable list to avoid allocations in handleDragStart's filtering.
+        private readonly List<Drawable> dragFilteredQueue = new List<Drawable>();
+
+        private bool inputQueueContains(Drawable drawable)
+        {
+            foreach (var d in InputQueue)
+            {
+                if (ReferenceEquals(d, drawable))
+                    return true;
+            }
+
+            return false;
+        }
+
         public void HandlePositionChange(InputState state, Vector2 lastPosition)
         {
             if (EnableDrag)
@@ -150,13 +166,26 @@ namespace osu.Framework.Input
         {
             if (targets == null) return;
 
-            // due to the laziness of IEnumerable, .Where check should be done right before it is triggered for the event.
-            var drawables = targets.Intersect(InputQueue)
-                                   .Where(t => t.IsAlive && t.IsPresent && t.ReceivePositionalInputAt(state.Mouse.Position));
+            // Manual intersection + filtering avoids LINQ Intersect/Where allocations on click hot path.
+            clickFilteredQueue.Clear();
+
+            foreach (var t in targets)
+            {
+                if (!t.IsAlive || !t.IsPresent)
+                    continue;
+
+                if (!t.ReceivePositionalInputAt(state.Mouse.Position))
+                    continue;
+
+                if (!inputQueueContains(t))
+                    continue;
+
+                clickFilteredQueue.Add(t);
+            }
 
             InputManager.FocusedDrawableThisClick = null;
 
-            Drawable? clicked = PropagateButtonEvent(drawables, new ClickEvent(state, Button, MouseDownPosition));
+            Drawable? clicked = PropagateButtonEvent(clickFilteredQueue, new ClickEvent(state, Button, MouseDownPosition));
             ClickedDrawable.SetTarget(clicked!);
 
             // Focus shall only change if it wasn't explicitly changed during the click (for example, using a button to open a menu).
@@ -200,10 +229,16 @@ namespace osu.Framework.Input
 
             DragStarted = true;
 
-            // also the laziness of IEnumerable here
-            var drawables = ButtonDownInputQueue.AsNonNull().Where(d => d.IsRootedAt(InputManager));
+            // Filter in-place to avoid LINQ allocation.
+            dragFilteredQueue.Clear();
 
-            var draggable = PropagateButtonEvent(drawables, new DragStartEvent(state, Button, MouseDownPosition));
+            foreach (var d in ButtonDownInputQueue.AsNonNull())
+            {
+                if (d.IsRootedAt(InputManager))
+                    dragFilteredQueue.Add(d);
+            }
+
+            var draggable = PropagateButtonEvent(dragFilteredQueue, new DragStartEvent(state, Button, MouseDownPosition));
             if (draggable != null)
                 handleDragDrawableBegin(draggable);
         }

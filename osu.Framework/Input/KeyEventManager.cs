@@ -2,8 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Collections.Generic;
-using System.Linq;
-using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Input.Events;
 using osu.Framework.Input.States;
@@ -22,10 +20,32 @@ namespace osu.Framework.Input
 
         public void HandleRepeat(InputState state)
         {
-            // Only drawables that can still handle input should handle the repeat
-            var drawables = ButtonDownInputQueue.AsNonNull().Intersect(InputQueue);
+            if (ButtonDownInputQueue == null)
+                return;
 
-            PropagateButtonEvent(drawables, new KeyDownEvent(state, Button, true));
+            // Manual intersection avoids LINQ Intersect allocation on every repeat frame.
+            repeatFilteredQueue.Clear();
+
+            foreach (var drawable in ButtonDownInputQueue)
+            {
+                if (drawable.IsAlive && drawable.IsPresent && inputQueueContains(drawable))
+                    repeatFilteredQueue.Add(drawable);
+            }
+
+            PropagateButtonEvent(repeatFilteredQueue, new KeyDownEvent(state, Button, true));
+        }
+
+        private readonly List<Drawable> repeatFilteredQueue = new List<Drawable>();
+
+        private bool inputQueueContains(Drawable drawable)
+        {
+            foreach (var d in InputQueue)
+            {
+                if (ReferenceEquals(d, drawable))
+                    return true;
+            }
+
+            return false;
         }
 
         protected override Drawable? HandleButtonDown(InputState state, List<Drawable> targets) => PropagateButtonEvent(targets, new KeyDownEvent(state, Button));

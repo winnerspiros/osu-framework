@@ -82,7 +82,12 @@ namespace osu.Framework.Graphics.Veldrid
             if (syncToVBlank)
                 return "FIFO_RELAXED / FIFO";
 
-            if (allowTearing || OperatingSystem.IsAndroid())
+            // On Android, prefer MAILBOX for lower latency with frame pacing (no tearing).
+            // MAILBOX replaces queued frames instead of blocking, giving ~1 frame lower latency than FIFO.
+            if (OperatingSystem.IsAndroid())
+                return allowTearing ? "IMMEDIATE / MAILBOX" : "MAILBOX / IMMEDIATE";
+
+            if (allowTearing)
                 return "IMMEDIATE";
 
             return "IMMEDIATE / FIFO_RELAXED / FIFO";

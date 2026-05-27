@@ -48,6 +48,22 @@ namespace osu.Framework.Android
             {
                 Logger.Log($"Failed to set Android thread priority: {ex.Message}", LoggingTarget.Runtime, LogLevel.Debug);
             }
+
+            // Use SustainedLowLatency GC mode to prevent Gen2 collections during gameplay.
+            // This reduces frame hitches caused by stop-the-world pauses on mobile where
+            // frame budgets are tight (8.3ms at 120Hz).
+            try
+            {
+                System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.SustainedLowLatency;
+                Logger.Log("GC latency mode set to SustainedLowLatency.", LoggingTarget.Runtime, LogLevel.Important);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Failed to set GC latency mode: {ex.Message}", LoggingTarget.Runtime, LogLevel.Debug);
+            }
+
+            // Register thermal status listener on API 29+ (Android 10+) to detect thermal throttling.
+            registerThermalListener();
         }
 
         protected override IWindow CreateWindow(GraphicsSurfaceType preferredSurface) => new AndroidGameWindow(preferredSurface, Options.FriendlyGameName);
@@ -345,5 +361,75 @@ namespace osu.Framework.Android
         {
             return activity.MoveTaskToBack(true);
         }
+
+        #region Thermal monitoring
+
+        /// <summary>
+        /// Registers a thermal status listener on API 29+ that logs thermal state changes.
+        /// Games can override <see cref="OnThermalStatusChanged"/> to reduce workload.
+        /// </summary>
+        private void registerThermalListener()
+        {
+            if (global::Android.OS.Build.VERSION.SdkInt < global::Android.OS.BuildVersionCodes.Q)
+                return;
+
+            try
+            {
+                var powerManager = activity.GetSystemService(Context.PowerService) as global::Android.OS.PowerManager;
+
+                if (powerManager == null)
+                {
+                    Logger.Log("PowerManager not available for thermal monitoring.", LoggingTarget.Runtime, LogLevel.Debug);
+                    return;
+                }
+
+                powerManager.AddThermalStatusListener(activity.MainExecutor!, new ThermalStatusListener(this));
+                Logger.Log("Android thermal status listener registered.", LoggingTarget.Runtime, LogLevel.Debug);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Failed to register thermal listener: {ex.Message}", LoggingTarget.Runtime, LogLevel.Debug);
+            }
+        }
+
+        /// <summary>
+        /// Called when the device thermal status changes. Override in derived hosts to
+        /// reduce frame rate or GPU workload under thermal pressure.
+        /// </summary>
+        /// <param name="status">The new thermal status (0=None, 1=Light, 2=Moderate, 3=Severe, 4=Critical, 5=Emergency, 6=Shutdown).</param>
+        protected virtual void OnThermalStatusChanged(global::Android.OS.ThermalStatus status)
+        {
+            string label = (int)status switch
+            {
+                0 => "None",
+                1 => "Light",
+                2 => "Moderate",
+                3 => "Severe",
+                4 => "Critical",
+                5 => "Emergency",
+                6 => "Shutdown",
+                _ => $"Unknown({(int)status})"
+            };
+
+            var level = (int)status >= 3 ? LogLevel.Important : LogLevel.Debug;
+            Logger.Log($"Android thermal status changed: {label} (level={status})", LoggingTarget.Runtime, level);
+        }
+
+        private class ThermalStatusListener : Java.Lang.Object, global::Android.OS.PowerManager.IOnThermalStatusChangedListener
+        {
+            private readonly AndroidGameHost host;
+
+            public ThermalStatusListener(AndroidGameHost host)
+            {
+                this.host = host;
+            }
+
+            public void OnThermalStatusChanged(global::Android.OS.ThermalStatus status)
+            {
+                host.OnThermalStatusChanged(status);
+            }
+        }
+
+        #endregion
     }
 }

@@ -8,52 +8,147 @@
 [![GitHub release](https://img.shields.io/github/release/winnerspiros/osu-framework.svg)](https://github.com/winnerspiros/osu-framework/releases/latest)
 [![dev chat](https://discordapp.com/api/guilds/188630481301012481/widget.png?style=shield)](https://discord.gg/ppy)
 
-A game framework written with [osu!](https://github.com/ppy/osu) in mind.
+A high-performance, cross-platform game framework written with [osu!](https://github.com/ppy/osu) in mind.
 
 > **This is the [winnerspiros/osu-framework](https://github.com/winnerspiros/osu-framework) performance fork.** It tracks [ppy/osu-framework](https://github.com/ppy/osu-framework) upstream and layers latency/throughput improvements on top. See [Changes from upstream](#changes-from-upstream-ppyosu-framework) for the full diff.
 
-## Developing a game using osu!framework
+---
 
-If you are interested in **creating a project** using the framework, please start from the [getting started](https://github.com/ppy/osu-framework/wiki/Setting-up-your-first-project) wiki resources (or jump straight over to the [project templates](https://github.com/ppy/osu-framework/tree/master/osu.Framework.Templates)). You can either start off from an empty project, or take a peek at a working sample game. Either way, full project structure, cross-platform support, and  a testing setup are included!
+## ✨ Key Features
 
-The rest of the information on this page is related to working *on* the framework, not *using* it!
+| Category | Highlights |
+|----------|-----------|
+| **Rendering** | Multi-backend via Veldrid: Direct3D 11, Direct3D 12, Vulkan, Metal, OpenGL |
+| **Audio** | BASS engine with per-platform low-latency tuning (WASAPI, AAudio, CoreAudio, PipeWire) |
+| **Input** | Raw keyboard, async key events, high-frequency touch, tablet, joystick |
+| **Low Latency** | NVIDIA Reflex / LatencyFlex integration, WASAPI event-driven, AAudio minimal buffers |
+| **Platforms** | Windows, Linux, macOS, Android (API 33+), iOS (13.4+) |
+| **Runtime** | .NET 10, C# 14, System.Threading.Lock, profiled AOT on mobile |
+| **Testing** | Visual test framework, per-component isolation, headless CI support |
 
-## Objectives
+---
 
-This framework is intended to take steps beyond what you would normally expect from a game framework. This means things like basic UI elements, text rendering, advanced input handling (textboxes) and performance overlays are provided out-of-the-box. Any of the osu! code that is deemed useful to other game projects will live in this framework project.
+## 🖥️ Platform Support
 
-- Anywhere we implement graphical components, they will be displayed with a generic design and will be derivable for further customisation.
-- Common elements used by games (texture caching, font loading) will be automatically initialised at runtime.
-- Allow for isolated development of components via a solid testing environment (`VisualTests` and `TestCases`). Check the [wiki](https://github.com/ppy/osu-framework/wiki/Development-and-Testing) for more information on how these can be used to streamline development.
+| Platform | Renderer | Audio Backend | Low-Latency Audio | Min Version |
+|----------|----------|---------------|-------------------|-------------|
+| **Windows** | D3D11 / D3D12 / Vulkan / OpenGL | BASS + WASAPI (shared/exclusive) | ✅ WASAPI event-driven (~3–5 ms) | Windows 10+ |
+| **Linux** | Vulkan / OpenGL | BASS + PipeWire / PulseAudio / ALSA | ✅ PipeWire reduced quantum (~5 ms) | Kernel 5.4+ |
+| **macOS** | Metal / OpenGL (deprecated) | BASS + CoreAudio | ✅ Reduced I/O buffer (~3–5 ms) | macOS 12+ |
+| **Android** | Vulkan / OpenGL ES | BASS + AAudio | ✅ AAudio low-latency mode (~5–10 ms) | API 33 (Android 13) |
+| **iOS** | Metal | BASS + CoreAudio | ✅ Reduced I/O buffer (~3–5 ms) | iOS 13.4+ |
 
-## Requirements
+---
 
-- A desktop platform with the [.NET 10.0 SDK](https://dotnet.microsoft.com/download).
-- When running on linux, please have a system-wide ffmpeg installation available to support video decoding.
-- When running on Windows 7 or 8.1, *[additional prerequisites](https://docs.microsoft.com/en-us/dotnet/core/install/windows?tabs=net60&pivots=os-windows#dependencies)** may be required to correctly run .NET 10 applications if your operating system is not up-to-date with the latest service packs.
-- When working with the codebase, we recommend using an IDE with intellisense and syntax highlighting, such as [Visual Studio 2019+](https://visualstudio.microsoft.com/vs/), [Jetbrains Rider](https://www.jetbrains.com/rider/), or [Visual Studio Code](https://code.visualstudio.com/) with the [EditorConfig](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig) and [C#](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp) plugin installed.
+## 🚀 Getting Started
+
+### For game developers
+
+If you want to **create a game** using the framework:
+1. Start from the [getting started wiki](https://github.com/ppy/osu-framework/wiki/Setting-up-your-first-project)
+2. Or use the [project templates](https://github.com/ppy/osu-framework/tree/master/osu.Framework.Templates) directly
+3. Full cross-platform support, testing setup, and project structure included out of the box
+
+### For framework contributors
+
+The rest of this README is for working **on** the framework itself.
+
+---
+
+## 📋 Requirements
+
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download) (all platforms)
+- **Linux:** system-wide FFmpeg for video decoding
+- **Android:** JDK 17, Android workload (`dotnet workload install android`)
+- **iOS:** Xcode 26+, iOS workload (`dotnet workload install ios`)
+- **IDE:** [Visual Studio 2022+](https://visualstudio.microsoft.com/vs/), [JetBrains Rider](https://www.jetbrains.com/rider/), or [VS Code](https://code.visualstudio.com/) with C# + EditorConfig extensions
 
 ### Building
 
-Build configurations for the recommended IDEs (listed above) are included. You should use the provided Build/Run functionality of your IDE to get things going. When testing or building new components, it's highly encouraged you use the `VisualTests` project/configuration. More information on this provided [below](#contributing).
+```bash
+# Desktop (Windows/Linux/macOS)
+dotnet build -c Debug osu-framework.Desktop.slnf
 
-- Visual Studio / Rider users should load the project via one of the platform-specific .slnf files, rather than the main .sln. This will allow access to template run configurations.
+# Android
+dotnet workload install android
+dotnet build -c Debug osu-framework.Android.slnf
+
+# iOS (macOS only)
+dotnet workload install ios
+dotnet build -c Debug osu-framework.iOS.slnf
+```
+
+> **IDE users:** Load the platform-specific `.slnf` file (not the main `.sln`) for access to template run configurations.
 
 ### Code analysis
 
-Code analysis can be run with `powershell ./InspectCode.ps1` or `InspectCode.sh`.
+```bash
+# PowerShell
+./InspectCode.ps1
 
-## Contributing
+# Bash
+./InspectCode.sh
+
+# Code style enforcement
+dotnet build -c Debug -warnaserror osu-framework.Desktop.slnf -p:EnforceCodeStyleInBuild=true
+```
+
+---
+
+## 🎚️ Audio Latency Modes
+
+The framework provides a configurable `AudioLatencyMode` setting that selects the optimal backend and buffer sizes for each platform:
+
+| Mode | Windows | Linux | macOS | Android | iOS |
+|------|---------|-------|-------|---------|-----|
+| **Standard** | DirectSound | PulseAudio defaults | CoreAudio default | AAudio ~512 samples | CoreAudio default |
+| **Low Latency** | WASAPI shared (~3–5 ms) | PipeWire ~256 samples | CoreAudio ~256 samples | AAudio ~256 samples | CoreAudio ~256 samples |
+| **Minimal** | WASAPI exclusive/min period | PipeWire/JACK ~128 samples | CoreAudio ~128 samples | AAudio ~128 samples | CoreAudio ~128 samples |
+
+Configure via `FrameworkSetting.AudioLatencyMode` in code or the `framework.ini` file.
+
+> **Note:** The legacy `AudioUseExperimentalWasapi` setting is still supported and interoperates with the new latency mode (enabling low-latency/minimal on Windows will automatically activate WASAPI).
+
+---
+
+## ⚡ Low-Latency Rendering
+
+The framework includes a generic low-latency rendering infrastructure:
+
+- **`ILowLatencyProvider`** — interface for GPU-side latency reduction (NVIDIA Reflex, LatencyFlex)
+- **Latency markers** — `SimulationStart/End`, `RenderSubmitStart/End`, `PresentStart/End`, `InputSample`
+- **`FrameSleep()`** — provider-controlled sleep for Reflex Boost mode
+- **`LatencyMode` setting** — `Off` / `On` / `Boost` via `FrameworkConfigManager`
+- Supports both D3D11 and D3D12 native device handles
+
+---
+
+## �� AI Optimisation Agents
+
+The [`agents/`](agents/) directory contains AI agent instructions for platform-specific performance analysis. Feed these to any AI tool (Copilot, Claude, ChatGPT) to get targeted optimisation suggestions:
+
+| Agent | Focus |
+|-------|-------|
+| [🌐 Overall](agents/overall.md) | Cross-platform allocations, threading, data structures |
+| [🟦 Windows](agents/windows.md) | WASAPI, D3D11/D3D12, Reflex, raw input |
+| [🐧 Linux](agents/linux.md) | PipeWire/JACK, Vulkan, Wayland |
+| [🍎 macOS](agents/macos.md) | CoreAudio, Metal, Apple Silicon |
+| [🤖 Android](agents/android.md) | AAudio, Vulkan swapchain, ADPF, 16KB pages |
+| [📱 iOS](agents/ios.md) | CoreAudio, Metal TBDR, AOT, thermal management |
+
+---
+
+## 🔄 Contributing
 
 Contributions can be made via pull requests to this repository.
 
 If you're unsure of what you can help with, check out the [list of open issues](https://github.com/winnerspiros/osu-framework/issues).
 
-Before starting, please make sure you are familiar with the [development and testing](https://github.com/ppy/osu-framework/wiki/Development-and-Testing) procedure we have set up. New component development, and where possible, bug fixing and debugging existing components **should always be done under VisualTests**.
+Before starting, please make sure you are familiar with the [development and testing](https://github.com/ppy/osu-framework/wiki/Development-and-Testing) procedure. New component development, and where possible, bug fixing and debugging **should always be done under VisualTests**.
 
-Note that while we already have certain standards in place, nothing is set in stone. If you have an issue with the way code is structured; with any libraries we are using; with any processes involved with contributing, *please* bring it up. We welcome all feedback so we can make contributing to this project as pain-free as possible.
+Note that while we already have certain standards in place, nothing is set in stone. If you have an issue with the way code is structured, with any libraries we are using, or with any processes involved with contributing, *please* bring it up. We welcome all feedback so we can make contributing to this project as pain-free as possible.
 
-Our team believes in **human contributions**. Any contribution – be it an issue report or a pull request – which is created by, documented by, or aided by AI/LLM usage will typically be **closed and locked without further discussion**.
+---
 
 ## Migration: osuTK / OpenTK → System.Numerics + custom GL
 
@@ -142,6 +237,18 @@ The framework explicitly wires the fork's new **public API surface** (`BackendIn
 - Provider auto-initialises on the draw thread using the native D3D11 or D3D12 device handle from Veldrid's `BackendInfoD3D11` / `BackendInfoD3D12`.
 - `LatencyMode` setting (`Off` / `On` / `Boost`) added to `FrameworkConfigManager`.
 - Inspired by [upstream PR #6666](https://github.com/ppy/osu-framework/pull/6666).
+
+### 🎚️ Audio latency modes (NEW)
+
+- **`AudioLatencyMode`** enum (`Standard` / `LowLatency` / `Minimal`) with per-platform backend selection:
+  - **Windows:** WASAPI shared/exclusive mode, configurable period
+  - **Linux:** PipeWire / JACK / PulseAudio with reduced buffer quantum
+  - **macOS:** CoreAudio with minimised I/O buffer duration
+  - **Android:** AAudio with configurable sample count (-128 to -512)
+  - **iOS:** CoreAudio with reduced I/O buffer duration
+- `FrameworkSetting.AudioLatencyMode` exposed in `FrameworkConfigManager`
+- Interoperates with legacy `AudioUseExperimentalWasapi` setting
+- `GlobalMixerHandle` exposed publicly for external low-latency integrations (e.g. Oboe redirector)
 
 ### 🎚 Frame rate limiter enhancements
 
@@ -235,6 +342,8 @@ The log `StreamWriter` is now kept open for the lifetime of the logger. Previous
 - `AndroidManifest.xml` updated to `minSdkVersion="33"` / `targetSdkVersion="36"`.
 - Obsolete `READ_EXTERNAL_STORAGE` permission removed (only applied to API ≤ 32).
 - Release config: profiled AOT (`AndroidEnableProfiledAot`), partial trimming, `AndroidStripILAfterAOT=false` (avoids `plt_entry` crashes), `EnableLLVM` removed (incompatible with profiled AOT).
+- Native libraries built with **16 KB page alignment** (`-Wl,-z,max-page-size=16384`) for Android 15+ compatibility.
+- SDL3 OpenGL surface setup disables `SDL_GL_FRAMEBUFFER_SRGB_CAPABLE` on Android to avoid device-specific colour shifts.
 
 ### 🍎 iOS build configuration
 
@@ -247,25 +356,26 @@ The log `StreamWriter` is now kept open for the lifetime of the logger. Previous
 - CI `CodeFileSanity` step excludes the veldrid / veldrid-spirv submodule directories.
 - `EnforceCodeStyleInBuild=true` build passes with **0 warnings, 0 errors** (includes Roslyn analyser rules `IDE0052` etc.).
 
-## Licence
+---
+
+## 📄 Licence
 
 This framework is licensed under the [MIT licence](https://opensource.org/licenses/MIT). Please see [the licence file](LICENCE) for more information. [tl;dr](https://tldrlegal.com/license/mit-license) you can do whatever you want as long as you include the original copyright and license notice in any copy of the software/source.
 
 The BASS audio library (a dependency of this framework) is a commercial product. While it is free for non-commercial use, please ensure to [obtain a valid licence](http://www.un4seen.com/bass.html#license) if you plan on distributing any application using it commercially.
 
-## Projects that use osu!framework
+---
 
-[osu!](https://github.com/ppy/osu) – rhythm is just a *click* away!
+## 🎮 Projects that use osu!framework
 
-[GDEdit](https://github.com/gd-edit/GDE) - A third-party Geometry Dash editor.
-
-[Vignette](https://github.com/vignette-project/vignette) - An OpenCV-based facial recognition software for Live2D
-
-[IWBTM](https://github.com/EVAST9919/iwbtm) - A platform game with level editor based off of "I Wanna..." games
-
-[DeltaDash](https://deltada.sh/) - A multi-direction, lane-based scroller rhythm game
-
-[fluXis](https://github.com/TeamFluXis/fluXis) - A community-driven rhythm game with a focus on creativity and expression
+| Project | Description |
+|---------|-------------|
+| [osu!](https://github.com/ppy/osu) | Rhythm is just a *click* away! |
+| [GDEdit](https://github.com/gd-edit/GDE) | A third-party Geometry Dash editor |
+| [Vignette](https://github.com/vignette-project/vignette) | OpenCV-based facial recognition for Live2D |
+| [IWBTM](https://github.com/EVAST9919/iwbtm) | Platform game with level editor based on "I Wanna..." games |
+| [DeltaDash](https://deltada.sh/) | Multi-direction, lane-based scroller rhythm game |
+| [fluXis](https://github.com/TeamFluXis/fluXis) | Community-driven rhythm game with creativity focus |
 
 <!--
 We love to see people using our framework! Add your project here via a PR!

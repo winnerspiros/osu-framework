@@ -61,6 +61,7 @@ namespace osu.Framework.Graphics.UserInterface
         protected Container<DrawableMenuItem> ItemsContainer => itemsFlow;
 
         private FillFlowContainer<DrawableMenuItem> itemsFlow;
+        private readonly List<DrawableMenuItem> sortedChildrenBuffer = new List<DrawableMenuItem>();
 
         /// <summary>
         /// The container that provides the masking effects for this <see cref="Menu"/>.
@@ -305,7 +306,10 @@ namespace osu.Framework.Graphics.UserInterface
 
             drawableItem.SetFlowDirection(Direction);
 
-            var items = Children.OrderBy(itemsFlow.GetLayoutPosition).ToList();
+            sortedChildrenBuffer.Clear();
+            sortedChildrenBuffer.AddRange(Children);
+            sortedChildrenBuffer.Sort((a, b) => itemsFlow.GetLayoutPosition(a).CompareTo(itemsFlow.GetLayoutPosition(b)));
+            var items = sortedChildrenBuffer;
 
             for (int i = position; i < items.Count; i++)
                 itemsFlow.SetLayoutPosition(items[i], i + 1);
@@ -330,7 +334,10 @@ namespace osu.Framework.Graphics.UserInterface
         /// <returns>Whether <paramref name="item"/> was successfully removed.</returns>
         public bool Remove(MenuItem item)
         {
-            var items = Children.OrderBy(itemsFlow.GetLayoutPosition).ToList();
+            sortedChildrenBuffer.Clear();
+            sortedChildrenBuffer.AddRange(Children);
+            sortedChildrenBuffer.Sort((a, b) => itemsFlow.GetLayoutPosition(a).CompareTo(itemsFlow.GetLayoutPosition(b)));
+            var items = sortedChildrenBuffer;
             bool removed = false;
 
             for (int i = 0; i < items.Count; i++)

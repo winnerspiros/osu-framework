@@ -17,7 +17,9 @@ namespace osu.Framework.Platform.Linux.Native
         [StructLayout(LayoutKind.Sequential)]
         private struct sched_param
         {
+#pragma warning disable IDE1006 // Matches the native Linux struct field name for P/Invoke compatibility.
             public int sched_priority;
+#pragma warning restore IDE1006
         }
 
         [DllImport("libc", SetLastError = true)]

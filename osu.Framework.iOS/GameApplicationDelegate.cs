@@ -96,7 +96,8 @@ namespace osu.Framework.iOS
         /// Called when the system is running low on memory. iOS has no swap, so this is the
         /// last chance to free resources before the app is killed by the OS.
         /// </summary>
-        public override void DidReceiveMemoryWarning(UIApplication application)
+        [Export("applicationDidReceiveMemoryWarning:")]
+        public void DidReceiveMemoryWarning(UIApplication application)
         {
             Logger.Log("iOS memory warning received — forcing GC and requesting resource eviction.", LoggingTarget.Runtime, LogLevel.Important);
 

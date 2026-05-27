@@ -609,13 +609,13 @@ namespace osu.Framework.Audio
         {
             // PipeWire exposes itself as PulseAudio to clients, so check for the PipeWire
             // runtime directory or environment variable first.
-            string? pipewireRuntime = Environment.GetEnvironmentVariable("PIPEWIRE_RUNTIME_DIR");
+            string pipewireRuntime = Environment.GetEnvironmentVariable("PIPEWIRE_RUNTIME_DIR");
 
             if (!string.IsNullOrEmpty(pipewireRuntime))
                 return "pipewire";
 
             // Check XDG_RUNTIME_DIR for PipeWire socket
-            string? xdgRuntime = Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR");
+            string xdgRuntime = Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR");
 
             if (!string.IsNullOrEmpty(xdgRuntime) && System.IO.File.Exists(System.IO.Path.Combine(xdgRuntime, "pipewire-0")))
                 return "pipewire";
@@ -726,7 +726,7 @@ namespace osu.Framework.Audio
 
         /// <summary>
         /// iOS audio latency configuration using CoreAudio (AVAudioSession).
-        /// The preferred I/O buffer duration is set in <see cref="GameApplicationDelegate.FinishedLaunching"/>
+        /// The preferred I/O buffer duration is set in <c>GameApplicationDelegate.FinishedLaunching</c>
         /// via <c>AVAudioSession.SetPreferredIOBufferDuration</c>. BASS DevicePeriod further tunes
         /// the internal mixing buffer. Combined with the 5ms AVAudioSession preference, this achieves
         /// ~3-5ms total output latency on modern iOS devices.

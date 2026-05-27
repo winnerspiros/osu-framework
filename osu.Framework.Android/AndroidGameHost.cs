@@ -397,9 +397,9 @@ namespace osu.Framework.Android
         /// reduce frame rate or GPU workload under thermal pressure.
         /// </summary>
         /// <param name="status">The new thermal status (0=None, 1=Light, 2=Moderate, 3=Severe, 4=Critical, 5=Emergency, 6=Shutdown).</param>
-        protected virtual void OnThermalStatusChanged(int status)
+        protected virtual void OnThermalStatusChanged(global::Android.OS.ThermalStatus status)
         {
-            string label = status switch
+            string label = (int)status switch
             {
                 0 => "None",
                 1 => "Light",
@@ -408,10 +408,10 @@ namespace osu.Framework.Android
                 4 => "Critical",
                 5 => "Emergency",
                 6 => "Shutdown",
-                _ => $"Unknown({status})"
+                _ => $"Unknown({(int)status})"
             };
 
-            var level = status >= 3 ? LogLevel.Important : LogLevel.Debug;
+            var level = (int)status >= 3 ? LogLevel.Important : LogLevel.Debug;
             Logger.Log($"Android thermal status changed: {label} (level={status})", LoggingTarget.Runtime, level);
         }
 
@@ -424,7 +424,7 @@ namespace osu.Framework.Android
                 this.host = host;
             }
 
-            public void OnThermalStatusChanged(int status)
+            public void OnThermalStatusChanged(global::Android.OS.ThermalStatus status)
             {
                 host.OnThermalStatusChanged(status);
             }

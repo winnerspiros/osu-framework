@@ -201,7 +201,7 @@ namespace osu.Framework.Input.Bindings
 
             // A simplistic approach to key repeat (that mostly matches OS level implementations) is that the last binding - or action - to
             // trigger is the one and only action to repeat.
-            T action = pressedActions[pressedActions.Count - 1];
+            T action = pressedActions[^1];
 
             var pressEvent = new KeyBindingPressEvent<T>(state, action, true);
 

@@ -15,7 +15,7 @@ namespace osu.Framework.Platform.Linux.Native
         private const int sched_fifo = 1;
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct sched_param
+        private struct SchedParam
         {
 #pragma warning disable IDE1006 // Matches the native Linux struct field name for P/Invoke compatibility.
             public int sched_priority;
@@ -23,7 +23,7 @@ namespace osu.Framework.Platform.Linux.Native
         }
 
         [DllImport("libc", SetLastError = true)]
-        private static extern int sched_setscheduler(int pid, int policy, ref sched_param param);
+        private static extern int sched_setscheduler(int pid, int policy, ref SchedParam param);
 
         /// <summary>
         /// Attempts to set the calling thread to SCHED_FIFO real-time scheduling.
@@ -38,7 +38,7 @@ namespace osu.Framework.Platform.Linux.Native
 
             try
             {
-                var param = new sched_param { sched_priority = priority };
+                var param = new SchedParam { sched_priority = priority };
                 int result = sched_setscheduler(0, sched_fifo, ref param);
 
                 if (result == 0)

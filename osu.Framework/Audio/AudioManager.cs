@@ -769,6 +769,7 @@ namespace osu.Framework.Audio
 
             var oldDeviceNames = audioDeviceNames;
             var builder = ImmutableList.CreateBuilder<string>();
+
             for (int i = BASS_INTERNAL_DEVICE_COUNT; i < audioDevices.Length; i++)
             {
                 if (audioDevices[i].IsEnabled)

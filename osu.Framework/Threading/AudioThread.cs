@@ -284,10 +284,9 @@ namespace osu.Framework.Threading
                     Flags: WasapiInitFlags.Exclusive | WasapiInitFlags.EventDriven | WasapiInitFlags.AutoFormat,
                     Buffer: 0f, Period: float.Epsilon);
 
-                if (initialised)
-                    Logger.Log($"WASAPI exclusive mode initialised for device {wasapiDevice}.");
-                else
-                    Logger.Log($"WASAPI exclusive mode failed for device {wasapiDevice}, falling back to shared mode.");
+                Logger.Log(initialised
+                    ? $"WASAPI exclusive mode initialised for device {wasapiDevice}."
+                    : $"WASAPI exclusive mode failed for device {wasapiDevice}, falling back to shared mode.");
             }
 
             // Fall back to (or directly use) shared event-driven mode.

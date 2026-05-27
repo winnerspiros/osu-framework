@@ -111,7 +111,7 @@ namespace osu.Framework.Audio.NativeOutput
         #region Native Imports
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int AURenderCallback(
+        private delegate int AuRenderCallback(
             IntPtr inRefCon,
             ref uint ioActionFlags,
             ref AudioTimeStamp inTimeStamp,
@@ -120,7 +120,7 @@ namespace osu.Framework.Audio.NativeOutput
             IntPtr ioData);
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct AURenderCallbackStruct
+        private struct AuRenderCallbackStruct
         {
             public IntPtr InputProc;
             public IntPtr InputProcRefCon;
@@ -162,7 +162,7 @@ namespace osu.Framework.Audio.NativeOutput
             uint inID,
             uint inScope,
             uint inElement,
-            ref AURenderCallbackStruct inData,
+            ref AuRenderCallbackStruct inData,
             uint inDataSize);
 
         [DllImport(lib_core_audio)]
@@ -198,7 +198,7 @@ namespace osu.Framework.Audio.NativeOutput
         #endregion
 
         private IntPtr audioUnit;
-        private AURenderCallback? renderCallbackDelegate;
+        private AuRenderCallback? renderCallbackDelegate;
         private readonly Func<int?> getMixerHandle;
         private int sampleRate;
 
@@ -293,7 +293,7 @@ namespace osu.Framework.Audio.NativeOutput
 
                 // Set the render callback — prevents GC collection by holding delegate reference.
                 renderCallbackDelegate = renderCallback;
-                var callbackStruct = new AURenderCallbackStruct
+                var callbackStruct = new AuRenderCallbackStruct
                 {
                     InputProc = Marshal.GetFunctionPointerForDelegate(renderCallbackDelegate),
                     InputProcRefCon = IntPtr.Zero,
@@ -305,7 +305,7 @@ namespace osu.Framework.Audio.NativeOutput
                     k_audio_unit_scope_input,
                     0,
                     ref callbackStruct,
-                    (uint)Marshal.SizeOf<AURenderCallbackStruct>());
+                    (uint)Marshal.SizeOf<AuRenderCallbackStruct>());
 
                 if (status != 0)
                 {
@@ -379,10 +379,10 @@ namespace osu.Framework.Audio.NativeOutput
             uint bufferSize = (uint)frames;
             status = AudioObjectSetPropertyData(deviceID, ref bufferAddress, 0, IntPtr.Zero, sizeof(uint), ref bufferSize);
 
-            if (status != 0)
-                Logger.Log($"CoreAudio: Could not set buffer frame size to {frames} (status={status}). Hardware will use its default.", LoggingTarget.Runtime, LogLevel.Debug);
-            else
-                Logger.Log($"CoreAudio: Hardware buffer frame size set to {frames}.", LoggingTarget.Runtime, LogLevel.Debug);
+            Logger.Log(status != 0
+                ? $"CoreAudio: Could not set buffer frame size to {frames} (status={status}). Hardware will use its default."
+                : $"CoreAudio: Hardware buffer frame size set to {frames}.",
+                LoggingTarget.Runtime, LogLevel.Debug);
         }
 
         /// <summary>

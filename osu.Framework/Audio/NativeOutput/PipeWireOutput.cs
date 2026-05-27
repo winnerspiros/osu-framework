@@ -31,18 +31,11 @@ namespace osu.Framework.Audio.NativeOutput
 
         #region Native Structs
 
-        [StructLayout(LayoutKind.Sequential)]
-        private struct spa_pod
-        {
-            public uint Size;
-            public uint Type;
-        }
-
         /// <summary>
         /// Minimal representation of struct pw_buffer.
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
-        private struct pw_buffer
+        private struct PwBuffer
         {
             public IntPtr Buffer; // struct spa_buffer*
             public IntPtr UserData;
@@ -54,7 +47,7 @@ namespace osu.Framework.Audio.NativeOutput
         /// Minimal representation of struct spa_buffer.
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
-        private struct spa_buffer
+        private struct SpaBuffer
         {
             public uint NMetas;
             public uint NDatas;
@@ -66,7 +59,7 @@ namespace osu.Framework.Audio.NativeOutput
         /// Represents one plane of buffer data (struct spa_data).
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
-        private struct spa_data
+        private struct SpaData
         {
             public uint Type;
             public uint Flags;
@@ -81,7 +74,7 @@ namespace osu.Framework.Audio.NativeOutput
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct pw_stream_events
+        private struct PwStreamEvents
         {
             public uint Version;
             public IntPtr Destroy;
@@ -157,7 +150,7 @@ namespace osu.Framework.Audio.NativeOutput
             IntPtr loop,
             [MarshalAs(UnmanagedType.LPStr)] string name,
             IntPtr props,
-            ref pw_stream_events events,
+            ref PwStreamEvents events,
             IntPtr data);
 
         [DllImport(lib_pipewire)]
@@ -170,7 +163,7 @@ namespace osu.Framework.Audio.NativeOutput
             uint targetId,
             int flags,
             IntPtr[] @params,
-            uint n_params);
+            uint nParams);
 
         [DllImport(lib_pipewire)]
         private static extern int pw_stream_disconnect(IntPtr stream);
@@ -198,7 +191,7 @@ namespace osu.Framework.Audio.NativeOutput
 
         private IntPtr threadLoop;
         private IntPtr stream;
-        private pw_stream_events streamEvents;
+        private PwStreamEvents streamEvents;
         private ProcessDelegate? processDelegate;
         private readonly Func<int?> getMixerHandle;
         private bool isInitialised;
@@ -266,7 +259,7 @@ namespace osu.Framework.Audio.NativeOutput
 
                 // Set up stream events — we only need the process callback.
                 processDelegate = onProcess;
-                streamEvents = new pw_stream_events
+                streamEvents = new PwStreamEvents
                 {
                     Version = pw_stream_events_version,
                     Process = Marshal.GetFunctionPointerForDelegate(processDelegate),
@@ -304,7 +297,7 @@ namespace osu.Framework.Audio.NativeOutput
                 }
 
                 // Connect the stream.
-                int flags = pw_stream_flag_autoconnect | pw_stream_flag_map_buffers | pw_stream_flag_rt_process;
+                const int flags = pw_stream_flag_autoconnect | pw_stream_flag_map_buffers | pw_stream_flag_rt_process;
 
                 int result = pw_stream_connect(
                     stream,
@@ -392,7 +385,7 @@ namespace osu.Framework.Audio.NativeOutput
             const int object_body_header_size = 8; // type + id
             const int num_props = 5; // mediaType, mediaSubtype, format, rate, channels
 
-            int totalSize = object_header_size + object_body_header_size + (num_props * prop_size);
+            const int totalSize = object_header_size + object_body_header_size + (num_props * prop_size);
 
             // Allocate and zero-fill.
             IntPtr pod = Marshal.AllocHGlobal(totalSize);
@@ -436,16 +429,16 @@ namespace osu.Framework.Audio.NativeOutput
             try
             {
                 // Read the pw_buffer structure.
-                var buf = Marshal.PtrToStructure<pw_buffer>(pwBuf);
+                var buf = Marshal.PtrToStructure<PwBuffer>(pwBuf);
 
                 // Access the spa_buffer.
-                var spaBuf = Marshal.PtrToStructure<spa_buffer>(buf.Buffer);
+                var spaBuf = Marshal.PtrToStructure<SpaBuffer>(buf.Buffer);
 
                 if (spaBuf.NDatas == 0 || spaBuf.Datas == IntPtr.Zero)
                     return;
 
                 // Read the first spa_data (interleaved audio).
-                var spaData = Marshal.PtrToStructure<spa_data>(spaBuf.Datas);
+                var spaData = Marshal.PtrToStructure<SpaData>(spaBuf.Datas);
 
                 if (spaData.Data == IntPtr.Zero || spaData.Maxsize == 0)
                     return;

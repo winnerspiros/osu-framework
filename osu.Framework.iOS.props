@@ -19,6 +19,9 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <!-- On release configurations, we use AOT compiler for optimal performance. -->
     <UseInterpreter>false</UseInterpreter>
+    <!-- Enable IL trimming for smaller .ipa and faster cold startup (10-20MB savings). -->
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
   </PropertyGroup>
   <ItemGroup>
     <NativeReference Include="$(MSBuildThisFileDirectory)osu.Framework.iOS\runtimes\ios\native\bass.xcframework" Kind="Framework" SmartLink="false" ForceLoad="true" />

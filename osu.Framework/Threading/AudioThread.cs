@@ -13,7 +13,9 @@ using osu.Framework.Audio;
 using osu.Framework.Bindables;
 using osu.Framework.Development;
 using osu.Framework.Logging;
-using osu.Framework.Platform.Linux.Native;
+using osu.Framework.Platform.Windows.Native;
+using LinuxScheduling = osu.Framework.Platform.Linux.Native.Scheduling;
+using MacOSScheduling = osu.Framework.Platform.MacOS.Native.Scheduling;
 using osu.Framework.Statistics;
 
 namespace osu.Framework.Threading
@@ -40,7 +42,16 @@ namespace osu.Framework.Threading
             base.MakeCurrent();
 
             ThreadSafety.IsAudioThread = true;
+
+            if (RuntimeInfo.OS == RuntimeInfo.Platform.Windows)
+                mmcssHandle = Mmcss.SetThreadCharacteristics();
+            else if (RuntimeInfo.OS == RuntimeInfo.Platform.Linux)
+                LinuxScheduling.TrySetRealtimeScheduling(50);
+            else if (RuntimeInfo.OS == RuntimeInfo.Platform.macOS)
+                MacOSScheduling.TrySetUserInteractiveQoS();
         }
+
+        private IntPtr mmcssHandle;
 
         internal override IEnumerable<StatisticsCounterType> StatisticsCounters => new[]
         {
@@ -123,6 +134,10 @@ namespace osu.Framework.Threading
             // See https://github.com/ppy/osu-framework/pull/3378 for further discussion.
             foreach (int d in initialised_devices.ToArray())
                 FreeDevice(d);
+
+            // Revert MMCSS thread characteristics on Windows.
+            if (RuntimeInfo.OS == RuntimeInfo.Platform.Windows)
+                Mmcss.RevertThreadCharacteristics(mmcssHandle);
         }
 
         #region BASS Initialisation
@@ -131,6 +146,13 @@ namespace osu.Framework.Threading
 
         private WasapiProcedure? wasapiProcedure;
         private WasapiNotifyProcedure? wasapiNotifyProcedure;
+
+        /// <summary>
+        /// Whether to attempt WASAPI exclusive mode initialisation.
+        /// Exclusive mode provides the lowest possible audio latency (~1-3ms) but takes
+        /// sole ownership of the audio device, preventing other apps from producing sound.
+        /// </summary>
+        internal bool UseExclusiveWasapi { get; set; }
 
         /// <summary>
         /// If a global mixer is being used, this will be the BASS handle for it.
@@ -250,8 +272,31 @@ namespace osu.Framework.Threading
                 }
             });
 
-            bool initialised = BassWasapi.Init(wasapiDevice, Procedure: wasapiProcedure, Flags: WasapiInitFlags.EventDriven | WasapiInitFlags.AutoFormat, Buffer: 0f, Period: float.Epsilon);
-            Logger.Log($"Initialising BassWasapi for device {wasapiDevice}...{(initialised ? "success!" : "FAILED")}");
+            bool initialised = false;
+
+            // Try exclusive mode first if requested (Minimal latency mode).
+            // Exclusive mode bypasses the Windows audio engine entirely for sub-3ms latency,
+            // but takes sole ownership of the device.
+            if (UseExclusiveWasapi)
+            {
+                initialised = BassWasapi.Init(wasapiDevice, Procedure: wasapiProcedure,
+                    Flags: WasapiInitFlags.Exclusive | WasapiInitFlags.EventDriven | WasapiInitFlags.AutoFormat,
+                    Buffer: 0f, Period: float.Epsilon);
+
+                if (initialised)
+                    Logger.Log($"WASAPI exclusive mode initialised for device {wasapiDevice}.");
+                else
+                    Logger.Log($"WASAPI exclusive mode failed for device {wasapiDevice}, falling back to shared mode.");
+            }
+
+            // Fall back to (or directly use) shared event-driven mode.
+            if (!initialised)
+            {
+                initialised = BassWasapi.Init(wasapiDevice, Procedure: wasapiProcedure,
+                    Flags: WasapiInitFlags.EventDriven | WasapiInitFlags.AutoFormat,
+                    Buffer: 0f, Period: float.Epsilon);
+                Logger.Log($"Initialising BassWasapi (shared) for device {wasapiDevice}...{(initialised ? "success!" : "FAILED")}");
+            }
 
             if (!initialised)
                 return false;

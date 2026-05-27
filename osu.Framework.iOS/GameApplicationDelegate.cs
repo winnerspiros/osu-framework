@@ -8,6 +8,7 @@ using Foundation;
 using ManagedBass;
 using ManagedBass.Fx;
 using ManagedBass.Mix;
+using osu.Framework.Logging;
 using SDL;
 using UIKit;
 using static SDL.SDL3;
@@ -36,14 +37,73 @@ namespace osu.Framework.iOS
 
             var audioSession = AVAudioSession.SharedInstance();
 
-            // Set the default audio session to one that obeys the mute switch and does not mix with other audio,
-            // and insert an observer to disregard the mute switch when the user presses volume up/down.
-            audioSession.SetCategory(AVAudioSessionCategory.SoloAmbient);
+            // Use Playback category for rhythm-game audio: ignores the mute switch and avoids
+            // audio interruptions. DuckOthers lowers other app audio rather than stopping it.
+            audioSession.SetCategory(AVAudioSessionCategory.Playback, AVAudioSessionCategoryOptions.DuckOthers, out _);
+
+            // Request low-latency I/O buffer duration (~5ms / 240 samples at 48kHz).
+            // CoreAudio will honour the closest hardware-supported value.
+            audioSession.SetPreferredIOBufferDuration(0.005, out _);
+
+            // Request 48kHz sample rate for consistency with BASS engine defaults.
+            audioSession.SetPreferredSampleRate(48000, out _);
+
+            audioSession.SetActive(true, out _);
+
+            // Observe volume changes to track user interaction.
             audioSession.AddObserver(output_volume_observer, output_volume, NSKeyValueObservingOptions.New, 0);
+
+            // Register for thermal state notifications to allow the game to throttle.
+            NSNotificationCenter.DefaultCenter.AddObserver(
+                new NSString("NSProcessInfoThermalStateDidChangeNotification"),
+                OnThermalStateChanged,
+                NSProcessInfo.ProcessInfo);
 
             Host = new IOSGameHost();
             Host.Run(CreateGame());
             return true;
+        }
+
+        /// <summary>
+        /// Called when the system thermal state changes. Games should reduce frame rate and
+        /// GPU workload when thermal state is serious or critical to prevent forced throttling.
+        /// </summary>
+        protected virtual void OnThermalStateChanged(NSNotification notification)
+        {
+            var state = NSProcessInfo.ProcessInfo.ThermalState;
+
+            switch (state)
+            {
+                case NSProcessInfoThermalState.Critical:
+                    Logger.Log("iOS thermal state: CRITICAL — recommend reducing to 30 FPS.", LoggingTarget.Runtime, LogLevel.Important);
+                    break;
+
+                case NSProcessInfoThermalState.Serious:
+                    Logger.Log("iOS thermal state: Serious — recommend reducing to 60 FPS.", LoggingTarget.Runtime, LogLevel.Important);
+                    break;
+
+                case NSProcessInfoThermalState.Fair:
+                    Logger.Log("iOS thermal state: Fair — performance may be limited.", LoggingTarget.Runtime, LogLevel.Debug);
+                    break;
+
+                default:
+                    Logger.Log("iOS thermal state: Nominal.", LoggingTarget.Runtime, LogLevel.Debug);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Called when the system is running low on memory. iOS has no swap, so this is the
+        /// last chance to free resources before the app is killed by the OS.
+        /// </summary>
+        public override void DidReceiveMemoryWarning(UIApplication application)
+        {
+            Logger.Log("iOS memory warning received — forcing GC and requesting resource eviction.", LoggingTarget.Runtime, LogLevel.Important);
+
+            // Force aggressive garbage collection
+            GC.Collect(2, GCCollectionMode.Aggressive, true);
+            GC.WaitForPendingFinalizers();
+            GC.Collect(2, GCCollectionMode.Aggressive, true);
         }
 
         public virtual bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)

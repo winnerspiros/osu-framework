@@ -25,6 +25,12 @@ namespace osu.Framework.Platform.MacOS
         {
         }
 
+        protected override void SetupForRun()
+        {
+            base.SetupForRun();
+            AppNap.Disable();
+        }
+
         protected override IWindow CreateWindow(GraphicsSurfaceType preferredSurface)
             => FrameworkEnvironment.UseSDL3
                 ? new SDL3MacOSWindow(preferredSurface, Options.FriendlyGameName)
@@ -96,6 +102,12 @@ namespace osu.Framework.Platform.MacOS
         }
 
         public override IEnumerable<KeyBinding> PlatformKeyBindings => KeyBindings;
+
+        protected override void Dispose(bool isDisposing)
+        {
+            AppNap.Enable();
+            base.Dispose(isDisposing);
+        }
 
         /// <summary>
         /// <see cref="PlatformKeyBindings"/> for macOS and iOS.

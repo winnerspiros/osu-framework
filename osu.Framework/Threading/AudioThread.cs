@@ -372,11 +372,8 @@ namespace osu.Framework.Threading
 
         private void freeCoreAudio()
         {
-            if (coreAudioOutput != null)
-            {
-                coreAudioOutput.Dispose();
-                coreAudioOutput = null;
-            }
+            coreAudioOutput?.Dispose();
+            coreAudioOutput = null;
 
             if (globalMixerHandle.Value != null && RuntimeInfo.OS == RuntimeInfo.Platform.macOS)
             {
@@ -434,11 +431,8 @@ namespace osu.Framework.Threading
 
         private void freePipeWire()
         {
-            if (pipeWireOutput != null)
-            {
-                pipeWireOutput.Dispose();
-                pipeWireOutput = null;
-            }
+            pipeWireOutput?.Dispose();
+            pipeWireOutput = null;
 
             if (globalMixerHandle.Value != null && RuntimeInfo.OS == RuntimeInfo.Platform.Linux)
             {

@@ -20,8 +20,8 @@ namespace osu.Framework.Audio.NativeOutput
     /// </remarks>
     internal sealed class CoreAudioOutput : IDisposable
     {
-        private const string LIB_AUDIO_TOOLBOX = "/System/Library/Frameworks/AudioToolbox.framework/AudioToolbox";
-        private const string LIB_CORE_AUDIO = "/System/Library/Frameworks/CoreAudio.framework/CoreAudio";
+        private const string lib_audio_toolbox = "/System/Library/Frameworks/AudioToolbox.framework/AudioToolbox";
+        private const string lib_core_audio = "/System/Library/Frameworks/CoreAudio.framework/CoreAudio";
 
         #region Native Structs
 
@@ -87,24 +87,24 @@ namespace osu.Framework.Audio.NativeOutput
         #region Native Constants
 
         // AudioUnit component types
-        private const uint kAudioUnitType_Output = 0x61756F75; // 'auou'
-        private const uint kAudioUnitSubType_DefaultOutput = 0x64656620; // 'def '
-        private const uint kAudioUnitManufacturer_Apple = 0x6170706C; // 'appl'
+        private const uint k_audio_unit_type_output = 0x61756F75; // 'auou'
+        private const uint k_audio_unit_sub_type_default_output = 0x64656620; // 'def '
+        private const uint k_audio_unit_manufacturer_apple = 0x6170706C; // 'appl'
 
         // AudioUnit properties
-        private const uint kAudioUnitProperty_StreamFormat = 8;
-        private const uint kAudioUnitProperty_SetRenderCallback = 23;
-        private const uint kAudioDevicePropertyBufferFrameSize = 0x6673697A; // 'fsiz'
-        private const uint kAudioUnitScope_Input = 1;
+        private const uint k_audio_unit_property_stream_format = 8;
+        private const uint k_audio_unit_property_set_render_callback = 23;
+        private const uint k_audio_device_property_buffer_frame_size = 0x6673697A; // 'fsiz'
+        private const uint k_audio_unit_scope_input = 1;
 
         // CoreAudio HAL properties
-        private const uint kAudioHardwarePropertyDefaultOutputDevice = 0x646F7574; // 'dout'
-        private const uint kAudioObjectSystemObject = 1;
+        private const uint k_audio_hardware_property_default_output_device = 0x646F7574; // 'dout'
+        private const uint k_audio_object_system_object = 1;
 
         // Audio format flags
-        private const uint kAudioFormatLinearPCM = 0x6C70636D; // 'lpcm'
-        private const uint kAudioFormatFlagIsFloat = 1;
-        private const uint kAudioFormatFlagIsPacked = 8;
+        private const uint k_audio_format_linear_pcm = 0x6C70636D; // 'lpcm'
+        private const uint k_audio_format_flag_is_float = 1;
+        private const uint k_audio_format_flag_is_packed = 8;
 
         #endregion
 
@@ -126,28 +126,28 @@ namespace osu.Framework.Audio.NativeOutput
             public IntPtr InputProcRefCon;
         }
 
-        [DllImport(LIB_AUDIO_TOOLBOX)]
+        [DllImport(lib_audio_toolbox)]
         private static extern IntPtr AudioComponentFindNext(IntPtr inComponent, ref AudioComponentDescription inDesc);
 
-        [DllImport(LIB_AUDIO_TOOLBOX)]
+        [DllImport(lib_audio_toolbox)]
         private static extern int AudioComponentInstanceNew(IntPtr inComponent, out IntPtr outInstance);
 
-        [DllImport(LIB_AUDIO_TOOLBOX)]
+        [DllImport(lib_audio_toolbox)]
         private static extern int AudioComponentInstanceDispose(IntPtr inInstance);
 
-        [DllImport(LIB_AUDIO_TOOLBOX)]
+        [DllImport(lib_audio_toolbox)]
         private static extern int AudioUnitInitialize(IntPtr inUnit);
 
-        [DllImport(LIB_AUDIO_TOOLBOX)]
+        [DllImport(lib_audio_toolbox)]
         private static extern int AudioUnitUninitialize(IntPtr inUnit);
 
-        [DllImport(LIB_AUDIO_TOOLBOX)]
+        [DllImport(lib_audio_toolbox)]
         private static extern int AudioOutputUnitStart(IntPtr inUnit);
 
-        [DllImport(LIB_AUDIO_TOOLBOX)]
+        [DllImport(lib_audio_toolbox)]
         private static extern int AudioOutputUnitStop(IntPtr inUnit);
 
-        [DllImport(LIB_AUDIO_TOOLBOX)]
+        [DllImport(lib_audio_toolbox)]
         private static extern int AudioUnitSetProperty(
             IntPtr inUnit,
             uint inID,
@@ -156,7 +156,7 @@ namespace osu.Framework.Audio.NativeOutput
             ref AudioStreamBasicDescription inData,
             uint inDataSize);
 
-        [DllImport(LIB_AUDIO_TOOLBOX)]
+        [DllImport(lib_audio_toolbox)]
         private static extern int AudioUnitSetProperty(
             IntPtr inUnit,
             uint inID,
@@ -165,7 +165,7 @@ namespace osu.Framework.Audio.NativeOutput
             ref AURenderCallbackStruct inData,
             uint inDataSize);
 
-        [DllImport(LIB_CORE_AUDIO)]
+        [DllImport(lib_core_audio)]
         private static extern int AudioObjectGetPropertyData(
             uint inObjectID,
             ref AudioObjectPropertyAddress inAddress,
@@ -174,7 +174,7 @@ namespace osu.Framework.Audio.NativeOutput
             ref uint ioDataSize,
             out uint outData);
 
-        [DllImport(LIB_CORE_AUDIO)]
+        [DllImport(lib_core_audio)]
         private static extern int AudioObjectSetPropertyData(
             uint inObjectID,
             ref AudioObjectPropertyAddress inAddress,
@@ -191,22 +191,21 @@ namespace osu.Framework.Audio.NativeOutput
             public uint Element;
         }
 
-        private const uint kAudioObjectPropertyScopeGlobal = 0x676C6F62; // 'glob'
-        private const uint kAudioObjectPropertyElementMain = 0;
-        private const uint kAudioObjectPropertyScopeOutput = 0x6F757470; // 'outp'
+        private const uint k_audio_object_property_scope_global = 0x676C6F62; // 'glob'
+        private const uint k_audio_object_property_element_main = 0;
+        private const uint k_audio_object_property_scope_output = 0x6F757470; // 'outp'
 
         #endregion
 
         private IntPtr audioUnit;
         private AURenderCallback? renderCallbackDelegate;
         private readonly Func<int?> getMixerHandle;
-        private bool isRunning;
         private int sampleRate;
 
         /// <summary>
         /// Whether the native CoreAudio output is currently active and pulling audio.
         /// </summary>
-        public bool IsRunning => isRunning;
+        public bool IsRunning { get; private set; }
 
         /// <summary>
         /// Creates a new CoreAudio AudioUnit output bridge.
@@ -230,7 +229,7 @@ namespace osu.Framework.Audio.NativeOutput
         /// <returns>True if initialisation succeeded.</returns>
         public bool Start(int bufferFrames = 64, int requestedSampleRate = 48000)
         {
-            if (isRunning)
+            if (IsRunning)
                 return true;
 
             sampleRate = requestedSampleRate;
@@ -240,9 +239,9 @@ namespace osu.Framework.Audio.NativeOutput
                 // Find the default output AudioUnit component.
                 var desc = new AudioComponentDescription
                 {
-                    ComponentType = kAudioUnitType_Output,
-                    ComponentSubType = kAudioUnitSubType_DefaultOutput,
-                    ComponentManufacturer = kAudioUnitManufacturer_Apple,
+                    ComponentType = k_audio_unit_type_output,
+                    ComponentSubType = k_audio_unit_sub_type_default_output,
+                    ComponentManufacturer = k_audio_unit_manufacturer_apple,
                 };
 
                 IntPtr component = AudioComponentFindNext(IntPtr.Zero, ref desc);
@@ -268,8 +267,8 @@ namespace osu.Framework.Audio.NativeOutput
                 var streamFormat = new AudioStreamBasicDescription
                 {
                     SampleRate = sampleRate,
-                    FormatID = kAudioFormatLinearPCM,
-                    FormatFlags = kAudioFormatFlagIsFloat | kAudioFormatFlagIsPacked,
+                    FormatID = k_audio_format_linear_pcm,
+                    FormatFlags = k_audio_format_flag_is_float | k_audio_format_flag_is_packed,
                     BytesPerPacket = 8, // 2 channels * 4 bytes
                     FramesPerPacket = 1,
                     BytesPerFrame = 8,
@@ -279,8 +278,8 @@ namespace osu.Framework.Audio.NativeOutput
 
                 status = AudioUnitSetProperty(
                     audioUnit,
-                    kAudioUnitProperty_StreamFormat,
-                    kAudioUnitScope_Input,
+                    k_audio_unit_property_stream_format,
+                    k_audio_unit_scope_input,
                     0, // output element
                     ref streamFormat,
                     (uint)Marshal.SizeOf<AudioStreamBasicDescription>());
@@ -302,8 +301,8 @@ namespace osu.Framework.Audio.NativeOutput
 
                 status = AudioUnitSetProperty(
                     audioUnit,
-                    kAudioUnitProperty_SetRenderCallback,
-                    kAudioUnitScope_Input,
+                    k_audio_unit_property_set_render_callback,
+                    k_audio_unit_scope_input,
                     0,
                     ref callbackStruct,
                     (uint)Marshal.SizeOf<AURenderCallbackStruct>());
@@ -334,7 +333,7 @@ namespace osu.Framework.Audio.NativeOutput
                     return false;
                 }
 
-                isRunning = true;
+                IsRunning = true;
                 Logger.Log($"CoreAudio: Native AudioUnit output started (buffer={bufferFrames} frames, rate={sampleRate} Hz, latency\u2248{bufferFrames * 1000.0 / sampleRate:F1}ms).",
                     LoggingTarget.Runtime, LogLevel.Important);
                 return true;
@@ -355,13 +354,13 @@ namespace osu.Framework.Audio.NativeOutput
             // Get the default output device ID.
             var address = new AudioObjectPropertyAddress
             {
-                Selector = kAudioHardwarePropertyDefaultOutputDevice,
-                Scope = kAudioObjectPropertyScopeGlobal,
-                Element = kAudioObjectPropertyElementMain,
+                Selector = k_audio_hardware_property_default_output_device,
+                Scope = k_audio_object_property_scope_global,
+                Element = k_audio_object_property_element_main,
             };
 
             uint dataSize = sizeof(uint);
-            int status = AudioObjectGetPropertyData(kAudioObjectSystemObject, ref address, 0, IntPtr.Zero, ref dataSize, out uint deviceID);
+            int status = AudioObjectGetPropertyData(k_audio_object_system_object, ref address, 0, IntPtr.Zero, ref dataSize, out uint deviceID);
 
             if (status != 0)
             {
@@ -372,9 +371,9 @@ namespace osu.Framework.Audio.NativeOutput
             // Set the buffer frame size on the device.
             var bufferAddress = new AudioObjectPropertyAddress
             {
-                Selector = kAudioDevicePropertyBufferFrameSize,
-                Scope = kAudioObjectPropertyScopeOutput,
-                Element = kAudioObjectPropertyElementMain,
+                Selector = k_audio_device_property_buffer_frame_size,
+                Scope = k_audio_object_property_scope_output,
+                Element = k_audio_object_property_element_main,
             };
 
             uint bufferSize = (uint)frames;
@@ -440,10 +439,10 @@ namespace osu.Framework.Audio.NativeOutput
         /// </summary>
         public void Stop()
         {
-            if (!isRunning)
+            if (!IsRunning)
                 return;
 
-            isRunning = false;
+            IsRunning = false;
 
             if (audioUnit != IntPtr.Zero)
             {

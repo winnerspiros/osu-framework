@@ -27,7 +27,7 @@ namespace osu.Framework.Audio.NativeOutput
     /// </remarks>
     internal sealed class PipeWireOutput : IDisposable
     {
-        private const string LIB_PIPEWIRE = "libpipewire-0.3.so.0";
+        private const string lib_pipewire = "libpipewire-0.3.so.0";
 
         #region Native Structs
 
@@ -44,10 +44,10 @@ namespace osu.Framework.Audio.NativeOutput
         [StructLayout(LayoutKind.Sequential)]
         private struct pw_buffer
         {
-            public IntPtr buffer; // struct spa_buffer*
-            public IntPtr user_data;
-            public ulong size;
-            public ulong requested;
+            public IntPtr Buffer; // struct spa_buffer*
+            public IntPtr UserData;
+            public ulong Size;
+            public ulong Requested;
         }
 
         /// <summary>
@@ -56,10 +56,10 @@ namespace osu.Framework.Audio.NativeOutput
         [StructLayout(LayoutKind.Sequential)]
         private struct spa_buffer
         {
-            public uint n_metas;
-            public uint n_datas;
-            public IntPtr metas; // struct spa_meta*
-            public IntPtr datas; // struct spa_data*
+            public uint NMetas;
+            public uint NDatas;
+            public IntPtr Metas; // struct spa_meta*
+            public IntPtr Datas; // struct spa_data*
         }
 
         /// <summary>
@@ -68,91 +68,91 @@ namespace osu.Framework.Audio.NativeOutput
         [StructLayout(LayoutKind.Sequential)]
         private struct spa_data
         {
-            public uint type;
-            public uint flags;
-            public int fd;
-            public uint mapoffset;
-            public uint maxsize;
-            public IntPtr data;
-            public uint chunk_offset;
-            public uint chunk_size;
-            public int chunk_stride;
+            public uint Type;
+            public uint Flags;
+            public int Fd;
+            public uint Mapoffset;
+            public uint Maxsize;
+            public IntPtr Data;
+            public uint ChunkOffset;
+            public uint ChunkSize;
+            public int ChunkStride;
             // Note: actual struct has padding/additional fields but we only need through chunk.
         }
 
         [StructLayout(LayoutKind.Sequential)]
         private struct pw_stream_events
         {
-            public uint version;
-            public IntPtr destroy;
-            public IntPtr state_changed;
-            public IntPtr control_info;
-            public IntPtr io_changed;
-            public IntPtr param_changed;
-            public IntPtr add_buffer;
-            public IntPtr remove_buffer;
-            public IntPtr process;
-            public IntPtr drained;
-            public IntPtr command;
-            public IntPtr trigger_done;
+            public uint Version;
+            public IntPtr Destroy;
+            public IntPtr StateChanged;
+            public IntPtr ControlInfo;
+            public IntPtr IoChanged;
+            public IntPtr ParamChanged;
+            public IntPtr AddBuffer;
+            public IntPtr RemoveBuffer;
+            public IntPtr Process;
+            public IntPtr Drained;
+            public IntPtr Command;
+            public IntPtr TriggerDone;
         }
 
         #endregion
 
         #region Native Constants
 
-        private const uint PW_STREAM_EVENTS_VERSION = 2;
+        private const uint pw_stream_events_version = 2;
 
-        private const int PW_STREAM_FLAG_AUTOCONNECT = 1;
-        private const int PW_STREAM_FLAG_MAP_BUFFERS = 2;
-        private const int PW_STREAM_FLAG_RT_PROCESS = 16;
+        private const int pw_stream_flag_autoconnect = 1;
+        private const int pw_stream_flag_map_buffers = 2;
+        private const int pw_stream_flag_rt_process = 16;
 
-        private const int PW_DIRECTION_OUTPUT = 1;
+        private const int pw_direction_output = 1;
 
         // SPA audio format for F32LE (little-endian float)
-        private const int SPA_AUDIO_FORMAT_F32_LE = 6; // spa_audio_format enum value
+        private const int spa_audio_format_f32_le = 6; // spa_audio_format enum value
 
         // SPA param type for EnumFormat
-        private const uint SPA_PARAM_EnumFormat = 3;
+        private const uint spa_param_enum_format = 3;
 
         // SPA media type/subtype
-        private const uint SPA_MEDIA_TYPE_audio = 1;
-        private const uint SPA_MEDIA_SUBTYPE_raw = 1;
+        private const uint spa_media_type_audio = 1;
+        private const uint spa_media_subtype_raw = 1;
 
         #endregion
 
         #region Native Imports
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern void pw_init(ref int argc, ref IntPtr argv);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern void pw_deinit();
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern IntPtr pw_thread_loop_new(
             [MarshalAs(UnmanagedType.LPStr)] string name,
             IntPtr props);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern void pw_thread_loop_destroy(IntPtr loop);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern int pw_thread_loop_start(IntPtr loop);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern void pw_thread_loop_stop(IntPtr loop);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern void pw_thread_loop_lock(IntPtr loop);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern void pw_thread_loop_unlock(IntPtr loop);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern IntPtr pw_thread_loop_get_loop(IntPtr loop);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern IntPtr pw_stream_new_simple(
             IntPtr loop,
             [MarshalAs(UnmanagedType.LPStr)] string name,
@@ -160,10 +160,10 @@ namespace osu.Framework.Audio.NativeOutput
             ref pw_stream_events events,
             IntPtr data);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern void pw_stream_destroy(IntPtr stream);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern int pw_stream_connect(
             IntPtr stream,
             int direction,
@@ -172,16 +172,16 @@ namespace osu.Framework.Audio.NativeOutput
             IntPtr[] @params,
             uint n_params);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern int pw_stream_disconnect(IntPtr stream);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern IntPtr pw_stream_dequeue_buffer(IntPtr stream);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern int pw_stream_queue_buffer(IntPtr stream, IntPtr buffer);
 
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern IntPtr pw_properties_new(
             [MarshalAs(UnmanagedType.LPStr)] string key1,
             [MarshalAs(UnmanagedType.LPStr)] string val1,
@@ -191,7 +191,7 @@ namespace osu.Framework.Audio.NativeOutput
 
         // SPA pod builder for audio format negotiation.
         // We use a raw byte buffer approach since the SPA pod builder API is complex.
-        [DllImport(LIB_PIPEWIRE)]
+        [DllImport(lib_pipewire)]
         private static extern IntPtr pw_stream_get_state(IntPtr stream, out IntPtr error);
 
         #endregion
@@ -201,7 +201,6 @@ namespace osu.Framework.Audio.NativeOutput
         private pw_stream_events streamEvents;
         private ProcessDelegate? processDelegate;
         private readonly Func<int?> getMixerHandle;
-        private bool isRunning;
         private bool isInitialised;
         private int channels;
         private int sampleRate;
@@ -213,7 +212,7 @@ namespace osu.Framework.Audio.NativeOutput
         /// <summary>
         /// Whether the native PipeWire output is currently active and pulling audio.
         /// </summary>
-        public bool IsRunning => isRunning;
+        public bool IsRunning { get; private set; }
 
         /// <summary>
         /// Creates a new PipeWire pw_stream output bridge.
@@ -238,7 +237,7 @@ namespace osu.Framework.Audio.NativeOutput
         /// <returns>True if initialisation succeeded.</returns>
         public bool Start(int requestedBufferFrames = 48, int requestedSampleRate = 48000, int requestedChannels = 2)
         {
-            if (isRunning)
+            if (IsRunning)
                 return true;
 
             channels = requestedChannels;
@@ -269,8 +268,8 @@ namespace osu.Framework.Audio.NativeOutput
                 processDelegate = onProcess;
                 streamEvents = new pw_stream_events
                 {
-                    version = PW_STREAM_EVENTS_VERSION,
-                    process = Marshal.GetFunctionPointerForDelegate(processDelegate),
+                    Version = pw_stream_events_version,
+                    Process = Marshal.GetFunctionPointerForDelegate(processDelegate),
                 };
 
                 // Create stream properties requesting low latency quantum.
@@ -305,11 +304,11 @@ namespace osu.Framework.Audio.NativeOutput
                 }
 
                 // Connect the stream.
-                int flags = PW_STREAM_FLAG_AUTOCONNECT | PW_STREAM_FLAG_MAP_BUFFERS | PW_STREAM_FLAG_RT_PROCESS;
+                int flags = pw_stream_flag_autoconnect | pw_stream_flag_map_buffers | pw_stream_flag_rt_process;
 
                 int result = pw_stream_connect(
                     stream,
-                    PW_DIRECTION_OUTPUT,
+                    pw_direction_output,
                     uint.MaxValue, // PW_ID_ANY
                     flags,
                     new[] { formatPod },
@@ -335,7 +334,7 @@ namespace osu.Framework.Audio.NativeOutput
                     return false;
                 }
 
-                isRunning = true;
+                IsRunning = true;
                 double latencyMs = bufferFrames * 1000.0 / sampleRate;
                 Logger.Log($"PipeWire: Native pw_stream output started (buffer={bufferFrames} frames, rate={sampleRate} Hz, channels={channels}, latency\u2248{latencyMs:F2}ms).",
                     LoggingTarget.Runtime, LogLevel.Important);
@@ -380,7 +379,7 @@ namespace osu.Framework.Audio.NativeOutput
 
             // The SPA pod binary format for an audio format object:
             // Object header (8 bytes): size, type=SPA_TYPE_OBJECT_Format
-            // Object body header (8 bytes): type=SPA_PARAM_EnumFormat, id=0
+            // Object body header (8 bytes): type=spa_param_enum_format, id=0
             // Properties: mediaType, mediaSubtype, format, rate, channels
 
             // Approximate sizes for the pod properties we need.
@@ -440,24 +439,24 @@ namespace osu.Framework.Audio.NativeOutput
                 var buf = Marshal.PtrToStructure<pw_buffer>(pwBuf);
 
                 // Access the spa_buffer.
-                var spaBuf = Marshal.PtrToStructure<spa_buffer>(buf.buffer);
+                var spaBuf = Marshal.PtrToStructure<spa_buffer>(buf.Buffer);
 
-                if (spaBuf.n_datas == 0 || spaBuf.datas == IntPtr.Zero)
+                if (spaBuf.NDatas == 0 || spaBuf.Datas == IntPtr.Zero)
                     return;
 
                 // Read the first spa_data (interleaved audio).
-                var spaData = Marshal.PtrToStructure<spa_data>(spaBuf.datas);
+                var spaData = Marshal.PtrToStructure<spa_data>(spaBuf.Datas);
 
-                if (spaData.data == IntPtr.Zero || spaData.maxsize == 0)
+                if (spaData.Data == IntPtr.Zero || spaData.Maxsize == 0)
                     return;
 
                 int bytesPerFrame = channels * 4; // float32 per channel
-                int maxFrames = (int)(spaData.maxsize / (uint)bytesPerFrame);
+                int maxFrames = (int)(spaData.Maxsize / (uint)bytesPerFrame);
                 int framesToFill = Math.Min(maxFrames, bufferFrames);
 
                 // If the stream told us how many frames it wants, respect that.
-                if (buf.requested > 0)
-                    framesToFill = Math.Min((int)buf.requested, maxFrames);
+                if (buf.Requested > 0)
+                    framesToFill = Math.Min((int)buf.Requested, maxFrames);
 
                 int bytesNeeded = framesToFill * bytesPerFrame;
 
@@ -468,13 +467,13 @@ namespace osu.Framework.Audio.NativeOutput
                     // No mixer available — output silence.
                     unsafe
                     {
-                        new Span<byte>((void*)spaData.data, bytesNeeded).Clear();
+                        new Span<byte>((void*)spaData.Data, bytesNeeded).Clear();
                     }
                 }
                 else
                 {
                     // Pull data from the BASS mixer.
-                    int bytesRead = Bass.ChannelGetData(mixerHandle.Value, spaData.data, bytesNeeded | (int)DataFlags.Float);
+                    int bytesRead = Bass.ChannelGetData(mixerHandle.Value, spaData.Data, bytesNeeded | (int)DataFlags.Float);
 
                     if (bytesRead < 0)
                         bytesRead = 0;
@@ -484,7 +483,7 @@ namespace osu.Framework.Audio.NativeOutput
                     {
                         unsafe
                         {
-                            byte* ptr = (byte*)spaData.data + bytesRead;
+                            byte* ptr = (byte*)spaData.Data + bytesRead;
                             new Span<byte>(ptr, bytesNeeded - bytesRead).Clear();
                         }
                     }
@@ -496,7 +495,7 @@ namespace osu.Framework.Audio.NativeOutput
                 {
                     // spa_data.chunk_offset is at offset 20 in the struct, chunk_size at offset 24.
                     // Since spa_data layout: type(4) + flags(4) + fd(4) + mapoffset(4) + maxsize(4) + data(8) + chunk_offset(4) + chunk_size(4) + chunk_stride(4)
-                    byte* dataPtr = (byte*)spaBuf.datas;
+                    byte* dataPtr = (byte*)spaBuf.Datas;
                     // Offset to chunk_offset: 4+4+4+4+4+8 = 28 (on 64-bit, pointer is 8 bytes)
                     // Actually let's compute based on Marshal.OffsetOf equivalent:
                     // type=4, flags=4, fd=4, mapoffset=4, maxsize=4, data=IntPtr(8 on 64-bit)=8, chunk_offset=4, chunk_size=4
@@ -518,10 +517,10 @@ namespace osu.Framework.Audio.NativeOutput
         /// </summary>
         public void Stop()
         {
-            if (!isRunning && !isInitialised)
+            if (!IsRunning && !isInitialised)
                 return;
 
-            isRunning = false;
+            IsRunning = false;
 
             if (threadLoop != IntPtr.Zero)
             {

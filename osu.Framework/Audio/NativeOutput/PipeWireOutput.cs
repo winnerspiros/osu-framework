@@ -385,11 +385,11 @@ namespace osu.Framework.Audio.NativeOutput
             const int object_body_header_size = 8; // type + id
             const int num_props = 5; // mediaType, mediaSubtype, format, rate, channels
 
-            const int totalSize = object_header_size + object_body_header_size + (num_props * prop_size);
+            const int total_size = object_header_size + object_body_header_size + (num_props * prop_size);
 
             // Allocate and zero-fill.
-            IntPtr pod = Marshal.AllocHGlobal(totalSize);
-            new Span<byte>((void*)pod, totalSize).Clear();
+            IntPtr pod = Marshal.AllocHGlobal(total_size);
+            new Span<byte>((void*)pod, total_size).Clear();
 
             // For now, pass a null pointer and let PipeWire negotiate the format.
             // PipeWire will default to F32LE stereo at the system sample rate when no
@@ -406,7 +406,7 @@ namespace osu.Framework.Audio.NativeOutput
             byte* p = (byte*)pod;
 
             // spa_pod header
-            *(uint*)p = (uint)(totalSize - 8); // size (body size, excluding header)
+            *(uint*)p = (uint)(total_size - 8); // size (body size, excluding header)
             *(uint*)(p + 4) = (4 << 24) | 2; // type = SPA_TYPE_OBJECT (4) | Format subtype marker
 
             // For simplicity and reliability, we'll return IntPtr.Zero and pass n_params=0

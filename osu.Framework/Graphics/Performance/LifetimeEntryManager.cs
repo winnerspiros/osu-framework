@@ -61,6 +61,11 @@ namespace osu.Framework.Graphics.Performance
             new Queue<(LifetimeEntry, LifetimeBoundaryKind, LifetimeBoundaryCrossingDirection)>();
 
         /// <summary>
+        /// Cached predicate to avoid delegate allocation on every frame in <see cref="Update(double)"/>.
+        /// </summary>
+        private static readonly Predicate<LifetimeEntry> is_not_current = e => e.State != LifetimeEntryState.Current;
+
+        /// <summary>
         /// Used to ensure a stable sort if multiple entries with the same lifetime are added.
         /// </summary>
         private ulong currentChildId;
@@ -261,8 +266,8 @@ namespace osu.Framework.Graphics.Performance
                 aliveChildrenChanged |= updateChildEntry(entry, startTime, endTime, false, false);
             }
 
-            // Remove all newly-dead entries.
-            activeEntries.RemoveAll(e => e.State != LifetimeEntryState.Current);
+            // Remove all newly-dead entries using a cached predicate to avoid per-frame delegate allocation.
+            activeEntries.RemoveAll(is_not_current);
 
             while (eventQueue.Count != 0)
             {

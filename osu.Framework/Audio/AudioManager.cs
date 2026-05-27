@@ -574,6 +574,19 @@ namespace osu.Framework.Audio
             string backend = detectLinuxAudioBackend();
             Logger.Log($"Linux audio backend detected: {backend}", LoggingTarget.Runtime, LogLevel.Important);
 
+            // Set PIPEWIRE_LATENCY environment variable before BASS init to hint PipeWire
+            // to use smaller buffer quanta. PipeWire's ALSA compatibility layer reads this
+            // to configure the quantum for our client. Format: "samples/rate".
+            // This must be set before Bass.Init() is called to take effect.
+            if (backend == "pipewire" && mode != AudioLatencyMode.Standard)
+            {
+                int samples = mode == AudioLatencyMode.Minimal ? 64 : 128;
+                string latencyHint = $"{samples}/48000";
+
+                Environment.SetEnvironmentVariable("PIPEWIRE_LATENCY", latencyHint);
+                Logger.Log($"Set PIPEWIRE_LATENCY={latencyHint} for low-latency PipeWire quantum", LoggingTarget.Runtime, LogLevel.Important);
+            }
+
             switch (mode)
             {
                 case AudioLatencyMode.Minimal:

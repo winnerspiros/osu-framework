@@ -406,7 +406,7 @@ namespace osu.Framework.Audio.NativeOutput
             byte* p = (byte*)pod;
 
             // spa_pod header
-            *(uint*)p = (uint)(total_size - 8); // size (body size, excluding header)
+            *(uint*)p = total_size - 8; // size (body size, excluding header)
             *(uint*)(p + 4) = (4 << 24) | 2; // type = SPA_TYPE_OBJECT (4) | Format subtype marker
 
             // For simplicity and reliability, we'll return IntPtr.Zero and pass n_params=0

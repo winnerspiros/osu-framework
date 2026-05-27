@@ -564,15 +564,27 @@ namespace osu.Framework.Audio
 
         /// <summary>
         /// Linux audio latency configuration.
-        /// BASS on Linux uses ALSA/PulseAudio/PipeWire depending on system configuration.
-        /// PipeWire is the modern low-latency audio server that replaces both PulseAudio and JACK.
-        /// Lower DevicePeriod values request smaller buffers from the audio daemon.
+        /// In Minimal/LowLatency modes with PipeWire detected, attempts to use the native pw_stream
+        /// bridge for sub-1ms latency. Falls back to BASS with tuned buffers if native bridge fails.
         /// </summary>
         private void configureLinuxLatency(AudioLatencyMode mode)
         {
             // Detect the active audio backend for logging and optimal configuration.
             string backend = detectLinuxAudioBackend();
             Logger.Log($"Linux audio backend detected: {backend}", LoggingTarget.Runtime, LogLevel.Important);
+
+            // Attempt native PipeWire bridge for lowest latency when PipeWire is available.
+            if (backend == "pipewire" && mode != AudioLatencyMode.Standard)
+            {
+                int bufferFrames = mode == AudioLatencyMode.Minimal ? 48 : 96;
+                thread.PipeWireBufferFrames = bufferFrames;
+
+                if (thread.AttemptPipeWireInitialisation())
+                    return; // Native bridge active — no need for BASS device config.
+
+                // Native bridge failed; fall through to BASS-based configuration.
+                Logger.Log("PipeWire native bridge unavailable, falling back to BASS with PipeWire ALSA compat layer.", LoggingTarget.Runtime, LogLevel.Important);
+            }
 
             // Set PIPEWIRE_LATENCY environment variable before BASS init to hint PipeWire
             // to use smaller buffer quanta. PipeWire's ALSA compatibility layer reads this
@@ -649,17 +661,22 @@ namespace osu.Framework.Audio
 
         /// <summary>
         /// macOS audio latency configuration using CoreAudio.
-        /// BASS on macOS uses CoreAudio's AudioUnit API. DevicePeriod controls the preferred
-        /// I/O buffer duration request sent to the HAL (Hardware Abstraction Layer).
-        /// CoreAudio honours the nearest power-of-two frame count that the hardware supports.
+        /// In Minimal/LowLatency modes, attempts to use the native AudioUnit bridge for sub-2ms latency.
+        /// Falls back to BASS with tuned DevicePeriod if native bridge fails.
         /// </summary>
         private void configureMacOSLatency(AudioLatencyMode mode)
         {
             switch (mode)
             {
                 case AudioLatencyMode.Minimal:
-                    // Aggressive: ~128 samples (~2.7 ms at 48 kHz) — requests minimum HAL buffer.
-                    // CoreAudio will round up to nearest hardware-supported value (typically 128 or 256).
+                    // Try native CoreAudio AudioUnit bridge for sub-2ms latency.
+                    // 64 frames at 48kHz = ~1.3ms output latency.
+                    thread.CoreAudioBufferFrames = 64;
+
+                    if (thread.AttemptCoreAudioInitialisation())
+                        return; // Native bridge active — no need for BASS device config.
+
+                    // Fallback: BASS with aggressive CoreAudio HAL buffer.
                     Bass.Configure(ManagedBass.Configuration.DevicePeriod, -128);
                     Bass.DeviceBufferLength = 1;
                     Bass.PlaybackBufferLength = 10;
@@ -667,7 +684,14 @@ namespace osu.Framework.Audio
                     break;
 
                 case AudioLatencyMode.LowLatency:
-                    // Low-latency: ~256 samples (~5.3 ms at 48 kHz) — good balance.
+                    // Try native CoreAudio AudioUnit bridge with slightly larger buffer.
+                    // 128 frames at 48kHz = ~2.7ms output latency.
+                    thread.CoreAudioBufferFrames = 128;
+
+                    if (thread.AttemptCoreAudioInitialisation())
+                        return; // Native bridge active.
+
+                    // Fallback: BASS with reduced HAL buffer.
                     Bass.Configure(ManagedBass.Configuration.DevicePeriod, -256);
                     Bass.DeviceBufferLength = 3;
                     Bass.PlaybackBufferLength = 15;

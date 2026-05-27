@@ -522,7 +522,12 @@ namespace osu.Framework.Platform
             if (Window.WindowState == WindowState.Minimised)
                 return;
 
-            Renderer.AllowTearing = windowMode.Value == WindowMode.Fullscreen;
+            // Only apply AllowTearing once the renderer has fully initialised.
+            // On Android, windowMode is always Fullscreen which means AllowTearing = true.
+            // Setting this before the first frame completes triggers an immediate swapchain
+            // recreation in Veldrid while texture uploads are still in flight.
+            if (Renderer.IsInitialised)
+                Renderer.AllowTearing = windowMode.Value == WindowMode.Fullscreen;
 
             TripleBuffer<DrawBufferData>.Buffer buffer;
 

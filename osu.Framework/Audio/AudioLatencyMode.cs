@@ -35,8 +35,8 @@ namespace osu.Framework.Audio
         /// <remarks>
         /// <list type="bullet">
         /// <item><b>Windows:</b> WASAPI shared mode (event-driven, ~3–5 ms)</item>
-        /// <item><b>Linux:</b> PipeWire or JACK via BASS (reduced buffer, ~5–10 ms)</item>
-        /// <item><b>macOS:</b> CoreAudio with minimised I/O buffer duration (~3–5 ms)</item>
+        /// <item><b>Linux:</b> Native PipeWire pw_stream (~1–2 ms) or PipeWire/JACK via BASS (~5–10 ms)</item>
+        /// <item><b>macOS:</b> Native CoreAudio AudioUnit (~2.7 ms) or CoreAudio via BASS (~3–5 ms)</item>
         /// <item><b>Android:</b> AAudio in low-latency performance mode (~10 ms via BASS_CONFIG_DEV_PERIOD=-256)</item>
         /// <item><b>iOS:</b> CoreAudio with reduced I/O buffer duration (~3–5 ms via BASS_CONFIG_DEV_PERIOD)</item>
         /// </list>
@@ -51,8 +51,8 @@ namespace osu.Framework.Audio
         /// <remarks>
         /// <list type="bullet">
         /// <item><b>Windows:</b> WASAPI exclusive mode (if supported) or shared with minimal period</item>
-        /// <item><b>Linux:</b> JACK/PipeWire with smallest buffer quantum (~64–128 samples)</item>
-        /// <item><b>macOS:</b> CoreAudio with minimum HAL buffer (~1–2 ms)</item>
+        /// <item><b>Linux:</b> Native PipeWire pw_stream (~0.5–1 ms) or JACK/PipeWire via BASS (~64–128 samples)</item>
+        /// <item><b>macOS:</b> Native CoreAudio AudioUnit (~1.3 ms) or CoreAudio via BASS with minimum HAL buffer</item>
         /// <item><b>Android:</b> AAudio with AAUDIO_PERFORMANCE_MODE_LOW_LATENCY (-128 samples)</item>
         /// <item><b>iOS:</b> CoreAudio with 128-sample I/O buffer (~2.7 ms at 48 kHz)</item>
         /// </list>

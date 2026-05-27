@@ -275,14 +275,18 @@ namespace osu.Framework.Graphics.Rendering
 
             // On mobile, process all pending expensive operations (primarily shader compilations)
             // upfront to avoid per-frame stalls when shaders are first used.
-            // On desktop, only process one per frame to spread CPU cost and avoid frame drops.
+            // On desktop, use a time budget to process multiple operations per frame without causing
+            // frame drops. This improves cold-start times compared to the old 1-per-frame limit.
+            long expensiveOpBudgetTicks = RuntimeInfo.IsMobile ? long.MaxValue : (long)(2.0 * Stopwatch.Frequency / 1000.0); // 2ms budget on desktop
+            long expensiveOpStart = Stopwatch.GetTimestamp();
+
             while (expensiveOperationQueue.TryDequeue(out ScheduledDelegate? operation))
             {
                 if (operation.State == ScheduledDelegate.RunState.Waiting)
                 {
                     operation.RunTask();
 
-                    if (!RuntimeInfo.IsMobile)
+                    if (!RuntimeInfo.IsMobile && (Stopwatch.GetTimestamp() - expensiveOpStart) >= expensiveOpBudgetTicks)
                         break;
                 }
             }

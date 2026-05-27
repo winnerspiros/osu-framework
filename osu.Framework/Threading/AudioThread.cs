@@ -10,6 +10,7 @@ using ManagedBass;
 using ManagedBass.Mix;
 using ManagedBass.Wasapi;
 using osu.Framework.Audio;
+using osu.Framework.Audio.NativeOutput;
 using osu.Framework.Bindables;
 using osu.Framework.Development;
 using osu.Framework.Logging;
@@ -192,6 +193,8 @@ namespace osu.Framework.Threading
             }
 
             freeWasapi();
+            freeCoreAudio();
+            freePipeWire();
 
             if (selectedDevice != deviceId && canSelectDevice(selectedDevice))
                 Bass.CurrentDevice = selectedDevice;
@@ -318,6 +321,124 @@ namespace osu.Framework.Threading
             BassWasapi.Stop();
             BassWasapi.Free();
             globalMixerHandle.Value = null;
+        }
+
+        #endregion
+
+        #region Native CoreAudio (macOS)
+
+        private CoreAudioOutput? coreAudioOutput;
+
+        /// <summary>
+        /// Preferred buffer frame size for native CoreAudio output.
+        /// Set by <see cref="AudioManager"/> based on <see cref="AudioLatencyMode"/>.
+        /// </summary>
+        internal int CoreAudioBufferFrames { get; set; } = 64;
+
+        /// <summary>
+        /// Attempts to initialise native CoreAudio AudioUnit output on macOS.
+        /// This bypasses BASS's device output for sub-2ms latency.
+        /// </summary>
+        /// <returns>True if native CoreAudio output was successfully started.</returns>
+        internal bool AttemptCoreAudioInitialisation()
+        {
+            if (RuntimeInfo.OS != RuntimeInfo.Platform.macOS)
+                return false;
+
+            freeCoreAudio();
+
+            // Create the global mixer that all game mixers will feed into (decode-only mode).
+            globalMixerHandle.Value = BassMix.CreateMixerStream(48000, 2, BassFlags.MixerNonStop | BassFlags.Decode | BassFlags.Float);
+
+            if (globalMixerHandle.Value == null || globalMixerHandle.Value == 0)
+            {
+                Logger.Log("CoreAudio: Failed to create global BASS mixer.", LoggingTarget.Runtime, LogLevel.Error);
+                globalMixerHandle.Value = null;
+                return false;
+            }
+
+            coreAudioOutput = new CoreAudioOutput(() => globalMixerHandle.Value);
+
+            if (!coreAudioOutput.Start(CoreAudioBufferFrames))
+            {
+                Logger.Log("CoreAudio: Native output failed to start, falling back to BASS device output.", LoggingTarget.Runtime, LogLevel.Important);
+                freeCoreAudio();
+                return false;
+            }
+
+            Logger.Log("CoreAudio: Native AudioUnit bridge active — bypassing BASS device output.", LoggingTarget.Runtime, LogLevel.Important);
+            return true;
+        }
+
+        private void freeCoreAudio()
+        {
+            coreAudioOutput?.Dispose();
+            coreAudioOutput = null;
+
+            if (globalMixerHandle.Value != null && RuntimeInfo.OS == RuntimeInfo.Platform.macOS)
+            {
+                Bass.StreamFree(globalMixerHandle.Value.Value);
+                globalMixerHandle.Value = null;
+            }
+        }
+
+        #endregion
+
+        #region Native PipeWire (Linux)
+
+        private PipeWireOutput? pipeWireOutput;
+
+        /// <summary>
+        /// Preferred buffer frame size for native PipeWire output.
+        /// Set by <see cref="AudioManager"/> based on <see cref="AudioLatencyMode"/>.
+        /// </summary>
+        internal int PipeWireBufferFrames { get; set; } = 48;
+
+        /// <summary>
+        /// Attempts to initialise native PipeWire pw_stream output on Linux.
+        /// This bypasses BASS's device output for sub-1ms latency.
+        /// </summary>
+        /// <returns>True if native PipeWire output was successfully started.</returns>
+        internal bool AttemptPipeWireInitialisation()
+        {
+            if (RuntimeInfo.OS != RuntimeInfo.Platform.Linux)
+                return false;
+
+            freePipeWire();
+
+            // Create the global mixer that all game mixers will feed into (decode-only mode).
+            globalMixerHandle.Value = BassMix.CreateMixerStream(48000, 2, BassFlags.MixerNonStop | BassFlags.Decode | BassFlags.Float);
+
+            if (globalMixerHandle.Value == null || globalMixerHandle.Value == 0)
+            {
+                Logger.Log("PipeWire: Failed to create global BASS mixer.", LoggingTarget.Runtime, LogLevel.Error);
+                globalMixerHandle.Value = null;
+                return false;
+            }
+
+            pipeWireOutput = new PipeWireOutput(() => globalMixerHandle.Value);
+
+            if (!pipeWireOutput.Start(PipeWireBufferFrames))
+            {
+                Logger.Log("PipeWire: Native output failed to start, falling back to BASS device output.", LoggingTarget.Runtime, LogLevel.Important);
+                freePipeWire();
+                return false;
+            }
+
+            Logger.Log("PipeWire: Native pw_stream bridge active — bypassing BASS device output.", LoggingTarget.Runtime, LogLevel.Important);
+            return true;
+        }
+
+        private void freePipeWire()
+        {
+            pipeWireOutput?.Dispose();
+            pipeWireOutput = null;
+
+            if (globalMixerHandle.Value != null && RuntimeInfo.OS == RuntimeInfo.Platform.Linux)
+            {
+                Bass.StreamFree(globalMixerHandle.Value.Value);
+                globalMixerHandle.Value = null;
+            }
         }
 
         #endregion

@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using osu.Framework.Audio;
 using osu.Framework.Configuration.Tracking;
 using osu.Framework.Extensions;
 using osu.Framework.Graphics.Rendering.LowLatency;
@@ -33,6 +34,7 @@ namespace osu.Framework.Configuration
             SetDefault(FrameworkSetting.LastDisplayDevice, DisplayIndex.Default);
             SetDefault(FrameworkSetting.AudioDevice, string.Empty);
             SetDefault(FrameworkSetting.AudioUseExperimentalWasapi, false);
+            SetDefault(FrameworkSetting.AudioLatencyMode, AudioLatencyMode.Standard);
             SetDefault(FrameworkSetting.VolumeUniversal, 1.0, 0.0, 1.0, 0.01);
             SetDefault(FrameworkSetting.VolumeMusic, 1.0, 0.0, 1.0, 0.01);
             SetDefault(FrameworkSetting.VolumeEffect, 1.0, 0.0, 1.0, 0.01);
@@ -83,6 +85,7 @@ namespace osu.Framework.Configuration
 
         AudioDevice,
         AudioUseExperimentalWasapi,
+        AudioLatencyMode,
         VolumeUniversal,
         VolumeEffect,
         VolumeMusic,
